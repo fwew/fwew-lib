@@ -12,8 +12,8 @@
 //	You should have received a copy of the GNU General Public License
 //	along with Fwew.  If not, see http://gnu.org/licenses/
 
-// Package main contains all the things. numbers.go contains all the stuff for the number parsing
-package main
+// Package fwew_lib contains all the things. numbers.go contains all the stuff for the number parsing
+package fwew_lib
 
 import (
 	"fmt"

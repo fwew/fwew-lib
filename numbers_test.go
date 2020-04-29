@@ -12,8 +12,8 @@
 //	You should have received a copy of the GNU General Public License
 //	along with Fwew.  If not, see http://gnu.org/licenses/
 
-// Package main contains all the things. affixes_test.go tests numbers.go functions.
-package main
+// Package fwew_lib contains all the things. numbers_test.go tests numbers.go functions.
+package fwew_lib
 
 import "testing"
 

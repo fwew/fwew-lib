@@ -13,7 +13,7 @@
 //	along with Fwew.  If not, see http://gnu.org/licenses/
 
 // Package main contains all the things. affixes.go handles affix parsing of input.
-package main
+package fwew_lib
 
 import (
 	"fmt"

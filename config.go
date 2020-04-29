@@ -13,7 +13,7 @@
 //	along with Fwew.  If not, see http://gnu.org/licenses/
 
 // Package main contains all the things. config.go handles... the configuration file stuff. Probably.
-package main
+package fwew_lib
 
 import (
 	"encoding/json"

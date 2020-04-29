@@ -13,7 +13,7 @@
 //	along with Fwew.  If not, see http://gnu.org/licenses/
 
 // Package main contains all the things. affixes_test.go -- you guess it -- tests affixes.go functions.
-package main
+package fwew_lib
 
 import (
 	"flag"

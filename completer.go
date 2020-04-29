@@ -13,7 +13,7 @@
 //	along with Fwew.  If not, see http://gnu.org/licenses/
 
 // Package main contains all the things. completer.go contains the ingredients for prompt completion.
-package main
+package fwew_lib
 
 import (
 	"fmt"
