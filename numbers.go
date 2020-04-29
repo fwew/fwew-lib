@@ -36,127 +36,199 @@ var naviVocab = [][]string{
 }
 
 // "word number portion": octal value
-var numTable = map[string]int{
-	"kizazam":  070000,
-	"kizaza":   070000,
-	"puzazam":  060000,
-	"puzaza":   060000,
-	"mrrzazam": 050000,
-	"mrrzaza":  050000,
-	"rrzazam":  050000,
-	"rrzaza":   050000,
-	"tsìzazam": 040000,
-	"tsìzaza":  040000,
-	"pxezazam": 030000,
-	"pxezaza":  030000,
-	"mezazam":  020000,
-	"mezaza":   020000,
-	"ezazam":   020000,
-	"ezaza":    020000,
-	"zazam":    010000,
-	"zaza":     010000,
-	"kivozam":  07000,
-	"kivoza":   07000,
-	"puvozam":  06000,
-	"puvoza":   06000,
-	"mrrvozam": 05000,
-	"mrrvoza":  05000,
-	"rrvozam":  05000,
-	"rrvoza":   05000,
-	"tsìvozam": 04000,
-	"tsìvoza":  04000,
-	"pxevozam": 03000,
-	"pxevoza":  03000,
-	"mevozam":  02000,
-	"mevoza":   02000,
-	"evozam":   02000,
-	"evoza":    02000,
-	"vozam":    01000,
-	"voza":     01000,
-	"kizam":    0700,
-	"kiza":     0700,
-	"puzam":    0600,
-	"puza":     0600,
-	"mrrzam":   0500,
-	"mrrza":    0500,
-	"rrzam":    0500,
-	"rrza":     0500,
-	"tsìzam":   0400,
-	"tsìza":    0400,
-	"pxezam":   0300,
-	"pxeza":    0300,
-	"mezam":    0200,
-	"meza":     0200,
-	"ezam":     0200,
-	"eza":      0200,
-	"zam":      0100,
-	"za":       0100,
-	"kivol":    070,
-	"kivo":     070,
-	"puvol":    060,
-	"puvo":     060,
-	"mrrvol":   050,
-	"mrrvo":    050,
-	"rrvol":    050,
-	"rrvo":     050,
-	"tsìvol":   040,
-	"tsìvo":    040,
-	"pxevol":   030,
-	"pxevo":    030,
-	"mevol":    020,
-	"mevo":     020,
-	"evol":     020,
-	"evo":      020,
-	"vol":      010,
-	"vo":       010,
-	"hin":      07,
-	"fu":       06,
-	"mrr":      05,
-	"rr":       05,
-	"sìng":     04,
-	"pey":      03,
-	"mun":      02,
-	"un":       02,
-	"aw":       01,
+// the upper array is the digit.
+var numTable = []map[string]int{
+	{
+		"kizazam":  0o70000,
+		"kizaza":   0o70000,
+		"puzazam":  0o60000,
+		"puzaza":   0o60000,
+		"mrrzazam": 0o50000,
+		"mrrzaza":  0o50000,
+		"rrzazam":  0o50000,
+		"rrzaza":   0o50000,
+		"tsìzazam": 0o40000,
+		"tsìzaza":  0o40000,
+		"pxezazam": 0o30000,
+		"pxezaza":  0o30000,
+		"mezazam":  0o20000,
+		"mezaza":   0o20000,
+		"ezazam":   0o20000,
+		"ezaza":    0o20000,
+		"zazam":    0o10000,
+		"zaza":     0o10000,
+	},
+	{
+		"kivozam":  0o7000,
+		"kivoza":   0o7000,
+		"puvozam":  0o6000,
+		"puvoza":   0o6000,
+		"mrrvozam": 0o5000,
+		"mrrvoza":  0o5000,
+		"rrvozam":  0o5000,
+		"rrvoza":   0o5000,
+		"tsìvozam": 0o4000,
+		"tsìvoza":  0o4000,
+		"pxevozam": 0o3000,
+		"pxevoza":  0o3000,
+		"mevozam":  0o2000,
+		"mevoza":   0o2000,
+		"evozam":   0o2000,
+		"evoza":    0o2000,
+		"vozam":    0o1000,
+		"voza":     0o1000,
+	},
+	{
+		"kizam":  0o700,
+		"kiza":   0o700,
+		"puzam":  0o600,
+		"puza":   0o600,
+		"mrrzam": 0o500,
+		"mrrza":  0o500,
+		"rrzam":  0o500,
+		"rrza":   0o500,
+		"tsìzam": 0o400,
+		"tsìza":  0o400,
+		"pxezam": 0o300,
+		"pxeza":  0o300,
+		"mezam":  0o200,
+		"meza":   0o200,
+		"ezam":   0o200,
+		"eza":    0o200,
+		"zam":    0o100,
+		"za":     0o100,
+	},
+	{
+		"kivol":  0o70,
+		"kivo":   0o70,
+		"puvol":  0o60,
+		"puvo":   0o60,
+		"mrrvol": 0o50,
+		"mrrvo":  0o50,
+		"rrvol":  0o50,
+		"rrvo":   0o50,
+		"tsìvol": 0o40,
+		"tsìvo":  0o40,
+		"pxevol": 0o30,
+		"pxevo":  0o30,
+		"mevol":  0o20,
+		"mevo":   0o20,
+		"evol":   0o20,
+		"evo":    0o20,
+		"vol":    0o10,
+		"vo":     0o10,
+	},
+	{
+		"hin":  0o7,
+		"fu":   0o6,
+		"mrr":  0o5,
+		"rr":   0o5,
+		"sìng": 0o4,
+		"pey":  0o3,
+		"mun":  0o2,
+		"un":   0o2,
+		"aw":   0o1,
+	},
 }
 
-func unwordify(input string) string {
-	var (
-		matchNumbers []string
-		re           *regexp.Regexp
-		reString     string
-		s            string
-		n            int
-	)
-	s = strings.ToLower(input)
+// The regex values for the different values.
+// The upper array is the digit.
+var numTableRegexp = [][]string{
+	{
+		"kizazam?",
+		"puzazam?",
+		"m?rrzazam?",
+		"tsìzazam?",
+		"pxezazam?",
+		"m?ezazam?",
+		"zazam?",
+	},
+	{
+		"kivozam?",
+		"puvozam?",
+		"m?rrvozam?",
+		"tsìvozam?",
+		"pxevozam?",
+		"m?evozam?",
+		"vozam?",
+	},
+	{
+		"kizam?",
+		"puzam?",
+		"m?rrzam?",
+		"tsìzam?",
+		"pxezam?",
+		"m?ezam?",
+		"zam?",
+	},
+	{
+		"kivol?",
+		"puvol?",
+		"m?rrvol?",
+		"tsìvol?",
+		"pxevol?",
+		"m?evol?",
+		"vol?",
+	},
+	{
+		"hin",
+		"fu",
+		"mrr",
+		"rr",
+		"sìng",
+		"pey",
+		"mun",
+		"un",
+		"aw",
+	},
+}
+
+// Translate a Na'vi number word to the actual integer.
+// Na'vi numbers are octal values, so the integer is defined as octal number, and can easily be displayed as decimal number.
+func NaviToNumber(input string) int {
+	input = strings.ToLower(input)
 	// kew
-	if s == "kew" {
-		return "0"
+	if input == "kew" {
+		return 0
 	}
+
 	// 'aw mune pxey tsìng mrr pukap kinä
+	// literal numbers 1-7
 	for i, w := range naviVocab[0] {
-		if s == w && w != "" {
-			return strconv.FormatInt(int64(i), 8)
+		if input == w && w != "" {
+			return i
 		}
 	}
+
 	// build regexp for all other numbers
-	reString = "a?(mezazam|mezaza|pxezazam|pxezaza|tsìzazam|tsìzaza|mrrzazam|mrrzaza|puzazam|puzaza|kizazam|kizaza|zazam|zaza)?a?"
-	reString += "a?(mevozam|mevoza|evozam|evoza|pxevozam|pxevoza|tsìvozam|tsìvoza|mrrvozam|mrrvoza|rrvozam|rrvoza|puvozam|puvoza|kivozam|kivoza|vozam|voza)?a?"
-	reString += "a?(mezam|meza|ezam|eza|pxezam|pxeza|tsìzam|tsìza|mrrzam|mrrza|rrzam|rrza|puzam|puza|kizam|kiza|zam|za)?a?"
-	reString += "a?(mevol|mevo|evol|evo|pxevol|pxevo|tsìvol|tsìvo|mrrvol|mrrvo|rrvol|rrvo|puvol|puvo|kivol|kivo|vol|vo)?a?"
-	reString += "a?(aw|mun|un|pey|sìng|mrr|rr|fu|hin)?a?"
-	re = regexp.MustCompile(reString)
-	tmp := re.FindAllStringSubmatch(s, -1)
-	if len(tmp) > 0 && len(tmp[0]) >= 1 {
-		matchNumbers = tmp[0][1:]
+	// regex for big values
+	var regexpString string
+	for _, digit := range numTableRegexp {
+		regexpString += "("
+		first := true
+
+		for _, number := range digit {
+			if !first {
+				regexpString += "|"
+			}
+			regexpString += number
+			first = false
+		}
+		regexpString += ")?"
 	}
 
-	for _, w := range matchNumbers {
-		n += numTable[w]
+	re := regexp.MustCompile(regexpString)
+	tmp := re.FindStringSubmatch(input)
+	var n int
+	if len(tmp) > 0 && len(tmp[0]) > 0 {
+		for i, v := range tmp[1:] {
+			n += numTable[i][v]
+		}
 	}
-
-	return strconv.FormatInt(int64(n), 8)
+	return n
 }
+
+//------------------------------------------------------------------------
 
 func wordify(input string) string {
 	rev := Reverse(input)
@@ -220,7 +292,7 @@ func Convert(input string, reverse bool) string {
 		var io int64
 		var err error
 		if IsLetter(input) {
-			io, err = strconv.ParseInt(unwordify(input), 8, 64)
+			//io, err = strconv.ParseInt(unwordify(input), 8, 64)
 		} else {
 			io, err = strconv.ParseInt(input, 8, 64)
 		}
