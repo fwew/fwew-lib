@@ -16,6 +16,7 @@
 package fwew_lib
 
 import (
+	"errors"
 	"fmt"
 	"regexp"
 	"strconv"
@@ -183,20 +184,24 @@ var numTableRegexp = [][]string{
 	},
 }
 
+//FIXME move into more general file
+var NoTranslationFound = errors.New("no translation found")
+
 // Translate a Na'vi number word to the actual integer.
 // Na'vi numbers are octal values, so the integer is defined as octal number, and can easily be displayed as decimal number.
-func NaviToNumber(input string) int {
+// If no translation is found, `NoTranslationFound` is returned as error!
+func NaviToNumber(input string) (int, error) {
 	input = strings.ToLower(input)
 	// kew
 	if input == "kew" {
-		return 0
+		return 0, nil
 	}
 
 	// 'aw mune pxey tsìng mrr pukap kinä
 	// literal numbers 1-7
 	for i, w := range naviVocab[0] {
 		if input == w && w != "" {
-			return i
+			return i, nil
 		}
 	}
 
@@ -224,8 +229,10 @@ func NaviToNumber(input string) int {
 		for i, v := range tmp[1:] {
 			n += numTable[i][v]
 		}
+	} else {
+		return 0, NoTranslationFound
 	}
-	return n
+	return n, nil
 }
 
 //------------------------------------------------------------------------
