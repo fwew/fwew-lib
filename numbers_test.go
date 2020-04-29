@@ -187,7 +187,7 @@ func Test_NaviToNumber(t *testing.T) {
 	}
 
 	for _, testCase := range testCases {
-		if number := NaviToNumber(testCase.word); number != testCase.expected {
+		if number, err := NaviToNumber(testCase.word); err != nil || number != testCase.expected {
 			t.Errorf("Translated number of \"%s\" was incorrect: expected %#o, but got %#o", testCase.word, testCase.expected, number)
 		}
 	}
