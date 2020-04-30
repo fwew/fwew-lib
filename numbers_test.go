@@ -20,8 +20,6 @@ import (
 	"testing"
 )
 
-// zero, negative, decimal, >77777, numbers where at least one or more digit is zero
-
 var testCases = []struct {
 	word   string
 	number int
@@ -230,4 +228,17 @@ func Test_NumberToNavi(t *testing.T) {
 			}
 		})
 	}
+
+	// also test errors:
+	t.Run(fmt.Sprintf("Translate negative number"), func(t *testing.T) {
+		if _, err := NumberToNavi(-0o50); err != NegativeNumber {
+			t.Errorf("Error that occured is not correct: expected \"%s\", but got \"%s\"", NegativeNumber, err)
+		}
+	})
+
+	t.Run(fmt.Sprintln("Translate too big number"), func(t *testing.T) {
+		if _, err := NumberToNavi(0x100000); err != NumberTooBig {
+			t.Errorf("Error that occurred is not correct: expected \"%s\", but got \"%s\"", NumberTooBig, err)
+		}
+	})
 }
