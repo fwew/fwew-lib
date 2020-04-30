@@ -17,21 +17,19 @@ package fwew_lib
 
 import (
 	"errors"
-	"fmt"
 	"regexp"
-	"strconv"
 	"strings"
 )
 
 var naviVocab = [][]string{
 	// 0 1 2 3 4 5 6 7 actual
-	{"", "'aw", "mune", "pxey", "tsìng", "mrr", "pukap", "kinä"},
+	{"kew", "'aw", "mune", "pxey", "tsìng", "mrr", "pukap", "kinä"},
 	// 0 1 2 3 4 5 6 7 last digit
 	{"", "aw", "mun", "pey", "sìng", "mrr", "fu", "hin"},
 	// 0 1 2 3 4 5 6 7 first or middle digit
 	{"", "", "me", "pxe", "tsì", "mrr", "pu", "ki"},
 	// 0 1 2 3 4 powers of 8
-	{"", "vo", "zam", "vozam", "zazam"},
+	{"", "vo", "za", "vozam", "zazam"},
 	// 0 1 2 3 4 powers of 8 last digit
 	{"", "l", "", "", ""},
 }
@@ -235,88 +233,61 @@ func NaviToNumber(input string) (int, error) {
 	return n, nil
 }
 
-//------------------------------------------------------------------------
+var NegativeNumber = errors.New("negative numbers not allowed")
+var NumberTooBig = errors.New("number too big")
 
-func wordify(input string) string {
-	rev := Reverse(input)
-	output := ""
-	if len(input) == 1 {
-		if input == "0" {
-			return "kew"
-		}
-		inty, _ := strconv.Atoi(input)
-		return naviVocab[0][inty]
+// Translate an octal-integer into the Na'vi number word.
+func NumberToNavi(input int) (string, error) {
+	// check if inside max-min
+	if input < 0 {
+		return "", NegativeNumber
+	} else if input > 0o77777 {
+		return "", NumberTooBig
 	}
-	for i, d := range rev {
-		switch i {
-		case 0: // 7777[7]
-			output = naviVocab[1][int(d-'0')] + output
-			if int(d-'0') == 1 && rev[1] != '0' {
-				output = naviVocab[4][1] + output
+
+	// only one digit
+	if input <= 0o7 {
+		return naviVocab[0][input], nil
+	}
+
+	// rest calculate digit by digit
+	var output string
+	var previousDigit int
+	var firstDigit int
+	// maximal 5 possible digits
+	for i := 0; i < 5; i++ {
+		if i == 0 {
+			// last digit is written differently
+			n := input % 0o10
+			output = naviVocab[1][n] + output
+			previousDigit = n
+			firstDigit = n
+		} else {
+			input = input >> 3
+			n := input % 0o10
+
+			// only run, when not 0, 0 is just kept out
+			if n != 0 {
+				future := naviVocab[2][n] + naviVocab[3][i]
+
+				// override to add `l` to vo, if at second digit and last digit is 0|1
+				if i == 1 && n != 0 && (previousDigit == 0 || previousDigit == 1) {
+					future = future + "l"
+				}
+
+				// override to add `m` to za
+				// only run if at third digit and second digit is not 0|1, also run when digits are x00|x01
+				if i == 2 && n != 0 && ((previousDigit != 0 && previousDigit != 1) || (previousDigit == 0 && (firstDigit == 0 || firstDigit == 1))) {
+					future = future + "m"
+				}
+
+				output = future + output
 			}
-		case 1: // 777[7]7
-			if int(d-'0') > 0 {
-				output = naviVocab[2][int(d-'0')] + naviVocab[3][1] + output
-			}
-		case 2: // 77[7]77
-			if int(d-'0') > 0 {
-				output = naviVocab[2][int(d-'0')] + naviVocab[3][2] + output
-			}
-		case 3: // 7[7]777
-			if int(d-'0') > 0 {
-				output = naviVocab[2][int(d-'0')] + naviVocab[3][3] + output
-			}
-		case 4: // [7]7777
-			if int(d-'0') > 0 {
-				output = naviVocab[2][int(d-'0')] + naviVocab[3][4] + output
-			}
+			previousDigit = n
 		}
 	}
-	for _, d := range []string{"01", "02", "03", "04", "05", "06", "07"} {
-		if rev[0:2] == d {
-			output = output + naviVocab[4][1]
-		}
-	}
+
 	output = strings.Replace(output, "mm", "m", -1)
-	return output
-}
 
-// Convert is the main number conversion function
-func Convert(input string, reverse bool) string {
-	output := ""
-	if reverse {
-		i, err := strconv.ParseInt(input, 10, 64)
-		if err != nil {
-			return fmt.Sprintf("%s: %s\n", Text("invalidDecimalError"), input)
-		}
-		if !Valid(i, reverse) {
-			return fmt.Sprintf("%s\n", Text("invalidIntError"))
-		}
-		o := strconv.FormatInt(int64(i), 8)
-		output += fmt.Sprintf("Octal: %s\n", o)
-		output += fmt.Sprintf("Na'vi: %s\n", wordify(o))
-	} else {
-		var io int64
-		var err error
-		if IsLetter(input) {
-			//io, err = strconv.ParseInt(unwordify(input), 8, 64)
-		} else {
-			io, err = strconv.ParseInt(input, 8, 64)
-		}
-		if err != nil {
-			return fmt.Sprintf("%s: %s\n", Text("invalidOctalError"), input)
-		}
-		if !Valid(io, reverse) {
-			return fmt.Sprintf("%s\n", Text("invalidIntError"))
-		}
-		d := strconv.FormatInt(int64(io), 10)
-		o := strconv.FormatInt(int64(io), 8)
-		output += fmt.Sprintf("Decimal: %s\n", d)
-		if IsLetter(input) {
-			output += fmt.Sprintf("Octal: %s\n", o)
-		} else {
-			output += fmt.Sprintf("Na'vi: %s\n", wordify(input))
-		}
-	}
-	return output
+	return output, nil
 }

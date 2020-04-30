@@ -30,7 +30,7 @@ func executor(cmds string) {
 				slashCommand(cmd, false)
 			} else {
 				if *numConvert {
-					fmt.Println(Convert(cmd, *reverse))
+					//fmt.Println(Convert(cmd, *reverse))
 				} else {
 					printResults(fwew(cmd))
 				}
