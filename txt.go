@@ -168,7 +168,6 @@ func init() {
 	texts["homeDir"], _ = filepath.Abs(usr.HomeDir)
 	texts["dataDir"] = filepath.Join(texts["homeDir"], ".fwew")
 	texts["config"] = filepath.Join(texts["dataDir"], "config.json")
-	texts["dictionary"] = filepath.Join(texts["dataDir"], "dictionary.txt")
 	texts["dictURL"] = "https://tirea.learnnavi.org/dictionarydata/dictionary.txt"
 	texts["dlSuccess"] = texts["dictURL"] + "\nsaved to\n" + texts["dictionary"] + "\n"
 

@@ -22,8 +22,6 @@ type Word struct {
 	ID             string
 	LangCode       string
 	Navi           string
-	Target         string
-	Attempt        string
 	IPA            string
 	InfixLocations string
 	PartOfSpeech   string
@@ -32,7 +30,9 @@ type Word struct {
 	Stressed       string
 	Syllables      string
 	InfixDots      string
-	Affixes        map[string][]string
+
+	Affixes map[string][]string
+	Attempt string
 }
 
 func (w Word) String() string {
@@ -41,7 +41,6 @@ func (w Word) String() string {
 		"Id: %s\n"+
 		"LangCode: %s\n"+
 		"Navi: %s\n"+
-		"Target: %s\n"+
 		"Attempt: %s\n"+
 		"IPA: %s\n"+
 		"InfixLocations: %s\n"+
@@ -55,7 +54,6 @@ func (w Word) String() string {
 		w.ID,
 		w.LangCode,
 		w.Navi,
-		w.Target,
 		w.Attempt,
 		w.IPA,
 		w.InfixLocations,
@@ -66,6 +64,39 @@ func (w Word) String() string {
 		w.Syllables,
 		w.InfixDots,
 		w.Affixes)
+}
+
+// Initialize Word with one row of the dictionary.
+func newWord(dataFields []string) Word {
+	//const (
+	//	idField  int = 0 // dictionary.txt line Field 0 is Database ID
+	//	lcField  int = 1 // dictionary.txt line field 1 is Language Code
+	//	navField int = 2 // dictionary.txt line field 2 is Na'vi word
+	//	ipaField int = 3 // dictionary.txt line field 3 is IPA data
+	//	infField int = 4 // dictionary.txt line field 4 is Infix location data
+	//	posField int = 5 // dictionary.txt line field 5 is Part of Speech data
+	//	defField int = 6 // dictionary.txt line field 6 is Local definition
+	//	srcField int = 7 // dictionary.txt line field 7 is Source data
+	//  stsField int = 8 // dictionary.txt line field 8 is Stressed syllable #
+	//  sylField int = 9 // dictionary.txt line field 9 is syllable breakdown
+	//  ifdField int = 10 // dictionary.txt line field 10 is dot-style infix data
+	//)
+	var word Word
+	word.ID = dataFields[idField]
+	word.LangCode = dataFields[lcField]
+	word.Navi = dataFields[navField]
+	word.IPA = dataFields[ipaField]
+	word.InfixLocations = dataFields[infField]
+	word.PartOfSpeech = dataFields[posField]
+	word.Definition = dataFields[defField]
+	word.Source = dataFields[srcField]
+	word.Stressed = dataFields[stsField]
+	word.Syllables = dataFields[sylField]
+	word.InfixDots = dataFields[ifdField]
+
+	word.Affixes = map[string][]string{}
+
+	return word
 }
 
 // InitWordStruct is basically a constructor for Word struct
@@ -105,7 +136,6 @@ func CloneWordStruct(w Word) Word {
 	nw.ID = w.ID
 	nw.LangCode = w.LangCode
 	nw.Navi = w.Navi
-	nw.Target = w.Target
 	nw.Attempt = w.Attempt
 	nw.IPA = w.IPA
 	nw.InfixLocations = w.InfixLocations
