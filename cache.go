@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-var dictionary []Word
+var dictionary map[string][]Word
 var dictionaryCached bool
 
 // check if a file exists
@@ -76,7 +76,7 @@ func CacheDict() error {
 		fields := strings.Split(line, "\t")
 
 		// Put the stuff from fields into the Word struct
-		dictionary = append(dictionary, newWord(fields))
+		dictionary[fields[lcField]] = append(dictionary[fields[lcField]], newWord(fields))
 	}
 
 	dictionaryCached = true

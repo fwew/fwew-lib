@@ -15,6 +15,7 @@
 // Package main contains all the things. affixes.go handles affix parsing of input.
 package fwew_lib
 
+/*
 import (
 	"fmt"
 	"regexp"
@@ -472,3 +473,4 @@ func Reconstruct(w Word) Word {
 	}
 	return Word{ID: "-1"}
 }
+*/

@@ -15,6 +15,7 @@
 // Package main contains all the things. affixes_test.go -- you guess it -- tests affixes.go functions.
 package fwew_lib
 
+/*
 import (
 	"flag"
 	"testing"
@@ -79,3 +80,4 @@ func TestReconstruct(t *testing.T) {
 		t.Errorf("Got %s, Want %s", w0.Attempt, w0.Target)
 	}
 }
+*/

@@ -15,6 +15,7 @@
 // Package main contains all the things. completer.go contains the ingredients for prompt completion.
 package fwew_lib
 
+/*
 import (
 	"fmt"
 	"github.com/c-bata/go-prompt"
@@ -120,3 +121,4 @@ func completer(d prompt.Document) []prompt.Suggest {
 	}
 	return prompt.FilterHasPrefix(s, d.GetWordBeforeCursor(), true)
 }
+*/

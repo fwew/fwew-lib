@@ -99,37 +99,6 @@ func newWord(dataFields []string) Word {
 	return word
 }
 
-// InitWordStruct is basically a constructor for Word struct
-func InitWordStruct(w Word, dataFields []string) Word {
-	//const (
-	//	idField  int = 0 // dictionary.txt line Field 0 is Database ID
-	//	lcField  int = 1 // dictionary.txt line field 1 is Language Code
-	//	navField int = 2 // dictionary.txt line field 2 is Na'vi word
-	//	ipaField int = 3 // dictionary.txt line field 3 is IPA data
-	//	infField int = 4 // dictionary.txt line field 4 is Infix location data
-	//	posField int = 5 // dictionary.txt line field 5 is Part of Speech data
-	//	defField int = 6 // dictionary.txt line field 6 is Local definition
-	//	srcField int = 7 // dictionary.txt line field 7 is Source data
-	//  stsField int = 8 // dictionary.txt line field 8 is Stressed syllable #
-	//  sylField int = 9 // dictionary.txt line field 9 is syllable breakdown
-	//  ifdField int = 10 // dictionary.txt line field 10 is dot-style infix data
-	//)
-	w.ID = dataFields[idField]
-	w.LangCode = dataFields[lcField]
-	w.Navi = dataFields[navField]
-	w.IPA = dataFields[ipaField]
-	w.InfixLocations = dataFields[infField]
-	w.PartOfSpeech = dataFields[posField]
-	w.Definition = dataFields[defField]
-	w.Source = dataFields[srcField]
-	w.Stressed = dataFields[stsField]
-	w.Syllables = dataFields[sylField]
-	w.InfixDots = dataFields[ifdField]
-	w.Affixes = map[string][]string{}
-
-	return w
-}
-
 // CloneWordStruct is basically a copy constructor for Word struct
 func CloneWordStruct(w Word) Word {
 	var nw Word
@@ -145,6 +114,7 @@ func CloneWordStruct(w Word) Word {
 	nw.Stressed = w.Stressed
 	nw.Syllables = w.Syllables
 	nw.InfixDots = w.InfixDots
+
 	nw.Affixes = make(map[string][]string)
 	for k := range w.Affixes {
 		nw.Affixes[k] = make([]string, len(w.Affixes[k]))

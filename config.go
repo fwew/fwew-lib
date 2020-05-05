@@ -15,6 +15,7 @@
 // Package main contains all the things. config.go handles... the configuration file stuff. Probably.
 package fwew_lib
 
+/*
 import (
 	"encoding/json"
 	"fmt"
@@ -219,3 +220,4 @@ func (c Config) String() string {
 	// this string only doesn't get translated or called from Text() because they're var names
 	return str
 }
+*/
