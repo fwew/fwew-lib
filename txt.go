@@ -204,7 +204,7 @@ func init() {
 	texts["name"] = "fwew"
 	texts["tip"] = "type \"/help\" or \"/commands\" for more info"
 	texts["author"] = "Tirea Aean"
-	Version.DictBuild = SHA1Hash(texts["dictionary"])
+	Version.DictBuild = SHA1Hash(findDictionaryFile())
 	texts["header"] = fmt.Sprintf("%s\n%s\n", Version, texts["tip"])
 	texts["languages"] = "de, en, et, fr, hu, nl, pl, ru, sv"
 	texts["POSFilters"] = "allvtr.n.num.pn.adv.adj.vin.v.inter.part.svin.adp.adv., n.vtrm.vim.conj.pn., sbd.n., intj.intj."

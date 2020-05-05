@@ -122,3 +122,32 @@ func CloneWordStruct(w Word) Word {
 	}
 	return nw
 }
+
+func (w *Word) Equals(other Word) bool {
+	//ID             string
+	//	LangCode       string
+	//	Navi           string
+	//	IPA            string
+	//	InfixLocations string
+	//	PartOfSpeech   string
+	//	Definition     string
+	//	Source         string
+	//	Stressed       string
+	//	Syllables      string
+	//	InfixDots      string
+	//
+	//	Affixes map[string][]string
+	//	Attempt string
+	return w.ID == other.ID &&
+		w.LangCode == other.LangCode &&
+		w.Navi == other.Navi &&
+		w.IPA == other.IPA &&
+		w.InfixLocations == other.InfixLocations &&
+		w.PartOfSpeech == other.PartOfSpeech &&
+		w.Definition == other.Definition &&
+		w.Source == other.Source &&
+		w.Stressed == other.Stressed &&
+		w.Syllables == other.Syllables &&
+		w.InfixDots == other.InfixDots &&
+		w.Attempt == other.Attempt
+}

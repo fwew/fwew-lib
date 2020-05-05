@@ -9,7 +9,8 @@ import (
 	"strings"
 )
 
-var dictionary map[string][]Word
+//var dictionary map[string][]Word
+var dictionary = make(map[string][]Word)
 var dictionaryCached bool
 
 // check if a file exists
