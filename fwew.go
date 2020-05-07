@@ -109,12 +109,10 @@ func TranslateFromNavi(searchNaviText string, languageCode string) [][]Word {
 
 	results := make([][]Word, len(searchNaviWords))
 
-	log.Println(searchNaviWords)
-
 	// TODO run on file diretly, if not cached
 	// dictpart to search in
 	words := dictionary[languageCode]
-	for a, word := range words {
+	for _, word := range words {
 		// save original Navi word, we want to add "+" or "--" later again
 		naviWord := word.Navi
 
@@ -126,7 +124,6 @@ func TranslateFromNavi(searchNaviText string, languageCode string) [][]Word {
 		for i, searchNaviWord := range searchNaviWords {
 			if word.Navi == searchNaviWord {
 				word.Navi = naviWord
-				log.Printf("%d.%s  .. %s", a, word.Navi, searchNaviWord)
 				results[i] = append(results[i], word)
 				continue
 			}
@@ -144,7 +141,6 @@ func TranslateFromNavi(searchNaviText string, languageCode string) [][]Word {
 
 			if word.reconstruct(searchNaviWord) {
 				word.Navi = naviWord
-				log.Printf("%d.%s  .. %s", a, word.Navi, searchNaviWord)
 				results[i] = append(results[i], word)
 			}
 		}
