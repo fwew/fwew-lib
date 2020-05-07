@@ -55,6 +55,11 @@ func findDictionaryFile() string {
 // This will cache the whole dictionary.
 // Please call this, if you want to translate multiple words or running infinitely (e.g. CLI-go-prompt, discord-bot)
 func CacheDict() error {
+	// dont run if already is cached
+	if len(dictionary) != 0 {
+		return nil
+	}
+
 	dictionaryFile := findDictionaryFile()
 	if dictionaryFile == "" {
 		return errors.New("no dictionary found")

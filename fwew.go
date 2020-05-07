@@ -15,6 +15,7 @@
 package fwew_lib
 
 import (
+	"log"
 	"strings"
 )
 
@@ -34,17 +35,122 @@ const (
 	space    string = " "
 )
 
-func TranslateFromNavi(navi string, languageCode string) []Word {
-	badChars := strings.Split("` ~ @ # $ % ^ & * ( ) [ ] { } < > _ / . , ; : ! ? | + \\", space)
-	// remove all the sketchy chars from arguments
-	word := navi
-	for _, c := range badChars {
-		word = strings.Replace(word, c, "", -1)
+var debugMode bool
+
+func intersection(a, b string) (c string) {
+	m := make(map[rune]bool)
+	for _, r := range a {
+		m[r] = true
 	}
+	for _, r := range b {
+		if _, ok := m[r]; ok {
+			c += string(r)
+		}
+	}
+	return
+}
+
+func (w *Word) similarity(other string) float64 {
+	if w.Navi == other {
+		return 1.0
+	}
+	if len(w.Navi) > len(other)+1 {
+		return 0.0
+	}
+	if w.Navi == "nga" && other == "ngey" {
+		return 1.0
+	}
+	vowels := "aäeiìoulr"
+	w0v := intersection(w.Navi, vowels)
+	w1v := intersection(other, vowels)
+	wis := intersection(w.Navi, other)
+	wav := intersection(w0v, other)
+	if len(w0v) > len(w1v) {
+		return 0.0
+	}
+	if len(wav) == 0 {
+		return 0.0
+	}
+	scc := len(wis)
+	iratio := float64(scc) / float64(len(w.Navi))
+	lratio := float64(len(w.Navi)) / float64(len(other))
+	return (iratio + lratio) / 2
+}
+
+// Translate some navi text, with multiple words separated by a space
+// This will return an  array of array of Words, that fit the input text
+// One Navi-Word can have multiple meanings and words (e.g. synonyms)
+func TranslateFromNavi(searchNaviText string, languageCode string) [][]Word {
+	badChars := strings.Split("` ~ @ # $ % ^ & * ( ) [ ] { } < > _ / . , ; : ! ? | + \\", space)
+
+	// remove all the sketchy chars from arguments
+	for _, c := range badChars {
+		searchNaviText = strings.ReplaceAll(searchNaviText, c, "")
+	}
+
 	// normalize tìftang character
-	word = strings.Replace(word, "’", "'", -1)
-	word = strings.Replace(word, "‘", "'", -1)
-	return nil
+	searchNaviText = strings.ReplaceAll(searchNaviText, "’", "'")
+	searchNaviText = strings.ReplaceAll(searchNaviText, "‘", "'")
+
+	// No Results if empty string after removing sketch chars
+	if len(searchNaviText) == 0 {
+		return nil
+	}
+
+	// split all navi words, so we can look for them individually
+	searchNaviWords := strings.Split(searchNaviText, space)
+
+	for _, w := range searchNaviWords {
+		// remove "+" and "--", we want to be able to search with and without those!
+		w = strings.ReplaceAll(w, "+", "")
+		w = strings.ReplaceAll(w, "--", "")
+		w = strings.ToLower(w)
+	}
+
+	results := make([][]Word, len(searchNaviWords))
+
+	log.Println(searchNaviWords)
+
+	// TODO run on file diretly, if not cached
+	// dictpart to search in
+	words := dictionary[languageCode]
+	for a, word := range words {
+		// save original Navi word, we want to add "+" or "--" later again
+		naviWord := word.Navi
+
+		// remove "+" and "--", we want to be able to search with and without those!
+		word.Navi = strings.ReplaceAll(word.Navi, "+", "")
+		word.Navi = strings.ReplaceAll(word.Navi, "--", "")
+		word.Navi = strings.ToLower(word.Navi)
+
+		for i, searchNaviWord := range searchNaviWords {
+			if word.Navi == searchNaviWord {
+				word.Navi = naviWord
+				log.Printf("%d.%s  .. %s", a, word.Navi, searchNaviWord)
+				results[i] = append(results[i], word)
+				continue
+			}
+
+			// skip words that obviously won't work
+			s := word.similarity(searchNaviWord)
+
+			if debugMode {
+				log.Printf("Target: %s | Line: %s | [%f]\n", searchNaviWord, word.Navi, s)
+			}
+
+			if s < 0.50 && !strings.HasSuffix(searchNaviWord, "eyä") {
+				continue
+			}
+
+			if word.reconstruct(searchNaviWord) {
+				word.Navi = naviWord
+				log.Printf("%d.%s  .. %s", a, word.Navi, searchNaviWord)
+				results[i] = append(results[i], word)
+			}
+		}
+	}
+
+	return results
 }
 
 // ------------------------------------------------------------------------------------------------------------------------
@@ -62,46 +168,6 @@ var (
 	useAffixes, numConvert   *bool
 	markdown, debug, reverse *bool
 )
-
-func intersection(a, b string) (c string) {
-	m := make(map[rune]bool)
-	for _, r := range a {
-		m[r] = true
-	}
-	for _, r := range b {
-		if _, ok := m[r]; ok {
-			c += string(r)
-		}
-	}
-	return
-}
-
-func similarity(w0, w1 string) float64 {
-	if w0 == w1 {
-		return 1.0
-	}
-	if len(w0) > len(w1)+1 {
-		return 0.0
-	}
-	if w0 == "nga" && w1 == "ngey" {
-		return 1.0
-	}
-	vowels := "aäeiìoulr"
-	w0v := intersection(w0, vowels)
-	w1v := intersection(w1, vowels)
-	wis := intersection(w0, w1)
-	wav := intersection(w0v, w1)
-	if len(w0v) > len(w1v) {
-		return 0.0
-	}
-	if len(wav) == 0 {
-		return 0.0
-	}
-	scc := len(wis)
-	iratio := float64(scc) / float64(len(w0))
-	lratio := float64(len(w0)) / float64(len(w1))
-	return (iratio + lratio) / 2
-}
 
 func fwew(word string) []Word {
 	var (

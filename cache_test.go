@@ -7,8 +7,6 @@ import (
 func Test_cacheDict(t *testing.T) {
 	// cache dict and test only one entry
 
-	//4	en	'ampi	ˈʔ·am.p·i	'<0><1>amp<2>i	vtr.	touch	ASG; http://naviteri.org/2012/11/renu-ayinanfyaya-the-senses-paradigm/ (27 November 2012)	1	'am-pi	'.amp.i
-	// 4	de	'ampi	ˈʔ·am.p·i	'<0><1>amp<2>i	vtr.	berühren	ASG; http://naviteri.org/2012/11/renu-ayinanfyaya-the-senses-paradigm/ (27 November 2012)	1	'am-pi	'.amp.i
 	word := Word{
 		ID:             "4",
 		LangCode:       "de",
@@ -21,8 +19,6 @@ func Test_cacheDict(t *testing.T) {
 		Stressed:       "1",
 		Syllables:      "'am-pi",
 		InfixDots:      "'.amp.i",
-		Affixes:        nil,
-		Attempt:        "",
 	}
 
 	err := CacheDict()
@@ -35,7 +31,6 @@ func Test_cacheDict(t *testing.T) {
 			"Id: \"%s\" == \"%s\"\n"+
 			"LangCode: \"%s\" == \"%s\"\n"+
 			"Navi: \"%s\" == \"%s\"\n"+
-			"Attempt: \"%s\" == \"%s\"\n"+
 			"IPA: \"%s\" == \"%s\"\n"+
 			"InfixLocations: \"%s\" == \"%s\"\n"+
 			"PartOfSpeech: \"%s\" == \"%s\"\n"+
@@ -43,12 +38,10 @@ func Test_cacheDict(t *testing.T) {
 			"Source: \"%s\" == \"%s\"\n"+
 			"Stressed: \"%s\" == \"%s\"\n"+
 			"Syllables: \"%s\" == \"%s\"\n"+
-			"InfixDots: \"%s\" == \"%s\"\n"+
-			"Affixes: \"%s\" == \"%s\"",
+			"InfixDots: \"%s\" == \"%s\"\n",
 			word.ID, entry.ID,
 			word.LangCode, entry.LangCode,
 			word.Navi, entry.Navi,
-			word.Attempt, entry.Attempt,
 			word.IPA, entry.IPA,
 			word.InfixLocations, entry.InfixLocations,
 			word.PartOfSpeech, entry.PartOfSpeech,
@@ -56,7 +49,6 @@ func Test_cacheDict(t *testing.T) {
 			word.Source, entry.Source,
 			word.Stressed, entry.Stressed,
 			word.Syllables, entry.Syllables,
-			word.InfixDots, entry.InfixDots,
-			word.Affixes, entry.Affixes)
+			word.InfixDots, entry.InfixDots)
 	}
 }

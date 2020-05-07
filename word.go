@@ -31,8 +31,7 @@ type Word struct {
 	Syllables      string
 	InfixDots      string
 
-	Affixes map[string][]string
-	Attempt string
+	affixes map[string][]string
 }
 
 func (w Word) String() string {
@@ -41,7 +40,6 @@ func (w Word) String() string {
 		"Id: %s\n"+
 		"LangCode: %s\n"+
 		"Navi: %s\n"+
-		"Attempt: %s\n"+
 		"IPA: %s\n"+
 		"InfixLocations: %s\n"+
 		"PartOfSpeech: %s\n"+
@@ -54,7 +52,6 @@ func (w Word) String() string {
 		w.ID,
 		w.LangCode,
 		w.Navi,
-		w.Attempt,
 		w.IPA,
 		w.InfixLocations,
 		w.PartOfSpeech,
@@ -63,7 +60,7 @@ func (w Word) String() string {
 		w.Stressed,
 		w.Syllables,
 		w.InfixDots,
-		w.Affixes)
+		w.affixes)
 }
 
 // Initialize Word with one row of the dictionary.
@@ -94,7 +91,7 @@ func newWord(dataFields []string) Word {
 	word.Syllables = dataFields[sylField]
 	word.InfixDots = dataFields[ifdField]
 
-	word.Affixes = map[string][]string{}
+	word.affixes = make(map[string][]string)
 
 	return word
 }
@@ -105,7 +102,6 @@ func CloneWordStruct(w Word) Word {
 	nw.ID = w.ID
 	nw.LangCode = w.LangCode
 	nw.Navi = w.Navi
-	nw.Attempt = w.Attempt
 	nw.IPA = w.IPA
 	nw.InfixLocations = w.InfixLocations
 	nw.PartOfSpeech = w.PartOfSpeech
@@ -115,10 +111,10 @@ func CloneWordStruct(w Word) Word {
 	nw.Syllables = w.Syllables
 	nw.InfixDots = w.InfixDots
 
-	nw.Affixes = make(map[string][]string)
-	for k := range w.Affixes {
-		nw.Affixes[k] = make([]string, len(w.Affixes[k]))
-		copy(nw.Affixes[k], w.Affixes[k])
+	nw.affixes = make(map[string][]string)
+	for k := range w.affixes {
+		nw.affixes[k] = make([]string, len(w.affixes[k]))
+		copy(nw.affixes[k], w.affixes[k])
 	}
 	return nw
 }
@@ -148,6 +144,5 @@ func (w *Word) Equals(other Word) bool {
 		w.Source == other.Source &&
 		w.Stressed == other.Stressed &&
 		w.Syllables == other.Syllables &&
-		w.InfixDots == other.InfixDots &&
-		w.Attempt == other.Attempt
+		w.InfixDots == other.InfixDots
 }

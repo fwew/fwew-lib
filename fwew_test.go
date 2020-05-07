@@ -15,6 +15,20 @@
 // Package main contains all the things. affixes_test.go tests fwew.go functions.
 package fwew_lib
 
+import (
+	"os"
+	"reflect"
+	"testing"
+)
+
+func TestMain(m *testing.M) {
+	// call flag.Parse() here if TestMain uses flags
+	if testing.CoverMode() != "" {
+		debugMode = true
+	}
+	os.Exit(m.Run())
+}
+
 /*
 import (
 	"flag"
@@ -123,3 +137,647 @@ func TestSyllableCount(t *testing.T) {
 	testEqualInt(t, 2, syllableCount(w))
 }
 */
+
+func wordSimpleEqual(w1aa, w2aa [][]Word) bool {
+	w1al := len(w1aa)
+	w2al := len(w2aa)
+
+	if w1al != w2al {
+		return false
+	}
+
+	for i := 0; i < w1al; i++ {
+		w1a := w1aa[i]
+		w2a := w2aa[i]
+
+		w1l := len(w1a)
+		w2l := len(w2a)
+
+		if w1l != w2l {
+			return false
+		}
+
+		for j := 0; j < w1l; j++ {
+			w1 := w1a[j]
+			w2 := w2a[j]
+
+			if w1.ID != w2.ID ||
+				w1.LangCode != w2.LangCode ||
+				w1.Navi != w2.Navi ||
+				!reflect.DeepEqual(w1.affixes, w2.affixes) {
+
+				return false
+			}
+		}
+
+	}
+
+	return true
+}
+
+func TestTranslateFromNavi(t *testing.T) {
+	CacheDict()
+
+	type args struct {
+		searchNaviText string
+		languageCode   string
+	}
+	tests := []struct {
+		name string
+		args args
+		want [][]Word
+	}{
+		{
+			name: "molte",
+			args: args{
+				searchNaviText: "molte",
+				languageCode:   "de",
+			},
+			want: [][]Word{
+				{
+					{
+						ID:       "1120",
+						LangCode: "de",
+						Navi:     "mllte",
+						affixes: map[string][]string{
+							"Infixes": {
+								"ol",
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "pepfil",
+			args: args{
+				searchNaviText: "pepfil",
+				languageCode:   "fr",
+			},
+			want: [][]Word{
+				{
+					{
+						ID:       "6616",
+						LangCode: "fr",
+						Navi:     "pil",
+						affixes: map[string][]string{
+							"lenition": {
+								"p→f",
+							},
+							"Prefixes": {
+								"pep",
+							},
+						},
+					},
+					{
+						ID:       "12989",
+						LangCode: "fr",
+						Navi:     "fil",
+						affixes: map[string][]string{
+							"Prefixes": {
+								"pep",
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "empty",
+			args: args{
+				searchNaviText: "",
+				languageCode:   "de",
+			},
+			want: [][]Word{},
+		}, // empty
+		{
+			name: "säpeykiyevatsi",
+			args: args{
+				searchNaviText: "säpeykiyevatsi",
+				languageCode:   "hu",
+			},
+			want: [][]Word{
+				{
+					{
+						ID:       "1788",
+						LangCode: "hu",
+						Navi:     "si",
+						affixes: map[string][]string{
+							"Infixes": {
+								"äp",
+								"eyk",
+								"iyev",
+								"ats",
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "tseng",
+			args: args{
+				searchNaviText: "tseng",
+				languageCode:   "en",
+			},
+			want: [][]Word{
+				{
+					{
+						ID:       "2380",
+						LangCode: "en",
+						Navi:     "tseng",
+						affixes:  map[string][]string{},
+					},
+				},
+			},
+		}, // simple (no *fixes)
+		{
+			name: "luyu",
+			args: args{
+				searchNaviText: "luyu",
+				languageCode:   "en",
+			},
+			want: [][]Word{
+				{
+					{
+						ID:       "1044",
+						LangCode: "en",
+						Navi:     "lu",
+						affixes: map[string][]string{
+							"Infixes": {
+								"uy",
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "seiyi",
+			args: args{
+				searchNaviText: "seiyi",
+				languageCode:   "fr",
+			},
+			want: [][]Word{
+				{
+					{
+						ID:       "1788",
+						LangCode: "fr",
+						Navi:     "si",
+						affixes: map[string][]string{
+							"Infixes": {
+								"ei",
+							},
+						},
+					},
+				},
+			},
+		}, // ayi override
+		{
+			name: "zenuyeke",
+			args: args{
+				searchNaviText: "zenuyeke",
+				languageCode:   "en",
+			},
+			want: [][]Word{
+				{
+					{
+						ID:       "3968",
+						LangCode: "en",
+						Navi:     "zenke",
+						affixes: map[string][]string{
+							"Infixes": {
+								"uy",
+							},
+						},
+					},
+				},
+			},
+		}, // zenke `yu` override
+		{
+			name: "verìn",
+			args: args{
+				searchNaviText: "verìn",
+				languageCode:   "et",
+			},
+			want: [][]Word{
+				{
+					{
+						ID:       "6884",
+						LangCode: "et",
+						Navi:     "vrrìn",
+						affixes: map[string][]string{
+							"Infixes": {
+								"er",
+							},
+						},
+					},
+				},
+			},
+		}, // handle <er>rr
+		{
+			name: "ketsuktswa'",
+			args: args{
+				searchNaviText: "ketsuktswa'",
+				languageCode:   "en",
+			},
+			want: [][]Word{
+				{
+					{
+						ID:       "4984",
+						LangCode: "en",
+						Navi:     "tswa'",
+						affixes: map[string][]string{
+							"Prefixes": {
+								"ketsuk",
+							},
+						},
+					},
+					{
+						ID:       "7352",
+						LangCode: "en",
+						Navi:     "ketsuktswa'",
+						affixes:  map[string][]string{},
+					},
+					{
+						ID:       "7356",
+						LangCode: "en",
+						Navi:     "tsuktswa'",
+						affixes: map[string][]string{
+							"Prefixes": {
+								"ke",
+							},
+						},
+					},
+				},
+			},
+		}, // ke/ketsuk prefix
+		{
+			name: "tìtusaron",
+			args: args{
+				searchNaviText: "tìtusaron",
+				languageCode:   "et",
+			},
+			want: [][]Word{
+				{
+					{
+						ID:       "2004",
+						LangCode: "et",
+						Navi:     "taron",
+						affixes: map[string][]string{
+							"Infixes": {
+								"us",
+							},
+							"Prefixes": {
+								"tì",
+							},
+						},
+					},
+					{
+						ID:       "6156",
+						LangCode: "et",
+						Navi:     "tìtusaron",
+						affixes:  map[string][]string{},
+					},
+				},
+			},
+		}, // tì prefix
+		{
+			name: "fayioang",
+			args: args{
+				searchNaviText: "fayioang",
+				languageCode:   "fr",
+			},
+			want: [][]Word{
+				{
+					{
+						ID:       "612",
+						LangCode: "fr",
+						Navi:     "ioang",
+						affixes: map[string][]string{
+							"Prefixes": {
+								"fay",
+							},
+						},
+					},
+				},
+			},
+		},
+		// TODO `siyu` "vin." prefix
+		{
+			name: "tsasoaiä",
+			args: args{
+				searchNaviText: "tsasoaiä",
+				languageCode:   "en",
+			},
+			want: [][]Word{
+				{
+					{
+						ID:       "4804",
+						LangCode: "en",
+						Navi:     "soaia",
+						affixes: map[string][]string{
+							"Prefixes": {
+								"tsa",
+							},
+							"Suffixes": {
+								"ä",
+							},
+						},
+					},
+				},
+			},
+		}, // soaiä replacement
+		{
+			name: "tseyä",
+			args: args{
+				searchNaviText: "tseyä",
+				languageCode:   "de",
+			},
+			want: [][]Word{
+				{
+					{
+						ID:       "5268",
+						LangCode: "de",
+						Navi:     "tsaw",
+						affixes: map[string][]string{
+							"Suffixes": {
+								"yä",
+							},
+						},
+					},
+				},
+			},
+		}, // tseyä override
+		{
+			name: "oey",
+			args: args{
+				searchNaviText: "oey",
+				languageCode:   "en",
+			},
+			want: [][]Word{
+				{
+					{
+						ID:       "1380",
+						LangCode: "en",
+						Navi:     "oe",
+						affixes: map[string][]string{
+							"Suffixes": {
+								"y",
+							},
+						},
+					},
+				},
+			},
+		}, // oey override
+		{
+			name: "ngey",
+			args: args{
+				searchNaviText: "ngey",
+				languageCode:   "nl",
+			},
+			want: [][]Word{
+				{
+					{
+						ID:       "1348",
+						LangCode: "nl",
+						Navi:     "nga",
+						affixes: map[string][]string{
+							"Suffixes": {
+								"y",
+							},
+						},
+					},
+				},
+			},
+		}, // ngey override
+		{
+			name: "tì'usemä",
+			args: args{
+				searchNaviText: "tì'usemä",
+				languageCode:   "de",
+			},
+			want: [][]Word{
+				{
+					{
+						ID:       "3676",
+						LangCode: "de",
+						Navi:     "'em",
+						affixes: map[string][]string{
+							"Infixes": {
+								"us",
+							},
+							"Prefixes": {
+								"tì",
+							},
+							"Suffixes": {
+								"ä",
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "wemtswo",
+			args: args{
+				searchNaviText: "wemtswo",
+				languageCode:   "fr",
+			},
+			want: [][]Word{
+				{
+					{
+						ID:       "3948",
+						LangCode: "fr",
+						Navi:     "wem",
+						affixes: map[string][]string{
+							"Suffixes": {
+								"tswo",
+							},
+						},
+					},
+				},
+			},
+		}, // tswo suffix
+		{
+			name: "pawnengsì",
+			args: args{
+				searchNaviText: "pawnengsì",
+				languageCode:   "en",
+			},
+			want: [][]Word{
+				{
+					{
+						ID:       "1512",
+						LangCode: "en",
+						Navi:     "peng",
+						affixes: map[string][]string{
+							"Suffixes": {
+								"sì",
+							},
+							"Infixes": {
+								"awn",
+							},
+						},
+					},
+				},
+			},
+		}, // awn infix and some suffix
+		{
+			name: "tsuknumesì",
+			args: args{
+				searchNaviText: "tsuknumesì",
+				languageCode:   "nl",
+			},
+			want: [][]Word{
+				{
+					{
+						ID:       "1340",
+						LangCode: "nl",
+						Navi:     "nume",
+						affixes: map[string][]string{
+							"Prefixes": {
+								"tsuk",
+							},
+							"Suffixes": {
+								"sì",
+							},
+						},
+					},
+				},
+			},
+		}, // tsuk prefix and some suffix
+		{
+			name: "tsamungwrr",
+			args: args{
+				searchNaviText: "tsamungwrr",
+				languageCode:   "et",
+			},
+			want: [][]Word{
+				{
+					{
+						ID:       "5268",
+						LangCode: "et",
+						Navi:     "tsaw",
+						affixes: map[string][]string{
+							"Suffixes": {
+								"mungwrr",
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "tsamsiyu",
+			args: args{
+				searchNaviText: "tsamsiyu",
+				languageCode:   "en",
+			},
+			want: [][]Word{
+				{
+					{
+						ID:       "2344",
+						LangCode: "en",
+						Navi:     "tsamsiyu",
+						affixes:  map[string][]string{},
+					},
+				},
+			},
+		},
+		{
+			name: "'ueyä",
+			args: args{
+				searchNaviText: "'ueyä",
+				languageCode:   "de",
+			},
+			want: [][]Word{
+				{
+					{
+						ID:       "108",
+						LangCode: "de",
+						Navi:     "'u",
+						affixes: map[string][]string{
+							"Suffixes": {
+								"eyä",
+							},
+						},
+					},
+					{
+						ID:       "4180",
+						LangCode: "de",
+						Navi:     "'uo",
+						affixes: map[string][]string{
+							"Suffixes": {
+								"yä",
+							},
+						},
+					},
+				},
+			},
+		}, // o -> e vowel shift for pronouns with -yä
+		{
+			name: "awngeyä",
+			args: args{
+				searchNaviText: "awngeyä",
+				languageCode:   "et",
+			},
+			want: [][]Word{
+				{
+					{
+						ID:       "192",
+						LangCode: "et",
+						Navi:     "awnga",
+						affixes: map[string][]string{
+							"Suffixes": {
+								"yä",
+							},
+						},
+					},
+				},
+			},
+		}, // a -> e vowel shift for pronouns with -yä
+		{
+			name: "fpi",
+			args: args{
+				searchNaviText: "fpi",
+				languageCode:   "en",
+			},
+			want: [][]Word{
+				{
+					{
+						ID:       "428",
+						LangCode: "en",
+						Navi:     "fpi+",
+						affixes:  map[string][]string{},
+					},
+				},
+			},
+		}, // "+" support
+		{
+			name: "pe",
+			args: args{
+				searchNaviText: "pe",
+				languageCode:   "en",
+			},
+			want: [][]Word{
+				{
+					{
+						ID:       "1488",
+						LangCode: "en",
+						Navi:     "--pe+",
+						affixes:  map[string][]string{},
+					},
+				},
+			},
+		}, // "--" support
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := TranslateFromNavi(tt.args.searchNaviText, tt.args.languageCode); !wordSimpleEqual(got, tt.want) {
+				t.Errorf("TranslateFromNavi() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
