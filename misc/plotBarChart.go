@@ -164,7 +164,7 @@ func main() {
 	var groupUncached plotter.Values
 	var xNames []string
 
-	var validID = regexp.MustCompile(`.+?/(.+?) *\t *(\d+)\t *(\d+) ns/op`)
+	var validID = regexp.MustCompile(`.+?/(.+?)-\d *\t *(\d+)\t *(\d+) ns/op`)
 	//var validID = regexp.MustCompile(`"| `)
 
 	cachedData := validID.FindAllStringSubmatch(cachedResult, -1)
