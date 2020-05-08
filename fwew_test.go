@@ -138,38 +138,25 @@ func TestSyllableCount(t *testing.T) {
 }
 */
 
-func wordSimpleEqual(w1aa, w2aa [][]Word) bool {
-	w1al := len(w1aa)
-	w2al := len(w2aa)
+func wordSimpleEqual(w1a, w2a []Word) bool {
+	w1l := len(w1a)
+	w2l := len(w2a)
 
-	if w1al != w2al {
+	if w1l != w2l {
 		return false
 	}
 
-	for i := 0; i < w1al; i++ {
-		w1a := w1aa[i]
-		w2a := w2aa[i]
+	for j := 0; j < w1l; j++ {
+		w1 := w1a[j]
+		w2 := w2a[j]
 
-		w1l := len(w1a)
-		w2l := len(w2a)
+		if w1.ID != w2.ID ||
+			w1.LangCode != w2.LangCode ||
+			w1.Navi != w2.Navi ||
+			!reflect.DeepEqual(w1.affixes, w2.affixes) {
 
-		if w1l != w2l {
 			return false
 		}
-
-		for j := 0; j < w1l; j++ {
-			w1 := w1a[j]
-			w2 := w2a[j]
-
-			if w1.ID != w2.ID ||
-				w1.LangCode != w2.LangCode ||
-				w1.Navi != w2.Navi ||
-				!reflect.DeepEqual(w1.affixes, w2.affixes) {
-
-				return false
-			}
-		}
-
 	}
 
 	return true
@@ -185,7 +172,7 @@ func TestTranslateFromNavi(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want [][]Word
+		want []Word
 	}{
 		{
 			name: "molte",
@@ -193,16 +180,14 @@ func TestTranslateFromNavi(t *testing.T) {
 				searchNaviText: "molte",
 				languageCode:   "de",
 			},
-			want: [][]Word{
+			want: []Word{
 				{
-					{
-						ID:       "1120",
-						LangCode: "de",
-						Navi:     "mllte",
-						affixes: map[string][]string{
-							"Infixes": {
-								"ol",
-							},
+					ID:       "1120",
+					LangCode: "de",
+					Navi:     "mllte",
+					affixes: map[string][]string{
+						"Infixes": {
+							"ol",
 						},
 					},
 				},
@@ -214,29 +199,27 @@ func TestTranslateFromNavi(t *testing.T) {
 				searchNaviText: "pepfil",
 				languageCode:   "fr",
 			},
-			want: [][]Word{
+			want: []Word{
 				{
-					{
-						ID:       "6616",
-						LangCode: "fr",
-						Navi:     "pil",
-						affixes: map[string][]string{
-							"lenition": {
-								"p→f",
-							},
-							"Prefixes": {
-								"pep",
-							},
+					ID:       "6616",
+					LangCode: "fr",
+					Navi:     "pil",
+					affixes: map[string][]string{
+						"lenition": {
+							"p→f",
+						},
+						"Prefixes": {
+							"pep",
 						},
 					},
-					{
-						ID:       "12989",
-						LangCode: "fr",
-						Navi:     "fil",
-						affixes: map[string][]string{
-							"Prefixes": {
-								"pep",
-							},
+				},
+				{
+					ID:       "12989",
+					LangCode: "fr",
+					Navi:     "fil",
+					affixes: map[string][]string{
+						"Prefixes": {
+							"pep",
 						},
 					},
 				},
@@ -248,7 +231,7 @@ func TestTranslateFromNavi(t *testing.T) {
 				searchNaviText: "",
 				languageCode:   "de",
 			},
-			want: [][]Word{},
+			want: []Word{},
 		}, // empty
 		{
 			name: "säpeykiyevatsi",
@@ -256,19 +239,17 @@ func TestTranslateFromNavi(t *testing.T) {
 				searchNaviText: "säpeykiyevatsi",
 				languageCode:   "hu",
 			},
-			want: [][]Word{
+			want: []Word{
 				{
-					{
-						ID:       "1788",
-						LangCode: "hu",
-						Navi:     "si",
-						affixes: map[string][]string{
-							"Infixes": {
-								"äp",
-								"eyk",
-								"iyev",
-								"ats",
-							},
+					ID:       "1788",
+					LangCode: "hu",
+					Navi:     "si",
+					affixes: map[string][]string{
+						"Infixes": {
+							"äp",
+							"eyk",
+							"iyev",
+							"ats",
 						},
 					},
 				},
@@ -280,14 +261,12 @@ func TestTranslateFromNavi(t *testing.T) {
 				searchNaviText: "tseng",
 				languageCode:   "en",
 			},
-			want: [][]Word{
+			want: []Word{
 				{
-					{
-						ID:       "2380",
-						LangCode: "en",
-						Navi:     "tseng",
-						affixes:  map[string][]string{},
-					},
+					ID:       "2380",
+					LangCode: "en",
+					Navi:     "tseng",
+					affixes:  map[string][]string{},
 				},
 			},
 		}, // simple (no *fixes)
@@ -297,16 +276,14 @@ func TestTranslateFromNavi(t *testing.T) {
 				searchNaviText: "luyu",
 				languageCode:   "en",
 			},
-			want: [][]Word{
+			want: []Word{
 				{
-					{
-						ID:       "1044",
-						LangCode: "en",
-						Navi:     "lu",
-						affixes: map[string][]string{
-							"Infixes": {
-								"uy",
-							},
+					ID:       "1044",
+					LangCode: "en",
+					Navi:     "lu",
+					affixes: map[string][]string{
+						"Infixes": {
+							"uy",
 						},
 					},
 				},
@@ -318,16 +295,14 @@ func TestTranslateFromNavi(t *testing.T) {
 				searchNaviText: "seiyi",
 				languageCode:   "fr",
 			},
-			want: [][]Word{
+			want: []Word{
 				{
-					{
-						ID:       "1788",
-						LangCode: "fr",
-						Navi:     "si",
-						affixes: map[string][]string{
-							"Infixes": {
-								"ei",
-							},
+					ID:       "1788",
+					LangCode: "fr",
+					Navi:     "si",
+					affixes: map[string][]string{
+						"Infixes": {
+							"ei",
 						},
 					},
 				},
@@ -339,16 +314,14 @@ func TestTranslateFromNavi(t *testing.T) {
 				searchNaviText: "zenuyeke",
 				languageCode:   "en",
 			},
-			want: [][]Word{
+			want: []Word{
 				{
-					{
-						ID:       "3968",
-						LangCode: "en",
-						Navi:     "zenke",
-						affixes: map[string][]string{
-							"Infixes": {
-								"uy",
-							},
+					ID:       "3968",
+					LangCode: "en",
+					Navi:     "zenke",
+					affixes: map[string][]string{
+						"Infixes": {
+							"uy",
 						},
 					},
 				},
@@ -360,16 +333,14 @@ func TestTranslateFromNavi(t *testing.T) {
 				searchNaviText: "verìn",
 				languageCode:   "et",
 			},
-			want: [][]Word{
+			want: []Word{
 				{
-					{
-						ID:       "6884",
-						LangCode: "et",
-						Navi:     "vrrìn",
-						affixes: map[string][]string{
-							"Infixes": {
-								"er",
-							},
+					ID:       "6884",
+					LangCode: "et",
+					Navi:     "vrrìn",
+					affixes: map[string][]string{
+						"Infixes": {
+							"er",
 						},
 					},
 				},
@@ -381,32 +352,30 @@ func TestTranslateFromNavi(t *testing.T) {
 				searchNaviText: "ketsuktswa'",
 				languageCode:   "en",
 			},
-			want: [][]Word{
+			want: []Word{
 				{
-					{
-						ID:       "4984",
-						LangCode: "en",
-						Navi:     "tswa'",
-						affixes: map[string][]string{
-							"Prefixes": {
-								"ketsuk",
-							},
+					ID:       "4984",
+					LangCode: "en",
+					Navi:     "tswa'",
+					affixes: map[string][]string{
+						"Prefixes": {
+							"ketsuk",
 						},
 					},
-					{
-						ID:       "7352",
-						LangCode: "en",
-						Navi:     "ketsuktswa'",
-						affixes:  map[string][]string{},
-					},
-					{
-						ID:       "7356",
-						LangCode: "en",
-						Navi:     "tsuktswa'",
-						affixes: map[string][]string{
-							"Prefixes": {
-								"ke",
-							},
+				},
+				{
+					ID:       "7352",
+					LangCode: "en",
+					Navi:     "ketsuktswa'",
+					affixes:  map[string][]string{},
+				},
+				{
+					ID:       "7356",
+					LangCode: "en",
+					Navi:     "tsuktswa'",
+					affixes: map[string][]string{
+						"Prefixes": {
+							"ke",
 						},
 					},
 				},
@@ -418,27 +387,25 @@ func TestTranslateFromNavi(t *testing.T) {
 				searchNaviText: "tìtusaron",
 				languageCode:   "et",
 			},
-			want: [][]Word{
+			want: []Word{
 				{
-					{
-						ID:       "2004",
-						LangCode: "et",
-						Navi:     "taron",
-						affixes: map[string][]string{
-							"Infixes": {
-								"us",
-							},
-							"Prefixes": {
-								"tì",
-							},
+					ID:       "2004",
+					LangCode: "et",
+					Navi:     "taron",
+					affixes: map[string][]string{
+						"Infixes": {
+							"us",
+						},
+						"Prefixes": {
+							"tì",
 						},
 					},
-					{
-						ID:       "6156",
-						LangCode: "et",
-						Navi:     "tìtusaron",
-						affixes:  map[string][]string{},
-					},
+				},
+				{
+					ID:       "6156",
+					LangCode: "et",
+					Navi:     "tìtusaron",
+					affixes:  map[string][]string{},
 				},
 			},
 		}, // tì prefix
@@ -448,41 +415,36 @@ func TestTranslateFromNavi(t *testing.T) {
 				searchNaviText: "fayioang",
 				languageCode:   "fr",
 			},
-			want: [][]Word{
+			want: []Word{
 				{
-					{
-						ID:       "612",
-						LangCode: "fr",
-						Navi:     "ioang",
-						affixes: map[string][]string{
-							"Prefixes": {
-								"fay",
-							},
+					ID:       "612",
+					LangCode: "fr",
+					Navi:     "ioang",
+					affixes: map[string][]string{
+						"Prefixes": {
+							"fay",
 						},
 					},
 				},
 			},
 		},
-		// TODO `siyu` "vin." prefix
 		{
 			name: "tsasoaiä",
 			args: args{
 				searchNaviText: "tsasoaiä",
 				languageCode:   "en",
 			},
-			want: [][]Word{
+			want: []Word{
 				{
-					{
-						ID:       "4804",
-						LangCode: "en",
-						Navi:     "soaia",
-						affixes: map[string][]string{
-							"Prefixes": {
-								"tsa",
-							},
-							"Suffixes": {
-								"ä",
-							},
+					ID:       "4804",
+					LangCode: "en",
+					Navi:     "soaia",
+					affixes: map[string][]string{
+						"Prefixes": {
+							"tsa",
+						},
+						"Suffixes": {
+							"ä",
 						},
 					},
 				},
@@ -494,16 +456,14 @@ func TestTranslateFromNavi(t *testing.T) {
 				searchNaviText: "tseyä",
 				languageCode:   "de",
 			},
-			want: [][]Word{
+			want: []Word{
 				{
-					{
-						ID:       "5268",
-						LangCode: "de",
-						Navi:     "tsaw",
-						affixes: map[string][]string{
-							"Suffixes": {
-								"yä",
-							},
+					ID:       "5268",
+					LangCode: "de",
+					Navi:     "tsaw",
+					affixes: map[string][]string{
+						"Suffixes": {
+							"yä",
 						},
 					},
 				},
@@ -515,16 +475,14 @@ func TestTranslateFromNavi(t *testing.T) {
 				searchNaviText: "oey",
 				languageCode:   "en",
 			},
-			want: [][]Word{
+			want: []Word{
 				{
-					{
-						ID:       "1380",
-						LangCode: "en",
-						Navi:     "oe",
-						affixes: map[string][]string{
-							"Suffixes": {
-								"y",
-							},
+					ID:       "1380",
+					LangCode: "en",
+					Navi:     "oe",
+					affixes: map[string][]string{
+						"Suffixes": {
+							"y",
 						},
 					},
 				},
@@ -536,16 +494,14 @@ func TestTranslateFromNavi(t *testing.T) {
 				searchNaviText: "ngey",
 				languageCode:   "nl",
 			},
-			want: [][]Word{
+			want: []Word{
 				{
-					{
-						ID:       "1348",
-						LangCode: "nl",
-						Navi:     "nga",
-						affixes: map[string][]string{
-							"Suffixes": {
-								"y",
-							},
+					ID:       "1348",
+					LangCode: "nl",
+					Navi:     "nga",
+					affixes: map[string][]string{
+						"Suffixes": {
+							"y",
 						},
 					},
 				},
@@ -557,22 +513,20 @@ func TestTranslateFromNavi(t *testing.T) {
 				searchNaviText: "tì'usemä",
 				languageCode:   "de",
 			},
-			want: [][]Word{
+			want: []Word{
 				{
-					{
-						ID:       "3676",
-						LangCode: "de",
-						Navi:     "'em",
-						affixes: map[string][]string{
-							"Infixes": {
-								"us",
-							},
-							"Prefixes": {
-								"tì",
-							},
-							"Suffixes": {
-								"ä",
-							},
+					ID:       "3676",
+					LangCode: "de",
+					Navi:     "'em",
+					affixes: map[string][]string{
+						"Infixes": {
+							"us",
+						},
+						"Prefixes": {
+							"tì",
+						},
+						"Suffixes": {
+							"ä",
 						},
 					},
 				},
@@ -584,16 +538,14 @@ func TestTranslateFromNavi(t *testing.T) {
 				searchNaviText: "wemtswo",
 				languageCode:   "fr",
 			},
-			want: [][]Word{
+			want: []Word{
 				{
-					{
-						ID:       "3948",
-						LangCode: "fr",
-						Navi:     "wem",
-						affixes: map[string][]string{
-							"Suffixes": {
-								"tswo",
-							},
+					ID:       "3948",
+					LangCode: "fr",
+					Navi:     "wem",
+					affixes: map[string][]string{
+						"Suffixes": {
+							"tswo",
 						},
 					},
 				},
@@ -605,19 +557,17 @@ func TestTranslateFromNavi(t *testing.T) {
 				searchNaviText: "pawnengsì",
 				languageCode:   "en",
 			},
-			want: [][]Word{
+			want: []Word{
 				{
-					{
-						ID:       "1512",
-						LangCode: "en",
-						Navi:     "peng",
-						affixes: map[string][]string{
-							"Suffixes": {
-								"sì",
-							},
-							"Infixes": {
-								"awn",
-							},
+					ID:       "1512",
+					LangCode: "en",
+					Navi:     "peng",
+					affixes: map[string][]string{
+						"Suffixes": {
+							"sì",
+						},
+						"Infixes": {
+							"awn",
 						},
 					},
 				},
@@ -629,19 +579,17 @@ func TestTranslateFromNavi(t *testing.T) {
 				searchNaviText: "tsuknumesì",
 				languageCode:   "nl",
 			},
-			want: [][]Word{
+			want: []Word{
 				{
-					{
-						ID:       "1340",
-						LangCode: "nl",
-						Navi:     "nume",
-						affixes: map[string][]string{
-							"Prefixes": {
-								"tsuk",
-							},
-							"Suffixes": {
-								"sì",
-							},
+					ID:       "1340",
+					LangCode: "nl",
+					Navi:     "nume",
+					affixes: map[string][]string{
+						"Prefixes": {
+							"tsuk",
+						},
+						"Suffixes": {
+							"sì",
 						},
 					},
 				},
@@ -653,16 +601,14 @@ func TestTranslateFromNavi(t *testing.T) {
 				searchNaviText: "tsamungwrr",
 				languageCode:   "et",
 			},
-			want: [][]Word{
+			want: []Word{
 				{
-					{
-						ID:       "5268",
-						LangCode: "et",
-						Navi:     "tsaw",
-						affixes: map[string][]string{
-							"Suffixes": {
-								"mungwrr",
-							},
+					ID:       "5268",
+					LangCode: "et",
+					Navi:     "tsaw",
+					affixes: map[string][]string{
+						"Suffixes": {
+							"mungwrr",
 						},
 					},
 				},
@@ -674,14 +620,12 @@ func TestTranslateFromNavi(t *testing.T) {
 				searchNaviText: "tsamsiyu",
 				languageCode:   "en",
 			},
-			want: [][]Word{
+			want: []Word{
 				{
-					{
-						ID:       "2344",
-						LangCode: "en",
-						Navi:     "tsamsiyu",
-						affixes:  map[string][]string{},
-					},
+					ID:       "2344",
+					LangCode: "en",
+					Navi:     "tsamsiyu",
+					affixes:  map[string][]string{},
 				},
 			},
 		},
@@ -691,26 +635,24 @@ func TestTranslateFromNavi(t *testing.T) {
 				searchNaviText: "'ueyä",
 				languageCode:   "de",
 			},
-			want: [][]Word{
+			want: []Word{
 				{
-					{
-						ID:       "108",
-						LangCode: "de",
-						Navi:     "'u",
-						affixes: map[string][]string{
-							"Suffixes": {
-								"eyä",
-							},
+					ID:       "108",
+					LangCode: "de",
+					Navi:     "'u",
+					affixes: map[string][]string{
+						"Suffixes": {
+							"eyä",
 						},
 					},
-					{
-						ID:       "4180",
-						LangCode: "de",
-						Navi:     "'uo",
-						affixes: map[string][]string{
-							"Suffixes": {
-								"yä",
-							},
+				},
+				{
+					ID:       "4180",
+					LangCode: "de",
+					Navi:     "'uo",
+					affixes: map[string][]string{
+						"Suffixes": {
+							"yä",
 						},
 					},
 				},
@@ -722,16 +664,14 @@ func TestTranslateFromNavi(t *testing.T) {
 				searchNaviText: "awngeyä",
 				languageCode:   "et",
 			},
-			want: [][]Word{
+			want: []Word{
 				{
-					{
-						ID:       "192",
-						LangCode: "et",
-						Navi:     "awnga",
-						affixes: map[string][]string{
-							"Suffixes": {
-								"yä",
-							},
+					ID:       "192",
+					LangCode: "et",
+					Navi:     "awnga",
+					affixes: map[string][]string{
+						"Suffixes": {
+							"yä",
 						},
 					},
 				},
@@ -743,14 +683,12 @@ func TestTranslateFromNavi(t *testing.T) {
 				searchNaviText: "fpi",
 				languageCode:   "en",
 			},
-			want: [][]Word{
+			want: []Word{
 				{
-					{
-						ID:       "428",
-						LangCode: "en",
-						Navi:     "fpi+",
-						affixes:  map[string][]string{},
-					},
+					ID:       "428",
+					LangCode: "en",
+					Navi:     "fpi+",
+					affixes:  map[string][]string{},
 				},
 			},
 		}, // "+" support
@@ -760,14 +698,12 @@ func TestTranslateFromNavi(t *testing.T) {
 				searchNaviText: "pe",
 				languageCode:   "en",
 			},
-			want: [][]Word{
+			want: []Word{
 				{
-					{
-						ID:       "1488",
-						LangCode: "en",
-						Navi:     "--pe+",
-						affixes:  map[string][]string{},
-					},
+					ID:       "1488",
+					LangCode: "en",
+					Navi:     "--pe+",
+					affixes:  map[string][]string{},
 				},
 			},
 		}, // "--" support

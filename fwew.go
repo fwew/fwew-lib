@@ -77,39 +77,28 @@ func (w *Word) similarity(other string) float64 {
 	return (iratio + lratio) / 2
 }
 
-// Translate some navi text, with multiple words separated by a space
-// This will return an  array of array of Words, that fit the input text
+// Translate some navi text.
+// !! Only one word is allowed, if spaces are found, they will be treated like part of the word !!
+// This will return an array of Words, that fit the input text
 // One Navi-Word can have multiple meanings and words (e.g. synonyms)
-func TranslateFromNavi(searchNaviText string, languageCode string) [][]Word {
+func TranslateFromNavi(searchNaviWord string, languageCode string) (results []Word) {
 	badChars := strings.Split("` ~ @ # $ % ^ & * ( ) [ ] { } < > _ / . , ; : ! ? | + \\", space)
 
 	// remove all the sketchy chars from arguments
 	for _, c := range badChars {
-		searchNaviText = strings.ReplaceAll(searchNaviText, c, "")
+		searchNaviWord = strings.ReplaceAll(searchNaviWord, c, "")
 	}
 
 	// normalize tìftang character
-	searchNaviText = strings.ReplaceAll(searchNaviText, "’", "'")
-	searchNaviText = strings.ReplaceAll(searchNaviText, "‘", "'")
+	searchNaviWord = strings.ReplaceAll(searchNaviWord, "’", "'")
+	searchNaviWord = strings.ReplaceAll(searchNaviWord, "‘", "'")
 
 	// No Results if empty string after removing sketch chars
-	if len(searchNaviText) == 0 {
-		return nil
+	if len(searchNaviWord) == 0 {
+		return
 	}
 
-	// split all navi words, so we can look for them individually
-	searchNaviWords := strings.Split(searchNaviText, space)
-
-	for _, w := range searchNaviWords {
-		// remove "+" and "--", we want to be able to search with and without those!
-		w = strings.ReplaceAll(w, "+", "")
-		w = strings.ReplaceAll(w, "--", "")
-		w = strings.ToLower(w)
-	}
-
-	results := make([][]Word, len(searchNaviWords))
-
-	// TODO run on file diretly, if not cached
+	// TODO run on file directly, if not cached
 	// dictpart to search in
 	words := dictionary[languageCode]
 	for _, word := range words {
@@ -121,32 +110,30 @@ func TranslateFromNavi(searchNaviText string, languageCode string) [][]Word {
 		word.Navi = strings.ReplaceAll(word.Navi, "--", "")
 		word.Navi = strings.ToLower(word.Navi)
 
-		for i, searchNaviWord := range searchNaviWords {
-			if word.Navi == searchNaviWord {
-				word.Navi = naviWord
-				results[i] = append(results[i], word)
-				continue
-			}
+		if word.Navi == searchNaviWord {
+			word.Navi = naviWord
+			results = append(results, word)
+			continue
+		}
 
-			// skip words that obviously won't work
-			s := word.similarity(searchNaviWord)
+		// skip words that obviously won't work
+		s := word.similarity(searchNaviWord)
 
-			if debugMode {
-				log.Printf("Target: %s | Line: %s | [%f]\n", searchNaviWord, word.Navi, s)
-			}
+		if debugMode {
+			log.Printf("Target: %s | Line: %s | [%f]\n", searchNaviWord, word.Navi, s)
+		}
 
-			if s < 0.50 && !strings.HasSuffix(searchNaviWord, "eyä") {
-				continue
-			}
+		if s < 0.50 && !strings.HasSuffix(searchNaviWord, "eyä") {
+			continue
+		}
 
-			if word.reconstruct(searchNaviWord) {
-				word.Navi = naviWord
-				results[i] = append(results[i], word)
-			}
+		if word.reconstruct(searchNaviWord) {
+			word.Navi = naviWord
+			results = append(results, word)
 		}
 	}
 
-	return results
+	return
 }
 
 // ------------------------------------------------------------------------------------------------------------------------
