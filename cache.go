@@ -60,6 +60,33 @@ func CacheDict() error {
 		return nil
 	}
 
+	runOnFile(func(word Word) {
+		dictionary[word.LangCode] = append(dictionary[word.LangCode], word)
+	})
+
+	dictionaryCached = true
+
+	return nil
+}
+
+// This will run the function `f` inside the cache or the file directly.
+// Use this to get words out of the dictionary
+// function `f` is called on every single line that matches the langCode!
+func RunOnDict(lang string, f func(word Word)) {
+	if dictionaryCached {
+		for _, word := range dictionary[lang] {
+			f(word)
+		}
+	} else {
+		runOnFile(func(word Word) {
+			if word.LangCode == lang {
+				f(word)
+			}
+		})
+	}
+}
+
+func runOnFile(f func(word Word)) error {
 	dictionaryFile := findDictionaryFile()
 	if dictionaryFile == "" {
 		return errors.New("no dictionary found")
@@ -82,10 +109,8 @@ func CacheDict() error {
 		fields := strings.Split(line, "\t")
 
 		// Put the stuff from fields into the Word struct
-		dictionary[fields[lcField]] = append(dictionary[fields[lcField]], newWord(fields))
+		f(newWord(fields))
 	}
-
-	dictionaryCached = true
 
 	return nil
 }

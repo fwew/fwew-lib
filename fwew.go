@@ -99,9 +99,7 @@ func TranslateFromNavi(searchNaviWord string, languageCode string) (results []Wo
 	}
 
 	// TODO run on file directly, if not cached
-	// dictpart to search in
-	words := dictionary[languageCode]
-	for _, word := range words {
+	RunOnDict(languageCode, func(word Word) {
 		// save original Navi word, we want to add "+" or "--" later again
 		naviWord := word.Navi
 
@@ -113,7 +111,7 @@ func TranslateFromNavi(searchNaviWord string, languageCode string) (results []Wo
 		if word.Navi == searchNaviWord {
 			word.Navi = naviWord
 			results = append(results, word)
-			continue
+			return
 		}
 
 		// skip words that obviously won't work
@@ -124,14 +122,14 @@ func TranslateFromNavi(searchNaviWord string, languageCode string) (results []Wo
 		}
 
 		if s < 0.50 && !strings.HasSuffix(searchNaviWord, "eyä") {
-			continue
+			return
 		}
 
 		if word.reconstruct(searchNaviWord) {
 			word.Navi = naviWord
 			results = append(results, word)
 		}
-	}
+	})
 
 	return
 }

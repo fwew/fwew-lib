@@ -707,9 +707,18 @@ var naviWords = []struct {
 	}, // "--" support
 }
 
-func TestTranslateFromNavi(t *testing.T) {
+func TestTranslateFromNaviCached(t *testing.T) {
 	CacheDict()
 
+	for _, tt := range naviWords {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := TranslateFromNavi(tt.args.searchNaviText, tt.args.languageCode); !wordSimpleEqual(got, tt.want) {
+				t.Errorf("TranslateFromNavi() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+func TestTranslateFromNavi(t *testing.T) {
 	for _, tt := range naviWords {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := TranslateFromNavi(tt.args.searchNaviText, tt.args.languageCode); !wordSimpleEqual(got, tt.want) {
@@ -722,6 +731,16 @@ func TestTranslateFromNavi(t *testing.T) {
 func BenchmarkTranslateFromNaviCached(b *testing.B) {
 	CacheDict()
 
+	for _, bm := range naviWords {
+		b.Run(bm.name, func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				TranslateFromNavi(bm.args.searchNaviText, bm.args.languageCode)
+			}
+		})
+	}
+}
+
+func BenchmarkTranslateFromNavi(b *testing.B) {
 	for _, bm := range naviWords {
 		b.Run(bm.name, func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
