@@ -16,6 +16,7 @@
 package fwew_lib
 
 import (
+	"bufio"
 	"os"
 	"reflect"
 	"testing"
@@ -745,6 +746,46 @@ func BenchmarkTranslateFromNavi(b *testing.B) {
 		b.Run(bm.name, func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
 				TranslateFromNavi(bm.args.searchNaviText, bm.args.languageCode)
+			}
+		})
+	}
+}
+
+func BenchmarkTranslateFromNaviBig(b *testing.B) {
+	open, err := os.Open("misc/random_words.txt")
+	if err != nil {
+		return
+	}
+	defer open.Close()
+
+	scanner := bufio.NewScanner(open)
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		b.Run(line, func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				TranslateFromNavi(line, "en")
+			}
+		})
+	}
+}
+
+func BenchmarkTranslateFromNaviBigCached(b *testing.B) {
+	CacheDict()
+
+	open, err := os.Open("misc/random_words.txt")
+	if err != nil {
+		return
+	}
+	defer open.Close()
+
+	scanner := bufio.NewScanner(open)
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		b.Run(line, func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				TranslateFromNavi(line, "en")
 			}
 		})
 	}
