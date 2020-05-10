@@ -98,7 +98,6 @@ func TranslateFromNavi(searchNaviWord string, languageCode string) (results []Wo
 		return
 	}
 
-	// TODO run on file directly, if not cached
 	RunOnDict(languageCode, func(word Word) {
 		// save original Navi word, we want to add "+" or "--" later again
 		naviWord := word.Navi
@@ -131,6 +130,23 @@ func TranslateFromNavi(searchNaviWord string, languageCode string) (results []Wo
 		}
 	})
 
+	return
+}
+
+func TranslateToNavi(searchWord string, langCode string) (results []Word) {
+	RunOnDict(langCode, func(word Word) {
+		wordString := StripChars(word.Definition, ",;")
+		wordString = strings.ToLower(wordString)
+		searchWord = strings.ToLower(searchWord)
+
+		// whole-word matching
+		for _, w := range strings.Split(wordString, space) {
+			if w == searchWord {
+				results = append(results, word)
+				break
+			}
+		}
+	})
 	return
 }
 

@@ -139,7 +139,7 @@ func TestSyllableCount(t *testing.T) {
 }
 */
 
-func wordSimpleEqual(w1a, w2a []Word) bool {
+func wordSimpleEqual(w1a, w2a []Word, checkAffixes bool) bool {
 	w1l := len(w1a)
 	w2l := len(w2a)
 
@@ -154,7 +154,7 @@ func wordSimpleEqual(w1a, w2a []Word) bool {
 		if w1.ID != w2.ID ||
 			w1.LangCode != w2.LangCode ||
 			w1.Navi != w2.Navi ||
-			!reflect.DeepEqual(w1.affixes, w2.affixes) {
+			(checkAffixes && !reflect.DeepEqual(w1.affixes, w2.affixes)) {
 
 			return false
 		}
@@ -707,13 +707,138 @@ var naviWords = []struct {
 		},
 	}, // "--" support
 }
+var englishWords = []struct {
+	name string
+	args args
+	want []Word
+}{
+	{
+		name: "Spielzeug",
+		args: args{
+			searchNaviText: "Spielzeug",
+			languageCode:   "de",
+		},
+		want: []Word{
+			{
+				ID:       "12989",
+				LangCode: "de",
+				Navi:     "fil",
+			},
+		},
+	},
+	{
+		name: "Tier",
+		args: args{
+			searchNaviText: "Tier",
+			languageCode:   "de",
+		},
+		want: []Word{
+			{
+				ID:       "612",
+				LangCode: "de",
+				Navi:     "ioang",
+			},
+			{
+				ID:       "1440",
+				LangCode: "de",
+				Navi:     "pa'li",
+			},
+			{
+				ID:       "2124",
+				LangCode: "de",
+				Navi:     "tireaioang",
+			},
+			{
+				ID:       "2744",
+				LangCode: "de",
+				Navi:     "yerik",
+			},
+			{
+				ID:       "7676",
+				LangCode: "de",
+				Navi:     "fwampop",
+			},
+		},
+	},
+	{
+		name: "Zehe",
+		args: args{
+			searchNaviText: "Zehe",
+			languageCode:   "de",
+		},
+		want: []Word{
+			{
+				ID:       "4524",
+				LangCode: "de",
+				Navi:     "venzek",
+			},
+		},
+	},
+	{
+		name: "sharp",
+		args: args{
+			searchNaviText: "sharp",
+			languageCode:   "en",
+		},
+		want: []Word{
+			{
+				ID:       "1608",
+				LangCode: "en",
+				Navi:     "pxi",
+			},
+			{
+				ID:       "1616",
+				LangCode: "en",
+				Navi:     "pxiut",
+			},
+			{
+				ID:       "8604",
+				LangCode: "en",
+				Navi:     "litx",
+			},
+		},
+	},
+	{
+		name: "charge",
+		args: args{
+			searchNaviText: "charge",
+			languageCode:   "en",
+		},
+		want: []Word{
+			{
+				ID:       "936",
+				LangCode: "en",
+				Navi:     "kxll",
+			},
+			{
+				ID:       "5256",
+				LangCode: "en",
+				Navi:     "kxll si",
+			},
+		},
+	},
+	{
+		name: "cloth",
+		args: args{
+			searchNaviText: "cloth",
+			languageCode:   "en",
+		},
+		want: []Word{
+			{
+				ID:       "9868",
+				LangCode: "en",
+				Navi:     "srä",
+			},
+		},
+	},
+}
 
 func TestTranslateFromNaviCached(t *testing.T) {
 	CacheDict()
 
 	for _, tt := range naviWords {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := TranslateFromNavi(tt.args.searchNaviText, tt.args.languageCode); !wordSimpleEqual(got, tt.want) {
+			if got := TranslateFromNavi(tt.args.searchNaviText, tt.args.languageCode); !wordSimpleEqual(got, tt.want, true) {
 				t.Errorf("TranslateFromNavi() = %v, want %v", got, tt.want)
 			}
 		})
@@ -722,7 +847,7 @@ func TestTranslateFromNaviCached(t *testing.T) {
 func TestTranslateFromNavi(t *testing.T) {
 	for _, tt := range naviWords {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := TranslateFromNavi(tt.args.searchNaviText, tt.args.languageCode); !wordSimpleEqual(got, tt.want) {
+			if got := TranslateFromNavi(tt.args.searchNaviText, tt.args.languageCode); !wordSimpleEqual(got, tt.want, true) {
 				t.Errorf("TranslateFromNavi() = %v, want %v", got, tt.want)
 			}
 		})
@@ -786,6 +911,68 @@ func BenchmarkTranslateFromNaviBigCached(b *testing.B) {
 		b.Run(line, func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
 				TranslateFromNavi(line, "en")
+			}
+		})
+	}
+}
+
+func TestTranslateToNavi(t *testing.T) {
+	for _, tt := range englishWords {
+		t.Run(tt.name, func(t *testing.T) {
+			if gotResults := TranslateToNavi(tt.args.searchNaviText, tt.args.languageCode); !wordSimpleEqual(gotResults, tt.want, false) {
+				t.Errorf("TranslateToNavi() = %v, want %v", gotResults, tt.want)
+			}
+		})
+	}
+}
+
+func TestTranslateToNaviCached(t *testing.T) {
+	CacheDict()
+
+	for _, tt := range englishWords {
+		t.Run(tt.name, func(t *testing.T) {
+			if gotResults := TranslateToNavi(tt.args.searchNaviText, tt.args.languageCode); !wordSimpleEqual(gotResults, tt.want, false) {
+				t.Errorf("TranslateToNavi() = %v, want %v", gotResults, tt.want)
+			}
+		})
+	}
+}
+
+func BenchmarkTranslateToNaviBig(b *testing.B) {
+	open, err := os.Open("misc/random_words_english.txt")
+	if err != nil {
+		return
+	}
+	defer open.Close()
+
+	scanner := bufio.NewScanner(open)
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		b.Run(line, func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				TranslateToNavi(line, "en")
+			}
+		})
+	}
+}
+
+func BenchmarkTranslateToNaviBigCached(b *testing.B) {
+	CacheDict()
+
+	open, err := os.Open("misc/random_words_english.txt")
+	if err != nil {
+		return
+	}
+	defer open.Close()
+
+	scanner := bufio.NewScanner(open)
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		b.Run(line, func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				TranslateToNavi(line, "en")
 			}
 		})
 	}
