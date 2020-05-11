@@ -83,11 +83,11 @@ func (w *Word) similarity(other string) float64 {
 // This will return an array of Words, that fit the input text
 // One Navi-Word can have multiple meanings and words (e.g. synonyms)
 func TranslateFromNavi(searchNaviWord string, languageCode string) (results []Word) {
-	badChars := strings.Split("` ~ @ # $ % ^ & * ( ) [ ] { } < > _ / . , ; : ! ? | + \\", space)
+	badChars := `~@#$%^&*()[]{}<>_/.,;:!?|+\`
 
 	// remove all the sketchy chars from arguments
 	for _, c := range badChars {
-		searchNaviWord = strings.ReplaceAll(searchNaviWord, c, "")
+		searchNaviWord = strings.ReplaceAll(searchNaviWord, string(c), "")
 	}
 
 	// normalize tìftang character
