@@ -15,7 +15,10 @@
 // Package main contains all the things. word.go is home to the Word struct.
 package fwew_lib
 
-import "fmt"
+import (
+	"fmt"
+	"reflect"
+)
 
 // Word is a struct that contains all the data about a given word
 type Word struct {
@@ -30,8 +33,15 @@ type Word struct {
 	Stressed       string
 	Syllables      string
 	InfixDots      string
+	Affixes        affix
+}
 
-	affixes map[string][]string
+// affixes has its own type, so it is automatically copied :)
+type affix struct {
+	Prefix   []string
+	Infix    []string
+	Suffix   []string
+	Lenition []string
 }
 
 func (w Word) String() string {
@@ -60,7 +70,7 @@ func (w Word) String() string {
 		w.Stressed,
 		w.Syllables,
 		w.InfixDots,
-		w.affixes)
+		w.Affixes)
 }
 
 // Initialize Word with one row of the dictionary.
@@ -91,49 +101,25 @@ func newWord(dataFields []string) Word {
 	word.Syllables = dataFields[sylField]
 	word.InfixDots = dataFields[ifdField]
 
-	word.affixes = make(map[string][]string)
-
 	return word
 }
 
 // CloneWordStruct is basically a copy constructor for Word struct
-func CloneWordStruct(w Word) Word {
-	var nw Word
-	nw.ID = w.ID
-	nw.LangCode = w.LangCode
-	nw.Navi = w.Navi
-	nw.IPA = w.IPA
-	nw.InfixLocations = w.InfixLocations
-	nw.PartOfSpeech = w.PartOfSpeech
-	nw.Definition = w.Definition
-	nw.Source = w.Source
-	nw.Stressed = w.Stressed
-	nw.Syllables = w.Syllables
-	nw.InfixDots = w.InfixDots
+// Basically not needed, cause go copies things by itself. Only string arrays in Affixes are pointers and therefore need manual copy.
+func (w *Word) cloneWordStruct() Word {
+	// Copy struct to new instance
+	nw := *w
 
-	nw.affixes = make(map[string][]string)
-	for k := range w.affixes {
-		nw.affixes[k] = make([]string, len(w.affixes[k]))
-		copy(nw.affixes[k], w.affixes[k])
-	}
+	// copy the arrays manually
+	copy(nw.Affixes.Prefix, w.Affixes.Prefix)
+	copy(nw.Affixes.Infix, w.Affixes.Infix)
+	copy(nw.Affixes.Suffix, w.Affixes.Suffix)
+	copy(nw.Affixes.Lenition, w.Affixes.Lenition)
+
 	return nw
 }
 
 func (w *Word) Equals(other Word) bool {
-	//ID             string
-	//	LangCode       string
-	//	Navi           string
-	//	IPA            string
-	//	InfixLocations string
-	//	PartOfSpeech   string
-	//	Definition     string
-	//	Source         string
-	//	Stressed       string
-	//	Syllables      string
-	//	InfixDots      string
-	//
-	//	Affixes map[string][]string
-	//	Attempt string
 	return w.ID == other.ID &&
 		w.LangCode == other.LangCode &&
 		w.Navi == other.Navi &&
@@ -144,5 +130,6 @@ func (w *Word) Equals(other Word) bool {
 		w.Source == other.Source &&
 		w.Stressed == other.Stressed &&
 		w.Syllables == other.Syllables &&
-		w.InfixDots == other.InfixDots
+		w.InfixDots == other.InfixDots &&
+		reflect.DeepEqual(w.Affixes, other.Affixes)
 }

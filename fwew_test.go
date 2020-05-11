@@ -154,7 +154,11 @@ func wordSimpleEqual(w1a, w2a []Word, checkAffixes bool) bool {
 		if w1.ID != w2.ID ||
 			w1.LangCode != w2.LangCode ||
 			w1.Navi != w2.Navi ||
-			(checkAffixes && !reflect.DeepEqual(w1.affixes, w2.affixes)) {
+			(checkAffixes &&
+				(!reflect.DeepEqual(w1.Affixes.Prefix, w2.Affixes.Prefix) ||
+					!reflect.DeepEqual(w1.Affixes.Infix, w2.Affixes.Infix) ||
+					!reflect.DeepEqual(w1.Affixes.Suffix, w2.Affixes.Suffix) ||
+					!reflect.DeepEqual(w1.Affixes.Lenition, w2.Affixes.Lenition))) {
 
 			return false
 		}
@@ -184,8 +188,8 @@ var naviWords = []struct {
 				ID:       "1120",
 				LangCode: "de",
 				Navi:     "mllte",
-				affixes: map[string][]string{
-					"Infixes": {
+				Affixes: affix{
+					Infix: []string{
 						"ol",
 					},
 				},
@@ -203,12 +207,12 @@ var naviWords = []struct {
 				ID:       "6616",
 				LangCode: "fr",
 				Navi:     "pil",
-				affixes: map[string][]string{
-					"lenition": {
-						"p→f",
-					},
-					"Prefixes": {
+				Affixes: affix{
+					Prefix: []string{
 						"pep",
+					},
+					Lenition: []string{
+						"p→f",
 					},
 				},
 			},
@@ -216,8 +220,8 @@ var naviWords = []struct {
 				ID:       "12989",
 				LangCode: "fr",
 				Navi:     "fil",
-				affixes: map[string][]string{
-					"Prefixes": {
+				Affixes: affix{
+					Prefix: []string{
 						"pep",
 					},
 				},
@@ -243,8 +247,8 @@ var naviWords = []struct {
 				ID:       "1788",
 				LangCode: "hu",
 				Navi:     "si",
-				affixes: map[string][]string{
-					"Infixes": {
+				Affixes: affix{
+					Infix: []string{
 						"äp",
 						"eyk",
 						"iyev",
@@ -265,7 +269,7 @@ var naviWords = []struct {
 				ID:       "2380",
 				LangCode: "en",
 				Navi:     "tseng",
-				affixes:  map[string][]string{},
+				Affixes:  affix{},
 			},
 		},
 	}, // simple (no *fixes)
@@ -280,8 +284,8 @@ var naviWords = []struct {
 				ID:       "1044",
 				LangCode: "en",
 				Navi:     "lu",
-				affixes: map[string][]string{
-					"Infixes": {
+				Affixes: affix{
+					Infix: []string{
 						"uy",
 					},
 				},
@@ -299,8 +303,8 @@ var naviWords = []struct {
 				ID:       "1788",
 				LangCode: "fr",
 				Navi:     "si",
-				affixes: map[string][]string{
-					"Infixes": {
+				Affixes: affix{
+					Infix: []string{
 						"ei",
 					},
 				},
@@ -318,8 +322,8 @@ var naviWords = []struct {
 				ID:       "3968",
 				LangCode: "en",
 				Navi:     "zenke",
-				affixes: map[string][]string{
-					"Infixes": {
+				Affixes: affix{
+					Infix: []string{
 						"uy",
 					},
 				},
@@ -337,8 +341,8 @@ var naviWords = []struct {
 				ID:       "6884",
 				LangCode: "et",
 				Navi:     "vrrìn",
-				affixes: map[string][]string{
-					"Infixes": {
+				Affixes: affix{
+					Infix: []string{
 						"er",
 					},
 				},
@@ -356,8 +360,8 @@ var naviWords = []struct {
 				ID:       "4984",
 				LangCode: "en",
 				Navi:     "tswa'",
-				affixes: map[string][]string{
-					"Prefixes": {
+				Affixes: affix{
+					Prefix: []string{
 						"ketsuk",
 					},
 				},
@@ -366,14 +370,14 @@ var naviWords = []struct {
 				ID:       "7352",
 				LangCode: "en",
 				Navi:     "ketsuktswa'",
-				affixes:  map[string][]string{},
+				Affixes:  affix{},
 			},
 			{
 				ID:       "7356",
 				LangCode: "en",
 				Navi:     "tsuktswa'",
-				affixes: map[string][]string{
-					"Prefixes": {
+				Affixes: affix{
+					Prefix: []string{
 						"ke",
 					},
 				},
@@ -391,12 +395,12 @@ var naviWords = []struct {
 				ID:       "2004",
 				LangCode: "et",
 				Navi:     "taron",
-				affixes: map[string][]string{
-					"Infixes": {
-						"us",
-					},
-					"Prefixes": {
+				Affixes: affix{
+					Prefix: []string{
 						"tì",
+					},
+					Infix: []string{
+						"us",
 					},
 				},
 			},
@@ -404,7 +408,7 @@ var naviWords = []struct {
 				ID:       "6156",
 				LangCode: "et",
 				Navi:     "tìtusaron",
-				affixes:  map[string][]string{},
+				Affixes:  affix{},
 			},
 		},
 	}, // tì prefix
@@ -419,8 +423,8 @@ var naviWords = []struct {
 				ID:       "612",
 				LangCode: "fr",
 				Navi:     "ioang",
-				affixes: map[string][]string{
-					"Prefixes": {
+				Affixes: affix{
+					Prefix: []string{
 						"fay",
 					},
 				},
@@ -438,11 +442,11 @@ var naviWords = []struct {
 				ID:       "4804",
 				LangCode: "en",
 				Navi:     "soaia",
-				affixes: map[string][]string{
-					"Prefixes": {
+				Affixes: affix{
+					Prefix: []string{
 						"tsa",
 					},
-					"Suffixes": {
+					Suffix: []string{
 						"ä",
 					},
 				},
@@ -460,8 +464,8 @@ var naviWords = []struct {
 				ID:       "5268",
 				LangCode: "de",
 				Navi:     "tsaw",
-				affixes: map[string][]string{
-					"Suffixes": {
+				Affixes: affix{
+					Suffix: []string{
 						"yä",
 					},
 				},
@@ -479,8 +483,8 @@ var naviWords = []struct {
 				ID:       "1380",
 				LangCode: "en",
 				Navi:     "oe",
-				affixes: map[string][]string{
-					"Suffixes": {
+				Affixes: affix{
+					Suffix: []string{
 						"y",
 					},
 				},
@@ -498,8 +502,8 @@ var naviWords = []struct {
 				ID:       "1348",
 				LangCode: "nl",
 				Navi:     "nga",
-				affixes: map[string][]string{
-					"Suffixes": {
+				Affixes: affix{
+					Suffix: []string{
 						"y",
 					},
 				},
@@ -517,14 +521,14 @@ var naviWords = []struct {
 				ID:       "3676",
 				LangCode: "de",
 				Navi:     "'em",
-				affixes: map[string][]string{
-					"Infixes": {
-						"us",
-					},
-					"Prefixes": {
+				Affixes: affix{
+					Prefix: []string{
 						"tì",
 					},
-					"Suffixes": {
+					Infix: []string{
+						"us",
+					},
+					Suffix: []string{
 						"ä",
 					},
 				},
@@ -542,8 +546,8 @@ var naviWords = []struct {
 				ID:       "3948",
 				LangCode: "fr",
 				Navi:     "wem",
-				affixes: map[string][]string{
-					"Suffixes": {
+				Affixes: affix{
+					Suffix: []string{
 						"tswo",
 					},
 				},
@@ -561,12 +565,12 @@ var naviWords = []struct {
 				ID:       "1512",
 				LangCode: "en",
 				Navi:     "peng",
-				affixes: map[string][]string{
-					"Suffixes": {
-						"sì",
-					},
-					"Infixes": {
+				Affixes: affix{
+					Infix: []string{
 						"awn",
+					},
+					Suffix: []string{
+						"sì",
 					},
 				},
 			},
@@ -583,11 +587,11 @@ var naviWords = []struct {
 				ID:       "1340",
 				LangCode: "nl",
 				Navi:     "nume",
-				affixes: map[string][]string{
-					"Prefixes": {
+				Affixes: affix{
+					Prefix: []string{
 						"tsuk",
 					},
-					"Suffixes": {
+					Suffix: []string{
 						"sì",
 					},
 				},
@@ -605,8 +609,8 @@ var naviWords = []struct {
 				ID:       "5268",
 				LangCode: "et",
 				Navi:     "tsaw",
-				affixes: map[string][]string{
-					"Suffixes": {
+				Affixes: affix{
+					Suffix: []string{
 						"mungwrr",
 					},
 				},
@@ -624,7 +628,6 @@ var naviWords = []struct {
 				ID:       "2344",
 				LangCode: "en",
 				Navi:     "tsamsiyu",
-				affixes:  map[string][]string{},
 			},
 		},
 	},
@@ -639,8 +642,8 @@ var naviWords = []struct {
 				ID:       "108",
 				LangCode: "de",
 				Navi:     "'u",
-				affixes: map[string][]string{
-					"Suffixes": {
+				Affixes: affix{
+					Suffix: []string{
 						"eyä",
 					},
 				},
@@ -649,8 +652,8 @@ var naviWords = []struct {
 				ID:       "4180",
 				LangCode: "de",
 				Navi:     "'uo",
-				affixes: map[string][]string{
-					"Suffixes": {
+				Affixes: affix{
+					Suffix: []string{
 						"yä",
 					},
 				},
@@ -668,8 +671,8 @@ var naviWords = []struct {
 				ID:       "192",
 				LangCode: "et",
 				Navi:     "awnga",
-				affixes: map[string][]string{
-					"Suffixes": {
+				Affixes: affix{
+					Suffix: []string{
 						"yä",
 					},
 				},
@@ -687,7 +690,6 @@ var naviWords = []struct {
 				ID:       "428",
 				LangCode: "en",
 				Navi:     "fpi+",
-				affixes:  map[string][]string{},
 			},
 		},
 	}, // "+" support
@@ -702,7 +704,6 @@ var naviWords = []struct {
 				ID:       "1488",
 				LangCode: "en",
 				Navi:     "--pe+",
-				affixes:  map[string][]string{},
 			},
 		},
 	}, // "--" support

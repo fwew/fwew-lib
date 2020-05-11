@@ -48,7 +48,7 @@ func (w *Word) prefix(target string, previousAttempt string) string {
 	// the switch condition would be like 25 possibilities long
 	if strings.HasPrefix(w.PartOfSpeech, "v") ||
 		strings.HasPrefix(w.PartOfSpeech, svin) || w.PartOfSpeech == "" {
-		inf := w.affixes[Text("inf")]
+		inf := w.Affixes.Infix
 		if len(inf) > 0 && (inf[0] == "us" || inf[0] == "awn") {
 			reString = "(a|tì)?"
 		} else if strings.Contains(target, "ketsuk") || strings.Contains(target, "tsuk") {
@@ -104,7 +104,7 @@ func (w *Word) prefix(target string, previousAttempt string) string {
 		return previousAttempt
 	}
 	// only allow lenition after lenition-causing prefixes when prefixes and lenition present
-	if len(w.affixes["lenition"]) > 0 && len(matchPrefixes) > 0 {
+	if len(w.Affixes.Lenition) > 0 && len(matchPrefixes) > 0 {
 		if Contains(matchPrefixes, []string{"fne", "munsna"}) {
 			return previousAttempt
 		}
@@ -123,7 +123,7 @@ func (w *Word) prefix(target string, previousAttempt string) string {
 
 	matchPrefixes = DeleteElement(matchPrefixes, "e")
 	if len(matchPrefixes) > 0 {
-		w.affixes[Text("pre")] = matchPrefixes
+		w.Affixes.Prefix = append(w.Affixes.Prefix, matchPrefixes...)
 	}
 
 	return previousAttempt
@@ -147,27 +147,27 @@ func (w *Word) suffix(target string, previousAttempt string) string {
 
 	// hardcoded hack for tseyä
 	if target == "tseyä" && w.Navi == "tsaw" {
-		w.affixes[Text("suf")] = []string{"yä"}
+		w.Affixes.Suffix = []string{"yä"}
 		return "tseyä"
 	}
 
 	// hardcoded hack for oey
 	if target == "oey" && w.Navi == "oe" {
-		w.affixes[Text("suf")] = []string{"y"}
+		w.Affixes.Suffix = []string{"y"}
 		return "oey"
 	}
 
 	// hardcoded hack for ngey
 	if target == ngey && w.Navi == "nga" {
-		w.affixes[Text("suf")] = []string{"y"}
+		w.Affixes.Suffix = []string{"y"}
 		return ngey
 	}
 
 	// verbs
 	if !strings.Contains(w.PartOfSpeech, adv) &&
 		strings.Contains(w.PartOfSpeech, "v") || w.PartOfSpeech == "" {
-		inf := w.affixes[Text("inf")]
-		pre := w.affixes[Text("pre")]
+		inf := w.Affixes.Infix
+		pre := w.Affixes.Prefix
 		// word is verb with <us> or <awn>
 		if len(inf) == 1 && (inf[0] == "us" || inf[0] == "awn") {
 			// it's a tì-<us> gerund; treat it like a noun
@@ -269,7 +269,8 @@ func (w *Word) suffix(target string, previousAttempt string) string {
 	if strings.Contains(previousAttempt, " ") && strings.HasSuffix(previousAttempt, "siyu") {
 		previousAttempt = strings.Replace(previousAttempt, " siyu", "siyu", -1)
 	}
-	w.affixes[Text("suf")] = matchSuffixes
+
+	w.Affixes.Suffix = append(w.Affixes.Suffix, matchSuffixes...)
 
 	return previousAttempt
 }
@@ -277,9 +278,10 @@ func (w *Word) suffix(target string, previousAttempt string) string {
 // try to add infixes to the word. Returns the attempt with placed infixes
 func (w *Word) infix(target string) string {
 	// Have we already attempted infixes?
-	if _, ok := w.affixes[Text("inf")]; ok {
+	if w.Affixes.Infix != nil {
 		return ""
 	}
+
 	// Does the word even have infix positions??
 	if w.InfixLocations == "\\N" {
 		return ""
@@ -360,7 +362,7 @@ func (w *Word) infix(target string) string {
 	}
 
 	if len(matchInfixes) != 0 {
-		w.affixes[Text("inf")] = matchInfixes
+		w.Affixes.Infix = append(w.Affixes.Infix, matchInfixes...)
 	}
 
 	return attempt
@@ -370,9 +372,10 @@ func (w *Word) infix(target string) string {
 // Returns the lenite attempt.
 func (w *Word) lenite(attempt string) string {
 	// Have we already attempted lenition?
-	if _, ok := w.affixes["lenition"]; ok {
+	if w.Affixes.Lenition != nil {
 		return attempt
 	}
+
 	lenTable := [8][2]string{
 		{"kx", "k"},
 		{"px", "p"},
@@ -386,7 +389,7 @@ func (w *Word) lenite(attempt string) string {
 	for _, v := range lenTable {
 		if strings.HasPrefix(strings.ToLower(w.Navi), v[0]) {
 			attempt = strings.Replace(attempt, v[0], v[1], 1)
-			w.affixes["lenition"] = append(w.affixes["lenition"], v[0]+"→"+v[1])
+			w.Affixes.Lenition = append(w.Affixes.Lenition, v[0]+"→"+v[1])
 			return attempt
 		}
 	}
@@ -397,9 +400,6 @@ func (w *Word) lenite(attempt string) string {
 // This will try to reconstruct a Word, so it matches with the target.
 // Returns true if word got reconstructed into target!
 func (w *Word) reconstruct(target string) bool {
-	// clean up word
-	w.affixes = make(map[string][]string)
-
 	attempt := w.Navi
 
 	// only try to infix verbs
@@ -451,7 +451,7 @@ func (w *Word) reconstruct(target string) bool {
 	// try it another time, with different guess order!
 
 	// clean up word
-	w.affixes = make(map[string][]string)
+	w.Affixes = affix{}
 
 	attempt = w.lenite(w.Navi)
 
