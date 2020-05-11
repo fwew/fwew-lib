@@ -69,6 +69,11 @@ func CacheDict() error {
 	return nil
 }
 
+func UncacheDict() {
+	dictionary = make(map[string][]Word)
+	dictionaryCached = false
+}
+
 // This will run the function `f` inside the cache or the file directly.
 // Use this to get words out of the dictionary
 // function `f` is called on every single line that matches the langCode!

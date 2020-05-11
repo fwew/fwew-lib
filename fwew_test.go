@@ -845,8 +845,8 @@ func TestTranslateFromNavi(t *testing.T) {
 
 func TestTranslateFromNaviCached(t *testing.T) {
 	CacheDict()
-
 	TestTranslateFromNavi(t)
+	UncacheDict()
 }
 
 func BenchmarkTranslateFromNavi(b *testing.B) {
@@ -861,8 +861,8 @@ func BenchmarkTranslateFromNavi(b *testing.B) {
 
 func BenchmarkTranslateFromNaviCached(b *testing.B) {
 	CacheDict()
-
 	BenchmarkTranslateFromNavi(b)
+	UncacheDict()
 }
 
 func BenchmarkTranslateFromNaviBig(b *testing.B) {
@@ -886,8 +886,8 @@ func BenchmarkTranslateFromNaviBig(b *testing.B) {
 
 func BenchmarkTranslateFromNaviBigCached(b *testing.B) {
 	CacheDict()
-
 	BenchmarkTranslateFromNaviBig(b)
+	UncacheDict()
 }
 
 func TestTranslateToNavi(t *testing.T) {
@@ -902,8 +902,8 @@ func TestTranslateToNavi(t *testing.T) {
 
 func TestTranslateToNaviCached(t *testing.T) {
 	CacheDict()
-
 	TestTranslateToNavi(t)
+	UncacheDict()
 }
 
 func BenchmarkTranslateToNaviBig(b *testing.B) {
@@ -927,8 +927,8 @@ func BenchmarkTranslateToNaviBig(b *testing.B) {
 
 func BenchmarkTranslateToNaviBigCached(b *testing.B) {
 	CacheDict()
-
 	BenchmarkTranslateToNaviBig(b)
+	UncacheDict()
 }
 
 func TestRandom(t *testing.T) {
@@ -1002,4 +1002,5 @@ func TestRandom(t *testing.T) {
 func TestRandomCached(t *testing.T) {
 	CacheDict()
 	TestRandom(t)
+	UncacheDict()
 }
