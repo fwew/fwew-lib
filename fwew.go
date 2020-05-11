@@ -16,6 +16,7 @@ package fwew_lib
 
 import (
 	"log"
+	"math/rand"
 	"strings"
 )
 
@@ -147,6 +148,28 @@ func TranslateToNavi(searchWord string, langCode string) (results []Word) {
 			}
 		}
 	})
+	return
+}
+
+func Random(amount int, langCode string) (results []Word) {
+	var allWords []Word
+
+	if dictionaryCached {
+		allWords = dictionary[langCode]
+	} else {
+		runOnFile(func(word Word) {
+			if word.LangCode == langCode {
+				allWords = append(allWords, word)
+			}
+		})
+	}
+
+	dictLength := len(allWords)
+	for i := 0; i < amount; i++ {
+		number := rand.Intn(dictLength)
+		results = append(results, allWords[number])
+	}
+
 	return
 }
 

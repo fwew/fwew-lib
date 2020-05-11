@@ -977,3 +977,76 @@ func BenchmarkTranslateToNaviBigCached(b *testing.B) {
 		})
 	}
 }
+
+func TestRandom(t *testing.T) {
+	type args struct {
+		amount   int
+		langCode string
+	}
+	tests := []struct {
+		name string
+		args args
+	}{
+		{
+			name: "1",
+			args: args{
+				amount:   1,
+				langCode: "en",
+			},
+		},
+		{
+			name: "2",
+			args: args{
+				amount:   2,
+				langCode: "de",
+			},
+		},
+		{
+			name: "3",
+			args: args{
+				amount:   3,
+				langCode: "fr",
+			},
+		},
+		{
+			name: "4",
+			args: args{
+				amount:   4,
+				langCode: "nl",
+			},
+		},
+		{
+			name: "5",
+			args: args{
+				amount:   5,
+				langCode: "pl",
+			},
+		},
+		{
+			name: "500",
+			args: args{
+				amount:   500,
+				langCode: "en",
+			},
+		},
+		{
+			name: "2000",
+			args: args{
+				amount:   2000,
+				langCode: "en",
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if gotResults := Random(tt.args.amount, tt.args.langCode); !(len(gotResults) == tt.args.amount) {
+				t.Errorf("Random() = %v, want %v", len(gotResults), tt.args.amount)
+			}
+		})
+	}
+}
+
+func TestRandomCached(t *testing.T) {
+	CacheDict()
+	TestRandom(t)
+}
