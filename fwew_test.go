@@ -833,17 +833,6 @@ var englishWords = []struct {
 	},
 }
 
-func TestTranslateFromNaviCached(t *testing.T) {
-	CacheDict()
-
-	for _, tt := range naviWords {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := TranslateFromNavi(tt.args.searchNaviText, tt.args.languageCode); !wordSimpleEqual(got, tt.want, true) {
-				t.Errorf("TranslateFromNavi() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
 func TestTranslateFromNavi(t *testing.T) {
 	for _, tt := range naviWords {
 		t.Run(tt.name, func(t *testing.T) {
@@ -854,16 +843,10 @@ func TestTranslateFromNavi(t *testing.T) {
 	}
 }
 
-func BenchmarkTranslateFromNaviCached(b *testing.B) {
+func TestTranslateFromNaviCached(t *testing.T) {
 	CacheDict()
 
-	for _, bm := range naviWords {
-		b.Run(bm.name, func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
-				TranslateFromNavi(bm.args.searchNaviText, bm.args.languageCode)
-			}
-		})
-	}
+	TestTranslateFromNavi(t)
 }
 
 func BenchmarkTranslateFromNavi(b *testing.B) {
@@ -874,6 +857,12 @@ func BenchmarkTranslateFromNavi(b *testing.B) {
 			}
 		})
 	}
+}
+
+func BenchmarkTranslateFromNaviCached(b *testing.B) {
+	CacheDict()
+
+	BenchmarkTranslateFromNavi(b)
 }
 
 func BenchmarkTranslateFromNaviBig(b *testing.B) {
@@ -898,22 +887,7 @@ func BenchmarkTranslateFromNaviBig(b *testing.B) {
 func BenchmarkTranslateFromNaviBigCached(b *testing.B) {
 	CacheDict()
 
-	open, err := os.Open("misc/random_words.txt")
-	if err != nil {
-		return
-	}
-	defer open.Close()
-
-	scanner := bufio.NewScanner(open)
-	for scanner.Scan() {
-		line := scanner.Text()
-
-		b.Run(line, func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
-				TranslateFromNavi(line, "en")
-			}
-		})
-	}
+	BenchmarkTranslateFromNaviBig(b)
 }
 
 func TestTranslateToNavi(t *testing.T) {
@@ -929,13 +903,7 @@ func TestTranslateToNavi(t *testing.T) {
 func TestTranslateToNaviCached(t *testing.T) {
 	CacheDict()
 
-	for _, tt := range englishWords {
-		t.Run(tt.name, func(t *testing.T) {
-			if gotResults := TranslateToNavi(tt.args.searchNaviText, tt.args.languageCode); !wordSimpleEqual(gotResults, tt.want, false) {
-				t.Errorf("TranslateToNavi() = %v, want %v", gotResults, tt.want)
-			}
-		})
-	}
+	TestTranslateToNavi(t)
 }
 
 func BenchmarkTranslateToNaviBig(b *testing.B) {
@@ -960,22 +928,7 @@ func BenchmarkTranslateToNaviBig(b *testing.B) {
 func BenchmarkTranslateToNaviBigCached(b *testing.B) {
 	CacheDict()
 
-	open, err := os.Open("misc/random_words_english.txt")
-	if err != nil {
-		return
-	}
-	defer open.Close()
-
-	scanner := bufio.NewScanner(open)
-	for scanner.Scan() {
-		line := scanner.Text()
-
-		b.Run(line, func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
-				TranslateToNavi(line, "en")
-			}
-		})
-	}
+	BenchmarkTranslateToNaviBig(b)
 }
 
 func TestRandom(t *testing.T) {
