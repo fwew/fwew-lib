@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/plotutil"
@@ -41,7 +42,7 @@ func main() {
 
 	dataArray := readBenchResultFiles("misc/BigBenchmarkCached.txt", "misc/BigBenchmark.txt")
 
-	// Sort by slowest uncached
+	// Sort by highest difference
 	sort.Slice(dataArray, func(i, j int) bool {
 		return math.Abs(dataArray[i].uncached-dataArray[i].cached) > math.Abs(dataArray[j].uncached-dataArray[j].cached)
 	})
@@ -76,6 +77,21 @@ func main() {
 		cachedValues = append(cachedValues, d.cached)
 	}
 	printHistogram(cachedValues, "misc/Performance_Cached.png")
+
+	// Sort by cached
+	sort.Slice(dataArray, func(i, j int) bool {
+		return dataArray[i].cached < dataArray[j].cached
+	})
+
+	// save dataArray to file, so we have a sorted table, that can be put into e.g. excel
+	var excelOutput string
+	for _, d := range dataArray {
+		excelOutput += fmt.Sprintf("%s\t%f\t%f\n", d.name, d.cached, d.uncached)
+	}
+	err := ioutil.WriteFile("misc/SortedDataArrayExcel.txt", []byte(excelOutput), 0664)
+	if err != nil {
+		panic(err)
+	}
 
 	// TranslateToNavi test results !!!
 	dataArrayEnglish := readBenchResultFiles("misc/BigBenchmarkEnglishCached.txt", "misc/BigBenchmarkEnglish.txt")
