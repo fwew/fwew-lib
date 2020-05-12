@@ -182,9 +182,6 @@ var numTableRegexp = [][]string{
 	},
 }
 
-//FIXME move into more general file
-var NoTranslationFound = errors.New("no translation found")
-
 // Translate a Na'vi number word to the actual integer.
 // Na'vi numbers are octal values, so the integer is defined as octal number, and can easily be displayed as decimal number.
 // If no translation is found, `NoTranslationFound` is returned as error!
@@ -232,9 +229,6 @@ func NaviToNumber(input string) (int, error) {
 	}
 	return n, nil
 }
-
-var NegativeNumber = errors.New("negative numbers not allowed")
-var NumberTooBig = errors.New("number too big")
 
 // Translate an octal-integer into the Na'vi number word.
 func NumberToNavi(input int) (string, error) {

@@ -99,7 +99,7 @@ func TranslateFromNavi(searchNaviWord string, languageCode string) (results []Wo
 		return
 	}
 
-	RunOnDict(languageCode, func(word Word) {
+	RunOnDict(languageCode, func(word Word) error {
 		// save original Navi word, we want to add "+" or "--" later again
 		naviWord := word.Navi
 
@@ -111,7 +111,7 @@ func TranslateFromNavi(searchNaviWord string, languageCode string) (results []Wo
 		if word.Navi == searchNaviWord {
 			word.Navi = naviWord
 			results = append(results, word)
-			return
+			return nil
 		}
 
 		// skip words that obviously won't work
@@ -122,20 +122,22 @@ func TranslateFromNavi(searchNaviWord string, languageCode string) (results []Wo
 		}
 
 		if s < 0.50 && !strings.HasSuffix(searchNaviWord, "eyä") {
-			return
+			return nil
 		}
 
 		if word.reconstruct(searchNaviWord) {
 			word.Navi = naviWord
 			results = append(results, word)
 		}
+
+		return nil
 	})
 
 	return
 }
 
 func TranslateToNavi(searchWord string, langCode string) (results []Word) {
-	RunOnDict(langCode, func(word Word) {
+	RunOnDict(langCode, func(word Word) error {
 		wordString := StripChars(word.Definition, ",;")
 		wordString = strings.ToLower(wordString)
 		searchWord = strings.ToLower(searchWord)
@@ -147,6 +149,8 @@ func TranslateToNavi(searchWord string, langCode string) (results []Word) {
 				break
 			}
 		}
+
+		return nil
 	})
 	return
 }
@@ -157,10 +161,11 @@ func Random(amount int, langCode string) (results []Word) {
 	if dictionaryCached {
 		allWords = dictionary[langCode]
 	} else {
-		runOnFile(func(word Word) {
+		runOnFile(func(word Word) error {
 			if word.LangCode == langCode {
 				allWords = append(allWords, word)
 			}
+			return nil
 		})
 	}
 

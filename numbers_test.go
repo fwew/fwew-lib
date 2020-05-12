@@ -16,6 +16,7 @@
 package fwew_lib
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 )
@@ -231,13 +232,13 @@ func Test_NumberToNavi(t *testing.T) {
 
 	// also test errors:
 	t.Run(fmt.Sprintf("Translate negative number"), func(t *testing.T) {
-		if _, err := NumberToNavi(-0o50); err != NegativeNumber {
+		if _, err := NumberToNavi(-0o50); !errors.Is(err, NegativeNumber) {
 			t.Errorf("Error that occured is not correct: expected \"%s\", but got \"%s\"", NegativeNumber, err)
 		}
 	})
 
 	t.Run(fmt.Sprintln("Translate too big number"), func(t *testing.T) {
-		if _, err := NumberToNavi(0x100000); err != NumberTooBig {
+		if _, err := NumberToNavi(0o100000); !errors.Is(err, NumberTooBig) {
 			t.Errorf("Error that occurred is not correct: expected \"%s\", but got \"%s\"", NumberTooBig, err)
 		}
 	})
