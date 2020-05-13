@@ -155,8 +155,13 @@ func TranslateToNavi(searchWord string, langCode string) (results []Word) {
 	return
 }
 
-func Random(amount int, langCode string) (results []Word) {
-	allWords := GetFullDict(langCode)
+func Random(amount int, langCode string) (results []Word, err error) {
+	allWords, err := GetFullDict(langCode)
+
+	if err != nil {
+		log.Printf("Error getting fullDing: %s", err)
+		return
+	}
 
 	dictLength := len(allWords)
 	for i := 0; i < amount; i++ {

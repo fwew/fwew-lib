@@ -138,16 +138,17 @@ func runOnFile(f func(word Word) error) error {
 	return nil
 }
 
-func GetFullDict(langCode string) (allWords []Word) {
+func GetFullDict(langCode string) (allWords []Word, err error) {
 	if dictionaryCached {
 		allWords = dictionary[langCode]
 	} else {
-		runOnFile(func(word Word) error {
+		err = runOnFile(func(word Word) error {
 			if word.LangCode == langCode {
 				allWords = append(allWords, word)
 			}
 			return nil
 		})
+		return
 	}
 	return
 }

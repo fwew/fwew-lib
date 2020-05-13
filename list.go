@@ -8,7 +8,10 @@ import (
 )
 
 func List(args []string, langCode string) (results []Word, err error) {
-	results = GetFullDict(langCode)
+	results, err = GetFullDict(langCode)
+	if err != nil {
+		return
+	}
 
 	for len(args) >= 3 {
 		// get 3 args and remove 4th
