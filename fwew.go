@@ -18,6 +18,7 @@ import (
 	"log"
 	"math/rand"
 	"strings"
+	"time"
 )
 
 // Global
@@ -155,8 +156,11 @@ func TranslateToNavi(searchWord string, langCode string) (results []Word) {
 	return
 }
 
-func Random(amount int, langCode string) (results []Word, err error) {
-	allWords, err := GetFullDict(langCode)
+// Get random words out of the dictionary.
+// If args are applied, the dict will be filtered for args before random words are chosen.
+// args will be put into the `List()` algorithm.
+func Random(langCode string, amount int, args []string) (results []Word, err error) {
+	allWords, err := List(args, langCode)
 
 	if err != nil {
 		log.Printf("Error getting fullDing: %s", err)
@@ -164,9 +168,16 @@ func Random(amount int, langCode string) (results []Word, err error) {
 	}
 
 	dictLength := len(allWords)
-	for i := 0; i < amount; i++ {
-		number := rand.Intn(dictLength)
-		results = append(results, allWords[number])
+	if amount > dictLength {
+		return allWords, nil
+	}
+
+	// get random numbers for allWords array
+	rand.Seed(time.Now().UnixNano())
+	perm := rand.Perm(dictLength)
+
+	for _, i := range perm[:amount] {
+		results = append(results, allWords[i])
 	}
 
 	return

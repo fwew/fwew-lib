@@ -993,7 +993,7 @@ func TestRandom(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if gotResults, _ := Random(tt.args.amount, tt.args.langCode); !(len(gotResults) == tt.args.amount) {
+			if gotResults, _ := Random(tt.args.langCode, tt.args.amount, nil); !(len(gotResults) == tt.args.amount) {
 				t.Errorf("Random() = %v, want %v", len(gotResults), tt.args.amount)
 			}
 		})
