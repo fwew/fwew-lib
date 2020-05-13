@@ -38,10 +38,6 @@ func TestStripChars(t *testing.T) {
 
 }
 
-func TestValid(t *testing.T) {
-
-}
-
 func TestDownloadDict(t *testing.T) {
 
 }

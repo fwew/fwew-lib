@@ -126,24 +126,6 @@ func StripChars(str, chr string) string {
 	}, str)
 }
 
-// Valid validates range of integers for input
-func Valid(input int64, reverse bool) bool {
-	const (
-		maxIntDec int64 = 32767
-		maxIntOct int64 = 77777
-	)
-	if reverse {
-		if 0 <= input && input <= maxIntDec {
-			return true
-		}
-		return false
-	}
-	if 0 <= input && input <= maxIntOct {
-		return true
-	}
-	return false
-}
-
 // DownloadDict downloads the latest released version of the dictionary file
 func DownloadDict() error {
 	var (
