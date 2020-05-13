@@ -13,6 +13,8 @@ const (
 	NegativeNumber     = constError("negative numbers not allowed")
 	NumberTooBig       = constError("number too big")
 	NoTranslationFound = constError("no translation found")
+	// list
+	InvalidNumber = constError("invalidNumericError")
 )
 
 // errors are basically strings, that implement the error interface

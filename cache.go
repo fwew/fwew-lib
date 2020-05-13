@@ -2,7 +2,6 @@ package fwew_lib
 
 import (
 	"bufio"
-	"errors"
 	"log"
 	"os"
 	"path/filepath"
@@ -137,4 +136,18 @@ func runOnFile(f func(word Word) error) error {
 	}
 
 	return nil
+}
+
+func GetFullDict(langCode string) (allWords []Word) {
+	if dictionaryCached {
+		allWords = dictionary[langCode]
+	} else {
+		runOnFile(func(word Word) error {
+			if word.LangCode == langCode {
+				allWords = append(allWords, word)
+			}
+			return nil
+		})
+	}
+	return
 }

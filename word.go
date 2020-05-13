@@ -18,6 +18,7 @@ package fwew_lib
 import (
 	"fmt"
 	"reflect"
+	"strings"
 )
 
 // Word is a struct that contains all the data about a given word
@@ -132,4 +133,14 @@ func (w *Word) Equals(other Word) bool {
 		w.Syllables == other.Syllables &&
 		w.InfixDots == other.InfixDots &&
 		reflect.DeepEqual(w.Affixes, other.Affixes)
+}
+
+func (w *Word) SyllableCount() int {
+	var numSyllables int
+	var vowels = []string{"a", "ä", "e", "i", "ì", "o", "u", "ll", "rr"}
+	var word = strings.ToLower(w.Navi)
+	for _, p := range vowels {
+		numSyllables += strings.Count(word, p)
+	}
+	return numSyllables
 }

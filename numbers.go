@@ -16,7 +16,6 @@
 package fwew_lib
 
 import (
-	"errors"
 	"regexp"
 	"strings"
 )
