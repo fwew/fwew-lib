@@ -37,6 +37,10 @@ var Version = version{
 	"",
 }
 
+func init() {
+	Version.DictBuild = SHA1Hash(findDictionaryFile())
+}
+
 func (v version) String() string {
 	if v.Label != "" {
 		return fmt.Sprintf("%s %d.%d.%d-%s \"%s\"\ndictionary %s (EE %s)",

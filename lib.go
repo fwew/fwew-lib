@@ -147,7 +147,7 @@ func Valid(input int64, reverse bool) bool {
 // DownloadDict downloads the latest released version of the dictionary file
 func DownloadDict() error {
 	var (
-		filepath = Text("dictionary")
+		filepath = findDictionaryFile()
 		url      = Text("dictURL")
 	)
 	out, err := os.Create(filepath)
@@ -170,7 +170,6 @@ func DownloadDict() error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(Text("dlSuccess"))
 	return nil
 }
 

@@ -76,8 +76,8 @@ func CacheDict() error {
 }
 
 func UncacheDict() {
-	dictionary = make(map[string][]Word)
 	dictionaryCached = false
+	dictionary = make(map[string][]Word)
 }
 
 // This will run the function `f` inside the cache or the file directly.
@@ -151,4 +151,26 @@ func GetFullDict(langCode string) (allWords []Word, err error) {
 		return
 	}
 	return
+}
+
+// Update the dictionary.txt.
+// Be carefull to not do anything with the dict, while update is in progress
+func UpdateDict() error {
+	err := DownloadDict()
+	if err != nil {
+		log.Println(Text("downloadError"))
+		return err
+	}
+	Version.DictBuild = SHA1Hash(findDictionaryFile())
+
+	if dictionaryCached {
+		UncacheDict()
+		err = CacheDict()
+		if err != nil {
+			log.Printf("Error caching dict after updating ... Cache disabled")
+			return err
+		}
+	}
+
+	return nil
 }
