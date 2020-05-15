@@ -168,12 +168,19 @@ func Random(langCode string, amount int, args []string) (results []Word, err err
 	}
 
 	dictLength := len(allWords)
+
+	rand.Seed(time.Now().UnixNano())
+
+	// create random number
+	if amount <= 0 {
+		amount = rand.Intn(dictLength)
+	}
+
 	if amount > dictLength {
 		return allWords, nil
 	}
 
 	// get random numbers for allWords array
-	rand.Seed(time.Now().UnixNano())
 	perm := rand.Perm(dictLength)
 
 	for _, i := range perm[:amount] {
