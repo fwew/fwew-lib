@@ -112,8 +112,26 @@ func init() {
 	// prompt suggest strings
 	texts["/setDesc"] = "set option(s)"
 	texts["/unsetDesc"] = "unset option(s)"
-	texts["/listDesc"] = "list entries satisfying given condition(s)"
-	texts["/randomDesc"] = "list random entries"
+	texts["/listDesc"] = `list all words that meet given criteria`
+	texts["/listUsage"] = `/list <what> <cond> <spec> [and <what> <cond> <spec> ...]
+<what> is any one of: pos, word, words, syllables
+<cond> depends on the <what> used:
+  <what>    | valid <cond>
+  ----------|------------------------------------
+  pos       | any one of: is, has, like
+  word      | any one of: starts, ends, has, like
+  words     | any one of: first, last
+  syllables | any one of: <, <=, =, >=, >
+<spec> depends on the <cond> used:
+  <cond>                 | valid <spec>
+  -----------------------|----------------------------
+  is, has, starts, ends  | any string of letter(s)
+  <, <=, =, >=, >,       |
+  first, last            | any whole number > 0
+  like                   | any string of letter(s) and
+                         |     wildcard asterisk(s)`
+	texts["/randomUsage"] = "/random <number> [where <what> <cond> <spec> [and <what> <cond> <spec> ...]]"
+	texts["/randomDesc"] = "show given <number> of random entries. <what>, <cond>, and <spec> work the same way as with /list"
 	texts["/updateDesc"] = "update the dictionary data file"
 	texts["/commandsDesc"] = "show commands help"
 	texts["/lenitionDesc"] = "show lenition table"
