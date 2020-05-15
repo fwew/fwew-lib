@@ -18,6 +18,7 @@ package fwew_lib
 import (
 	"fmt"
 	"reflect"
+	"strconv"
 	"strings"
 )
 
@@ -143,4 +144,121 @@ func (w *Word) SyllableCount() int {
 		numSyllables += strings.Count(word, p)
 	}
 	return numSyllables
+}
+
+const (
+	mdBold   = "**"
+	mdItalic = "*"
+	newline  = "\n"
+	valNull  = "NULL"
+)
+
+func (w *Word) ToOutputLine(i int, withMarkdown, showIPA, showInfixes, showDashed, showInfDots, showSource bool) (output string, err error) {
+	num := fmt.Sprintf("[%d]", i+1)
+	nav := w.Navi
+	ipa := fmt.Sprintf("[%s]", w.IPA)
+	pos := fmt.Sprintf("%s", w.PartOfSpeech)
+	inf := fmt.Sprintf("%s", w.InfixLocations)
+	def := fmt.Sprintf("%s", w.Definition)
+	src := fmt.Sprintf("    %s: %s\n", Text("src"), w.Source)
+	ifd := fmt.Sprintf("%s", w.InfixDots)
+
+	syl, err := w.doUnderline(withMarkdown)
+	if err != nil {
+		return "", err
+	}
+
+	if withMarkdown {
+		nav = mdBold + nav + mdBold
+		pos = mdItalic + pos + mdItalic
+	}
+
+	output += num + space + nav + space
+
+	if showIPA {
+		output += ipa + space
+	}
+
+	if showInfixes && w.InfixLocations != valNull {
+		output += inf + space
+	}
+
+	if showDashed {
+		output += "(" + syl
+		if showInfDots && w.InfixDots != valNull {
+			output += "," + space
+		} else {
+			output += ")" + space
+		}
+	}
+
+	if showInfDots && w.InfixDots != valNull {
+		if !showDashed {
+			output += "("
+		}
+		output += ifd + ")" + space
+	}
+
+	output += pos + space + def
+
+	//if *useAffixes {
+	if len(w.Affixes.Prefix) > 0 || len(w.Affixes.Infix) > 0 || len(w.Affixes.Suffix) > 0 || len(w.Affixes.Lenition) > 0 {
+		output += newline
+	}
+	if len(w.Affixes.Prefix) > 0 {
+		output += fmt.Sprintf("Prefixes: %s", w.Affixes.Prefix)
+	}
+	if len(w.Affixes.Infix) > 0 {
+		output += fmt.Sprintf("Infixes: %s", w.Affixes.Infix)
+	}
+	if len(w.Affixes.Suffix) > 0 {
+		output += fmt.Sprintf("Suffixes: %s", w.Affixes.Suffix)
+	}
+	if len(w.Affixes.Lenition) > 0 {
+		output += fmt.Sprintf("Lenition: %s", w.Affixes.Lenition)
+	}
+	//}
+
+	if showSource && w.Source != "" {
+		output += newline + src
+	}
+	return
+}
+
+func (w *Word) doUnderline(markdown bool) (string, error) {
+	if !strings.Contains(w.Syllables, "-") {
+		return w.Syllables, nil
+	}
+
+	var err error
+	mdUnderline := "__"
+	shUnderlineA := "\033[4m"
+	shUnderlineB := "\033[0m"
+	dashed := w.Syllables
+	dSlice := strings.Split(dashed, "-")
+
+	stressedIndex, err := strconv.Atoi(w.Stressed)
+	if err != nil {
+		return "", InvalidNumber.wrap(err)
+	}
+	stressedSyllable := dSlice[stressedIndex-1]
+
+	if strings.Contains(stressedSyllable, " ") {
+		tmp := strings.Split(stressedSyllable, " ")
+		if markdown {
+			tmp[0] = mdUnderline + tmp[0] + mdUnderline
+		} else {
+			tmp[0] = shUnderlineA + tmp[0] + shUnderlineB
+		}
+		stressedSyllable = strings.Join(tmp, " ")
+		dSlice[stressedIndex-1] = stressedSyllable
+		return strings.Join(dSlice, "-"), nil
+	} else {
+		if markdown {
+			dSlice[stressedIndex-1] = mdUnderline + stressedSyllable + mdUnderline
+		} else {
+			dSlice[stressedIndex-1] = shUnderlineA + stressedSyllable + shUnderlineB
+		}
+		return strings.Join(dSlice, "-"), nil
+	}
 }
