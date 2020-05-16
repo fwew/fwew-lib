@@ -153,6 +153,20 @@ func GetFullDict(langCode string) (allWords []Word, err error) {
 	return
 }
 
+func GetDictSize(langCode string) (amount int, err error) {
+	if dictionaryCached {
+		amount = len(dictionary[langCode])
+	} else {
+		err = runOnFile(func(word Word) error {
+			if word.LangCode == langCode {
+				amount++
+			}
+			return nil
+		})
+	}
+	return
+}
+
 // Update the dictionary.txt.
 // Be carefull to not do anything with the dict, while update is in progress
 func UpdateDict() error {

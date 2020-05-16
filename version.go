@@ -43,7 +43,7 @@ func init() {
 
 func (v version) String() string {
 	if v.Label != "" {
-		return fmt.Sprintf("%s %d.%d.%d-%s \"%s\"\ndictionary %s (EE %s)",
+		return fmt.Sprintf("%s: %d.%d.%d-%s \"%s\"\ndictionary: %s (EE %s)",
 			Text("name"), v.Major, v.Minor, v.Patch, v.Label, v.Name, v.DictBuild, strconv.FormatFloat(v.DictVersion, 'f', -1, 64))
 	}
 
