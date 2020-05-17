@@ -92,6 +92,7 @@ func init() {
 	texts["w_word"] = "word"
 	texts["w_words"] = "words"
 	texts["w_syllables"] = "syllables"
+	texts["w_stress"] = "stress"
 	// <cond> strings
 	texts["c_is"] = "is"
 	texts["c_has"] = "has"
@@ -114,7 +115,7 @@ func init() {
 	texts["/unsetDesc"] = "unset option(s)"
 	texts["/listDesc"] = `list all words that meet given criteria`
 	texts["/listUsage"] = `/list <what> <cond> <spec> [and <what> <cond> <spec> ...]
-<what> is any one of: pos, word, words, syllables
+<what> is any one of: pos, word, words, syllables, stress
 <cond> depends on the <what> used:
   <what>    | valid <cond>
   ----------|------------------------------------
@@ -122,6 +123,7 @@ func init() {
   word      | any one of: starts, ends, has, like
   words     | any one of: first, last
   syllables | any one of: <, <=, =, >=, >
+  stress    | any one of: <, <=, =, >=, >
 <spec> depends on the <cond> used:
   <cond>                 | valid <spec>
   -----------------------|----------------------------
@@ -154,6 +156,7 @@ func init() {
 	texts["wordDesc"] = texts["w_word"]
 	texts["wordsDesc"] = texts["w_words"]
 	texts["syllablesDesc"] = texts["w_syllables"]
+	texts["stressDesc"] = "stressed syllable"
 	texts["randomDesc"] = "random number"
 	texts["whereDesc"] = "add condition to random"
 	texts["startsDesc"] = "field starts with"
@@ -163,11 +166,11 @@ func init() {
 	texts["lastDesc"] = "list newest words"
 	texts["hasDesc"] = "all matches of condition"
 	texts["isDesc"] = "exact matches of condition"
-	texts[">=Desc"] = "syllable count greater or equal"
-	texts[">Desc"] = "syllable count greater"
-	texts["<=Desc"] = "syllable count less or equal"
-	texts["<Desc"] = "syllable count less"
-	texts["=Desc"] = "syllable count equal"
+	texts[">=Desc"] = "greater than or equal to"
+	texts[">Desc"] = "greater than"
+	texts["<=Desc"] = "less than or equal to"
+	texts["<Desc"] = "less than"
+	texts["=Desc"] = "equal to"
 	texts["languageDesc"] = "update config file: set language"
 	texts["posFilterDesc"] = "update config file: set part of speech filter"
 	texts["useAffixesDesc"] = "update config file: toggle affix parsing true/false"
@@ -180,7 +183,7 @@ func init() {
 	texts["not-likeDesc"] = "field does not match wildcard expression"
 	texts["not-hasDesc"] = "all matches of not condition"
 	texts["not-isDesc"] = "exact matches of not condition"
-	texts["!=Desc"] = "syllable count not equal"
+	texts["!=Desc"] = "not equal to"
 
 	// file strings
 	texts["homeDir"], _ = filepath.Abs(usr.HomeDir)

@@ -69,6 +69,7 @@ func listWords(args []string, words []Word) (results []Word, err error) {
 	// /list syllables > 1
 	// /list syllables = 2
 	// /list syllables <= 3
+	// /list stress = 1
 
 	wordsLen := len(words)
 
@@ -201,6 +202,45 @@ func listWords(args []string, words []Word) (results []Word, err error) {
 				}
 			case "!=":
 				if word.SyllableCount() != ispec {
+					results = append(results, word)
+				}
+			}
+		case Text("w_stress"):
+			ispec, err1 := strconv.Atoi(spec)
+			if err1 != nil {
+				fmt.Println(Text("invalidDecimalError"))
+				err = InvalidNumber.wrap(err1)
+				return
+			}
+			istress, err1 := strconv.Atoi(word.Stressed)
+			if err1 != nil {
+				fmt.Println(Text("invalidDecimalError"))
+				err = InvalidNumber.wrap(err1)
+				return
+			}
+			switch cond {
+			case "<":
+				if istress < ispec {
+					results = append(results, word)
+				}
+			case "<=":
+				if istress <= ispec {
+					results = append(results, word)
+				}
+			case "=":
+				if istress == ispec {
+					results = append(results, word)
+				}
+			case ">=":
+				if istress >= ispec {
+					results = append(results, word)
+				}
+			case ">":
+				if istress > ispec {
+					results = append(results, word)
+				}
+			case "!=":
+				if istress != ispec {
 					results = append(results, word)
 				}
 			}

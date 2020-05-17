@@ -413,6 +413,97 @@ func TestList(t *testing.T) {
 			wantResults: nil,
 			wantErr:     nil,
 		},
+		{
+			name: "stress = 1",
+			args: args{
+				args: []string{
+					"stress",
+					"=",
+					"1",
+				},
+				langCode: "en",
+			},
+			wantResults: nil,
+			wantErr:     nil,
+		},
+		{
+			name: "stress >= 1",
+			args: args{
+				args: []string{
+					"stress",
+					">=",
+					"1",
+				},
+				langCode: "en",
+			},
+			wantResults: nil,
+			wantErr:     nil,
+		},
+		{
+			name: "stress <= 1",
+			args: args{
+				args: []string{
+					"stress",
+					"<=",
+					"1",
+				},
+				langCode: "en",
+			},
+			wantResults: nil,
+			wantErr:     nil,
+		},
+		{
+			name: "stress < 2",
+			args: args{
+				args: []string{
+					"stress",
+					"<",
+					"2",
+				},
+				langCode: "en",
+			},
+			wantResults: nil,
+			wantErr:     nil,
+		},
+		{
+			name: "stress > 1",
+			args: args{
+				args: []string{
+					"stress",
+					">",
+					"1",
+				},
+				langCode: "en",
+			},
+			wantResults: nil,
+			wantErr:     nil,
+		},
+		{
+			name: "stress != 2",
+			args: args{
+				args: []string{
+					"stress",
+					"!=",
+					"2",
+				},
+				langCode: "en",
+			},
+			wantResults: nil,
+			wantErr:     nil,
+		},
+		{
+			name: "stress = g",
+			args: args{
+				args: []string{
+					"stress",
+					"=",
+					"g",
+				},
+				langCode: "en",
+			},
+			wantResults: nil,
+			wantErr:     InvalidNumber,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
