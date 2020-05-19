@@ -14,8 +14,8 @@ We are using go modules so no GOPATH setup is needed.
 To compile and run tests:
 ```shell script
 cd ~/wherever/you/want
-git clone https://github.com/fwew/fwew_lib
-cd fwew_lib
+git clone https://github.com/fwew/fwew-lib
+cd fwew-lib
 go test ./...
 ```
 
