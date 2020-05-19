@@ -13,7 +13,7 @@
 //	along with Fwew.  If not, see http://gnu.org/licenses/
 
 // Package main contains all the things. version.go handles program version.
-package main
+package fwew_lib
 
 import (
 	"fmt"
@@ -30,16 +30,20 @@ type version struct {
 
 // Version is a printable version struct containing program version information
 var Version = version{
-	4, 2, 1,
+	5, 0, 0,
 	"dev",
 	"Fkewa Fkio",
 	14.4,
 	"",
 }
 
+func init() {
+	Version.DictBuild = SHA1Hash(findDictionaryFile())
+}
+
 func (v version) String() string {
 	if v.Label != "" {
-		return fmt.Sprintf("%s %d.%d.%d-%s \"%s\"\ndictionary %s (EE %s)",
+		return fmt.Sprintf("%s: %d.%d.%d-%s \"%s\"\ndictionary: %s (EE %s)",
 			Text("name"), v.Major, v.Minor, v.Patch, v.Label, v.Name, v.DictBuild, strconv.FormatFloat(v.DictVersion, 'f', -1, 64))
 	}
 

@@ -51,7 +51,7 @@
 28	pl	'awsiteng	ʔaw.si.ˈtɛŋ	NULL	adv.	razem, wspólnie	ASG	3	'aw-si-teng	NULL
 28	ru	'awsiteng	ʔaw.si.ˈtɛŋ	NULL	adv.	вместе	ASG	3	'aw-si-teng	NULL
 28	sv	'awsiteng	ʔaw.si.ˈtɛŋ	NULL	adv.	tillsammans	ASG	3	'aw-si-teng	NULL
-32	de	'awve	ˈʔaw.vɛ	NULL	adj.	erste/r/s	ASG	1	'aw-ve	NULL
+32	de	'awve	ˈʔaw.vɛ	NULL	adj.	erste/r/s	ASG	1	'aw-rrve	NULL
 32	en	'awve	ˈʔaw.vɛ	NULL	adj.	first (ordinal)	ASG	1	'aw-ve	NULL
 32	et	'awve	ˈʔaw.vɛ	NULL	adj.	esimene	ASG	1	'aw-ve	NULL
 32	fr	'awve	ˈʔaw.vɛ	NULL	adj.	premier	ASG	1	'aw-ve	NULL

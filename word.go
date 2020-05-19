@@ -13,17 +13,20 @@
 //	along with Fwew.  If not, see http://gnu.org/licenses/
 
 // Package main contains all the things. word.go is home to the Word struct.
-package main
+package fwew_lib
 
-import "fmt"
+import (
+	"fmt"
+	"reflect"
+	"strconv"
+	"strings"
+)
 
 // Word is a struct that contains all the data about a given word
 type Word struct {
 	ID             string
 	LangCode       string
 	Navi           string
-	Target         string
-	Attempt        string
 	IPA            string
 	InfixLocations string
 	PartOfSpeech   string
@@ -32,7 +35,15 @@ type Word struct {
 	Stressed       string
 	Syllables      string
 	InfixDots      string
-	Affixes        map[string][]string
+	Affixes        affix
+}
+
+// affixes has its own type, so it is automatically copied :)
+type affix struct {
+	Prefix   []string
+	Infix    []string
+	Suffix   []string
+	Lenition []string
 }
 
 func (w Word) String() string {
@@ -41,8 +52,6 @@ func (w Word) String() string {
 		"Id: %s\n"+
 		"LangCode: %s\n"+
 		"Navi: %s\n"+
-		"Target: %s\n"+
-		"Attempt: %s\n"+
 		"IPA: %s\n"+
 		"InfixLocations: %s\n"+
 		"PartOfSpeech: %s\n"+
@@ -55,8 +64,6 @@ func (w Word) String() string {
 		w.ID,
 		w.LangCode,
 		w.Navi,
-		w.Target,
-		w.Attempt,
 		w.IPA,
 		w.InfixLocations,
 		w.PartOfSpeech,
@@ -68,8 +75,8 @@ func (w Word) String() string {
 		w.Affixes)
 }
 
-// InitWordStruct is basically a constructor for Word struct
-func InitWordStruct(w Word, dataFields []string) Word {
+// Initialize Word with one row of the dictionary.
+func newWord(dataFields []string) Word {
 	//const (
 	//	idField  int = 0 // dictionary.txt line Field 0 is Database ID
 	//	lcField  int = 1 // dictionary.txt line field 1 is Language Code
@@ -83,42 +90,177 @@ func InitWordStruct(w Word, dataFields []string) Word {
 	//  sylField int = 9 // dictionary.txt line field 9 is syllable breakdown
 	//  ifdField int = 10 // dictionary.txt line field 10 is dot-style infix data
 	//)
-	w.ID = dataFields[idField]
-	w.LangCode = dataFields[lcField]
-	w.Navi = dataFields[navField]
-	w.IPA = dataFields[ipaField]
-	w.InfixLocations = dataFields[infField]
-	w.PartOfSpeech = dataFields[posField]
-	w.Definition = dataFields[defField]
-	w.Source = dataFields[srcField]
-	w.Stressed = dataFields[stsField]
-	w.Syllables = dataFields[sylField]
-	w.InfixDots = dataFields[ifdField]
-	w.Affixes = map[string][]string{}
+	var word Word
+	word.ID = dataFields[idField]
+	word.LangCode = dataFields[lcField]
+	word.Navi = dataFields[navField]
+	word.IPA = dataFields[ipaField]
+	word.InfixLocations = dataFields[infField]
+	word.PartOfSpeech = dataFields[posField]
+	word.Definition = dataFields[defField]
+	word.Source = dataFields[srcField]
+	word.Stressed = dataFields[stsField]
+	word.Syllables = dataFields[sylField]
+	word.InfixDots = dataFields[ifdField]
 
-	return w
+	return word
 }
 
 // CloneWordStruct is basically a copy constructor for Word struct
-func CloneWordStruct(w Word) Word {
-	var nw Word
-	nw.ID = w.ID
-	nw.LangCode = w.LangCode
-	nw.Navi = w.Navi
-	nw.Target = w.Target
-	nw.Attempt = w.Attempt
-	nw.IPA = w.IPA
-	nw.InfixLocations = w.InfixLocations
-	nw.PartOfSpeech = w.PartOfSpeech
-	nw.Definition = w.Definition
-	nw.Source = w.Source
-	nw.Stressed = w.Stressed
-	nw.Syllables = w.Syllables
-	nw.InfixDots = w.InfixDots
-	nw.Affixes = make(map[string][]string)
-	for k := range w.Affixes {
-		nw.Affixes[k] = make([]string, len(w.Affixes[k]))
-		copy(nw.Affixes[k], w.Affixes[k])
-	}
+// Basically not needed, cause go copies things by itself. Only string arrays in Affixes are pointers and therefore need manual copy.
+func (w *Word) cloneWordStruct() Word {
+	// Copy struct to new instance
+	nw := *w
+
+	// copy the arrays manually
+	copy(nw.Affixes.Prefix, w.Affixes.Prefix)
+	copy(nw.Affixes.Infix, w.Affixes.Infix)
+	copy(nw.Affixes.Suffix, w.Affixes.Suffix)
+	copy(nw.Affixes.Lenition, w.Affixes.Lenition)
+
 	return nw
+}
+
+func (w *Word) Equals(other Word) bool {
+	return w.ID == other.ID &&
+		w.LangCode == other.LangCode &&
+		w.Navi == other.Navi &&
+		w.IPA == other.IPA &&
+		w.InfixLocations == other.InfixLocations &&
+		w.PartOfSpeech == other.PartOfSpeech &&
+		w.Definition == other.Definition &&
+		w.Source == other.Source &&
+		w.Stressed == other.Stressed &&
+		w.Syllables == other.Syllables &&
+		w.InfixDots == other.InfixDots &&
+		reflect.DeepEqual(w.Affixes, other.Affixes)
+}
+
+func (w *Word) SyllableCount() int {
+	var numSyllables int
+	var vowels = []string{"a", "ä", "e", "i", "ì", "o", "u", "ll", "rr"}
+	var word = strings.ToLower(w.Navi)
+	for _, p := range vowels {
+		numSyllables += strings.Count(word, p)
+	}
+	return numSyllables
+}
+
+const (
+	mdBold   = "**"
+	mdItalic = "*"
+	newline  = "\n"
+	valNull  = "NULL"
+)
+
+func (w *Word) ToOutputLine(i int, withMarkdown, showIPA, showInfixes, showDashed, showInfDots, showSource bool) (output string, err error) {
+	num := fmt.Sprintf("[%d]", i+1)
+	nav := w.Navi
+	ipa := fmt.Sprintf("[%s]", w.IPA)
+	pos := fmt.Sprintf("%s", w.PartOfSpeech)
+	inf := fmt.Sprintf("%s", w.InfixLocations)
+	def := fmt.Sprintf("%s", w.Definition)
+	src := fmt.Sprintf("%s: %s\n", Text("src"), w.Source)
+	ifd := fmt.Sprintf("%s", w.InfixDots)
+
+	syl, err := w.doUnderline(withMarkdown)
+	if err != nil {
+		return "", err
+	}
+
+	if withMarkdown {
+		nav = mdBold + nav + mdBold
+		pos = mdItalic + pos + mdItalic
+	}
+
+	output += num + space + nav + space
+
+	if showIPA {
+		output += ipa + space
+	}
+
+	if showInfixes && w.InfixLocations != valNull {
+		output += inf + space
+	}
+
+	if showDashed {
+		output += "(" + syl
+		if showInfDots && w.InfixDots != valNull {
+			output += "," + space
+		} else {
+			output += ")" + space
+		}
+	}
+
+	if showInfDots && w.InfixDots != valNull {
+		if !showDashed {
+			output += "("
+		}
+		output += ifd + ")" + space
+	}
+
+	output += pos + space + def
+
+	//if *useAffixes {
+	if len(w.Affixes.Prefix) > 0 || len(w.Affixes.Infix) > 0 || len(w.Affixes.Suffix) > 0 || len(w.Affixes.Lenition) > 0 {
+		output += newline
+	}
+	if len(w.Affixes.Prefix) > 0 {
+		output += fmt.Sprintf("Prefixes: %s", w.Affixes.Prefix)
+	}
+	if len(w.Affixes.Infix) > 0 {
+		output += fmt.Sprintf("Infixes: %s", w.Affixes.Infix)
+	}
+	if len(w.Affixes.Suffix) > 0 {
+		output += fmt.Sprintf("Suffixes: %s", w.Affixes.Suffix)
+	}
+	if len(w.Affixes.Lenition) > 0 {
+		output += fmt.Sprintf("Lenition: %s", w.Affixes.Lenition)
+	}
+	//}
+
+	if showSource && w.Source != "" {
+		output += newline + src
+	}
+
+	output += newline
+	return
+}
+
+func (w *Word) doUnderline(markdown bool) (string, error) {
+	if !strings.Contains(w.Syllables, "-") {
+		return w.Syllables, nil
+	}
+
+	var err error
+	mdUnderline := "__"
+	shUnderlineA := "\033[4m"
+	shUnderlineB := "\033[0m"
+	dashed := w.Syllables
+	dSlice := strings.Split(dashed, "-")
+
+	stressedIndex, err := strconv.Atoi(w.Stressed)
+	if err != nil {
+		return "", InvalidNumber.wrap(err)
+	}
+	stressedSyllable := dSlice[stressedIndex-1]
+
+	if strings.Contains(stressedSyllable, " ") {
+		tmp := strings.Split(stressedSyllable, " ")
+		if markdown {
+			tmp[0] = mdUnderline + tmp[0] + mdUnderline
+		} else {
+			tmp[0] = shUnderlineA + tmp[0] + shUnderlineB
+		}
+		stressedSyllable = strings.Join(tmp, " ")
+		dSlice[stressedIndex-1] = stressedSyllable
+		return strings.Join(dSlice, "-"), nil
+	} else {
+		if markdown {
+			dSlice[stressedIndex-1] = mdUnderline + stressedSyllable + mdUnderline
+		} else {
+			dSlice[stressedIndex-1] = shUnderlineA + stressedSyllable + shUnderlineB
+		}
+		return strings.Join(dSlice, "-"), nil
+	}
 }

@@ -23,6 +23,7 @@
 -   implement `/infixes`
 -   implement `/list suffixes {pos} {pro|unpro|all}`
 -   implement `/suffixes`
+-   implement `or` for `/list`
 
 ### Ideas
 

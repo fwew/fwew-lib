@@ -13,7 +13,7 @@
 //	along with Fwew.  If not, see http://gnu.org/licenses/
 
 // Package main contains all the things. txt.go handles program strings.
-package main
+package fwew_lib
 
 import (
 	"fmt"
@@ -114,8 +114,27 @@ func init() {
 	// prompt suggest strings
 	texts["/setDesc"] = "set option(s)"
 	texts["/unsetDesc"] = "unset option(s)"
-	texts["/listDesc"] = "list entries satisfying given condition(s)"
-	texts["/randomDesc"] = "list random entries"
+	texts["/listDesc"] = `list all words that meet given criteria`
+	texts["/listUsage"] = `/list <what> <cond> <spec> [and <what> <cond> <spec> ...]
+<what> is any one of: pos, word, words, syllables, stress
+<cond> depends on the <what> used:
+  <what>    | valid <cond>
+  ----------|------------------------------------
+  pos       | any one of: is, has, like
+  word      | any one of: starts, ends, has, like
+  words     | any one of: first, last
+  syllables | any one of: <, <=, =, >=, >
+  stress    | any one of: <, <=, =, >=, >
+<spec> depends on the <cond> used:
+  <cond>                 | valid <spec>
+  -----------------------|----------------------------
+  is, has, starts, ends  | any string of letter(s)
+  <, <=, =, >=, >,       |
+  first, last            | any whole number > 0
+  like                   | any string of letter(s) and
+                         |     wildcard asterisk(s)`
+	texts["/randomUsage"] = "/random <number> [where <what> <cond> <spec> [and <what> <cond> <spec> ...]]"
+	texts["/randomDesc"] = "show given <number> of random entries. <what>, <cond>, and <spec> work the same way as with /list"
 	texts["/updateDesc"] = "update the dictionary data file"
 	texts["/commandsDesc"] = "show commands help"
 	texts["/lenitionDesc"] = "show lenition table"
@@ -171,7 +190,6 @@ func init() {
 	texts["homeDir"], _ = filepath.Abs(usr.HomeDir)
 	texts["dataDir"] = filepath.Join(texts["homeDir"], ".fwew")
 	texts["config"] = filepath.Join(texts["dataDir"], "config.json")
-	texts["dictionary"] = filepath.Join(texts["dataDir"], "dictionary.txt")
 	texts["dictURL"] = "https://tirea.learnnavi.org/dictionarydata/dictionary.txt"
 	texts["dlSuccess"] = texts["dictURL"] + "\nsaved to\n" + texts["dictionary"] + "\n"
 
@@ -208,7 +226,6 @@ func init() {
 	texts["name"] = "fwew"
 	texts["tip"] = "type \"/help\" or \"/commands\" for more info"
 	texts["author"] = "Tirea Aean"
-	Version.DictBuild = SHA1Hash(texts["dictionary"])
 	texts["header"] = fmt.Sprintf("%s\n%s\n", Version, texts["tip"])
 	texts["languages"] = "de, en, et, fr, hu, nl, pl, ru, sv"
 	texts["POSFilters"] = "allvtr.n.num.pn.adv.adj.vin.v.inter.part.svin.adp.adv., n.vtrm.vim.conj.pn., sbd.n., intj.intj."

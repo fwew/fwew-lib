@@ -1,4 +1,4 @@
-package main
+package fwew_lib
 
 import "testing"
 
@@ -35,10 +35,6 @@ func TestReverse(t *testing.T) {
 }
 
 func TestStripChars(t *testing.T) {
-
-}
-
-func TestValid(t *testing.T) {
 
 }
 
