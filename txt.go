@@ -133,8 +133,10 @@ func init() {
   first, last            | any whole number > 0
   like                   | any string of letter(s) and
                          |     wildcard asterisk(s)`
+	texts["/listExample"] = "list syllables = 3 and pos has vtr."
 	texts["/randomUsage"] = "/random <number> [where <what> <cond> <spec> [and <what> <cond> <spec> ...]]"
 	texts["/randomDesc"] = "show given <number> of random entries. <what>, <cond>, and <spec> work the same way as with /list"
+	texts["/randomExample"] = "random 5 where pos is n."
 	texts["/updateDesc"] = "update the dictionary data file"
 	texts["/commandsDesc"] = "show commands help"
 	texts["/lenitionDesc"] = "show lenition table"
