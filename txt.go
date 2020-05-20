@@ -129,7 +129,7 @@ func init() {
   <cond>                 | valid <spec>
   -----------------------|----------------------------
   is, has, starts, ends  | any string of letter(s)
-  <, <=, =, >=, >,       |
+  <, <=, =, >=, >        | any whole number > 0
   first, last            | any whole number > 0
   like                   | any string of letter(s) and
                          |     wildcard asterisk(s)`
