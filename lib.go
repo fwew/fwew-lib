@@ -168,6 +168,10 @@ func DownloadDict(filepath string) error {
 	if err != nil {
 		return err
 	}
+
+	// Update the hash in the version
+	Version.DictBuild = SHA1Hash(filepath)
+
 	return nil
 }
 

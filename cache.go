@@ -174,7 +174,6 @@ func UpdateDict() error {
 		log.Println(Text("downloadError"))
 		return err
 	}
-	Version.DictBuild = SHA1Hash(FindDictionaryFile())
 
 	if dictionaryCached {
 		UncacheDict()
