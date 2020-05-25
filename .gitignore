@@ -5,13 +5,4 @@ output*.txt
 .DS_Store
 .idea
 *.bak
-Duration_Cached_Uncached.png
-Duration_Cached_Uncached_English.png
-Duration_Overall.png
-Duration_Overall_English.png
-Performance_Cached.png
-Performance_Cached_English.png
-SortedDataArrayExcel.txt
-file_functions.ods
-fwew_new.dia
-new_layout.txt
+**dictionary.txt
