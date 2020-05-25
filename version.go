@@ -38,7 +38,10 @@ var Version = version{
 }
 
 func init() {
-	Version.DictBuild = SHA1Hash(FindDictionaryFile())
+	file := FindDictionaryFile()
+	if file != "" {
+		Version.DictBuild = SHA1Hash(file)
+	}
 }
 
 func (v version) String() string {
