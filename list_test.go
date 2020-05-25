@@ -31,12 +31,12 @@ func TestList(t *testing.T) {
 			wantErr:     nil,
 		},
 		{
-			name: "pos has svin.",
+			name: "pos has adj.",
 			args: args{
 				args: []string{
 					"pos",
 					"has",
-					"svin.",
+					"adj.",
 				},
 				langCode: "en",
 			},
