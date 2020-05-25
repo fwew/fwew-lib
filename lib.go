@@ -126,20 +126,36 @@ func StripChars(str, chr string) string {
 	}, str)
 }
 
-// DownloadDict downloads the latest released version of the dictionary file
-func DownloadDict() error {
+// DownloadDict downloads the latest released version of the dictionary file and saves it to the given filepath.
+// You can give an empty string as filepath param, to update the found dictionary file.
+func DownloadDict(filepath string) error {
 	var (
-		filepath = findDictionaryFile()
-		url      = Text("dictURL")
+		url = Text("dictURL")
 	)
-	out, err := os.Create(filepath)
-	if err != nil {
-		return err
+
+	// only try to find dictionary-file if no path is given
+	if filepath == "" {
+		filepath = FindDictionaryFile()
 	}
+
+	// if still no filepath is given, error out
+	if filepath == "" {
+		return DictionaryNotFound
+	}
+
+	// download the new dict
 	resp, err := http.Get(url)
 	if err != nil {
 		return err
 	}
+
+	// create new file, this will remove the old file, if it exists
+	out, err := os.Create(filepath)
+	if err != nil {
+		return err
+	}
+
+	// save downloaded dict to the opened file
 	_, err = io.Copy(out, resp.Body)
 	if err != nil {
 		return err

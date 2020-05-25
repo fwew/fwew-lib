@@ -8,7 +8,8 @@ import (
 	"strings"
 )
 
-//var dictionary map[string][]Word
+const dictFileName = "dictionary.txt"
+
 var dictionary = make(map[string][]Word)
 var dictionaryCached bool
 
@@ -27,9 +28,7 @@ func fileExists(filepath string) bool {
 // - <workingDir>/dictionary.txt
 // - <workingDir>/.fwew/dictionary.txt
 // - <homeDir>/.fwew/dictionary.txt
-func findDictionaryFile() string {
-	const dictFileName = "dictionary.txt"
-
+func FindDictionaryFile() string {
 	wd, err := os.Getwd()
 	if err == nil {
 		path := filepath.Join(wd, ".fwew", dictFileName)
@@ -107,7 +106,7 @@ func RunOnDict(lang string, f func(word Word) error) (err error) {
 }
 
 func runOnFile(f func(word Word) error) error {
-	dictionaryFile := findDictionaryFile()
+	dictionaryFile := FindDictionaryFile()
 	if dictionaryFile == "" {
 		return DictionaryNotFound
 	}
@@ -168,14 +167,14 @@ func GetDictSize(langCode string) (amount int, err error) {
 }
 
 // Update the dictionary.txt.
-// Be carefull to not do anything with the dict, while update is in progress
+// Be careful to not do anything with the dict-file, while update is in progress
 func UpdateDict() error {
-	err := DownloadDict()
+	err := DownloadDict("")
 	if err != nil {
 		log.Println(Text("downloadError"))
 		return err
 	}
-	Version.DictBuild = SHA1Hash(findDictionaryFile())
+	Version.DictBuild = SHA1Hash(FindDictionaryFile())
 
 	if dictionaryCached {
 		UncacheDict()
@@ -187,4 +186,26 @@ func UpdateDict() error {
 	}
 
 	return nil
+}
+
+// AssureDict will assure, that the dictionary exists.
+// If no dictionary is found, it will be downloaded next of the executable.
+func AssureDict() error {
+	// check if dict already exists
+	file := FindDictionaryFile()
+	if file != "" {
+		return nil
+	}
+
+	wd, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+
+	path := filepath.Join(wd, dictFileName)
+
+	err = DownloadDict(path)
+	if err != nil {
+		return err
+	}
 }

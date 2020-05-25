@@ -173,3 +173,8 @@ fwew.Random("en", 0, []string{"pos", "is", "n.",})
 ### Update dictionary
 `fwew.Update()` will update the dictionary file to the newest version, downloaded from https://tirea.learnnavi.org/dictionarydata/dictionary.txt.  
 It will NOT update this library. To update the library you need to adjust the `go mod` of your project.
+
+### Assure dictionary
+If you don't want to setup the dictionary manually, this will assure it is found of by the program.
+By default, it is saved next to the executable.
+If you want to download it to a different directory, you have to handle that yourself. For this purpose `DownloadDict()` and `FindDictionaryFile()` are exposed.
