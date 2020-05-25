@@ -32,7 +32,7 @@ type version struct {
 var Version = version{
 	5, 0, 0,
 	"dev",
-	"Fkewa Fkio",
+	"Maweya Mawup",
 	14.4,
 	"",
 }
