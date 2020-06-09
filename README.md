@@ -84,7 +84,7 @@ pos          part of speech of na'vi word
 word         na'vi word
 syllables    number of syllables in the na'vi word
 words        selection of na'vi words
-stress       number of stressed syllables in the na'vi word
+stress       number representing which syllable is stressed in the na'vi word
 ```
 
 `cond` depends on the `what`. Here are the conditions that apply to each `what`:
