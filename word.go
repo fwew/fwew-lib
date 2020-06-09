@@ -241,6 +241,8 @@ func (w *Word) ToOutputLine(i int, withMarkdown, showIPA, showInfixes, showDashe
 		output += w.RU
 	case "sv":
 		output += w.SV
+	default:
+		output += w.EN
 	}
 
 	//if *useAffixes {
