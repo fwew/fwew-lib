@@ -36,12 +36,12 @@ require (
 )
 
 // Translate from a native language
-navi = fwew.TranslateToNavi("search", "en")
+navi = fwew.TranslateToNavi("search", "de")
 fmt.Println(word.ToOutputLine(0, true, false, false, false, false, false))
 
 // Translate a Na'vi word into the native language
-navi = fwew.TranslateFromNavi("mllte", "en")
-fmt.Println(word.ToOutputLine(0, true, false, false, false, false, false))
+navi = fwew.TranslateFromNavi("mllte")
+fmt.Println(word.ToOutputLine(0, true, false, false, false, false, false, "de"))
 ```
 
 ### Numbers
@@ -155,19 +155,19 @@ It also features optional clause in which the `what cond spec` syntax from `List
 
 List 10 random entries
 ```go
-fwew.Random("en", 10, nil)
+fwew.Random(10, nil)
 ```
 List 5 random transitive verbs
 ```go
-fwew.Random("en", 5, []string{"pos", "has", "vtr",})
+fwew.Random(5, []string{"pos", "has", "vtr",})
 ```
 List a random number of random words
 ```go
-fwew.Random("en", 0, nil)
+fwew.Random(0, nil)
 ```
 List a random number of nouns
 ```go
-fwew.Random("en", 0, []string{"pos", "is", "n.",})
+fwew.Random(0, []string{"pos", "is", "n.",})
 ```
 
 ### Update dictionary
@@ -178,3 +178,11 @@ It will NOT update this library. To update the library you need to adjust the `g
 If you don't want to setup the dictionary manually, this will assure it is found of by the program.
 By default, it is saved next to the executable.
 If you want to download it to a different directory, you have to handle that yourself. For this purpose `DownloadDict()` and `FindDictionaryFile()` are exposed.
+
+### Word-struct
+In most cases (all except number translation) the result is a Word struct.
+This word-struct has every information about a word in it.
+All public definitions are in the [word.go](word.go) file.
+
+`ToOutputLine()` generates a basic lines, that our projects directly use as output.
+This Line has options to adjust what is printed.

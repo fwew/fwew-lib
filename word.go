@@ -123,7 +123,7 @@ func newWord(dataFields []string, order dictPos) Word {
 
 // CloneWordStruct is basically a copy constructor for Word struct
 // Basically not needed, cause go copies things by itself. Only string arrays in Affixes are pointers and therefore need manual copy.
-func (w *Word) cloneWordStruct() Word {
+func (w *Word) CloneWordStruct() Word {
 	// Copy struct to new instance
 	nw := *w
 
