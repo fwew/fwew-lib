@@ -25,16 +25,23 @@ import (
 // Word is a struct that contains all the data about a given word
 type Word struct {
 	ID             string
-	LangCode       string
 	Navi           string
 	IPA            string
 	InfixLocations string
 	PartOfSpeech   string
-	Definition     string
 	Source         string
 	Stressed       string
 	Syllables      string
 	InfixDots      string
+	DE             string
+	EN             string
+	ET             string
+	FR             string
+	HU             string
+	NL             string
+	PL             string
+	RU             string
+	SV             string
 	Affixes        affix
 }
 
@@ -50,59 +57,67 @@ func (w Word) String() string {
 	// this string only doesn't get translated or called from Text() because they're var names
 	return fmt.Sprintf(""+
 		"Id: %s\n"+
-		"LangCode: %s\n"+
 		"Navi: %s\n"+
 		"IPA: %s\n"+
 		"InfixLocations: %s\n"+
 		"PartOfSpeech: %s\n"+
-		"Definition: %s\n"+
 		"Source: %s\n"+
 		"Stressed: %s\n"+
 		"Syllables: %s\n"+
 		"InfixDots: %s\n"+
+		"DE: %s\n"+
+		"EN: %s\n"+
+		"ET: %s\n"+
+		"FR: %s\n"+
+		"HU: %s\n"+
+		"NL: %s\n"+
+		"PL: %s\n"+
+		"RU: %s\n"+
+		"SV: %s\n"+
 		"Affixes: %v\n",
 		w.ID,
-		w.LangCode,
 		w.Navi,
 		w.IPA,
 		w.InfixLocations,
 		w.PartOfSpeech,
-		w.Definition,
 		w.Source,
 		w.Stressed,
 		w.Syllables,
 		w.InfixDots,
-		w.Affixes)
+		w.DE,
+		w.EN,
+		w.ET,
+		w.FR,
+		w.HU,
+		w.NL,
+		w.PL,
+		w.RU,
+		w.SV,
+		w.Affixes,
+	)
 }
 
 // Initialize Word with one row of the dictionary.
-func newWord(dataFields []string) Word {
-	//const (
-	//	idField  int = 0 // dictionary.txt line Field 0 is Database ID
-	//	lcField  int = 1 // dictionary.txt line field 1 is Language Code
-	//	navField int = 2 // dictionary.txt line field 2 is Na'vi word
-	//	ipaField int = 3 // dictionary.txt line field 3 is IPA data
-	//	infField int = 4 // dictionary.txt line field 4 is Infix location data
-	//	posField int = 5 // dictionary.txt line field 5 is Part of Speech data
-	//	defField int = 6 // dictionary.txt line field 6 is Local definition
-	//	srcField int = 7 // dictionary.txt line field 7 is Source data
-	//  stsField int = 8 // dictionary.txt line field 8 is Stressed syllable #
-	//  sylField int = 9 // dictionary.txt line field 9 is syllable breakdown
-	//  ifdField int = 10 // dictionary.txt line field 10 is dot-style infix data
-	//)
+func newWord(dataFields []string, order dictPos) Word {
 	var word Word
-	word.ID = dataFields[idField]
-	word.LangCode = dataFields[lcField]
-	word.Navi = dataFields[navField]
-	word.IPA = dataFields[ipaField]
-	word.InfixLocations = dataFields[infField]
-	word.PartOfSpeech = dataFields[posField]
-	word.Definition = dataFields[defField]
-	word.Source = dataFields[srcField]
-	word.Stressed = dataFields[stsField]
-	word.Syllables = dataFields[sylField]
-	word.InfixDots = dataFields[ifdField]
-
+	word.ID = dataFields[order.idField]
+	word.Navi = dataFields[order.navField]
+	word.IPA = dataFields[order.ipaField]
+	word.InfixLocations = dataFields[order.infField]
+	word.PartOfSpeech = dataFields[order.posField]
+	word.Source = dataFields[order.srcField]
+	word.Stressed = dataFields[order.stsField]
+	word.Syllables = dataFields[order.sylField]
+	word.InfixDots = dataFields[order.ifdField]
+	word.DE = dataFields[order.deField]
+	word.EN = dataFields[order.enField]
+	word.ET = dataFields[order.etField]
+	word.FR = dataFields[order.frField]
+	word.HU = dataFields[order.huField]
+	word.NL = dataFields[order.nlField]
+	word.PL = dataFields[order.plField]
+	word.RU = dataFields[order.ruField]
+	word.SV = dataFields[order.svField]
 	return word
 }
 
@@ -123,16 +138,23 @@ func (w *Word) cloneWordStruct() Word {
 
 func (w *Word) Equals(other Word) bool {
 	return w.ID == other.ID &&
-		w.LangCode == other.LangCode &&
 		w.Navi == other.Navi &&
 		w.IPA == other.IPA &&
 		w.InfixLocations == other.InfixLocations &&
 		w.PartOfSpeech == other.PartOfSpeech &&
-		w.Definition == other.Definition &&
 		w.Source == other.Source &&
 		w.Stressed == other.Stressed &&
 		w.Syllables == other.Syllables &&
 		w.InfixDots == other.InfixDots &&
+		w.DE == other.DE &&
+		w.EN == other.EN &&
+		w.ET == other.ET &&
+		w.FR == other.FR &&
+		w.HU == other.HU &&
+		w.NL == other.NL &&
+		w.PL == other.PL &&
+		w.RU == other.RU &&
+		w.SV == other.SV &&
 		reflect.DeepEqual(w.Affixes, other.Affixes)
 }
 
@@ -153,13 +175,12 @@ const (
 	valNull  = "NULL"
 )
 
-func (w *Word) ToOutputLine(i int, withMarkdown, showIPA, showInfixes, showDashed, showInfDots, showSource bool) (output string, err error) {
+func (w *Word) ToOutputLine(i int, withMarkdown, showIPA, showInfixes, showDashed, showInfDots, showSource bool, langCode string) (output string, err error) {
 	num := fmt.Sprintf("[%d]", i+1)
 	nav := w.Navi
 	ipa := fmt.Sprintf("[%s]", w.IPA)
 	pos := fmt.Sprintf("%s", w.PartOfSpeech)
 	inf := fmt.Sprintf("%s", w.InfixLocations)
-	def := fmt.Sprintf("%s", w.Definition)
 	src := fmt.Sprintf("%s: %s\n", Text("src"), w.Source)
 	ifd := fmt.Sprintf("%s", w.InfixDots)
 
@@ -199,7 +220,28 @@ func (w *Word) ToOutputLine(i int, withMarkdown, showIPA, showInfixes, showDashe
 		output += ifd + ")" + space
 	}
 
-	output += pos + space + def
+	output += pos + space
+
+	switch langCode {
+	case "de":
+		output += w.DE
+	case "en":
+		output += w.EN
+	case "et":
+		output += w.ET
+	case "fr":
+		output += w.FR
+	case "hu":
+		output += w.HU
+	case "nl":
+		output += w.NL
+	case "pl":
+		output += w.PL
+	case "ru":
+		output += w.RU
+	case "sv":
+		output += w.SV
+	}
 
 	//if *useAffixes {
 	if len(w.Affixes.Prefix) > 0 || len(w.Affixes.Infix) > 0 || len(w.Affixes.Suffix) > 0 || len(w.Affixes.Lenition) > 0 {
@@ -263,4 +305,73 @@ func (w *Word) doUnderline(markdown bool) (string, error) {
 		}
 		return strings.Join(dSlice, "-"), nil
 	}
+}
+
+// This holds the positions, how the fields are sorted (with dictV2 the fields can have any order)
+type dictPos struct {
+	idField  int // Database ID
+	navField int // Na'vi word
+	ipaField int // IPA data
+	infField int // Infix location data
+	posField int // Part of Speech data
+	srcField int // Source data
+	stsField int // Stressed syllable #
+	sylField int // syllable breakdown
+	ifdField int // dot-style infix data
+	deField  int // German definition
+	enField  int // English definition
+	etField  int // Estonian definition
+	frField  int // French definition
+	huField  int // Hungarian definition
+	nlField  int // Dutch definition
+	plField  int // Polish definition
+	ruField  int // Russian definition
+	svField  int // Swedish definition
+}
+
+func readDictPos(headerFields []string) dictPos {
+	var pos dictPos
+
+	for i, field := range headerFields {
+		switch field {
+		case "id":
+			pos.idField = i
+		case "navi":
+			pos.navField = i
+		case "ipa":
+			pos.ipaField = i
+		case "infixes":
+			pos.infField = i
+		case "partOfSpeech":
+			pos.posField = i
+		case "source":
+			pos.srcField = i
+		case "stressed":
+			pos.stsField = i
+		case "syllables":
+			pos.sylField = i
+		case "infixDots":
+			pos.ifdField = i
+		case "de":
+			pos.deField = i
+		case "en":
+			pos.enField = i
+		case "et":
+			pos.etField = i
+		case "fr":
+			pos.frField = i
+		case "hu":
+			pos.huField = i
+		case "nl":
+			pos.nlField = i
+		case "pl":
+			pos.plField = i
+		case "ru":
+			pos.ruField = i
+		case "sv":
+			pos.svField = i
+		}
+	}
+
+	return pos
 }

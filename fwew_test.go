@@ -46,7 +46,15 @@ func wordSimpleEqual(w1a, w2a []Word, checkAffixes bool) bool {
 		w2 := w2a[j]
 
 		if w1.ID != w2.ID ||
-			w1.LangCode != w2.LangCode ||
+			//w1.DE != w2.DE ||
+			//w1.EN != w2.EN ||
+			//w1.ET != w2.ET ||
+			//w1.FR != w2.FR ||
+			//w1.HU != w2.HU ||
+			//w1.NL != w2.NL ||
+			//w1.PL != w2.PL ||
+			//w1.RU != w2.RU ||
+			//w1.SV != w2.SV ||
 			w1.Navi != w2.Navi ||
 			(checkAffixes &&
 				(!reflect.DeepEqual(w1.Affixes.Prefix, w2.Affixes.Prefix) ||
@@ -75,13 +83,11 @@ var naviWords = []struct {
 		name: "molte",
 		args: args{
 			searchNaviText: "molte",
-			languageCode:   "de",
 		},
 		want: []Word{
 			{
-				ID:       "1120",
-				LangCode: "de",
-				Navi:     "mllte",
+				ID:   "1120",
+				Navi: "mllte",
 				Affixes: affix{
 					Infix: []string{
 						"ol",
@@ -94,13 +100,11 @@ var naviWords = []struct {
 		name: "pepfil",
 		args: args{
 			searchNaviText: "pepfil",
-			languageCode:   "fr",
 		},
 		want: []Word{
 			{
-				ID:       "6616",
-				LangCode: "fr",
-				Navi:     "pil",
+				ID:   "6616",
+				Navi: "pil",
 				Affixes: affix{
 					Prefix: []string{
 						"pep",
@@ -111,9 +115,8 @@ var naviWords = []struct {
 				},
 			},
 			{
-				ID:       "12989",
-				LangCode: "fr",
-				Navi:     "fil",
+				ID:   "12989",
+				Navi: "fil",
 				Affixes: affix{
 					Prefix: []string{
 						"pep",
@@ -126,7 +129,6 @@ var naviWords = []struct {
 		name: "empty",
 		args: args{
 			searchNaviText: "",
-			languageCode:   "de",
 		},
 		want: []Word{},
 	}, // empty
@@ -134,13 +136,11 @@ var naviWords = []struct {
 		name: "säpeykiyevatsi",
 		args: args{
 			searchNaviText: "säpeykiyevatsi",
-			languageCode:   "hu",
 		},
 		want: []Word{
 			{
-				ID:       "1788",
-				LangCode: "hu",
-				Navi:     "si",
+				ID:   "1788",
+				Navi: "si",
 				Affixes: affix{
 					Infix: []string{
 						"äp",
@@ -156,14 +156,12 @@ var naviWords = []struct {
 		name: "tseng",
 		args: args{
 			searchNaviText: "tseng",
-			languageCode:   "en",
 		},
 		want: []Word{
 			{
-				ID:       "2380",
-				LangCode: "en",
-				Navi:     "tseng",
-				Affixes:  affix{},
+				ID:      "2380",
+				Navi:    "tseng",
+				Affixes: affix{},
 			},
 		},
 	}, // simple (no *fixes)
@@ -171,13 +169,11 @@ var naviWords = []struct {
 		name: "luyu",
 		args: args{
 			searchNaviText: "luyu",
-			languageCode:   "en",
 		},
 		want: []Word{
 			{
-				ID:       "1044",
-				LangCode: "en",
-				Navi:     "lu",
+				ID:   "1044",
+				Navi: "lu",
 				Affixes: affix{
 					Infix: []string{
 						"uy",
@@ -190,13 +186,11 @@ var naviWords = []struct {
 		name: "seiyi",
 		args: args{
 			searchNaviText: "seiyi",
-			languageCode:   "fr",
 		},
 		want: []Word{
 			{
-				ID:       "1788",
-				LangCode: "fr",
-				Navi:     "si",
+				ID:   "1788",
+				Navi: "si",
 				Affixes: affix{
 					Infix: []string{
 						"ei",
@@ -209,13 +203,11 @@ var naviWords = []struct {
 		name: "zenuyeke",
 		args: args{
 			searchNaviText: "zenuyeke",
-			languageCode:   "en",
 		},
 		want: []Word{
 			{
-				ID:       "3968",
-				LangCode: "en",
-				Navi:     "zenke",
+				ID:   "3968",
+				Navi: "zenke",
 				Affixes: affix{
 					Infix: []string{
 						"uy",
@@ -228,13 +220,11 @@ var naviWords = []struct {
 		name: "verìn",
 		args: args{
 			searchNaviText: "verìn",
-			languageCode:   "et",
 		},
 		want: []Word{
 			{
-				ID:       "6884",
-				LangCode: "et",
-				Navi:     "vrrìn",
+				ID:   "6884",
+				Navi: "vrrìn",
 				Affixes: affix{
 					Infix: []string{
 						"er",
@@ -247,13 +237,11 @@ var naviWords = []struct {
 		name: "ketsuktswa'",
 		args: args{
 			searchNaviText: "ketsuktswa'",
-			languageCode:   "en",
 		},
 		want: []Word{
 			{
-				ID:       "4984",
-				LangCode: "en",
-				Navi:     "tswa'",
+				ID:   "4984",
+				Navi: "tswa'",
 				Affixes: affix{
 					Prefix: []string{
 						"ketsuk",
@@ -261,15 +249,13 @@ var naviWords = []struct {
 				},
 			},
 			{
-				ID:       "7352",
-				LangCode: "en",
-				Navi:     "ketsuktswa'",
-				Affixes:  affix{},
+				ID:      "7352",
+				Navi:    "ketsuktswa'",
+				Affixes: affix{},
 			},
 			{
-				ID:       "7356",
-				LangCode: "en",
-				Navi:     "tsuktswa'",
+				ID:   "7356",
+				Navi: "tsuktswa'",
 				Affixes: affix{
 					Prefix: []string{
 						"ke",
@@ -282,13 +268,11 @@ var naviWords = []struct {
 		name: "tìtusaron",
 		args: args{
 			searchNaviText: "tìtusaron",
-			languageCode:   "et",
 		},
 		want: []Word{
 			{
-				ID:       "2004",
-				LangCode: "et",
-				Navi:     "taron",
+				ID:   "2004",
+				Navi: "taron",
 				Affixes: affix{
 					Prefix: []string{
 						"tì",
@@ -299,10 +283,9 @@ var naviWords = []struct {
 				},
 			},
 			{
-				ID:       "6156",
-				LangCode: "et",
-				Navi:     "tìtusaron",
-				Affixes:  affix{},
+				ID:      "6156",
+				Navi:    "tìtusaron",
+				Affixes: affix{},
 			},
 		},
 	}, // tì prefix
@@ -310,13 +293,11 @@ var naviWords = []struct {
 		name: "fayioang",
 		args: args{
 			searchNaviText: "fayioang",
-			languageCode:   "fr",
 		},
 		want: []Word{
 			{
-				ID:       "612",
-				LangCode: "fr",
-				Navi:     "ioang",
+				ID:   "612",
+				Navi: "ioang",
 				Affixes: affix{
 					Prefix: []string{
 						"fay",
@@ -329,13 +310,11 @@ var naviWords = []struct {
 		name: "tsasoaiä",
 		args: args{
 			searchNaviText: "tsasoaiä",
-			languageCode:   "en",
 		},
 		want: []Word{
 			{
-				ID:       "4804",
-				LangCode: "en",
-				Navi:     "soaia",
+				ID:   "4804",
+				Navi: "soaia",
 				Affixes: affix{
 					Prefix: []string{
 						"tsa",
@@ -351,13 +330,11 @@ var naviWords = []struct {
 		name: "tseyä",
 		args: args{
 			searchNaviText: "tseyä",
-			languageCode:   "de",
 		},
 		want: []Word{
 			{
-				ID:       "5268",
-				LangCode: "de",
-				Navi:     "tsaw",
+				ID:   "5268",
+				Navi: "tsaw",
 				Affixes: affix{
 					Suffix: []string{
 						"yä",
@@ -370,13 +347,11 @@ var naviWords = []struct {
 		name: "oey",
 		args: args{
 			searchNaviText: "oey",
-			languageCode:   "en",
 		},
 		want: []Word{
 			{
-				ID:       "1380",
-				LangCode: "en",
-				Navi:     "oe",
+				ID:   "1380",
+				Navi: "oe",
 				Affixes: affix{
 					Suffix: []string{
 						"y",
@@ -389,13 +364,11 @@ var naviWords = []struct {
 		name: "ngey",
 		args: args{
 			searchNaviText: "ngey",
-			languageCode:   "nl",
 		},
 		want: []Word{
 			{
-				ID:       "1348",
-				LangCode: "nl",
-				Navi:     "nga",
+				ID:   "1348",
+				Navi: "nga",
 				Affixes: affix{
 					Suffix: []string{
 						"y",
@@ -408,13 +381,11 @@ var naviWords = []struct {
 		name: "tì'usemä",
 		args: args{
 			searchNaviText: "tì'usemä",
-			languageCode:   "de",
 		},
 		want: []Word{
 			{
-				ID:       "3676",
-				LangCode: "de",
-				Navi:     "'em",
+				ID:   "3676",
+				Navi: "'em",
 				Affixes: affix{
 					Prefix: []string{
 						"tì",
@@ -433,13 +404,11 @@ var naviWords = []struct {
 		name: "wemtswo",
 		args: args{
 			searchNaviText: "wemtswo",
-			languageCode:   "fr",
 		},
 		want: []Word{
 			{
-				ID:       "3948",
-				LangCode: "fr",
-				Navi:     "wem",
+				ID:   "3948",
+				Navi: "wem",
 				Affixes: affix{
 					Suffix: []string{
 						"tswo",
@@ -452,13 +421,11 @@ var naviWords = []struct {
 		name: "pawnengsì",
 		args: args{
 			searchNaviText: "pawnengsì",
-			languageCode:   "en",
 		},
 		want: []Word{
 			{
-				ID:       "1512",
-				LangCode: "en",
-				Navi:     "peng",
+				ID:   "1512",
+				Navi: "peng",
 				Affixes: affix{
 					Infix: []string{
 						"awn",
@@ -474,13 +441,11 @@ var naviWords = []struct {
 		name: "tsuknumesì",
 		args: args{
 			searchNaviText: "tsuknumesì",
-			languageCode:   "nl",
 		},
 		want: []Word{
 			{
-				ID:       "1340",
-				LangCode: "nl",
-				Navi:     "nume",
+				ID:   "1340",
+				Navi: "nume",
 				Affixes: affix{
 					Prefix: []string{
 						"tsuk",
@@ -496,13 +461,11 @@ var naviWords = []struct {
 		name: "tsamungwrr",
 		args: args{
 			searchNaviText: "tsamungwrr",
-			languageCode:   "et",
 		},
 		want: []Word{
 			{
-				ID:       "5268",
-				LangCode: "et",
-				Navi:     "tsaw",
+				ID:   "5268",
+				Navi: "tsaw",
 				Affixes: affix{
 					Suffix: []string{
 						"mungwrr",
@@ -515,13 +478,11 @@ var naviWords = []struct {
 		name: "tsamsiyu",
 		args: args{
 			searchNaviText: "tsamsiyu",
-			languageCode:   "en",
 		},
 		want: []Word{
 			{
-				ID:       "2344",
-				LangCode: "en",
-				Navi:     "tsamsiyu",
+				ID:   "2344",
+				Navi: "tsamsiyu",
 			},
 		},
 	},
@@ -529,13 +490,11 @@ var naviWords = []struct {
 		name: "'ueyä",
 		args: args{
 			searchNaviText: "'ueyä",
-			languageCode:   "de",
 		},
 		want: []Word{
 			{
-				ID:       "108",
-				LangCode: "de",
-				Navi:     "'u",
+				ID:   "108",
+				Navi: "'u",
 				Affixes: affix{
 					Suffix: []string{
 						"eyä",
@@ -543,9 +502,8 @@ var naviWords = []struct {
 				},
 			},
 			{
-				ID:       "4180",
-				LangCode: "de",
-				Navi:     "'uo",
+				ID:   "4180",
+				Navi: "'uo",
 				Affixes: affix{
 					Suffix: []string{
 						"yä",
@@ -558,13 +516,11 @@ var naviWords = []struct {
 		name: "awngeyä",
 		args: args{
 			searchNaviText: "awngeyä",
-			languageCode:   "et",
 		},
 		want: []Word{
 			{
-				ID:       "192",
-				LangCode: "et",
-				Navi:     "awnga",
+				ID:   "192",
+				Navi: "awnga",
 				Affixes: affix{
 					Suffix: []string{
 						"yä",
@@ -577,13 +533,11 @@ var naviWords = []struct {
 		name: "fpi",
 		args: args{
 			searchNaviText: "fpi",
-			languageCode:   "en",
 		},
 		want: []Word{
 			{
-				ID:       "428",
-				LangCode: "en",
-				Navi:     "fpi+",
+				ID:   "428",
+				Navi: "fpi+",
 			},
 		},
 	}, // "+" support
@@ -591,13 +545,11 @@ var naviWords = []struct {
 		name: "pe",
 		args: args{
 			searchNaviText: "pe",
-			languageCode:   "en",
 		},
 		want: []Word{
 			{
-				ID:       "1488",
-				LangCode: "en",
-				Navi:     "--pe+",
+				ID:   "1488",
+				Navi: "--pe+",
 			},
 		},
 	}, // "--" support
@@ -615,9 +567,8 @@ var englishWords = []struct {
 		},
 		want: []Word{
 			{
-				ID:       "12989",
-				LangCode: "de",
-				Navi:     "fil",
+				ID:   "12989",
+				Navi: "fil",
 			},
 		},
 	},
@@ -629,29 +580,24 @@ var englishWords = []struct {
 		},
 		want: []Word{
 			{
-				ID:       "612",
-				LangCode: "de",
-				Navi:     "ioang",
+				ID:   "612",
+				Navi: "ioang",
 			},
 			{
-				ID:       "1440",
-				LangCode: "de",
-				Navi:     "pa'li",
+				ID:   "1440",
+				Navi: "pa'li",
 			},
 			{
-				ID:       "2124",
-				LangCode: "de",
-				Navi:     "tireaioang",
+				ID:   "2124",
+				Navi: "tireaioang",
 			},
 			{
-				ID:       "2744",
-				LangCode: "de",
-				Navi:     "yerik",
+				ID:   "2744",
+				Navi: "yerik",
 			},
 			{
-				ID:       "7676",
-				LangCode: "de",
-				Navi:     "fwampop",
+				ID:   "7676",
+				Navi: "fwampop",
 			},
 		},
 	},
@@ -663,9 +609,8 @@ var englishWords = []struct {
 		},
 		want: []Word{
 			{
-				ID:       "4524",
-				LangCode: "de",
-				Navi:     "venzek",
+				ID:   "4524",
+				Navi: "venzek",
 			},
 		},
 	},
@@ -677,19 +622,16 @@ var englishWords = []struct {
 		},
 		want: []Word{
 			{
-				ID:       "1608",
-				LangCode: "en",
-				Navi:     "pxi",
+				ID:   "1608",
+				Navi: "pxi",
 			},
 			{
-				ID:       "1616",
-				LangCode: "en",
-				Navi:     "pxiut",
+				ID:   "1616",
+				Navi: "pxiut",
 			},
 			{
-				ID:       "8604",
-				LangCode: "en",
-				Navi:     "litx",
+				ID:   "8604",
+				Navi: "litx",
 			},
 		},
 	},
@@ -701,14 +643,12 @@ var englishWords = []struct {
 		},
 		want: []Word{
 			{
-				ID:       "936",
-				LangCode: "en",
-				Navi:     "kxll",
+				ID:   "936",
+				Navi: "kxll",
 			},
 			{
-				ID:       "5256",
-				LangCode: "en",
-				Navi:     "kxll si",
+				ID:   "5256",
+				Navi: "kxll si",
 			},
 		},
 	},
@@ -720,9 +660,8 @@ var englishWords = []struct {
 		},
 		want: []Word{
 			{
-				ID:       "9868",
-				LangCode: "en",
-				Navi:     "srä",
+				ID:   "9868",
+				Navi: "srä",
 			},
 		},
 	},
@@ -731,7 +670,7 @@ var englishWords = []struct {
 func TestTranslateFromNavi(t *testing.T) {
 	for _, tt := range naviWords {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := TranslateFromNavi(tt.args.searchNaviText, tt.args.languageCode); !wordSimpleEqual(got, tt.want, true) {
+			if got, err := TranslateFromNavi(tt.args.searchNaviText); err != nil || !wordSimpleEqual(got, tt.want, true) {
 				t.Errorf("TranslateFromNavi() = %v, want %v", got, tt.want)
 			}
 		})
@@ -748,7 +687,7 @@ func BenchmarkTranslateFromNavi(b *testing.B) {
 	for _, bm := range naviWords {
 		b.Run(bm.name, func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				TranslateFromNavi(bm.args.searchNaviText, bm.args.languageCode)
+				TranslateFromNavi(bm.args.searchNaviText)
 			}
 		})
 	}
@@ -773,7 +712,7 @@ func BenchmarkTranslateFromNaviBig(b *testing.B) {
 
 		b.Run(line, func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				TranslateFromNavi(line, "en")
+				TranslateFromNavi(line)
 			}
 		})
 	}
@@ -838,56 +777,49 @@ func TestRandom(t *testing.T) {
 		{
 			name: "1",
 			args: args{
-				amount:   1,
-				langCode: "en",
+				amount: 1,
 			},
 		},
 		{
 			name: "2",
 			args: args{
-				amount:   2,
-				langCode: "de",
+				amount: 2,
 			},
 		},
 		{
 			name: "3",
 			args: args{
-				amount:   3,
-				langCode: "fr",
+				amount: 3,
 			},
 		},
 		{
 			name: "4",
 			args: args{
-				amount:   4,
-				langCode: "nl",
+				amount: 4,
 			},
 		},
 		{
 			name: "5",
 			args: args{
-				amount:   5,
-				langCode: "pl",
+				amount: 5,
 			},
 		},
 		{
 			name: "500",
 			args: args{
-				amount:   500,
-				langCode: "en",
+				amount: 500,
 			},
 		},
 		{
 			name: "2000",
 			args: args{
-				amount:   2000,
-				langCode: "en",
+				amount: 2000,
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if gotResults, _ := Random(tt.args.langCode, tt.args.amount, nil); !(len(gotResults) == tt.args.amount) {
+			if gotResults, _ := Random(tt.args.amount, nil); !(len(gotResults) == tt.args.amount) {
 				t.Errorf("Random() = %v, want %v", len(gotResults), tt.args.amount)
 			}
 		})

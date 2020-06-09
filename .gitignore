@@ -6,3 +6,4 @@ output*.txt
 .idea
 *.bak
 **dictionary.txt
+dictionary-v2.txt

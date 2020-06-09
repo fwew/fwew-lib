@@ -10,8 +10,8 @@ import (
 // Filter the dictionary based on the args.
 // args can be empty, if so, the whole Dict will be returned (This also happens if < 3 args are given)
 // It will try to always get 3 args and an `and` inbetween. If less than 3 exist, than it will wil return the previous results.
-func List(args []string, langCode string) (results []Word, err error) {
-	results, err = GetFullDict(langCode)
+func List(args []string) (results []Word, err error) {
+	results, err = GetFullDict()
 	if err != nil {
 		return
 	}

@@ -23,18 +23,7 @@ import (
 
 // Global
 const (
-	idField  int    = 0  // dictionary.txt line Field 0 is Database ID
-	lcField  int    = 1  // dictionary.txt line field 1 is Language Code
-	navField int    = 2  // dictionary.txt line field 2 is Na'vi word
-	ipaField int    = 3  // dictionary.txt line field 3 is IPA data
-	infField int    = 4  // dictionary.txt line field 4 is Infix location data
-	posField int    = 5  // dictionary.txt line field 5 is Part of Speech data
-	defField int    = 6  // dictionary.txt line field 6 is Local definition
-	srcField int    = 7  // dictionary.txt line field 7 is Source data
-	stsField int    = 8  // dictionary.txt line field 8 is Stressed syllable #
-	sylField int    = 9  // dictionary.txt line field 9 is syllable breakdown
-	ifdField int    = 10 // dictionary.txt line field 10 is dot-style infix data
-	space    string = " "
+	space string = " "
 )
 
 var debugMode bool
@@ -83,7 +72,7 @@ func (w *Word) similarity(other string) float64 {
 // !! Only one word is allowed, if spaces are found, they will be treated like part of the word !!
 // This will return an array of Words, that fit the input text
 // One Navi-Word can have multiple meanings and words (e.g. synonyms)
-func TranslateFromNavi(searchNaviWord string, languageCode string) (results []Word) {
+func TranslateFromNavi(searchNaviWord string) (results []Word, err error) {
 	badChars := `~@#$%^&*()[]{}<>_/.,;:!?|+\`
 
 	// remove all the sketchy chars from arguments
@@ -100,7 +89,7 @@ func TranslateFromNavi(searchNaviWord string, languageCode string) (results []Wo
 		return
 	}
 
-	RunOnDict(languageCode, func(word Word) error {
+	err = RunOnDict(func(word Word) error {
 		// save original Navi word, we want to add "+" or "--" later again
 		naviWord := word.Navi
 
@@ -138,8 +127,29 @@ func TranslateFromNavi(searchNaviWord string, languageCode string) (results []Wo
 }
 
 func TranslateToNavi(searchWord string, langCode string) (results []Word) {
-	RunOnDict(langCode, func(word Word) error {
-		wordString := StripChars(word.Definition, ",;")
+	RunOnDict(func(word Word) error {
+		var wordString string
+		switch langCode {
+		case "de":
+			wordString += word.DE
+		case "en":
+			wordString += word.EN
+		case "et":
+			wordString += word.ET
+		case "fr":
+			wordString += word.FR
+		case "hu":
+			wordString += word.HU
+		case "nl":
+			wordString += word.NL
+		case "pl":
+			wordString += word.PL
+		case "ru":
+			wordString += word.RU
+		case "sv":
+			wordString += word.SV
+		}
+		wordString = StripChars(wordString, ",;")
 		wordString = strings.ToLower(wordString)
 		searchWord = strings.ToLower(searchWord)
 
@@ -159,8 +169,8 @@ func TranslateToNavi(searchWord string, langCode string) (results []Word) {
 // Get random words out of the dictionary.
 // If args are applied, the dict will be filtered for args before random words are chosen.
 // args will be put into the `List()` algorithm.
-func Random(langCode string, amount int, args []string) (results []Word, err error) {
-	allWords, err := List(args, langCode)
+func Random(amount int, args []string) (results []Word, err error) {
+	allWords, err := List(args)
 
 	if err != nil {
 		log.Printf("Error getting fullDing: %s", err)

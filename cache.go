@@ -8,9 +8,9 @@ import (
 	"strings"
 )
 
-const dictFileName = "dictionary.txt"
+const dictFileName = "dictionary-v2.txt"
 
-var dictionary = make(map[string][]Word)
+var dictionary []Word
 var dictionaryCached bool
 
 // check if a file exists
@@ -59,7 +59,7 @@ func CacheDict() error {
 	}
 
 	err := runOnFile(func(word Word) error {
-		dictionary[word.LangCode] = append(dictionary[word.LangCode], word)
+		dictionary = append(dictionary, word)
 		return nil
 	})
 	if err != nil {
@@ -76,15 +76,15 @@ func CacheDict() error {
 
 func UncacheDict() {
 	dictionaryCached = false
-	dictionary = make(map[string][]Word)
+	dictionary = nil
 }
 
 // This will run the function `f` inside the cache or the file directly.
 // Use this to get words out of the dictionary
-// function `f` is called on every single line that matches the langCode!
-func RunOnDict(lang string, f func(word Word) error) (err error) {
+// function `f` is called on every single line in the dictionary!
+func RunOnDict(f func(word Word) error) (err error) {
 	if dictionaryCached {
-		for _, word := range dictionary[lang] {
+		for _, word := range dictionary {
 			err = f(word)
 			if err != nil {
 				return
@@ -92,11 +92,9 @@ func RunOnDict(lang string, f func(word Word) error) (err error) {
 		}
 	} else {
 		err = runOnFile(func(word Word) error {
-			if word.LangCode == lang {
-				err = f(word)
-				if err != nil {
-					return err
-				}
+			err = f(word)
+			if err != nil {
+				return err
 			}
 			return nil
 		})
@@ -120,6 +118,8 @@ func runOnFile(f func(word Word) error) error {
 
 	scanner := bufio.NewScanner(file)
 
+	var first = true
+	var pos dictPos
 	for scanner.Scan() {
 		// get a single line out of the dict
 		line := scanner.Text()
@@ -127,24 +127,28 @@ func runOnFile(f func(word Word) error) error {
 		// Split line at \t so we get all information
 		fields := strings.Split(line, "\t")
 
-		// Put the stuff from fields into the Word struct
-		err = f(newWord(fields))
-		if err != nil {
-			return err
+		// When first then this is the header
+		if first {
+			pos = readDictPos(fields)
+			first = false
+		} else {
+			// Put the stuff from fields into the Word struct
+			err = f(newWord(fields, pos))
+			if err != nil {
+				return err
+			}
 		}
 	}
 
 	return nil
 }
 
-func GetFullDict(langCode string) (allWords []Word, err error) {
+func GetFullDict() (allWords []Word, err error) {
 	if dictionaryCached {
-		allWords = dictionary[langCode]
+		allWords = dictionary
 	} else {
 		err = runOnFile(func(word Word) error {
-			if word.LangCode == langCode {
-				allWords = append(allWords, word)
-			}
+			allWords = append(allWords, word)
 			return nil
 		})
 		return
@@ -152,14 +156,12 @@ func GetFullDict(langCode string) (allWords []Word, err error) {
 	return
 }
 
-func GetDictSize(langCode string) (amount int, err error) {
+func GetDictSize() (amount int, err error) {
 	if dictionaryCached {
-		amount = len(dictionary[langCode])
+		amount = len(dictionary)
 	} else {
 		err = runOnFile(func(word Word) error {
-			if word.LangCode == langCode {
-				amount++
-			}
+			amount++
 			return nil
 		})
 	}
