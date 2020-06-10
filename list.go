@@ -164,11 +164,11 @@ func listWords(args []string, words []Word) (results []Word, err error) {
 			}
 			switch cond {
 			case Text("c_first"):
-				if i <= specNumber {
+				if i < specNumber {
 					results = append(results, word)
 				}
 			case Text("c_last"):
-				if i > wordsLen-specNumber && i <= wordsLen {
+				if i >= wordsLen-specNumber && i <= wordsLen {
 					results = append(results, word)
 				}
 			}
