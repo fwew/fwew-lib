@@ -281,7 +281,9 @@ func (w *Word) doUnderline(markdown bool) (string, error) {
 	shUnderlineA := "\033[4m"
 	shUnderlineB := "\033[0m"
 	dashed := w.Syllables
-	dSlice := strings.Split(dashed, "-")
+	dSlice := strings.FieldsFunc(dashed, func(r rune) bool {
+		return r == '-' || r == ' '
+	})
 
 	stressedIndex, err := strconv.Atoi(w.Stressed)
 	if err != nil {
