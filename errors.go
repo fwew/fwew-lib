@@ -15,6 +15,7 @@ const (
 	NoTranslationFound = constError("no translation found")
 	// list
 	InvalidNumber = constError("invalidNumericError")
+	NoResults     = constError("noResultsError")
 )
 
 // errors are basically strings, that implement the error interface

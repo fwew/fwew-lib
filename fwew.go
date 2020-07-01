@@ -179,11 +179,15 @@ func Random(amount int, args []string) (results []Word, err error) {
 
 	dictLength := len(allWords)
 
+	if dictLength == 0 {
+		return nil, NoResults
+	}
+
 	rand.Seed(time.Now().UnixNano())
 
 	// create random number
 	if amount <= 0 {
-		amount = rand.Intn(dictLength)
+		amount = rand.Intn(dictLength-1) + 1
 	}
 
 	if amount > dictLength {
