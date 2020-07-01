@@ -187,7 +187,7 @@ func Random(amount int, args []string) (results []Word, err error) {
 
 	// create random number
 	if amount <= 0 {
-		amount = rand.Intn(dictLength-1) + 1
+		amount = rand.Intn(dictLength) + 1
 	}
 
 	if amount > dictLength {
