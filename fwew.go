@@ -84,6 +84,9 @@ func TranslateFromNavi(searchNaviWord string) (results []Word, err error) {
 	searchNaviWord = strings.ReplaceAll(searchNaviWord, "’", "'")
 	searchNaviWord = strings.ReplaceAll(searchNaviWord, "‘", "'")
 
+	// find everything lowercase
+	searchNaviWord = strings.ToLower(searchNaviWord)
+
 	// No Results if empty string after removing sketch chars
 	if len(searchNaviWord) == 0 {
 		return

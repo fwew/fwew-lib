@@ -40,8 +40,8 @@ func List(args []string) (results []Word, err error) {
 
 func listWords(args []string, words []Word) (results []Word, err error) {
 	var (
-		what = args[0]
-		cond = args[1]
+		what = strings.ToLower(args[0])
+		cond = strings.ToLower(args[1])
 		spec = strings.ToLower(args[2])
 	)
 
