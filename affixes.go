@@ -368,6 +368,22 @@ func (w *Word) infix(target string) string {
 	return attempt
 }
 
+// table of all the possible lenitions
+var lenitionTable = [8][2]string{
+	{"kx", "k"},
+	{"px", "p"},
+	{"tx", "t"},
+	{"k", "h"},
+	{"p", "f"},
+	{"ts", "s"},
+	{"t", "s"},
+	{"'", ""},
+}
+
+func GetLenitionTable() [][2]string {
+	return lenitionTable[:]
+}
+
 // Lenite the word, based on the attempt. The target is not relevant here, so not given.
 // Returns the lenite attempt.
 func (w *Word) lenite(attempt string) string {
@@ -376,17 +392,7 @@ func (w *Word) lenite(attempt string) string {
 		return attempt
 	}
 
-	lenTable := [8][2]string{
-		{"kx", "k"},
-		{"px", "p"},
-		{"tx", "t"},
-		{"k", "h"},
-		{"p", "f"},
-		{"ts", "s"},
-		{"t", "s"},
-		{"'", ""},
-	}
-	for _, v := range lenTable {
+	for _, v := range lenitionTable {
 		if strings.HasPrefix(strings.ToLower(w.Navi), v[0]) {
 			attempt = strings.Replace(attempt, v[0], v[1], 1)
 			w.Affixes.Lenition = append(w.Affixes.Lenition, v[0]+"→"+v[1])
