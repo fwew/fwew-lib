@@ -245,23 +245,18 @@ func (w *Word) ToOutputLine(i int, withMarkdown, showIPA, showInfixes, showDashe
 		output += w.EN
 	}
 
-	//if *useAffixes {
-	if len(w.Affixes.Prefix) > 0 || len(w.Affixes.Infix) > 0 || len(w.Affixes.Suffix) > 0 || len(w.Affixes.Lenition) > 0 {
-		output += newline
-	}
 	if len(w.Affixes.Prefix) > 0 {
-		output += fmt.Sprintf("Prefixes: %s", w.Affixes.Prefix)
+		output += newline + fmt.Sprintf("Prefixes: %s", w.Affixes.Prefix)
 	}
 	if len(w.Affixes.Infix) > 0 {
-		output += fmt.Sprintf("Infixes: %s", w.Affixes.Infix)
+		output += newline + fmt.Sprintf("Infixes: %s", w.Affixes.Infix)
 	}
 	if len(w.Affixes.Suffix) > 0 {
-		output += fmt.Sprintf("Suffixes: %s", w.Affixes.Suffix)
+		output += newline + fmt.Sprintf("Suffixes: %s", w.Affixes.Suffix)
 	}
 	if len(w.Affixes.Lenition) > 0 {
-		output += fmt.Sprintf("Lenition: %s", w.Affixes.Lenition)
+		output += newline + fmt.Sprintf("Lenition: %s", w.Affixes.Lenition)
 	}
-	//}
 
 	if showSource && w.Source != "" {
 		output += newline + src
