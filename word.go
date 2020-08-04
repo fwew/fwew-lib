@@ -181,7 +181,7 @@ func (w *Word) ToOutputLine(i int, withMarkdown, showIPA, showInfixes, showDashe
 	ipa := fmt.Sprintf("[%s]", w.IPA)
 	pos := fmt.Sprintf("%s", w.PartOfSpeech)
 	inf := fmt.Sprintf("%s", w.InfixLocations)
-	src := fmt.Sprintf("%s: %s\n", Text("src"), w.Source)
+	src := fmt.Sprintf("%s: %s", Text("src"), w.Source)
 	ifd := fmt.Sprintf("%s", w.InfixDots)
 
 	syl, err := w.doUnderline(withMarkdown)
