@@ -177,7 +177,7 @@ func DownloadDict(filepath string) error {
 
 // GLOB https://github.com/ryanuber/go-glob
 // The character which is treated like a glob
-const GLOB = "*"
+const GLOB = "%"
 
 // Glob will test a string pattern, potentially containing globs, against a
 // subject string. The result is a simple true/false, determining whether or
