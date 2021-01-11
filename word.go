@@ -160,7 +160,7 @@ func (w *Word) Equals(other Word) bool {
 
 func (w *Word) SyllableCount() int {
 	var numSyllables int
-	var vowels = []string{"a", "ä", "e", "i", "ì", "o", "u", "ll", "rr"}
+	var vowels = []string{"a", "ä", "e", "é", "i", "ì", "o", "u", "ll", "rr"}
 	var word = strings.ToLower(w.Navi)
 	for _, p := range vowels {
 		numSyllables += strings.Count(word, p)
