@@ -56,7 +56,7 @@ func init() {
   	  is, has, starts, ends        | any string of letter(s)
   	  <, <=, =, >=, >, first, last | any whole number > 0
   	  like                         | any string of letter(s) and
-  	                               |     wildcard asterisk(s)
+  	                               |     wildcard percent-sign(s)
 /random <number>
 /random <number> where <what> <cond> <spec> [and <what> <cond> <spec> ...]
   	show given <number> of random entries
@@ -132,7 +132,7 @@ func init() {
   <, <=, =, >=, >        | any whole number > 0
   first, last            | any whole number > 0
   like                   | any string of letter(s) and
-                         |     wildcard asterisk(s)`
+                         |     wildcard percent-sign(s)`
 	texts["/listExample"] = "list syllables = 3 and pos has vtr."
 	texts["/randomUsage"] = "random <number> [where <what> <cond> <spec> [and <what> <cond> <spec> ...]]"
 	texts["/randomDesc"] = "show given <number> of random entries. <what>, <cond>, and <spec> work the same way as with /list"
