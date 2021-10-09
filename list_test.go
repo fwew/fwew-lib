@@ -2,6 +2,7 @@ package fwew_lib
 
 import (
 	"errors"
+	"reflect"
 	"testing"
 )
 
@@ -467,6 +468,49 @@ func TestList(t *testing.T) {
 			wantResults: nil,
 			wantErr:     InvalidNumber,
 		},
+		{
+			name: "stress = -1 and word like 'aw",
+			args: args{
+				args: []string{"stress", "=", "-1", "and", "word", "like", "'aw"},
+			},
+			wantResults: []Word{
+				{
+					ID:             "12",
+					Navi:           "'aw",
+					IPA:            "ʔaw",
+					InfixLocations: "NULL",
+					PartOfSpeech:   "num.",
+					Source:         "NULL",
+					Stressed:       "1",
+					Syllables:      "'aw",
+					InfixDots:      "NULL",
+					DE:             "eins",
+					EN:             "one",
+					ET:             "üks",
+					FR:             "1 (un)",
+					HU:             "egy, 1",
+					NL:             "één",
+					PL:             "jeden",
+					RU:             "один",
+					SV:             "en, ett",
+					Affixes: affix{
+						Prefix:   nil,
+						Infix:    nil,
+						Suffix:   nil,
+						Lenition: nil,
+					},
+				},
+			},
+			wantErr: nil,
+		},
+		{
+			name: "stress != -1 and word like 'aw",
+			args: args{
+				args: []string{"stress", "!=", "-1", "and", "word", "like", "'aw"},
+			},
+			wantResults: nil,
+			wantErr:     nil,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -475,8 +519,13 @@ func TestList(t *testing.T) {
 				t.Errorf("List() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			// for know, only check if something returns
-			if err == nil && len(gotResults) == 0 {
+			// test new negative stress feature
+			if tt.name == "stress = -1 and word like 'aw" || tt.name == "stress != -1 and word like 'aw" {
+				if !reflect.DeepEqual(gotResults, tt.wantResults) {
+					t.Errorf("List() gotResults = %v, want %v", gotResults, tt.wantResults)
+				}
+			} else if err == nil && len(gotResults) == 0 {
+				// for now, only check if something returns
 				t.Errorf("List() got empty result, expected something!")
 			}
 			//if !reflect.DeepEqual(gotResults, tt.wantResults) {
