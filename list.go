@@ -228,7 +228,7 @@ func listWords(args []string, words []Word) (results []Word, err error) {
 					results = append(results, word)
 				}
 			case "=":
-				if istress == ispec || ispec < 0 && word.SyllableCount()+ispec+1 == istress {
+				if ispec < 0 && word.SyllableCount()+ispec+1 == istress || istress == ispec {
 					results = append(results, word)
 				}
 			case ">=":
@@ -240,7 +240,7 @@ func listWords(args []string, words []Word) (results []Word, err error) {
 					results = append(results, word)
 				}
 			case "!=":
-				if istress != ispec || ispec < 0 && word.SyllableCount()+ispec+1 != istress {
+				if ispec < 0 && word.SyllableCount()+ispec+1 != istress || istress != ispec {
 					results = append(results, word)
 				}
 			}
