@@ -15,16 +15,13 @@
 // Package main contains all the things. version.go handles program version.
 package fwew_lib
 
-import (
-	"fmt"
-	"strconv"
-)
+import "fmt"
 
 type version struct {
 	Major, Minor, Patch int
 	Label               string
 	Name                string
-	DictVersion         float64
+	DictVersion         string
 	DictBuild           string
 }
 
@@ -33,7 +30,7 @@ var Version = version{
 	5, 3, 0,
 	"dev",
 	"Maweya Mawup",
-	15.4.1,
+	"15.4.1",
 	"",
 }
 
@@ -47,9 +44,9 @@ func init() {
 func (v version) String() string {
 	if v.Label != "" {
 		return fmt.Sprintf("%s: %d.%d.%d-%s \"%s\"\ndictionary: %s (EE %s)",
-			Text("name"), v.Major, v.Minor, v.Patch, v.Label, v.Name, v.DictBuild, strconv.FormatFloat(v.DictVersion, 'f', -1, 64))
+			Text("name"), v.Major, v.Minor, v.Patch, v.Label, v.Name, v.DictBuild, v.DictVersion)
 	}
 
 	return fmt.Sprintf("%s %d.%d.%d \"%s\"\ndictionary %s (EE %s)",
-		Text("name"), v.Major, v.Minor, v.Patch, v.Name, v.DictBuild, strconv.FormatFloat(v.DictVersion, 'f', -1, 64))
+		Text("name"), v.Major, v.Minor, v.Patch, v.Name, v.DictBuild, v.DictVersion)
 }
