@@ -8,8 +8,7 @@ import (
 
 func TestList(t *testing.T) {
 	type args struct {
-		args     []string
-		langCode string
+		args []string
 	}
 	tests := []struct {
 		name        string

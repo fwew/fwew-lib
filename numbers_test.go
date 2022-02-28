@@ -231,7 +231,7 @@ func Test_NumberToNavi(t *testing.T) {
 	}
 
 	// also test errors:
-	t.Run(fmt.Sprintf("Translate negative number"), func(t *testing.T) {
+	t.Run("Translate negative number", func(t *testing.T) {
 		if _, err := NumberToNavi(-0o50); !errors.Is(err, NegativeNumber) {
 			t.Errorf("Error that occured is not correct: expected \"%s\", but got \"%s\"", NegativeNumber, err)
 		}

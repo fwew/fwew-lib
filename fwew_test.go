@@ -755,8 +755,7 @@ func BenchmarkTranslateToNaviBigCached(b *testing.B) {
 
 func TestRandom(t *testing.T) {
 	type args struct {
-		amount   int
-		langCode string
+		amount int
 	}
 	tests := []struct {
 		name string

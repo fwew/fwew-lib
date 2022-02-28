@@ -355,11 +355,8 @@ func (w *Word) infix(target string) string {
 	}
 
 	// handle <ol>ll and <er>rr
-	if strings.Contains(attempt, "olll") {
-		attempt = strings.Replace(attempt, "olll", "ol", 1)
-	} else if strings.Contains(attempt, "errr") {
-		attempt = strings.Replace(attempt, "errr", "er", 1)
-	}
+	attempt = strings.Replace(attempt, "olll", "ol", 1)
+	attempt = strings.Replace(attempt, "errr", "er", 1)
 
 	if len(matchInfixes) != 0 {
 		w.Affixes.Infix = append(w.Affixes.Infix, matchInfixes...)
