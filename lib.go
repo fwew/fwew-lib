@@ -242,3 +242,25 @@ func SHA1Hash(filename string) string {
 	}
 	return fmt.Sprintf("%x", h.Sum(nil))[0:8]
 }
+
+// compress compresses or normalizes each digraph of the given string to a unique single character
+// inverse of `func decompress(compressed string) string`
+func compress(syllables string) string {
+	syll := strings.ToLower(syllables)
+	ct := make(map[string]string)
+	ct["kx"] = "q"
+	ct["px"] = "b"
+	ct["tx"] = "d"
+	ct["ng"] = "g"
+	ct["ts"] = "c"
+	ct["rr"] = "0"
+	ct["ll"] = "1"
+	ct["aw"] = "2"
+	ct["ay"] = "3"
+	ct["ew"] = "4"
+	ct["ey"] = "5"
+	for key := range ct {
+		syll = strings.Replace(syll, key, ct[key], -1)
+	}
+	return strings.Replace(syll, "-", "", -1)
+}

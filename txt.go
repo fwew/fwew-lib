@@ -94,6 +94,7 @@ func init() {
 	texts["w_words"] = "words"
 	texts["w_syllables"] = "syllables"
 	texts["w_stress"] = "stress"
+	texts["w_length"] = "length"
 	// <cond> strings
 	texts["c_is"] = "is"
 	texts["c_has"] = "has"

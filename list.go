@@ -121,6 +121,7 @@ func listWords(args []string, words []Word) (results []Word, err error) {
 			}
 		case Text("w_word"):
 			navi := strings.ToLower(word.Navi)
+			syll := word.Syllables
 			switch cond {
 			case Text("c_starts"):
 				if strings.HasPrefix(navi, spec) {
@@ -131,7 +132,7 @@ func listWords(args []string, words []Word) (results []Word, err error) {
 					results = append(results, word)
 				}
 			case Text("c_has"):
-				if strings.Contains(navi, spec) {
+				if strings.Contains(compress(syll), compress(spec)) {
 					results = append(results, word)
 				}
 			case Text("c_like"):
@@ -147,7 +148,7 @@ func listWords(args []string, words []Word) (results []Word, err error) {
 					results = append(results, word)
 				}
 			case Text("c_not-has"):
-				if !strings.Contains(navi, spec) {
+				if !strings.Contains(compress(syll), compress(spec)) {
 					results = append(results, word)
 				}
 			case Text("c_not-like"):
@@ -249,6 +250,48 @@ func listWords(args []string, words []Word) (results []Word, err error) {
 						results = append(results, word)
 					}
 				} else if istress != ispec {
+					results = append(results, word)
+				}
+			}
+		case Text("w_length"):
+			ispec, err1 := strconv.Atoi(spec)
+			if err1 != nil {
+				fmt.Println(Text("invalidDecimalError"))
+				err = InvalidNumber.wrap(err1)
+				return
+			}
+			ilength := len(compress(word.Syllables))
+			switch cond {
+			case "<":
+				if ilength < ispec {
+					results = append(results, word)
+				}
+			case "<=":
+				if ilength <= ispec {
+					results = append(results, word)
+				}
+			case "=":
+				if ispec < 0 {
+					if word.SyllableCount()+ispec+1 == ilength {
+						results = append(results, word)
+					}
+				} else if ilength == ispec {
+					results = append(results, word)
+				}
+			case ">=":
+				if ilength >= ispec {
+					results = append(results, word)
+				}
+			case ">":
+				if ilength > ispec {
+					results = append(results, word)
+				}
+			case "!=":
+				if ispec < 0 {
+					if word.SyllableCount()+ispec+1 != ilength {
+						results = append(results, word)
+					}
+				} else if ilength != ispec {
 					results = append(results, word)
 				}
 			}
