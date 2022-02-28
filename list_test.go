@@ -43,12 +43,12 @@ func TestList(t *testing.T) {
 			wantErr:     nil,
 		},
 		{
-			name: "pos is v.",
+			name: "pos is vim.",
 			args: args{
 				args: []string{
 					"pos",
 					"is",
-					"v.",
+					"vim.",
 				},
 			},
 			wantResults: nil,

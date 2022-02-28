@@ -541,18 +541,6 @@ var naviWords = []struct {
 			},
 		},
 	}, // "+" support
-	{
-		name: "pe",
-		args: args{
-			searchNaviText: "pe",
-		},
-		want: []Word{
-			{
-				ID:   "1488",
-				Navi: "--pe+",
-			},
-		},
-	}, // "--" support
 }
 var englishWords = []struct {
 	name string
