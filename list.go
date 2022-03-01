@@ -132,7 +132,9 @@ func listWords(args []string, words []Word) (results []Word, err error) {
 					results = append(results, word)
 				}
 			case Text("c_has"):
-				if strings.Contains(compress(syll), compress(spec)) {
+				if spec == "+" && strings.Contains(navi, spec) {
+					results = append(results, word)
+				} else if strings.Contains(compress(syll), compress(spec)) {
 					results = append(results, word)
 				}
 			case Text("c_like"):
@@ -148,7 +150,9 @@ func listWords(args []string, words []Word) (results []Word, err error) {
 					results = append(results, word)
 				}
 			case Text("c_not-has"):
-				if !strings.Contains(compress(syll), compress(spec)) {
+				if spec == "+" && !strings.Contains(navi, spec) {
+					results = append(results, word)
+				} else if !strings.Contains(compress(syll), compress(spec)) {
 					results = append(results, word)
 				}
 			case Text("c_not-like"):
