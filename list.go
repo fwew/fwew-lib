@@ -5,6 +5,7 @@ import (
 	"log"
 	"strconv"
 	"strings"
+	"unicode/utf8"
 )
 
 // Filter the dictionary based on the args.
@@ -264,7 +265,7 @@ func listWords(args []string, words []Word) (results []Word, err error) {
 				err = InvalidNumber.wrap(err1)
 				return
 			}
-			ilength := len(compress(word.Syllables))
+			ilength := utf8.RuneCountInString(compress(word.Syllables))
 			switch cond {
 			case "<":
 				if ilength < ispec {
