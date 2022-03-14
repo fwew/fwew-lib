@@ -97,6 +97,75 @@ var naviWords = []struct {
 		},
 	},
 	{
+		name: "tsatan",
+		args: args{
+			searchNaviText: "tsatan",
+		},
+		want: []Word{
+			{
+				ID: "160",
+				Navi: "atan",
+				Affixes: affix{
+					Prefix: []string{
+						"tsa",
+					},
+				},
+			},
+		},
+	},
+	{
+		name: "fìlva",
+		args: args{
+			searchNaviText: "fìlva",
+		},
+		want: []Word{
+			{
+				ID: "7408",
+				Navi: "ìlva",
+				Affixes: affix{
+					Prefix: []string{
+						"fì",
+					},
+				},
+			},
+		},
+	},
+	{
+		name: "fratan",
+		args: args{
+			searchNaviText: "fratan",
+		},
+		want: []Word{
+			{
+				ID: "160",
+				Navi: "atan",
+				Affixes: affix{
+					Prefix: []string{
+						"fra",
+					},
+				},
+			},
+		},
+	},
+	{
+		name: "pepeveng",
+		args: args{
+			searchNaviText: "pepeveng",
+		},
+		want: []Word{
+			{
+				ID: "56",
+				Navi: "'eveng",
+				Affixes: affix{
+					Prefix: []string{
+						"pe",
+						"pxe",
+					},
+				},
+			},
+		},
+	},
+	{
 		name: "pepfil",
 		args: args{
 			searchNaviText: "pepfil",

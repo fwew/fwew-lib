@@ -54,6 +54,28 @@ func ContainsStr(s []string, q string) bool {
 	return false
 }
 
+// ContainsStrArr returns true if anything in q is in s
+func HasPrefixStrArr(s string, q []string) bool {
+	if len(q) == 0 || len(s) == 0 {
+		return false
+	}
+	for _, x := range q {
+		if strings.HasPrefix(s, x) {
+			return true
+		}
+	}
+	return false
+}
+
+// ArrCount returns the number of occurrences of q in s
+func ArrCount(s []string, q string) int {
+	dict := make(map[string]int)
+	for _, x := range s {
+		dict[x]++
+	}
+	return dict[q]
+}
+
 // DeleteElement "deletes" all occurrences of q in s
 // actually returns a new string slice containing the original minus all q
 func DeleteElement(s []string, q string) []string {

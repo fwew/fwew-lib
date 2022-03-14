@@ -67,12 +67,31 @@ func (w *Word) prefix(target string, previousAttempt string) string {
 		}
 	}
 
-	if strings.HasPrefix(target, "me") || strings.HasPrefix(target, "pxe") || strings.HasPrefix(target, "pe") {
+	// me/pxe/pe + e/'e vowel merge
+	if HasPrefixStrArr(target, []string{"me", "pxe", "pe"}) {
 		if strings.HasPrefix(previousAttempt, "e") {
 			reString = reString + "(e)?"
 			previousAttempt = previousAttempt[1:]
 		} else if strings.HasPrefix(previousAttempt, "'e") {
 			reString = reString + "('e)?"
+			previousAttempt = previousAttempt[2:]
+		}
+	} else if strings.HasPrefix(target, "fne") {
+		// prefix boundary vowel merges (ee)
+		if strings.HasPrefix(previousAttempt, "e") {
+			reString = reString + "(e)?"
+			previousAttempt = previousAttempt[1:]
+		}
+	} else if HasPrefixStrArr(target, []string{"fra", "tsa", "munsna"}) {
+		// prefix boundary vowel merges (aa)
+		if strings.HasPrefix(previousAttempt, "a") {
+			reString = reString + "(a)?"
+			previousAttempt = previousAttempt[1:]
+		}
+	} else if strings.HasPrefix(target, "fì") {
+		// prefix boundary vowel (ìì)
+		if strings.HasPrefix(previousAttempt, "ì") {
+			reString = reString + "(ì)?"
 			previousAttempt = previousAttempt[2:]
 		}
 	}
@@ -103,6 +122,7 @@ func (w *Word) prefix(target string, previousAttempt string) string {
 	if len(matchPrefixes) == 0 {
 		return previousAttempt
 	}
+
 	// only allow lenition after lenition-causing prefixes when prefixes and lenition present
 	if len(w.Affixes.Lenition) > 0 && len(matchPrefixes) > 0 {
 		if Contains(matchPrefixes, []string{"fne", "munsna"}) {
@@ -122,6 +142,14 @@ func (w *Word) prefix(target string, previousAttempt string) string {
 	previousAttempt = attempt + previousAttempt
 
 	matchPrefixes = DeleteElement(matchPrefixes, "e")
+	matchPrefixes = DeleteElement(matchPrefixes, "a")
+	matchPrefixes = DeleteElement(matchPrefixes, "ì")
+
+	if ArrCount(matchPrefixes, "pe") == 2 {
+		matchPrefixes = DeleteElement(matchPrefixes, "pe")
+		matchPrefixes = append([]string{"pe", "pxe"}, matchPrefixes...)
+	}
+	
 	if len(matchPrefixes) > 0 {
 		w.Affixes.Prefix = append(w.Affixes.Prefix, matchPrefixes...)
 	}
