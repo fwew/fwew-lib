@@ -11,6 +11,7 @@
 //
 //	You should have received a copy of the GNU General Public License
 //	along with Fwew.  If not, see http://gnu.org/licenses/
+// cSpell: disable
 
 // Package fwew_lib contains all the things. numbers.go contains all the stuff for the number parsing
 package fwew_lib
@@ -186,6 +187,9 @@ var numTableRegexp = [][]string{
 // If no translation is found, `NoTranslationFound` is returned as error!
 func NaviToNumber(input string) (int, error) {
 	input = strings.ToLower(input)
+	input = strings.TrimPrefix(input, "a")
+	input = strings.TrimSuffix(input, "a")
+
 	// kew
 	if input == "kew" {
 		return 0, nil

@@ -11,6 +11,7 @@
 //
 //	You should have received a copy of the GNU General Public License
 //	along with Fwew.  If not, see http://gnu.org/licenses/
+// cSpell: disable
 
 // Package fwew_lib contains all the things. numbers_test.go tests numbers.go functions.
 package fwew_lib
@@ -20,6 +21,27 @@ import (
 	"fmt"
 	"testing"
 )
+
+var testCasesAffixed = []struct {
+	word   string
+	number int
+}{
+	// affixed numbers
+	{"a'aw", 1},
+	{"amune", 2},
+	{"apxey", 3},
+	{"atsìng", 4},
+	{"amrr", 5},
+	{"apukap", 6},
+	{"akinä", 7},
+	{"'awa", 1},
+	{"munea", 2},
+	{"pxeya", 3},
+	{"tsìnga", 4},
+	{"mrra", 5},
+	{"pukapa", 6},
+	{"kinäa", 7},
+}
 
 var testCases = []struct {
 	word   string
@@ -213,6 +235,13 @@ var testCases = []struct {
 
 func Test_NaviToNumber(t *testing.T) {
 	for _, testCase := range testCases {
+		t.Run(fmt.Sprintf("Translate number %#o", testCase.number), func(t *testing.T) {
+			if number, err := NaviToNumber(testCase.word); err != nil || number != testCase.number {
+				t.Errorf("Translated number of \"%s\" was incorrect: expected \"%#o\", but got \"%#o\"", testCase.word, testCase.number, number)
+			}
+		})
+	}
+	for _, testCase := range testCasesAffixed {
 		t.Run(fmt.Sprintf("Translate number %#o", testCase.number), func(t *testing.T) {
 			if number, err := NaviToNumber(testCase.word); err != nil || number != testCase.number {
 				t.Errorf("Translated number of \"%s\" was incorrect: expected \"%#o\", but got \"%#o\"", testCase.word, testCase.number, number)

@@ -11,6 +11,7 @@
 //
 //	You should have received a copy of the GNU General Public License
 //	along with Fwew.  If not, see http://gnu.org/licenses/
+// cSpell: disable
 
 // Package main contains all the things. affixes_test.go tests fwew.go functions.
 package fwew_lib
@@ -97,13 +98,58 @@ var naviWords = []struct {
 		},
 	},
 	{
+		name: "a'aw",
+		args: args{
+			searchNaviText: "a'aw",
+			languageCode:   "en",
+		},
+		want: []Word{
+			{
+				ID:   "12",
+				Navi: "'aw",
+				Affixes: affix{
+					Prefix: []string{
+						"a",
+					},
+				},
+			},
+			{
+				ID:   "6224",
+				Navi: "'a'aw",
+				Affixes: affix{
+					Lenition: []string{
+						"'→",
+					},
+				},
+			},
+		},
+	},
+	{
+		name: "apukap",
+		args: args{
+			searchNaviText: "apukap",
+			languageCode:   "en",
+		},
+		want: []Word{
+			{
+				ID:   "4316",
+				Navi: "pukap",
+				Affixes: affix{
+					Prefix: []string{
+						"a",
+					},
+				},
+			},
+		},
+	},
+	{
 		name: "tsatan",
 		args: args{
 			searchNaviText: "tsatan",
 		},
 		want: []Word{
 			{
-				ID: "160",
+				ID:   "160",
 				Navi: "atan",
 				Affixes: affix{
 					Prefix: []string{
@@ -120,7 +166,7 @@ var naviWords = []struct {
 		},
 		want: []Word{
 			{
-				ID: "7408",
+				ID:   "7408",
 				Navi: "ìlva",
 				Affixes: affix{
 					Prefix: []string{
@@ -137,7 +183,7 @@ var naviWords = []struct {
 		},
 		want: []Word{
 			{
-				ID: "160",
+				ID:   "160",
 				Navi: "atan",
 				Affixes: affix{
 					Prefix: []string{
@@ -154,7 +200,7 @@ var naviWords = []struct {
 		},
 		want: []Word{
 			{
-				ID: "56",
+				ID:   "56",
 				Navi: "'eveng",
 				Affixes: affix{
 					Prefix: []string{

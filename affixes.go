@@ -62,6 +62,8 @@ func (w *Word) prefix(target string, previousAttempt string) string {
 			reString = "^(pep|pem|pe|fray|tsay|fay|pay|fra|fì|tsa)?(ay|me|pxe|pe)?(fne)?(munsna)?"
 		case adj:
 			reString = "^(nìk|nì|a)?(ke|a)?"
+		case num:
+			reString = "^(a)?"
 		default:
 			return previousAttempt // Not a type that has a prefix, return word without attempting.
 		}
@@ -142,14 +144,16 @@ func (w *Word) prefix(target string, previousAttempt string) string {
 	previousAttempt = attempt + previousAttempt
 
 	matchPrefixes = DeleteElement(matchPrefixes, "e")
-	matchPrefixes = DeleteElement(matchPrefixes, "a")
+	if w.PartOfSpeech != "num." {
+		matchPrefixes = DeleteElement(matchPrefixes, "a")
+	}
 	matchPrefixes = DeleteElement(matchPrefixes, "ì")
 
 	if ArrCount(matchPrefixes, "pe") == 2 {
 		matchPrefixes = DeleteElement(matchPrefixes, "pe")
 		matchPrefixes = append([]string{"pe", "pxe"}, matchPrefixes...)
 	}
-	
+
 	if len(matchPrefixes) > 0 {
 		w.Affixes.Prefix = append(w.Affixes.Prefix, matchPrefixes...)
 	}
