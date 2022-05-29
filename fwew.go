@@ -152,7 +152,7 @@ func TranslateToNavi(searchWord string, langCode string) (results []Word) {
 		case "sv":
 			wordString += word.SV
 		}
-		wordString = StripChars(wordString, ",;.:?!")
+		wordString = StripChars(wordString, ",;.:?!()")
 		wordString = strings.ToLower(wordString)
 		searchWord = strings.ToLower(searchWord)
 
