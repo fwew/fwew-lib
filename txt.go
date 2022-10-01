@@ -156,6 +156,7 @@ func init() {
 	texts["l=plDesc"] = "Polski"
 	texts["l=ruDesc"] = "Русский"
 	texts["l=svDesc"] = "Svenska"
+	texts["l=trDesc"] = "Türkçe"
 	texts["posDesc"] = "part of speech"
 	texts["wordDesc"] = texts["w_word"]
 	texts["wordsDesc"] = texts["w_words"]
@@ -230,7 +231,7 @@ func init() {
 	texts["tip"] = "type \"/help\" or \"/commands\" for more info"
 	texts["author"] = "Tirea Aean"
 	texts["header"] = fmt.Sprintf("%s\n%s\n", Version, texts["tip"])
-	texts["languages"] = "de, en, et, fr, hu, nl, pl, ru, sv"
+	texts["languages"] = "de, en, et, fr, hu, nl, pl, ru, sv, tr"
 	texts["POSFilters"] = "allvtr.n.num.pn.adv.adj.vin.v.inter.part.svin.adp.adv., n.vtrm.vim.conj.pn., sbd.n., intj.intj."
 	texts["POSFilters"] += "vtrm., vtr.part., intj.vin., svin.prop.n.affixvin., intj.dem.dem., n.sbd.n., adv."
 	texts["POSFilters"] += "adj., n.adj., adv.adj., intj.dem., pn.vtr., vin.adv., intj.pn., adv.ph.vin., vtr.adj.,  conj."
