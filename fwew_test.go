@@ -683,6 +683,10 @@ var englishWords = []struct {
 		},
 		want: []Word{
 			{
+				ID:   "440",
+				Navi: "fpxafaw",
+			},
+			{
 				ID:   "612",
 				Navi: "ioang",
 			},
@@ -701,6 +705,10 @@ var englishWords = []struct {
 			{
 				ID:   "7676",
 				Navi: "fwampop",
+			},
+			{
+				ID:   "10704",
+				Navi: "seyto",
 			},
 		},
 	},
@@ -765,6 +773,23 @@ var englishWords = []struct {
 			{
 				ID:   "9868",
 				Navi: "srä",
+			},
+		},
+	},
+	{
+		name: "merhaba",
+		args: args{
+			searchNaviText: "merhaba",
+			languageCode:   "tr",
+		},
+		want: []Word{
+			{
+				ID:   "692",
+				Navi: "kaltxì",
+			},
+			{
+				ID:   "11380",
+				Navi: "kxì",
 			},
 		},
 	},

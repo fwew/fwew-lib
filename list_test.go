@@ -492,6 +492,7 @@ func TestList(t *testing.T) {
 					PL:             "jeden",
 					RU:             "один",
 					SV:             "en, ett",
+					TR:             "bir",
 					Affixes: affix{
 						Prefix:   nil,
 						Infix:    nil,
