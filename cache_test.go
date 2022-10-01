@@ -26,6 +26,7 @@ func Test_cacheDict(t *testing.T) {
 		PL:             "dotykać",
 		RU:             "трогать",
 		SV:             "beröra",
+		TR:             "dokunmak",
 	}
 
 	err := CacheDict()
@@ -52,6 +53,7 @@ func Test_cacheDict(t *testing.T) {
 			"PL: \"%s\" == \"%s\"\n"+
 			"RU: \"%s\" == \"%s\"\n"+
 			"SV: \"%s\" == \"%s\"\n"+
+			"TR: \"%s\" == \"%s\"\n"+
 			"InfixDots: \"%s\" == \"%s\"\n",
 			word.ID, entry.ID,
 			word.Navi, entry.Navi,
@@ -70,6 +72,7 @@ func Test_cacheDict(t *testing.T) {
 			word.PL, entry.PL,
 			word.RU, entry.RU,
 			word.SV, entry.SV,
+			word.TR, entry.TR,
 			word.InfixDots, entry.InfixDots)
 	}
 }
