@@ -153,7 +153,6 @@ var testCases = []struct {
 	// some random numbers in all ranges
 	// 3-digit numbers
 	{"zam", 0o100},    // zam
-	{"zave", 0o100},   // zam
 	{"zamaw", 0o101},  // zam
 	{"zamun", 0o102},  // za
 	{"zapey", 0o103},  // za
