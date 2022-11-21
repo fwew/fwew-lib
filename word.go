@@ -274,7 +274,7 @@ func (w *Word) ToOutputLine(i int, withMarkdown, showIPA, showInfixes, showDashe
 }
 
 func (w *Word) doUnderline(markdown bool) (string, error) {
-	if !strings.Contains(w.Syllables, "-") {
+	if !strings.Contains(w.Syllables, "-") || w.Stressed == "0" {
 		return w.Syllables, nil
 	}
 
