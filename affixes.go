@@ -413,6 +413,37 @@ func GetLenitionTable() [][2]string {
 	return lenitionTable[:]
 }
 
+// table of all the possible translations of "that"
+var thatTable = [9][5]string{
+	{"Case", "Noun", "   Clause Wrapper   ", "", ""},
+	{" ", " ", "Prox.", "Dist.", "Answer "},
+	{"====", "=====", "=====", "======", "======="},
+	{"Sub.", "tsaw", "fwa", "tsawa", "teynga "},
+	{"Agt.", "tsal", "fula", "tsala", "teyngla"},
+	{"Pat.", "tsat", "futa", "tsata", "teyngta"},
+	{"Gen.", "tseyä", "N/A", "N/A", ""},
+	{"Dat.", "tsar", "fura", "tsara", ""},
+	{"Top.", "tsari", "furia", "tsaria", ""},
+}
+
+func GetThatTable() [][5]string {
+	return ThatTable[:]
+}
+
+// table of all the possible translations of "that"
+var otherThats = [6][3]string{
+	{"tsa'u", "n.", "that (thing)"},
+	{"tsakem", "n.", "that (action)"},
+	{"fmawnta", "sbd.", "that news"},
+	{"tsnì", "sbd.", "that (function word)"},
+	{"kuma/akum", "conj.", "that (as a result)"},
+	{"a", "part.", "clause  level attributive marker"},
+}
+
+func GetOtherThats() [][3]string {
+	return otherThats[:]
+}
+
 // Lenite the word, based on the attempt. The target is not relevant here, so not given.
 // Returns the lenite attempt.
 func (w *Word) lenite(attempt string) string {
