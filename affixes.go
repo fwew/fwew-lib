@@ -427,7 +427,7 @@ var thatTable = [9][5]string{
 }
 
 func GetThatTable() [][5]string {
-	return ThatTable[:]
+	return thatTable[:]
 }
 
 // table of all the possible translations of "that"
