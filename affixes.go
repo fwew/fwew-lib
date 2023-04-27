@@ -431,13 +431,13 @@ func GetThatTable() [][5]string {
 }
 
 // table of all the possible translations of "that"
-var otherThats = [6][3]string{
+var otherThats = [8][3]string{
 	{"tsa'u", "n.", "that (thing)"},
 	{"tsakem", "n.", "that (action)"},
 	{"fmawnta", "sbd.", "that news"},
-        {"fayluta", "sbd.", "these words"},
+	{"fayluta", "sbd.", "these words"},
 	{"tsnì", "sbd.", "that (function word)"},
-        {"tsonta", "conj.", "to (with kxìm)"},
+	{"tsonta", "conj.", "to (with kxìm)"},
 	{"kuma/akum", "conj.", "that (as a result)"},
 	{"a", "part.", "clause  level attributive marker"},
 }
