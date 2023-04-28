@@ -127,7 +127,7 @@ func (w *Word) prefix(target string, previousAttempt string) string {
 
 	// only allow lenition after lenition-causing prefixes when prefixes and lenition present
 	if len(w.Affixes.Lenition) > 0 && len(matchPrefixes) > 0 {
-		if Contains(matchPrefixes, []string{"fne", "munsna"}) {
+		if Contains(matchPrefixes, []string{"fne", "munsna", "nì"}) {
 			return previousAttempt
 		}
 		lenPre := []string{"pep", "pem", "pe", "fray", "tsay", "fay", "pay", "ay", "me", "pxe"}
