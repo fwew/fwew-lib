@@ -98,9 +98,35 @@ func (w *Word) prefix(target string, previousAttempt string) string {
 		}
 	}
 
+	// trying soaiayä replacement
+	//if w.Navi == "soaia" && strings.HasSuffix(target, "soaiayä") {
+	//	target = "soaiä"
+	//	//previousAttempt = strings.Replace(previousAttempt, "soaia", "soai", -1)
+	//}
+
 	// soaiä replacement
 	if w.Navi == "soaia" && strings.HasSuffix(target, "soaiä") {
 		previousAttempt = strings.Replace(previousAttempt, "soaia", "soai", -1)
+	}
+
+	// meuiä replacement
+	if w.Navi == "meuia" && strings.HasSuffix(target, "meuiä") {
+		previousAttempt = strings.Replace(previousAttempt, "meuia", "meui", -1)
+	}
+
+	// kemuiä replacement
+	if w.Navi == "kemuia" && strings.HasSuffix(target, "kemuiä") {
+		previousAttempt = strings.Replace(previousAttempt, "kemuia", "kemui", -1)
+	}
+
+	// aungiä replacement
+	if w.Navi == "aungia" && strings.HasSuffix(target, "aungiä") {
+		previousAttempt = strings.Replace(previousAttempt, "aungia", "aungi", -1)
+	}
+
+	// tìftiä replacement
+	if w.Navi == "tìftia" && strings.HasSuffix(target, "tìftiä") {
+		previousAttempt = strings.Replace(previousAttempt, "tìftia", "tìfti", -1)
 	}
 
 	reString = reString + previousAttempt + ".*"
@@ -236,6 +262,22 @@ func (w *Word) suffix(target string, previousAttempt string) string {
 	// soaiä support
 	if w.Navi == "soaia" && strings.HasSuffix(target, "soaiä") {
 		previousAttempt = strings.Replace(previousAttempt, "soaia", "soai", -1)
+		reString = previousAttempt + reString
+		// meuiä support
+	} else if w.Navi == "meuia" && strings.HasSuffix(target, "meuiä") {
+		previousAttempt = strings.Replace(previousAttempt, "meuia", "meui", -1)
+		reString = previousAttempt + reString
+		// kemuiä support
+	} else if w.Navi == "kemuia" && strings.HasSuffix(target, "kemuiä") {
+		previousAttempt = strings.Replace(previousAttempt, "kemuia", "kemui", -1)
+		reString = previousAttempt + reString
+		// aungiä support
+	} else if w.Navi == "aungia" && strings.HasSuffix(target, "aungiä") {
+		previousAttempt = strings.Replace(previousAttempt, "aungia", "aungi", -1)
+		reString = previousAttempt + reString
+		// tìftiä support
+	} else if w.Navi == "tìftia" && strings.HasSuffix(target, "tìftiä") {
+		previousAttempt = strings.Replace(previousAttempt, "tìftia", "tìfti", -1)
 		reString = previousAttempt + reString
 		// o -> e vowel shift support
 	} else if strings.HasSuffix(previousAttempt, "o") {
