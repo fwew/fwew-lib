@@ -98,12 +98,6 @@ func (w *Word) prefix(target string, previousAttempt string) string {
 		}
 	}
 
-	// trying soaiayä replacement
-	//if w.Navi == "soaia" && strings.HasSuffix(target, "soaiayä") {
-	//	target = "soaiä"
-	//	//previousAttempt = strings.Replace(previousAttempt, "soaia", "soai", -1)
-	//}
-
 	// soaiä replacement
 	if w.Navi == "soaia" && strings.HasSuffix(target, "soaiä") {
 		previousAttempt = strings.Replace(previousAttempt, "soaia", "soai", -1)
