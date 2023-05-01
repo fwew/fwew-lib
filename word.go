@@ -52,6 +52,7 @@ type affix struct {
 	Infix    []string
 	Suffix   []string
 	Lenition []string
+	Comment  []string
 }
 
 func (w Word) String() string {
@@ -136,6 +137,7 @@ func (w *Word) CloneWordStruct() Word {
 	copy(nw.Affixes.Infix, w.Affixes.Infix)
 	copy(nw.Affixes.Suffix, w.Affixes.Suffix)
 	copy(nw.Affixes.Lenition, w.Affixes.Lenition)
+	copy(nw.Affixes.Comment, w.Affixes.Comment)
 
 	return nw
 }
@@ -264,7 +266,9 @@ func (w *Word) ToOutputLine(i int, withMarkdown, showIPA, showInfixes, showDashe
 	if len(w.Affixes.Lenition) > 0 {
 		output += newline + fmt.Sprintf("Lenition: %s", w.Affixes.Lenition)
 	}
-
+	if len(w.Affixes.Comment) > 0 {
+		output += newline + fmt.Sprintf("Comment: %s", w.Affixes.Comment)
+	}
 	if showSource && w.Source != "" {
 		output += newline + src
 	}

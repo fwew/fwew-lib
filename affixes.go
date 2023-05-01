@@ -16,6 +16,7 @@
 package fwew_lib
 
 import (
+	"fmt"
 	"log"
 	"regexp"
 	"strings"
@@ -109,18 +110,18 @@ func (w *Word) prefix(target string, previousAttempt string) string {
 	}
 
 	// kemuiä replacement
-	if w.Navi == "kemuia" && strings.HasSuffix(target, "kemuiä") {
-		previousAttempt = strings.Replace(previousAttempt, "kemuia", "kemui", -1)
+	if w.Navi == "kemuia" && strings.HasSuffix(target, "emuiä") {
+		previousAttempt = strings.Replace(previousAttempt, "emuia", "emui", -1)
 	}
 
 	// aungiä replacement
-	if w.Navi == "aungia" && strings.HasSuffix(target, "aungiä") {
-		previousAttempt = strings.Replace(previousAttempt, "aungia", "aungi", -1)
+	if w.Navi == "aungia" && strings.HasSuffix(target, "ungiä") {
+		previousAttempt = strings.Replace(previousAttempt, "ungia", "ungi", -1)
 	}
 
 	// tìftiä replacement
-	if w.Navi == "tìftia" && strings.HasSuffix(target, "tìftiä") {
-		previousAttempt = strings.Replace(previousAttempt, "tìftia", "tìfti", -1)
+	if w.Navi == "tìftia" && strings.HasSuffix(target, "ìftiä") {
+		previousAttempt = strings.Replace(previousAttempt, "ìftia", "ìfti", -1)
 	}
 
 	reString = reString + previousAttempt + ".*"
@@ -500,11 +501,28 @@ func (w *Word) lenite(attempt string) string {
 	return attempt
 }
 
+func remove(s []string, r string) []string {
+	for i, v := range s {
+		if v == r {
+			return append(s[:i], s[i+1:]...)
+		}
+	}
+	return s
+}
+
 // Reconstruct is the main function of affixes.go, responsible for the affixing algorithm
 // This will try to reconstruct a Word, so it matches with the target.
 // Returns true if word got reconstructed into target!
 func (w *Word) reconstruct(target string) bool {
 	attempt := w.Navi
+
+	//tìftusiä
+	var oldTarget = ""
+	if strings.HasSuffix(target, "ìftusiä") && w.Navi == "ftia" {
+		oldTarget = target
+		target = strings.Replace(target, "iä", "ia", -1)
+		//attempt = target
+	}
 
 	// only try to infix verbs
 	if strings.HasPrefix(w.PartOfSpeech, "v") || strings.HasPrefix(w.PartOfSpeech, svin) {
@@ -519,11 +537,33 @@ func (w *Word) reconstruct(target string) bool {
 		}
 	}
 
+	// -iayä and -iaä replacements
+	iaWords := []string{"aungia", "meuia", "soaia", "tìftia", "kemuia"}
+	checkWord := []string{w.Navi}
+	if Contains(checkWord, iaWords) && strings.HasSuffix(target, "iayä") {
+		oldTarget = target
+		target = strings.Replace(target, "iayä", "iä", -1)
+	} else if Contains(checkWord, iaWords) && strings.HasSuffix(target, "iaä") {
+		oldTarget = target
+		target = strings.Replace(target, "iaä", "iä", -1)
+	}
+
 	attempt = w.prefix(target, attempt)
 
 	if debugMode {
 		log.Println("PREFIX w")
 		log.Printf("Navi: %s | Attempt: %s | Target: %s\n", w.Navi, attempt, target)
+	}
+
+	//tìftusiä
+	if strings.HasSuffix(oldTarget, "ìftusiä") && w.Navi == "ftia" {
+		if strings.HasSuffix(oldTarget, "tìftusiä") {
+			//w.Affixes.Prefix = w.Affixes.Prefix
+		} else {
+			w.Affixes.Prefix = append(w.Affixes.Prefix, "tì")
+		}
+		w.Affixes.Suffix = append(w.Affixes.Suffix, "ä")
+		attempt = target
 	}
 
 	if attempt == target {
@@ -535,6 +575,18 @@ func (w *Word) reconstruct(target string) bool {
 	if debugMode {
 		log.Println("SUFFIX w")
 		log.Printf("Navi: %s | Attempt: %s | Target: %s\n", w.Navi, attempt, target)
+	}
+
+	// -iayä or -iaä results append
+	iaSuffixesToSuppress := []string{"ä", "yä"}
+	checkIaSuffixes := w.Affixes.Suffix
+	if strings.HasSuffix(oldTarget, "iayä") || strings.HasSuffix(oldTarget, "iaä") {
+		checkComment := fmt.Sprintf("correct form of %s is %s", oldTarget, target)
+		w.Affixes.Comment = []string{checkComment}
+		if Contains(checkIaSuffixes, iaSuffixesToSuppress) {
+			w.Affixes.Suffix = remove(w.Affixes.Suffix, "ä")
+			w.Affixes.Suffix = remove(w.Affixes.Suffix, "yä")
+		}
 	}
 
 	if attempt == target {
@@ -575,6 +627,17 @@ func (w *Word) reconstruct(target string) bool {
 		log.Printf("Navi: %s | Attempt: %s | Target: %s\n", w.Navi, attempt, target)
 	}
 
+	//tìftusiä
+	if strings.HasSuffix(oldTarget, "ìftusiä") && w.Navi == "ftia" {
+		if strings.HasSuffix(oldTarget, "tìftusiä") {
+			//w.Affixes.Prefix = w.Affixes.Prefix
+		} else {
+			w.Affixes.Prefix = append(w.Affixes.Prefix, "tì")
+		}
+		w.Affixes.Suffix = append(w.Affixes.Suffix, "ä")
+		attempt = target
+	}
+
 	if attempt == target {
 		return true
 	}
@@ -584,6 +647,17 @@ func (w *Word) reconstruct(target string) bool {
 	if debugMode {
 		log.Println("SUFFIX wl")
 		log.Printf("Navi: %s | Attempt: %s | Target: %s\n", w.Navi, attempt, target)
+	}
+
+	// -iayä or -iaä results append
+	checkIaSuffixes = w.Affixes.Suffix
+	if strings.HasSuffix(oldTarget, "iayä") || strings.HasSuffix(oldTarget, "iaä") {
+		checkComment := fmt.Sprintf("correct form of %s is %s", oldTarget, target)
+		w.Affixes.Comment = []string{checkComment}
+		if Contains(checkIaSuffixes, iaSuffixesToSuppress) {
+			w.Affixes.Suffix = remove(w.Affixes.Suffix, "ä")
+			w.Affixes.Suffix = remove(w.Affixes.Suffix, "yä")
+		}
 	}
 
 	if attempt == target {
