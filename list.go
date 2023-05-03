@@ -3,6 +3,7 @@ package fwew_lib
 import (
 	"fmt"
 	"log"
+	"regexp"
 	"strconv"
 	"strings"
 	"unicode/utf8"
@@ -83,8 +84,50 @@ func listWords(args []string, words []Word) (results []Word, err error) {
 				if strings.HasPrefix(pos, spec) {
 					results = append(results, word)
 				}
+			case Text("c_starts-any"):
+				for _, s := range strings.Split(spec, ",") {
+					if strings.HasPrefix(pos, s) {
+						results = append(results, word)
+						break
+					}
+				}
+			case Text("c_starts-all"):
+				for _, s := range strings.Split(spec, ",") {
+					if !strings.HasPrefix(pos, s) {
+						break
+					}
+					results = append(results, word)
+				}
+			case Text("c_starts-none"):
+				for _, s := range strings.Split(spec, ",") {
+					if strings.HasPrefix(pos, s) {
+						break
+					}
+					results = append(results, word)
+				}
 			case Text("c_ends"):
 				if strings.HasSuffix(pos, spec) {
+					results = append(results, word)
+				}
+			case Text("c_ends-any"):
+				for _, s := range strings.Split(spec, ",") {
+					if strings.HasSuffix(pos, s) {
+						results = append(results, word)
+						break
+					}
+				}
+			case Text("c_ends-all"):
+				for _, s := range strings.Split(spec, ",") {
+					if !strings.HasSuffix(pos, s) {
+						break
+					}
+					results = append(results, word)
+				}
+			case Text("c_ends-none"):
+				for _, s := range strings.Split(spec, ",") {
+					if strings.HasSuffix(pos, s) {
+						break
+					}
 					results = append(results, word)
 				}
 			case Text("c_is"):
@@ -95,8 +138,50 @@ func listWords(args []string, words []Word) (results []Word, err error) {
 				if strings.Contains(pos, spec) {
 					results = append(results, word)
 				}
+			case Text("c_has-any"):
+				for _, s := range strings.Split(spec, ",") {
+					if strings.Contains(pos, s) {
+						results = append(results, word)
+						break
+					}
+				}
+			case Text("c_has-all"):
+				for _, s := range strings.Split(spec, ",") {
+					if !strings.Contains(pos, s) {
+						break
+					}
+					results = append(results, word)
+				}
+			case Text("c_has-none"):
+				for _, s := range strings.Split(spec, ",") {
+					if strings.Contains(pos, s) {
+						break
+					}
+					results = append(results, word)
+				}
 			case Text("c_like"):
 				if Glob(spec, pos) {
+					results = append(results, word)
+				}
+			case Text("c_like-any"):
+				for _, s := range strings.Split(spec, ",") {
+					if Glob(s, pos) {
+						results = append(results, word)
+						break
+					}
+				}
+			case Text("c_like-all"):
+				for _, s := range strings.Split(spec, ",") {
+					if !Glob(s, pos) {
+						break
+					}
+					results = append(results, word)
+				}
+			case Text("c_like-none"):
+				for _, s := range strings.Split(spec, ",") {
+					if Glob(s, pos) {
+						break
+					}
 					results = append(results, word)
 				}
 			case Text("c_not-starts"):
@@ -119,6 +204,10 @@ func listWords(args []string, words []Word) (results []Word, err error) {
 				if !Glob(spec, pos) {
 					results = append(results, word)
 				}
+			case Text("c_matches"):
+				if regexp.MustCompile(spec).MatchString(pos) {
+					results = append(results, word)
+				}
 			}
 		case Text("w_word"):
 			navi := strings.ToLower(word.Navi)
@@ -128,8 +217,50 @@ func listWords(args []string, words []Word) (results []Word, err error) {
 				if strings.HasPrefix(navi, spec) {
 					results = append(results, word)
 				}
+			case Text("c_starts-any"):
+				for _, s := range strings.Split(spec, ",") {
+					if strings.HasPrefix(navi, s) {
+						results = append(results, word)
+						break
+					}
+				}
+			case Text("c_starts-all"):
+				for _, s := range strings.Split(spec, ",") {
+					if !strings.HasPrefix(navi, s) {
+						break
+					}
+					results = append(results, word)
+				}
+			case Text("c_starts-none"):
+				for _, s := range strings.Split(spec, ",") {
+					if strings.HasPrefix(navi, s) {
+						break
+					}
+					results = append(results, word)
+				}
 			case Text("c_ends"):
 				if strings.HasSuffix(navi, spec) {
+					results = append(results, word)
+				}
+			case Text("c_ends-any"):
+				for _, s := range strings.Split(spec, ",") {
+					if strings.HasSuffix(navi, s) {
+						results = append(results, word)
+						break
+					}
+				}
+			case Text("c_ends-all"):
+				for _, s := range strings.Split(spec, ",") {
+					if !strings.HasSuffix(navi, s) {
+						break
+					}
+					results = append(results, word)
+				}
+			case Text("c_ends-none"):
+				for _, s := range strings.Split(spec, ",") {
+					if strings.HasSuffix(navi, s) {
+						break
+					}
 					results = append(results, word)
 				}
 			case Text("c_has"):
@@ -138,8 +269,57 @@ func listWords(args []string, words []Word) (results []Word, err error) {
 				} else if strings.Contains(compress(syll), compress(spec)) {
 					results = append(results, word)
 				}
+			case Text("c_has-any"):
+				for _, s := range strings.Split(spec, ",") {
+					if spec == "+" && strings.Contains(navi, s) {
+						results = append(results, word)
+						break
+					} else if strings.Contains(compress(syll), compress(spec)) {
+						results = append(results, word)
+						break
+					}
+				}
+			case Text("c_has-all"):
+				for _, s := range strings.Split(spec, ",") {
+					if spec == "+" && !strings.Contains(navi, s) {
+						break
+					} else if !strings.Contains(compress(syll), compress(spec)) {
+						break
+					}
+					results = append(results, word)
+				}
+			case Text("c_has-none"):
+				for _, s := range strings.Split(spec, ",") {
+					if spec == "+" && strings.Contains(navi, s) {
+						break
+					} else if strings.Contains(compress(syll), compress(spec)) {
+						break
+					}
+					results = append(results, word)
+				}
 			case Text("c_like"):
 				if Glob(spec, navi) {
+					results = append(results, word)
+				}
+			case Text("c_like-any"):
+				for _, s := range strings.Split(spec, ",") {
+					if Glob(s, navi) {
+						results = append(results, word)
+						break
+					}
+				}
+			case Text("c_like-all"):
+				for _, s := range strings.Split(spec, ",") {
+					if !Glob(s, navi) {
+						break
+					}
+					results = append(results, word)
+				}
+			case Text("c_like-none"):
+				for _, s := range strings.Split(spec, ",") {
+					if Glob(s, navi) {
+						break
+					}
 					results = append(results, word)
 				}
 			case Text("c_not-starts"):
@@ -158,6 +338,37 @@ func listWords(args []string, words []Word) (results []Word, err error) {
 				}
 			case Text("c_not-like"):
 				if !Glob(spec, navi) {
+					results = append(results, word)
+				}
+			case Text("c_matches"):
+				if regexp.MustCompile(spec).MatchString(navi) {
+					results = append(results, word)
+				}
+			case Text("c_has-form"):
+				// Linguistic shorthand for regexp matching
+				// C: Consonant ['fhkqlmngpbrstdcvwyz]
+				// D: Diphthong [2345]
+				// E: Ejective [qbd]
+				// F: Fricative [fhsvwz]
+				// G: Glide [wy]
+				// L: Liquid [lr]
+				// N: Nasal [mng]
+				// P: Pseudovowel [01]
+				// S: Stop [kptqbd']
+				// V: Vowel [aäeiìou]
+				compressedNavi := compress(word.Syllables)
+				compressedSpec := compress(spec)
+				specRe := strings.Replace(compressedSpec, "C", "['fhkqlmngpbrstdcvwyz]", -1)
+				specRe = strings.Replace(specRe, "D", "[2345]", -1)
+				specRe = strings.Replace(specRe, "E", "[qbd]", -1)
+				specRe = strings.Replace(specRe, "F", "[fhsvwz]", -1)
+				specRe = strings.Replace(specRe, "G", "[wy]", -1)
+				specRe = strings.Replace(specRe, "L", "[lr]", -1)
+				specRe = strings.Replace(specRe, "N", "[mng]", -1)
+				specRe = strings.Replace(specRe, "P", "[01]", -1)
+				specRe = strings.Replace(specRe, "S", "[kptqbd']", -1)
+				specRe = strings.Replace(specRe, "V", "[aäeiìou]", -1)
+				if regexp.MustCompile(specRe).MatchString(compressedNavi) {
 					results = append(results, word)
 				}
 			}
