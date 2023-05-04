@@ -586,6 +586,7 @@ func (w *Word) reconstruct(target string) bool {
 		if strings.HasSuffix(oldTarget, "usiä") {
 			if !strings.Contains(oldTarget, "tì") {
 				w.Affixes.Prefix = append(w.Affixes.Prefix, "tì")
+				w.Affixes.Lenition = append(w.Affixes.Lenition, "t→s")
 			}
 			if strings.HasSuffix(origTarget, "usiayä") || strings.HasSuffix(origTarget, "usiaä") {
 				checkComment := fmt.Sprintf("correct form of %s is %s", origTarget, oldTarget)
@@ -665,6 +666,7 @@ func (w *Word) reconstruct(target string) bool {
 		if strings.HasSuffix(oldTarget, "usiä") {
 			if !strings.Contains(oldTarget, "tì") {
 				w.Affixes.Prefix = append(w.Affixes.Prefix, "tì")
+				w.Affixes.Lenition = append(w.Affixes.Lenition, "t→s")
 			}
 			if strings.HasSuffix(origTarget, "usiayä") || strings.HasSuffix(origTarget, "usiaä") {
 				checkComment := fmt.Sprintf("correct form of %s is %s", origTarget, oldTarget)
