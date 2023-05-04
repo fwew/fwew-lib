@@ -110,7 +110,7 @@ func (w *Word) prefix(target string, previousAttempt string) string {
 	}
 
 	// kemuiä replacement
-	if w.Navi == "kemuia" && strings.HasSuffix(target, "emuiä") {
+	if w.Navi == "kemuia" && (strings.HasSuffix(target, "kemuiä") || strings.HasSuffix(target, "hemuiä")) {
 		previousAttempt = strings.Replace(previousAttempt, "emuia", "emui", -1)
 	}
 
@@ -120,7 +120,7 @@ func (w *Word) prefix(target string, previousAttempt string) string {
 	}
 
 	// tìftiä replacement
-	if w.Navi == "tìftia" && strings.HasSuffix(target, "ìftiä") {
+	if w.Navi == "tìftia" && (strings.HasSuffix(target, "tìftiä") || strings.HasSuffix(target, "sìftiä")) {
 		previousAttempt = strings.Replace(previousAttempt, "ìftia", "ìfti", -1)
 	}
 
@@ -263,7 +263,7 @@ func (w *Word) suffix(target string, previousAttempt string) string {
 		previousAttempt = strings.Replace(previousAttempt, "meuia", "meui", -1)
 		reString = previousAttempt + reString
 		// kemuiä support
-	} else if w.Navi == "kemuia" && strings.HasSuffix(target, "emuiä") {
+	} else if w.Navi == "kemuia" && (strings.HasSuffix(target, "kemuiä") || strings.HasSuffix(target, "hemuiä")) {
 		previousAttempt = strings.Replace(previousAttempt, "emuia", "emui", -1)
 		reString = previousAttempt + reString
 		// aungiä support
@@ -271,7 +271,7 @@ func (w *Word) suffix(target string, previousAttempt string) string {
 		previousAttempt = strings.Replace(previousAttempt, "ungia", "ungi", -1)
 		reString = previousAttempt + reString
 		// tìftiä support
-	} else if w.Navi == "tìftia" && strings.HasSuffix(target, "ìftiä") {
+	} else if w.Navi == "tìftia" && (strings.HasSuffix(target, "tìftiä") || strings.HasSuffix(target, "sìftiä")) {
 		previousAttempt = strings.Replace(previousAttempt, "ìftia", "ìfti", -1)
 		reString = previousAttempt + reString
 		// o -> e vowel shift support
@@ -520,31 +520,31 @@ func (w *Word) reconstruct(target string) bool {
 	var oldTarget = ""
 	var origTarget = ""
 	if w.Navi == "'ia" {
-		if strings.HasSuffix(target, "'usiaä") {
+		if strings.HasSuffix(target, "tì'usiaä") || strings.HasSuffix(target, "sì'usiaä") {
 			origTarget = target
-			target = strings.Replace(target, "iaä", "iä", -1)
-		} else if strings.HasSuffix(target, "'usiayä") {
+			target = strings.Replace(target, "usiaä", "usiä", -1)
+		} else if strings.HasSuffix(target, "tì'usiayä") || strings.HasSuffix(target, "sì'usiayä") {
 			origTarget = target
-			target = strings.Replace(target, "iayä", "iä", -1)
+			target = strings.Replace(target, "usiayä", "usiä", -1)
 		}
 
-		if strings.HasSuffix(target, "'usiä") {
+		if strings.HasSuffix(target, "tì'usiä") || strings.HasSuffix(target, "sì'usiä") {
 			oldTarget = target
-			target = strings.Replace(target, "iayä", "ia", -1)
+			target = strings.Replace(target, "usiä", "usia", -1)
 		}
 	}
 	if w.Navi == "ftia" {
-		if strings.HasSuffix(target, "ftusiaä") {
+		if strings.HasSuffix(target, "tìftusiaä") || strings.HasSuffix(target, "sìftusiaä") {
 			origTarget = target
-			target = strings.Replace(target, "iaä", "iä", -1)
-		} else if strings.HasSuffix(target, "ftusiayä") {
+			target = strings.Replace(target, "usiaä", "usiä", -1)
+		} else if strings.HasSuffix(target, "tìftusiayä") || strings.HasSuffix(target, "sìftusiayä") {
 			origTarget = target
-			target = strings.Replace(target, "iayä", "iä", -1)
+			target = strings.Replace(target, "usiayä", "usiä", -1)
 		}
 
-		if strings.HasSuffix(target, "ftusiä") {
+		if strings.HasSuffix(target, "tìftusiä") || strings.HasSuffix(target, "sìftusiä") {
 			oldTarget = target
-			target = strings.Replace(target, "iayä", "ia", -1)
+			target = strings.Replace(target, "usiä", "usia", -1)
 		}
 	}
 
@@ -579,13 +579,15 @@ func (w *Word) reconstruct(target string) bool {
 		log.Printf("Navi: %s | Attempt: %s | Target: %s\n", w.Navi, attempt, target)
 	}
 
-	//tìftusiä && tì'usiä append
+	//tìftusiä & tì'usiä append
 	usiaWords := []string{"'ia", "ftia"}
 	uscheckWord := []string{w.Navi}
 	if Contains(uscheckWord, usiaWords) {
 		if strings.HasSuffix(oldTarget, "usiä") {
-			w.Affixes.Prefix = append(w.Affixes.Prefix, "tì")
-			w.Affixes.Infix = append(w.Affixes.Infix, "us")
+			if !strings.Contains(oldTarget, "tì") {
+				w.Affixes.Prefix = append(w.Affixes.Prefix, "tì")
+				w.Affixes.Lenition = append(w.Affixes.Lenition, "t→s")
+			}
 			if strings.HasSuffix(origTarget, "usiayä") || strings.HasSuffix(origTarget, "usiaä") {
 				checkComment := fmt.Sprintf("correct form of %s is %s", origTarget, oldTarget)
 				w.Affixes.Comment = []string{checkComment}
@@ -658,12 +660,14 @@ func (w *Word) reconstruct(target string) bool {
 		log.Printf("Navi: %s | Attempt: %s | Target: %s\n", w.Navi, attempt, target)
 	}
 
-	//tìftusiä && tì'usiä append
+	//tìftusiä & tì'usiä append
 	uscheckWord = []string{w.Navi}
 	if Contains(uscheckWord, usiaWords) {
 		if strings.HasSuffix(oldTarget, "usiä") {
-			w.Affixes.Prefix = append(w.Affixes.Prefix, "tì")
-			w.Affixes.Infix = append(w.Affixes.Infix, "us")
+			if !strings.Contains(oldTarget, "tì") {
+				w.Affixes.Prefix = append(w.Affixes.Prefix, "tì")
+				w.Affixes.Lenition = append(w.Affixes.Lenition, "t→s")
+			}
 			if strings.HasSuffix(origTarget, "usiayä") || strings.HasSuffix(origTarget, "usiaä") {
 				checkComment := fmt.Sprintf("correct form of %s is %s", origTarget, oldTarget)
 				w.Affixes.Comment = []string{checkComment}
