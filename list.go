@@ -341,7 +341,8 @@ func listWords(args []string, words []Word) (results []Word, err error) {
 					results = append(results, word)
 				}
 			case Text("c_matches"):
-				if regexp.MustCompile(spec).MatchString(navi) {
+				nonDelimitedSpec := strings.ReplaceAll(spec, "/", "")
+				if regexp.MustCompile(nonDelimitedSpec).MatchString(navi) {
 					results = append(results, word)
 				}
 			case Text("c_has-form"):
