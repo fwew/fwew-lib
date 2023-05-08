@@ -450,6 +450,18 @@ func GetLenitionTable() [][2]string {
 	return lenitionTable[:]
 }
 
+// short table of all the possible lenitions
+var shortLenitionTable = [4][2]string{
+	{"kx, px, tx", "k, p, t"},
+	{"k, p, t", "h, f, s"},
+	{"ts", "s"},
+	{"'", ""},
+}
+
+func GetShortLenitionTable() [][2]string {
+	return shortLenitionTable[:]
+}
+
 // table of all the possible translations of "that"
 var thatTable = [9][5]string{
 	{"Case", "Noun", "   Clause Wrapper   ", "", ""},
