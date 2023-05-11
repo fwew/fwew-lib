@@ -204,6 +204,15 @@ func (w *Word) suffix(target string, previousAttempt string) string {
 		return "tseyä"
 	}
 
+	//denying suffixes on tsari, tsar, tsat, tsal, aylaru
+	declensedPronouns := []string{"tsal", "tsat", "tsar", "tsari", "aylaru"}
+	checkWord := []string{w.Navi}
+	targetTmp := []string{target}
+	if Contains(checkWord, declensedPronouns) || Contains(targetTmp, declensedPronouns) {
+		w.Affixes.Suffix = []string{""}
+		return ""
+	}
+
 	// hardcoded hack for oey
 	if target == "oey" && w.Navi == "oe" {
 		w.Affixes.Suffix = []string{"y"}
