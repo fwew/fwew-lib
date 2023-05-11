@@ -204,8 +204,8 @@ func (w *Word) suffix(target string, previousAttempt string) string {
 		return "tseyä"
 	}
 
-	//denying suffixes on tsari, tsar, tsat, tsal, aylaru
-	declensedPronouns := []string{"tsal", "tsat", "tsar", "tsari", "aylaru"}
+	//denying suffixes on tsari, tsar, tsat, tsal, aylaru, sneyä
+	declensedPronouns := []string{"tsal", "tsat", "tsar", "tsari", "aylaru", "sneyä", "sat"}
 	checkWord := []string{w.Navi}
 	targetTmp := []string{target}
 	if Contains(checkWord, declensedPronouns) || Contains(targetTmp, declensedPronouns) {
