@@ -45,6 +45,15 @@ func (w *Word) prefix(target string, previousAttempt string) string {
 		matchPrefixes []string
 	)
 
+	//denying prefixes on tsari, tsar, tsat, tsal
+	declensedPronouns := []string{"tsal", "tsat", "tsar", "tsari"}
+	checkWord := []string{w.Navi}
+	targetTmp := []string{target}
+	if Contains(checkWord, declensedPronouns) || Contains(targetTmp, declensedPronouns) {
+		w.Affixes.Prefix = []string{""}
+		return ""
+	}
+
 	// pull this out of the switch because the pos data for verbs is so irregular,
 	// the switch condition would be like 25 possibilities long
 	if strings.HasPrefix(w.PartOfSpeech, "v") ||
