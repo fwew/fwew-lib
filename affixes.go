@@ -385,7 +385,14 @@ func (w *Word) infix(target string) string {
 		pos1InfixString string
 		pos2InfixString string
 		matchInfixes    []string
+		oldTarget       = target
+		corTarget       = target
 	)
+
+	// hardcode for ner (n<0><er>rr)
+	if w.Navi == "nrr" && (strings.HasSuffix(target, "er")) {
+		w.InfixLocations = strings.Replace(w.InfixLocations, "<1><2>rr", "<1>rr", 1)
+	}
 
 	// Hardcode hack for z**enke
 	if w.Navi == "zenke" && (strings.Contains(target, "uy") || strings.Contains(target, "ats")) {
@@ -399,6 +406,10 @@ func (w *Word) infix(target string) string {
 		reString = strings.Replace(reString, "<1>ll", pos1InfixRe+"(ll)?", 1)
 	} else if strings.Contains(w.InfixLocations, "<1>rr") {
 		reString = strings.Replace(reString, "<1>rr", pos1InfixRe+"(rr)?", 1)
+		// one syllable <ol>ll
+	} else if strings.Contains(reString, "<2>ll") {
+		reString = strings.Replace(reString, "<1>", pos1InfixRe, 1)
+		reString = strings.Replace(reString, "ll", "(ll)?", 1)
 	} else {
 		reString = strings.Replace(reString, "<1>", pos1InfixRe, 1)
 	}
@@ -425,6 +436,14 @@ func (w *Word) infix(target string) string {
 		} else {
 			pos1InfixString = i
 		}
+	}
+
+	// here goes er to rr change
+	if strings.Contains(pos1InfixString, "er") && strings.Contains(reString, "?(rr)?") && w.Navi != "nrr" {
+		corTarget = strings.Replace(corTarget, "er", "rr", 1)
+		matchInfixes = remove(matchInfixes, "er")
+		checkComment := fmt.Sprintf("correct form of %s is %s", oldTarget, corTarget)
+		w.Affixes.Comment = []string{checkComment}
 	}
 
 	attempt = strings.Replace(w.InfixLocations, "<0>", pos0InfixString, 1)
@@ -549,6 +568,7 @@ func (w *Word) reconstruct(target string) bool {
 	//tìftusiä & tì'usiä replacements
 	var oldTarget = ""
 	var origTarget = ""
+	var corTarget = ""
 	if w.Navi == "'ia" {
 		if strings.HasSuffix(target, "tì'usiaä") || strings.HasSuffix(target, "sì'usiaä") {
 			origTarget = target
@@ -578,12 +598,44 @@ func (w *Word) reconstruct(target string) bool {
 		}
 	}
 
+	// detect errr in rr verb
+	var rrVerbs = []string{"'rrko", "frrfen", "vrrìn", "nrr"}
+	checkWord := []string{w.Navi}
+	if Contains(checkWord, rrVerbs) && strings.Contains(target, "errr") {
+		oldTarget = target
+		target = strings.Replace(target, "errr", "er", 1)
+	}
+	// detect olll in ll verb
+	var llVerbs = []string{"mll'an", "mllte", "plltxe", "pllhrr", "pllngay", "vll"}
+	checkWord = []string{w.Navi}
+	if Contains(checkWord, llVerbs) && strings.Contains(target, "olll") {
+		oldTarget = target
+		target = strings.Replace(target, "olll", "ol", 1)
+	}
+
 	// only try to infix verbs
 	if strings.HasPrefix(w.PartOfSpeech, "v") || strings.HasPrefix(w.PartOfSpeech, svin) {
 		attempt = w.infix(target)
 
 		if debugMode {
 			log.Printf("Navi: %s | Attempt: %s | Target: %s\n", w.Navi, attempt, target)
+		}
+
+		// altering errr output
+		if Contains(checkWord, rrVerbs) && strings.Contains(oldTarget, "errr") {
+			if w.Navi == "nrr" {
+				corTarget = strings.Replace(oldTarget, "errr", "er", 1)
+			} else {
+				corTarget = strings.Replace(oldTarget, "errr", "rr", 1)
+			}
+			checkComment := fmt.Sprintf("correct form of %s is %s", oldTarget, corTarget)
+			w.Affixes.Comment = []string{checkComment}
+		}
+		// altering olll output
+		if Contains(checkWord, llVerbs) && strings.Contains(oldTarget, "olll") {
+			corTarget = strings.Replace(oldTarget, "olll", "ol", 1)
+			checkComment := fmt.Sprintf("correct form of %s is %s", oldTarget, corTarget)
+			w.Affixes.Comment = []string{checkComment}
 		}
 
 		if attempt == target {
@@ -593,7 +645,7 @@ func (w *Word) reconstruct(target string) bool {
 
 	// -iayä and -iaä replacements
 	iaWords := []string{"aungia", "meuia", "soaia", "tìftia", "kemuia"}
-	checkWord := []string{w.Navi}
+	checkWord = []string{w.Navi}
 	if (Contains(checkWord, iaWords) && strings.HasSuffix(target, "iayä")) && (!strings.HasSuffix(target, "usiayä")) {
 		oldTarget = target
 		target = strings.Replace(target, "iayä", "iä", -1)
