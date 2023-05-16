@@ -59,8 +59,59 @@ func (w *Word) prefix(target string, previousAttempt string) string {
 	if strings.HasPrefix(w.PartOfSpeech, "v") ||
 		strings.HasPrefix(w.PartOfSpeech, svin) || w.PartOfSpeech == "" {
 		inf := w.Affixes.Infix
-		if len(inf) > 0 && (inf[0] == "us" || inf[0] == "awn") {
-			reString = "(a|tì)?"
+		//trying to detect tì-us / sì-us
+		rootDiscriminate := 0
+		targetDiscriminate := 0
+		compareWord := w.Navi
+		compareTarget := target
+		flagTius := 0
+
+		if (len(inf) > 0 && (inf[0] == "us")) && (strings.Contains(target, "tì") || strings.Contains(target, "sì")) {
+			for {
+				if strings.Contains(compareWord, "tì") {
+					rootDiscriminate = rootDiscriminate + 1
+					compareWord = strings.Replace(compareWord, "tì", "", 1)
+				} else if strings.Contains(compareWord, "sì") {
+					rootDiscriminate = rootDiscriminate + 1
+					compareWord = strings.Replace(compareWord, "sì", "", 1)
+				} else {
+					break
+				}
+			}
+
+			for {
+				if strings.Contains(compareTarget, "usì") {
+					compareTarget = strings.Replace(compareTarget, "usì", "", 1)
+				} else if strings.Contains(compareTarget, "tì") {
+					targetDiscriminate = targetDiscriminate + 1
+					compareTarget = strings.Replace(compareTarget, "tì", "", 1)
+				} else if strings.Contains(compareTarget, "sì") {
+					targetDiscriminate = targetDiscriminate + 1
+					compareTarget = strings.Replace(compareTarget, "sì", "", 1)
+				} else {
+					break
+				}
+			}
+
+			if strings.Contains(w.InfixLocations, "t<0><1><2>ì") ||
+				strings.Contains(w.InfixLocations, "s<0><1><2>ì") ||
+				strings.Contains(w.InfixLocations, "t<0><1>ì") ||
+				strings.Contains(w.InfixLocations, "s<0><1>ì") {
+				rootDiscriminate = rootDiscriminate - 1
+			}
+
+			if targetDiscriminate > rootDiscriminate {
+				flagTius = 1
+			} else {
+				flagTius = 2
+			}
+		}
+
+		if (len(inf) > 0 && (inf[0] == "us" || inf[0] == "awn")) &&
+			(flagTius == 2 || flagTius == 0) {
+			reString = "^(a)?"
+		} else if ((len(inf) > 0 && inf[0] == "us") && (strings.Contains(target, "tì") || strings.Contains(target, "sì"))) || flagTius == 1 {
+			reString = "^(pep|pem|pe|fray|tsay|fay|pay|fra|fì|tsa)?(ay|me|pxe|pe)?(fne)?(munsna)?(tì|sì)?"
 		} else if strings.Contains(target, "ketsuk") || strings.Contains(target, "tsuk") {
 			reString = "(a)?(ketsuk|tsuk)?"
 		} else if strings.Contains(target, "siyu") && w.PartOfSpeech == "vin." {
@@ -174,9 +225,17 @@ func (w *Word) prefix(target string, previousAttempt string) string {
 	previousAttempt = attempt + previousAttempt
 
 	matchPrefixes = DeleteElement(matchPrefixes, "e")
-	if w.PartOfSpeech != "num." {
+	if (w.PartOfSpeech != "num.") && (w.PartOfSpeech != "adj.") {
 		matchPrefixes = DeleteElement(matchPrefixes, "a")
 	}
+
+	//undelete a- for participles
+	inf := w.Affixes.Infix
+	if (Contains(inf, []string{"awn"}) || Contains(inf, []string{"us"})) &&
+		!(Contains(matchPrefixes, []string{"tì"}) || Contains(matchPrefixes, []string{"sì"})) {
+		matchPrefixes = append(matchPrefixes, "a")
+	}
+
 	matchPrefixes = DeleteElement(matchPrefixes, "ì")
 
 	if ArrCount(matchPrefixes, "pe") == 2 {
@@ -708,7 +767,7 @@ func (w *Word) reconstruct(target string) bool {
 		return true
 	}
 
-	attempt = w.lenite(attempt)
+	attempt = w.lenite(w.Navi)
 
 	if debugMode {
 		log.Println("LENITE w")
