@@ -82,6 +82,8 @@ func (w *Word) prefix(target string, previousAttempt string) string {
 			for {
 				if strings.Contains(compareTarget, "usì") {
 					compareTarget = strings.Replace(compareTarget, "usì", "", 1)
+				} else if strings.HasSuffix(compareTarget, "sì") {
+					compareTarget = strings.TrimSuffix(compareTarget, "sì")
 				} else if strings.Contains(compareTarget, "tì") {
 					targetDiscriminate = targetDiscriminate + 1
 					compareTarget = strings.Replace(compareTarget, "tì", "", 1)
@@ -206,15 +208,30 @@ func (w *Word) prefix(target string, previousAttempt string) string {
 		return previousAttempt
 	}
 
+	// sì-us lenition check
+	if Contains(matchPrefixes, []string{"sì"}) {
+		w.Affixes.Lenition = append(w.Affixes.Lenition, "t→s")
+	}
+
 	// only allow lenition after lenition-causing prefixes when prefixes and lenition present
+	//lenResult := ""
+	//rootFirst := ""
+	//lenRFirst := ""
+	lenPre := []string{"pep", "pem", "pe", "fray", "tsay", "fay", "pay", "ay", "me", "pxe"}
+	//afLen := w.Affixes.Lenition[0]
+	//lenResult = afLen[len(afLen)-1:]
+	//rootFirst = w.Navi[0:1]
+	//lenRFirst = w.lenite(rootFirst)
 	if len(w.Affixes.Lenition) > 0 && len(matchPrefixes) > 0 {
-		if Contains(matchPrefixes, []string{"fne", "munsna", "nì"}) {
+		if Contains(matchPrefixes, []string{"fne", "munsna", "nì", "tì"}) {
 			return previousAttempt
 		}
-		lenPre := []string{"pep", "pem", "pe", "fray", "tsay", "fay", "pay", "ay", "me", "pxe"}
 		if Contains(matchPrefixes, []string{"fì", "tsa", "fra"}) && !Contains(matchPrefixes, lenPre) {
 			return previousAttempt
 		}
+		//rootFirst != lenRFirst ||
+	} else if Contains(matchPrefixes, lenPre) && !Contains(matchPrefixes, []string{"fne", "munsna"}) && (Contains(matchPrefixes, []string{"tì"})) {
+		return previousAttempt
 	}
 
 	// build what prefixes to put on
@@ -244,6 +261,11 @@ func (w *Word) prefix(target string, previousAttempt string) string {
 	}
 
 	if len(matchPrefixes) > 0 {
+		// sì-us lenition append
+		if Contains(matchPrefixes, []string{"sì"}) {
+			matchPrefixes = DeleteElement(matchPrefixes, "sì")
+			matchPrefixes = append(matchPrefixes, "tì")
+		}
 		w.Affixes.Prefix = append(w.Affixes.Prefix, matchPrefixes...)
 	}
 
@@ -262,7 +284,7 @@ func (w *Word) suffix(target string, previousAttempt string) string {
 	)
 	const (
 		adjSufRe string = "(a|sì)?$"
-		nSufRe   string = "(nga'|tsyìp|tu|fkeyk)?(o)?(pe)?(mungwrr|kxamlä|tafkip|pxisre|pximaw|ftumfa|mìkam|nemfa|takip|lisre|talun|krrka|teri|fkip|pxaw|pxel|luke|rofa|fpi|ftu|kip|vay|lok|maw|sìn|sre|few|kam|kay|nuä|sko|yoa|äo|eo|fa|hu|ka|mì|na|ne|ta|io|uo|ro|wä|sì|ìri|ìl|eyä|yä|ä|it|ri|ru|ti|ur|l|r|t)?$"
+		nSufRe   string = "(nga'|tsyìp|tu|fkeyk)?(o)?(pe)?(mungwrr|kxamlä|tafkip|pxisre|pximaw|ftumfa|mìkam|nemfa|takip|lisre|talun|krrka|teri|fkip|pxaw|pxel|luke|rofa|fpi|ftu|kip|vay|lok|maw|sìn|sre|few|kam|kay|nuä|sko|yoa|äo|eo|fa|hu|ka|mì|na|ne|ta|io|uo|ro|wä|ìri|ìl|eyä|yä|ä|it|ri|ru|ti|ur|l|r|t)?(to|sì)?$"
 		ngey     string = "ngey"
 	)
 
