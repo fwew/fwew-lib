@@ -214,23 +214,59 @@ func (w *Word) prefix(target string, previousAttempt string) string {
 	}
 
 	// only allow lenition after lenition-causing prefixes when prefixes and lenition present
-	//lenResult := ""
-	//rootFirst := ""
-	//lenRFirst := ""
 	lenPre := []string{"pep", "pem", "pe", "fray", "tsay", "fay", "pay", "ay", "me", "pxe"}
-	//afLen := w.Affixes.Lenition[0]
-	//lenResult = afLen[len(afLen)-1:]
-	//rootFirst = w.Navi[0:1]
-	//lenRFirst = w.lenite(rootFirst)
+	lenTry := ""
+	lenResult := ""
+	rootFirst := ""
+	startWithD := []string{"kx", "px", "tx", "ts"}
+	excludeStart := []string{"'rr", "'ll"}
+	strTry := previousAttempt
+	strRoot := w.Navi
+
+	if len(attempt) > 0 {
+		lenTry = attempt[0:1]
+	} else if len(previousAttempt) > 0 {
+		if !HasPrefixStrArr(strRoot, excludeStart) {
+			if HasPrefixStrArr(strTry, startWithD) {
+				lenTry = previousAttempt[0:2]
+			} else {
+				lenTry = previousAttempt[0:1]
+			}
+		}
+	}
+
+	lenResult = w.plainLenite(lenTry)
+
+	if !HasPrefixStrArr(strRoot, excludeStart) {
+		if HasPrefixStrArr(strRoot, startWithD) {
+			rootFirst = w.Navi[0:2]
+		} else {
+			rootFirst = w.Navi[0:1]
+		}
+	}
+
+	if Contains(matchPrefixes, []string{"sì"}) {
+		lenResult = ""
+	}
+
+	if rootFirst == "'" && lenResult == "" {
+		lenResult = "-"
+	}
+
 	if len(w.Affixes.Lenition) > 0 && len(matchPrefixes) > 0 {
+		if HasPrefixStrArr(strRoot, excludeStart) {
+			return previousAttempt
+		}
 		if Contains(matchPrefixes, []string{"fne", "munsna", "nì", "tì"}) {
 			return previousAttempt
 		}
 		if Contains(matchPrefixes, []string{"fì", "tsa", "fra"}) && !Contains(matchPrefixes, lenPre) {
 			return previousAttempt
 		}
-		//rootFirst != lenRFirst ||
-	} else if Contains(matchPrefixes, lenPre) && !Contains(matchPrefixes, []string{"fne", "munsna"}) && (Contains(matchPrefixes, []string{"tì"})) {
+		//unleniting where should not
+	} else if Contains(matchPrefixes, lenPre) && !Contains(matchPrefixes, []string{"fne", "munsna"}) &&
+		(((lenResult != rootFirst) && (lenResult != "") && (rootFirst != "")) ||
+			(Contains(matchPrefixes, []string{"tì"}))) {
 		return previousAttempt
 	}
 
@@ -611,6 +647,17 @@ var otherThats = [8][3]string{
 
 func GetOtherThats() [][3]string {
 	return otherThats[:]
+}
+
+// plain lenite for backward checks
+func (w *Word) plainLenite(tries string) string {
+	for _, v := range lenitionTable {
+		if strings.HasPrefix(strings.ToLower(tries), v[0]) {
+			tries = strings.Replace(tries, v[0], v[1], 1)
+			return tries
+		}
+	}
+	return tries
 }
 
 // Lenite the word, based on the attempt. The target is not relevant here, so not given.
