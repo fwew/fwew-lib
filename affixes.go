@@ -262,7 +262,6 @@ func (w *Word) prefix(target string, previousAttempt string) string {
 		lenResult = ""
 	}
 
-	//TODO: handle cases when fìme+ tsame+ fìpxe+ tsapxe+ present
 	if len(w.Affixes.Lenition) > 0 && len(matchPrefixes) > 0 {
 		//this check if word starts from 'll or 'rr
 		if HasPrefixStrArr(strRoot, excludeStart) {
