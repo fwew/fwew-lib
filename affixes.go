@@ -277,7 +277,7 @@ func (w *Word) prefix(target string, previousAttempt string) string {
 			return previousAttempt
 		}
 		//don't lenite if there are those prefixes
-		if Contains(matchPrefixes, []string{"fì", "tsa", "fra"}) {
+		if Contains(matchPrefixes, []string{"fì", "tsa", "fra"}) && !(Contains(matchPrefixes, []string{"me", "pxe"})) {
 			//handling -usia snowflakes
 			if Contains(matchPrefixes, []string{"sì"}) && strings.HasSuffix(target, "usia") {
 				previousAttempt = strings.Replace(previousAttempt, "usia", "", 1)
