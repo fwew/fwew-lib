@@ -59,8 +59,66 @@ func (w *Word) prefix(target string, previousAttempt string) string {
 	if strings.HasPrefix(w.PartOfSpeech, "v") ||
 		strings.HasPrefix(w.PartOfSpeech, svin) || w.PartOfSpeech == "" {
 		inf := w.Affixes.Infix
-		if len(inf) > 0 && (inf[0] == "us" || inf[0] == "awn") {
-			reString = "(a|tì)?"
+		//trying to detect tì-us / sì-us
+		rootDiscriminate := 0
+		targetDiscriminate := 0
+		compareWord := w.Navi
+		compareTarget := target
+		flagTius := 0
+
+		//checking if root word (w.Navi) has tì or sì by itself
+		if (len(inf) > 0 && (inf[0] == "us")) && (strings.Contains(target, "tì") || strings.Contains(target, "sì")) {
+			for {
+				if strings.Contains(compareWord, "tì") {
+					rootDiscriminate = rootDiscriminate + 1
+					compareWord = strings.Replace(compareWord, "tì", "", 1)
+				} else if strings.Contains(compareWord, "sì") {
+					rootDiscriminate = rootDiscriminate + 1
+					compareWord = strings.Replace(compareWord, "sì", "", 1)
+				} else {
+					break
+				}
+			}
+
+			//checking if target word (previousAttempt) has tì or sì by itself excluding -sì suffix and -usì-
+			for {
+				if strings.Contains(compareTarget, "usì") {
+					compareTarget = strings.Replace(compareTarget, "usì", "", 1)
+				} else if strings.HasSuffix(compareTarget, "sì") {
+					compareTarget = strings.TrimSuffix(compareTarget, "sì")
+				} else if strings.Contains(compareTarget, "tì") {
+					targetDiscriminate = targetDiscriminate + 1
+					compareTarget = strings.Replace(compareTarget, "tì", "", 1)
+				} else if strings.Contains(compareTarget, "sì") {
+					targetDiscriminate = targetDiscriminate + 1
+					compareTarget = strings.Replace(compareTarget, "sì", "", 1)
+				} else {
+					break
+				}
+			}
+
+			//checking if verb has tì or sì as valid infix syllable
+			if strings.Contains(w.InfixLocations, "t<0><1><2>ì") ||
+				strings.Contains(w.InfixLocations, "s<0><1><2>ì") ||
+				strings.Contains(w.InfixLocations, "t<0><1>ì") ||
+				strings.Contains(w.InfixLocations, "s<0><1>ì") {
+				rootDiscriminate = rootDiscriminate - 1
+			}
+
+			if targetDiscriminate > rootDiscriminate {
+				flagTius = 1
+			} else {
+				flagTius = 2
+			}
+		}
+
+		//detecting participles
+		if (len(inf) > 0 && (inf[0] == "us" || inf[0] == "awn")) &&
+			(flagTius == 2 || flagTius == 0) {
+			reString = "^(a)?"
+			//detecting tì-us or sì-us noun
+		} else if ((len(inf) > 0 && inf[0] == "us") && (strings.Contains(target, "tì") || strings.Contains(target, "sì"))) || flagTius == 1 {
+			reString = "^(pep|pem|pe|fray|tsay|fay|pay|fra|fì|tsa)?(ay|me|pxe|pe)?(fne)?(munsna)?(tì|sì)?"
 		} else if strings.Contains(target, "ketsuk") || strings.Contains(target, "tsuk") {
 			reString = "(a)?(ketsuk|tsuk)?"
 		} else if strings.Contains(target, "siyu") && w.PartOfSpeech == "vin." {
@@ -155,15 +213,86 @@ func (w *Word) prefix(target string, previousAttempt string) string {
 		return previousAttempt
 	}
 
+	// sì-us lenition check
+	if Contains(matchPrefixes, []string{"sì"}) {
+		w.Affixes.Lenition = append(w.Affixes.Lenition, "t→s")
+	}
+
 	// only allow lenition after lenition-causing prefixes when prefixes and lenition present
+	lenPre := []string{"pep", "pem", "pe", "fray", "tsay", "fay", "pay", "ay", "me", "pxe"}
+	lenTry := ""
+	lenResult := ""
+	rootFirst := ""
+	startWithD := []string{"kx", "px", "tx", "ts"}
+	excludeStart := []string{"'rr", "'ll"}
+	strTry := previousAttempt
+	strRoot := w.Navi
+
+	//trying to take first phoneme from attempt word
+	if len(attempt) > 0 {
+		lenTry = attempt[0:1]
+	} else if len(previousAttempt) > 0 {
+		if !HasPrefixStrArr(strRoot, excludeStart) {
+			if HasPrefixStrArr(strTry, startWithD) {
+				lenTry = previousAttempt[0:2]
+			} else {
+				lenTry = previousAttempt[0:1]
+			}
+		}
+	}
+
+	lenResult = w.plainLenite(lenTry)
+
+	//trying to take first phoneme from root word
+	if !HasPrefixStrArr(strRoot, excludeStart) {
+		if HasPrefixStrArr(strRoot, startWithD) {
+			rootFirst = w.Navi[0:2]
+		} else {
+			rootFirst = w.Navi[0:1]
+		}
+	}
+
+	//hack for disappeared tìftang
+	if rootFirst == "'" && lenResult == "" {
+		lenResult = "-"
+	}
+
+	//treat sì- prefix like already lenited
+	if Contains(matchPrefixes, []string{"sì"}) {
+		lenResult = ""
+	}
+
 	if len(w.Affixes.Lenition) > 0 && len(matchPrefixes) > 0 {
-		if Contains(matchPrefixes, []string{"fne", "munsna", "nì"}) {
+		//this check if word starts from 'll or 'rr
+		if HasPrefixStrArr(strRoot, excludeStart) {
 			return previousAttempt
 		}
-		lenPre := []string{"pep", "pem", "pe", "fray", "tsay", "fay", "pay", "ay", "me", "pxe"}
-		if Contains(matchPrefixes, []string{"fì", "tsa", "fra"}) && !Contains(matchPrefixes, lenPre) {
+		//don't lenite if there are those prefixes
+		if Contains(matchPrefixes, []string{"fne", "munsna", "nì", "tì"}) {
+			//handling -usia snowflakes
+			if Contains(matchPrefixes, []string{"sì"}) && strings.HasSuffix(target, "usia") {
+				previousAttempt = strings.Replace(previousAttempt, "usia", "", 1)
+			}
 			return previousAttempt
 		}
+		//don't lenite if there are those prefixes
+		if Contains(matchPrefixes, []string{"fì", "tsa", "fra"}) && !(Contains(matchPrefixes, []string{"me", "pxe"})) {
+			//handling -usia snowflakes
+			if Contains(matchPrefixes, []string{"sì"}) && strings.HasSuffix(target, "usia") {
+				previousAttempt = strings.Replace(previousAttempt, "usia", "", 1)
+			}
+			return previousAttempt
+		}
+		//unleniting where should not
+		//lenpre+fne|munsna+(lenited root or tì- prefix)
+	} else if Contains(matchPrefixes, lenPre) && !Contains(matchPrefixes, []string{"fne", "munsna"}) &&
+		(((lenResult != rootFirst) && (lenResult != "") && (rootFirst != "")) ||
+			(Contains(matchPrefixes, []string{"tì"}))) {
+		//handling -usia snowflakes
+		if strings.HasSuffix(previousAttempt, "usia") {
+			previousAttempt = strings.Replace(previousAttempt, "usia", "", 1)
+		}
+		return previousAttempt
 	}
 
 	// build what prefixes to put on
@@ -174,9 +303,18 @@ func (w *Word) prefix(target string, previousAttempt string) string {
 	previousAttempt = attempt + previousAttempt
 
 	matchPrefixes = DeleteElement(matchPrefixes, "e")
-	if w.PartOfSpeech != "num." {
+	//delete a- only if not number or adjective
+	if (w.PartOfSpeech != "num.") && (w.PartOfSpeech != "adj.") {
 		matchPrefixes = DeleteElement(matchPrefixes, "a")
 	}
+
+	//undelete a- for participles
+	inf := w.Affixes.Infix
+	if (Contains(inf, []string{"awn"}) || Contains(inf, []string{"us"})) &&
+		!(Contains(matchPrefixes, []string{"tì"}) || Contains(matchPrefixes, []string{"sì"})) {
+		matchPrefixes = append(matchPrefixes, "a")
+	}
+
 	matchPrefixes = DeleteElement(matchPrefixes, "ì")
 
 	if ArrCount(matchPrefixes, "pe") == 2 {
@@ -185,6 +323,11 @@ func (w *Word) prefix(target string, previousAttempt string) string {
 	}
 
 	if len(matchPrefixes) > 0 {
+		// sì-us lenition append
+		if Contains(matchPrefixes, []string{"sì"}) {
+			matchPrefixes = DeleteElement(matchPrefixes, "sì")
+			matchPrefixes = append(matchPrefixes, "tì")
+		}
 		w.Affixes.Prefix = append(w.Affixes.Prefix, matchPrefixes...)
 	}
 
@@ -203,8 +346,9 @@ func (w *Word) suffix(target string, previousAttempt string) string {
 	)
 	const (
 		adjSufRe string = "(a|sì)?$"
-		nSufRe   string = "(nga'|tsyìp|tu|fkeyk)?(o)?(pe)?(mungwrr|kxamlä|tafkip|pxisre|pximaw|ftumfa|mìkam|nemfa|takip|lisre|talun|krrka|teri|fkip|pxaw|pxel|luke|rofa|fpi|ftu|kip|vay|lok|maw|sìn|sre|few|kam|kay|nuä|sko|yoa|äo|eo|fa|hu|ka|mì|na|ne|ta|io|uo|ro|wä|sì|ìri|ìl|eyä|yä|ä|it|ri|ru|ti|ur|l|r|t)?$"
-		ngey     string = "ngey"
+		// -to as suffix to nouns and made -sì|-to as separate option
+		nSufRe string = "(nga'|tsyìp|tu|fkeyk)?(o)?(pe)?(mungwrr|kxamlä|tafkip|pxisre|pximaw|ftumfa|mìkam|nemfa|takip|lisre|talun|krrka|teri|fkip|pxaw|pxel|luke|rofa|fpi|ftu|kip|vay|lok|maw|sìn|sre|few|kam|kay|nuä|sko|yoa|äo|eo|fa|hu|ka|mì|na|ne|ta|io|uo|ro|wä|ìri|ìl|eyä|yä|ä|it|ri|ru|ti|ur|l|r|t)?(to|sì)?$"
+		ngey   string = "ngey"
 	)
 
 	// hardcoded hack for tseyä
@@ -532,6 +676,17 @@ func GetOtherThats() [][3]string {
 	return otherThats[:]
 }
 
+// plain lenite for backward checks
+func (w *Word) plainLenite(tries string) string {
+	for _, v := range lenitionTable {
+		if strings.HasPrefix(strings.ToLower(tries), v[0]) {
+			tries = strings.Replace(tries, v[0], v[1], 1)
+			return tries
+		}
+	}
+	return tries
+}
+
 // Lenite the word, based on the attempt. The target is not relevant here, so not given.
 // Returns the lenite attempt.
 func (w *Word) lenite(attempt string) string {
@@ -565,7 +720,7 @@ func remove(s []string, r string) []string {
 func (w *Word) reconstruct(target string) bool {
 	attempt := w.Navi
 
-	//tìftusiä & tì'usiä replacements
+	//tì'usiä replacement
 	var oldTarget = ""
 	var origTarget = ""
 	var corTarget = ""
@@ -583,6 +738,7 @@ func (w *Word) reconstruct(target string) bool {
 			target = strings.Replace(target, "usiä", "usia", -1)
 		}
 	}
+	//tìftusiä replacement
 	if w.Navi == "ftia" {
 		if strings.HasSuffix(target, "tìftusiaä") || strings.HasSuffix(target, "sìftusiaä") {
 			origTarget = target
@@ -666,17 +822,16 @@ func (w *Word) reconstruct(target string) bool {
 	uscheckWord := []string{w.Navi}
 	if Contains(uscheckWord, usiaWords) {
 		if strings.HasSuffix(oldTarget, "usiä") {
-			if !strings.Contains(oldTarget, "tì") {
-				w.Affixes.Prefix = append(w.Affixes.Prefix, "tì")
-				w.Affixes.Lenition = append(w.Affixes.Lenition, "t→s")
-			}
 			if strings.HasSuffix(origTarget, "usiayä") || strings.HasSuffix(origTarget, "usiaä") {
 				checkComment := fmt.Sprintf("correct form of %s is %s", origTarget, oldTarget)
 				w.Affixes.Comment = []string{checkComment}
 			} else {
 				w.Affixes.Suffix = append(w.Affixes.Suffix, "ä")
 			}
-			attempt = target
+			//now only if attempt is -usia too
+			if strings.HasSuffix(attempt, "usia") {
+				attempt = target
+			}
 		}
 	}
 
@@ -708,7 +863,7 @@ func (w *Word) reconstruct(target string) bool {
 		return true
 	}
 
-	attempt = w.lenite(attempt)
+	attempt = w.lenite(w.Navi)
 
 	if debugMode {
 		log.Println("LENITE w")
@@ -740,24 +895,6 @@ func (w *Word) reconstruct(target string) bool {
 	if debugMode {
 		log.Println("PREFIX wl")
 		log.Printf("Navi: %s | Attempt: %s | Target: %s\n", w.Navi, attempt, target)
-	}
-
-	//tìftusiä & tì'usiä append
-	uscheckWord = []string{w.Navi}
-	if Contains(uscheckWord, usiaWords) {
-		if strings.HasSuffix(oldTarget, "usiä") {
-			if !strings.Contains(oldTarget, "tì") {
-				w.Affixes.Prefix = append(w.Affixes.Prefix, "tì")
-				w.Affixes.Lenition = append(w.Affixes.Lenition, "t→s")
-			}
-			if strings.HasSuffix(origTarget, "usiayä") || strings.HasSuffix(origTarget, "usiaä") {
-				checkComment := fmt.Sprintf("correct form of %s is %s", origTarget, oldTarget)
-				w.Affixes.Comment = []string{checkComment}
-			} else {
-				w.Affixes.Suffix = append(w.Affixes.Suffix, "ä")
-			}
-			attempt = target
-		}
 	}
 
 	if attempt == target {
