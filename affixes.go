@@ -444,8 +444,8 @@ func (w *Word) suffix(target string, previousAttempt string) string {
 		reString = strings.Replace(previousAttempt, "a", "[ae]", -1) + reString
 	} else if w.Navi == "tsaw" {
 		tsaSuf := []string{
-			"mungwrr", "kxamlä", "tafkip", "pxisre", "pximaw", "ftumfa", "mìkam", "nemfa", "takip", "lisre", "talun",
-			"krrka", "teri", "fkip", "pxaw", "pxel", "luke", "rofa", "fpi", "ftu", "kip", "vay", "lok", "maw", "sìn", "sre",
+			"mungwrr", "kxamlä", "tafkip", "pxisre", "pximaw", "ftumfa", "mìkam", "nemfa", "takip", "lisre", "talun", "ftuopa",
+			"krrka", "teri", "fkip", "pxaw", "pxel", "luke", "rofa", "fpi", "ftu", "kip", "vay", "lok", "maw", "sìn", "sre", "ìlä", "raw",
 			"few", "kam", "kay", "nuä", "sko", "yoa", "äo", "eo", "fa", "hu", "ka", "mì", "na", "ne", "ta", "io", "uo",
 			"ro", "wä", "ìri", "ri", "ru", "ti", "r"}
 		for _, s := range tsaSuf {
