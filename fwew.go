@@ -51,6 +51,9 @@ func (w *Word) similarity(other string) float64 {
 	if w.Navi == "nga" && other == "ngey" {
 		return 1.0
 	}
+	if w.Navi == "'ia" && strings.HasSuffix(other, "ì'usiä") {
+		return 1.0
+	}
 	vowels := "aäeiìoulr"
 	w0v := intersection(w.Navi, vowels)
 	w1v := intersection(other, vowels)
