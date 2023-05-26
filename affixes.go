@@ -113,9 +113,15 @@ func (w *Word) prefix(target string, previousAttempt string) string {
 		}
 
 		//detecting participles
-		if (len(inf) > 0 && (inf[0] == "us" || inf[0] == "awn")) &&
+		if (len(inf) > 0 && (Contains(inf, []string{"us"}) || Contains(inf, []string{"awn"}))) &&
 			(flagTius == 2 || flagTius == 0) {
-			reString = "^(a)?"
+			//deny second position infixes for participles
+			if !Contains(inf, []string{"ei", "äng", "ats", "uy", "eng", "eiy"}) {
+				reString = "^(a)?"
+			} else {
+				previousAttempt = ""
+				return previousAttempt
+			}
 			//detecting tì-us or sì-us noun
 		} else if ((len(inf) > 0 && inf[0] == "us") && (strings.Contains(target, "tì") || strings.Contains(target, "sì"))) || flagTius == 1 {
 			reString = "^(pep|pem|pe|fray|tsay|fay|pay|fra|fì|tsa)?(ay|me|pxe|pe)?(fne)?(munsna)?(tì|sì)?"
@@ -384,13 +390,19 @@ func (w *Word) suffix(target string, previousAttempt string) string {
 		inf := w.Affixes.Infix
 		pre := w.Affixes.Prefix
 		// word is verb with <us> or <awn>
-		if len(inf) == 1 && (inf[0] == "us" || inf[0] == "awn") {
+		if len(inf) > 0 && (Contains(inf, []string{"us"}) || Contains(inf, []string{"awn"})) {
 			// it's a tì-<us> gerund; treat it like a noun
 			if len(pre) > 0 && ContainsStr(pre, "tì") && inf[0] == "us" {
 				reString = nSufRe
 				// Just a regular <us> or <awn> verb
 			} else {
-				reString = adjSufRe
+				//deny second position infixes for participles
+				if !Contains(inf, []string{"ei", "äng", "ats", "uy", "eng", "eiy"}) {
+					reString = adjSufRe
+				} else {
+					previousAttempt = ""
+					return previousAttempt
+				}
 			}
 			// It's a tsuk/ketsuk adj from a verb
 		} else if len(inf) == 0 && Contains(pre, []string{"tsuk", "ketsuk"}) {
@@ -607,6 +619,14 @@ func (w *Word) infix(target string) string {
 	// handle <ol>ll and <er>rr
 	attempt = strings.Replace(attempt, "olll", "ol", 1)
 	attempt = strings.Replace(attempt, "errr", "er", 1)
+
+	//deny second position infixes in participles
+	if Contains(matchInfixes, []string{"us", "awn"}) {
+		if Contains(matchInfixes, []string{"ei", "äng", "uy", "ats", "eiy", "eng"}) {
+			attempt = ""
+			return attempt
+		}
+	}
 
 	if len(matchInfixes) != 0 {
 		w.Affixes.Infix = append(w.Affixes.Infix, matchInfixes...)
