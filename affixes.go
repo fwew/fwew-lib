@@ -677,8 +677,11 @@ func (w *Word) infix(target string) string {
 	}
 
 	//-uyu- verb-yu looking like <uy>u
+	allElseInfixes := []string{"ei", "äng", "ats", "eiy", "eng", "ìyev", "iyev", "ìlm", "ìly",
+		"ìrm", "ìry", "ìsy", "alm", "aly", "arm", "ary", "asy", "ìm", "imv", "ilv", "irv", "ìy",
+		"am", "ay", "er", "iv", "ol", "us", "awn", "äp", "eyk"}
 	toComment := ""
-	if Contains(matchInfixes, []string{"uy"}) && strings.Contains(target, "uyu") {
+	if Contains(matchInfixes, []string{"uy"}) && strings.Contains(target, "uyu") && !Contains(matchInfixes, allElseInfixes) {
 		toComment = fmt.Sprintf("%s can be also %s-yu", target, w.Navi)
 		w.Affixes.Comment = []string{toComment}
 	}
