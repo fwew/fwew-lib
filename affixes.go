@@ -146,8 +146,9 @@ func (w *Word) prefix(target string, previousAttempt string) string {
 		//detecting participles
 		if (len(inf) > 0 && (Contains(inf, []string{"us"}) || Contains(inf, []string{"awn"}))) &&
 			(flagTius == 2 || flagTius == 0) {
-			//deny second position infixes for participles
-			if !Contains(inf, []string{"ei", "äng", "ats", "uy", "eng", "eiy"}) {
+			//deny second position infixes & äpawn for participles
+			if !Contains(inf, []string{"ei", "äng", "ats", "uy", "eng", "eiy"}) &&
+				!(Contains(inf, []string{"awn"}) && Contains(inf, []string{"äp"}) && !Contains(inf, []string{"eyk"})) {
 				reString = "^(a)?"
 			} else {
 				previousAttempt = ""
@@ -427,8 +428,9 @@ func (w *Word) suffix(target string, previousAttempt string) string {
 				reString = nSufRe
 				// Just a regular <us> or <awn> verb
 			} else {
-				//deny second position infixes for participles
-				if !Contains(inf, []string{"ei", "äng", "ats", "uy", "eng", "eiy"}) {
+				//deny second position infixes & äpawn for participles
+				if !Contains(inf, []string{"ei", "äng", "ats", "uy", "eng", "eiy"}) &&
+					!(Contains(inf, []string{"awn"}) && Contains(inf, []string{"äp"}) && !Contains(inf, []string{"eyk"})) {
 					reString = adjSufRe
 				} else {
 					previousAttempt = ""
@@ -668,9 +670,12 @@ func (w *Word) infix(target string) string {
 	attempt = strings.Replace(attempt, "olll", "ol", 1)
 	attempt = strings.Replace(attempt, "errr", "er", 1)
 
-	//deny second position infixes in participles
+	//deny second position infixes & äpawn in participles
 	if Contains(matchInfixes, []string{"us", "awn"}) {
 		if Contains(matchInfixes, []string{"ei", "äng", "uy", "ats", "eiy", "eng"}) {
+			attempt = ""
+			return attempt
+		} else if Contains(matchInfixes, []string{"awn"}) && Contains(matchInfixes, []string{"äp"}) && !Contains(matchInfixes, []string{"eyk"}) {
 			attempt = ""
 			return attempt
 		}
@@ -682,7 +687,7 @@ func (w *Word) infix(target string) string {
 		"am", "ay", "er", "iv", "ol", "us", "awn", "äp", "eyk"}
 	toComment := ""
 	if Contains(matchInfixes, []string{"uy"}) && strings.Contains(target, "uyu") && !Contains(matchInfixes, allElseInfixes) {
-		toComment = fmt.Sprintf("%s can be also %s-yu", target, w.Navi)
+		toComment = "flagUYU"
 		w.Affixes.Comment = []string{toComment}
 	}
 
