@@ -595,6 +595,18 @@ func (w *Word) infix(target string) string {
 		corTarget       = target
 	)
 
+	//detect verb-yu
+	ycompareWord := w.Navi
+	ycompareTarget := target
+	arrTarget := []string{target}
+	if strings.Contains(target, "yu") && !(Contains(arrTarget, []string{"ei", "äng", "ats", "eng", "eiy"})) {
+		ycompareTarget = strings.Replace(ycompareTarget, ycompareWord, "", 1)
+		ycompareTarget = strings.Replace(ycompareTarget, "yu", "", 1)
+		if ycompareTarget != "" {
+			return w.Navi
+		}
+	}
+
 	// hardcode for ner (n<0><er>rr)
 	if w.Navi == "nrr" && (strings.HasSuffix(target, "er")) {
 		w.InfixLocations = strings.Replace(w.InfixLocations, "<1><2>rr", "<1>rr", 1)
