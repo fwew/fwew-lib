@@ -765,7 +765,7 @@ var otherThats = [9][3]string{
 	{"tsnì", "sbd.", "that (function word)"},
 	{"tsonta", "conj.", "to (with kxìm)"},
 	{"kuma/akum", "conj.", "that (as a result)"},
-	{"a", "part.", "clause  level attributive marker"},
+	{"a", "part.", "clause level attributive marker"},
 }
 
 func GetOtherThats() [][3]string {
