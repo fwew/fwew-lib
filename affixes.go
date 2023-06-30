@@ -176,31 +176,45 @@ func (w *Word) prefix(target string, previousAttempt string) string {
 	}
 
 	// me/pxe/pe + e/'e vowel merge
-	if HasPrefixStrArr(target, []string{"me", "pxe", "pe"}) {
+	emFlag := 0
+	temFlag := 0
+	amFlag := 0
+	imFlag := 0
+	// tried to extend prefix combinations
+	if HasPrefixStrArr(target, []string{"me", "pxe", "pe", "tsame", "tsapxe", "fìme", "fìpxe", "pepe", "peme"}) {
 		if strings.HasPrefix(previousAttempt, "e") {
 			reString = reString + "(e)?"
 			previousAttempt = previousAttempt[1:]
+			emFlag = 1
 		} else if strings.HasPrefix(previousAttempt, "'e") {
 			reString = reString + "('e)?"
 			previousAttempt = previousAttempt[2:]
-		}
-	} else if strings.HasPrefix(target, "fne") {
+			temFlag = 1
+		} // tried to extend prefix combinations
+	} else if strings.HasPrefix(target, "fne") || (strings.Contains(target, "fne") &&
+		HasPrefixStrArr(target, []string{"me", "pxe", "pe", "tsame", "tsapxe", "fìme", "fìpxe", "pepe", "peme", "ay",
+			"fì", "tsa", "fra", "fray", "pay", "tsay", "fay"})) {
 		// prefix boundary vowel merges (ee)
 		if strings.HasPrefix(previousAttempt, "e") {
 			reString = reString + "(e)?"
 			previousAttempt = previousAttempt[1:]
-		}
-	} else if HasPrefixStrArr(target, []string{"fra", "tsa", "munsna"}) {
+			emFlag = 1
+		} // tried to extend prefix combinations
+	} else if HasPrefixStrArr(target, []string{"fra", "tsa", "munsna"}) || (strings.Contains(target, "munsna") &&
+		HasPrefixStrArr(target, []string{"me", "pxe", "pe", "tsame", "tsapxe", "fìme", "fìpxe", "pepe", "peme", "ay",
+			"fì", "tsa", "fra", "fray", "pay", "tsay", "fay"})) {
 		// prefix boundary vowel merges (aa)
 		if strings.HasPrefix(previousAttempt, "a") {
 			reString = reString + "(a)?"
 			previousAttempt = previousAttempt[1:]
+			amFlag = 1
 		}
 	} else if strings.HasPrefix(target, "fì") {
 		// prefix boundary vowel (ìì)
 		if strings.HasPrefix(previousAttempt, "ì") {
 			reString = reString + "(ì)?"
 			previousAttempt = previousAttempt[2:]
+			imFlag = 1
 		}
 	}
 
@@ -266,15 +280,26 @@ func (w *Word) prefix(target string, previousAttempt string) string {
 	strTry := previousAttempt
 	strRoot := w.Navi
 
+	//restoring merge attempts
+	if emFlag == 1 {
+		strTry = "e" + strTry
+	} else if temFlag == 1 {
+		strTry = "'e" + strTry
+	} else if amFlag == 1 {
+		strTry = "a" + strTry
+	} else if imFlag == 1 {
+		strTry = "ì" + strTry
+	}
+
 	//trying to take first phoneme from attempt word
 	if len(attempt) > 0 {
 		lenTry = attempt[0:1]
 	} else if len(previousAttempt) > 0 {
 		if !HasPrefixStrArr(strRoot, excludeStart) {
 			if HasPrefixStrArr(strTry, startWithD) {
-				lenTry = previousAttempt[0:2]
+				lenTry = strTry[0:2]
 			} else {
-				lenTry = previousAttempt[0:1]
+				lenTry = strTry[0:1]
 			}
 		}
 	}
