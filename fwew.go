@@ -122,8 +122,18 @@ func TranslateFromNavi(searchNaviWord string) (results []Word, err error) {
 		}
 
 		if word.reconstruct(searchNaviWord) {
-			word.Navi = naviWord
-			results = append(results, word)
+			//when it's a verb ending on -uyu, it adds one more to output
+			if Contains(word.Affixes.Comment, []string{"flagUYU"}) {
+				word.Affixes.Comment = []string{}
+				results = append(results, word)
+				word2 := word.CloneWordStruct()
+				word2.Affixes.Infix = []string{}
+				word2.Affixes.Suffix = []string{"yu"}
+				results = append(results, word2)
+			} else {
+				word.Navi = naviWord
+				results = append(results, word)
+			}
 		}
 
 		return nil
