@@ -59,16 +59,16 @@ func (w *Word) prefix(target string, previousAttempt string) string {
 	if strings.HasPrefix(w.PartOfSpeech, "v") ||
 		strings.HasPrefix(w.PartOfSpeech, svin) || w.PartOfSpeech == "" {
 		inf := w.Affixes.Infix
+
 		//trying to detect tì-us / sì-us
 		rootDiscriminate := 0
 		targetDiscriminate := 0
 		compareWord := w.Navi
 		compareTarget := target
 		flagTius := 0
-
-		//checking if root word (w.Navi) has tì or sì by itself
 		if (len(inf) > 0 && (inf[0] == "us")) && (strings.Contains(target, "tì") || strings.Contains(target, "sì")) {
 			for {
+				//checking if root word (w.Navi) has tì or sì by itself
 				if strings.Contains(compareWord, "tì") {
 					rootDiscriminate = rootDiscriminate + 1
 					compareWord = strings.Replace(compareWord, "tì", "", 1)
@@ -79,7 +79,6 @@ func (w *Word) prefix(target string, previousAttempt string) string {
 					break
 				}
 			}
-
 			//checking if target word (previousAttempt) has tì or sì by itself excluding -sì suffix and -usì-
 			for {
 				if strings.Contains(compareTarget, "usì") {
@@ -96,7 +95,6 @@ func (w *Word) prefix(target string, previousAttempt string) string {
 					break
 				}
 			}
-
 			//checking if verb has tì or sì as valid infix syllable
 			if strings.Contains(w.InfixLocations, "t<0><1><2>ì") ||
 				strings.Contains(w.InfixLocations, "s<0><1><2>ì") ||
@@ -104,7 +102,6 @@ func (w *Word) prefix(target string, previousAttempt string) string {
 				strings.Contains(w.InfixLocations, "s<0><1>ì") {
 				rootDiscriminate = rootDiscriminate - 1
 			}
-
 			if targetDiscriminate > rootDiscriminate {
 				flagTius = 1
 			} else {
@@ -112,16 +109,57 @@ func (w *Word) prefix(target string, previousAttempt string) string {
 			}
 		}
 
+		//trying to detect verb-yu
+		yrootDiscriminate := 0
+		ytargetDiscriminate := 0
+		ycompareWord := w.Navi
+		ycompareTarget := target
+		flagYu := 0
+		// <uy> is special for verb-yu, check it more
+		if strings.Contains(target, "yu") && !(Contains(inf, []string{"ei", "äng", "ats", "eng", "eiy", "uy"})) {
+			for {
+				//checking if root word (w.Navi) -yu- by itself
+				if strings.Contains(ycompareWord, "yu") {
+					yrootDiscriminate = yrootDiscriminate + 1
+					ycompareWord = strings.Replace(ycompareWord, "yu", "", 1)
+				} else {
+					break
+				}
+			}
+			//checking if target word (previousAttempt) has -yu- by itself
+			for {
+				if strings.Contains(ycompareTarget, "yu") {
+					ytargetDiscriminate = ytargetDiscriminate + 1
+					ycompareTarget = strings.Replace(ycompareTarget, "yu", "", 1)
+				} else {
+					break
+				}
+			}
+			//if handleUyu == 1
+			if ytargetDiscriminate > yrootDiscriminate {
+				flagYu = 1
+			} else {
+				flagYu = 2
+			}
+		}
+
 		//detecting participles
-		if (len(inf) > 0 && (inf[0] == "us" || inf[0] == "awn")) &&
+		if (len(inf) > 0 && (Contains(inf, []string{"us"}) || Contains(inf, []string{"awn"}))) &&
 			(flagTius == 2 || flagTius == 0) {
-			reString = "^(a)?"
+			//deny second position infixes & äpawn for participles
+			if !Contains(inf, []string{"ei", "äng", "ats", "uy", "eng", "eiy"}) &&
+				!(Contains(inf, []string{"awn"}) && Contains(inf, []string{"äp"}) && !Contains(inf, []string{"eyk"})) {
+				reString = "^(a)?"
+			} else {
+				previousAttempt = ""
+				return previousAttempt
+			}
 			//detecting tì-us or sì-us noun
 		} else if ((len(inf) > 0 && inf[0] == "us") && (strings.Contains(target, "tì") || strings.Contains(target, "sì"))) || flagTius == 1 {
 			reString = "^(pep|pem|pe|fray|tsay|fay|pay|fra|fì|tsa)?(ay|me|pxe|pe)?(fne)?(munsna)?(tì|sì)?"
 		} else if strings.Contains(target, "ketsuk") || strings.Contains(target, "tsuk") {
 			reString = "(a)?(ketsuk|tsuk)?"
-		} else if strings.Contains(target, "siyu") && w.PartOfSpeech == "vin." {
+		} else if (strings.Contains(target, "siyu") && w.PartOfSpeech == "vin.") || (flagYu == 1) {
 			reString = "^(pep|pem|pe|fray|tsay|fay|pay|fra|fì|tsa)?(ay|me|pxe|pe)?(fne)?(munsna)?"
 		}
 	} else {
@@ -138,31 +176,45 @@ func (w *Word) prefix(target string, previousAttempt string) string {
 	}
 
 	// me/pxe/pe + e/'e vowel merge
-	if HasPrefixStrArr(target, []string{"me", "pxe", "pe"}) {
+	emFlag := 0
+	temFlag := 0
+	amFlag := 0
+	imFlag := 0
+	// tried to extend prefix combinations
+	if HasPrefixStrArr(target, []string{"me", "pxe", "pe", "tsame", "tsapxe", "fìme", "fìpxe", "pepe", "peme"}) {
 		if strings.HasPrefix(previousAttempt, "e") {
 			reString = reString + "(e)?"
 			previousAttempt = previousAttempt[1:]
+			emFlag = 1
 		} else if strings.HasPrefix(previousAttempt, "'e") {
 			reString = reString + "('e)?"
 			previousAttempt = previousAttempt[2:]
-		}
-	} else if strings.HasPrefix(target, "fne") {
+			temFlag = 1
+		} // tried to extend prefix combinations
+	} else if strings.HasPrefix(target, "fne") || (strings.Contains(target, "fne") &&
+		HasPrefixStrArr(target, []string{"me", "pxe", "pe", "tsame", "tsapxe", "fìme", "fìpxe", "pepe", "peme", "ay",
+			"fì", "tsa", "fra", "fray", "pay", "tsay", "fay"})) {
 		// prefix boundary vowel merges (ee)
 		if strings.HasPrefix(previousAttempt, "e") {
 			reString = reString + "(e)?"
 			previousAttempt = previousAttempt[1:]
-		}
-	} else if HasPrefixStrArr(target, []string{"fra", "tsa", "munsna"}) {
+			emFlag = 1
+		} // tried to extend prefix combinations
+	} else if HasPrefixStrArr(target, []string{"fra", "tsa", "munsna"}) || (strings.Contains(target, "munsna") &&
+		HasPrefixStrArr(target, []string{"me", "pxe", "pe", "tsame", "tsapxe", "fìme", "fìpxe", "pepe", "peme", "ay",
+			"fì", "tsa", "fra", "fray", "pay", "tsay", "fay"})) {
 		// prefix boundary vowel merges (aa)
 		if strings.HasPrefix(previousAttempt, "a") {
 			reString = reString + "(a)?"
 			previousAttempt = previousAttempt[1:]
+			amFlag = 1
 		}
 	} else if strings.HasPrefix(target, "fì") {
 		// prefix boundary vowel (ìì)
 		if strings.HasPrefix(previousAttempt, "ì") {
 			reString = reString + "(ì)?"
 			previousAttempt = previousAttempt[2:]
+			imFlag = 1
 		}
 	}
 
@@ -228,15 +280,26 @@ func (w *Word) prefix(target string, previousAttempt string) string {
 	strTry := previousAttempt
 	strRoot := w.Navi
 
+	//restoring merge attempts
+	if emFlag == 1 {
+		strTry = "e" + strTry
+	} else if temFlag == 1 {
+		strTry = "'e" + strTry
+	} else if amFlag == 1 {
+		strTry = "a" + strTry
+	} else if imFlag == 1 {
+		strTry = "ì" + strTry
+	}
+
 	//trying to take first phoneme from attempt word
 	if len(attempt) > 0 {
 		lenTry = attempt[0:1]
 	} else if len(previousAttempt) > 0 {
 		if !HasPrefixStrArr(strRoot, excludeStart) {
 			if HasPrefixStrArr(strTry, startWithD) {
-				lenTry = previousAttempt[0:2]
+				lenTry = strTry[0:2]
 			} else {
-				lenTry = previousAttempt[0:1]
+				lenTry = strTry[0:1]
 			}
 		}
 	}
@@ -384,21 +447,45 @@ func (w *Word) suffix(target string, previousAttempt string) string {
 		inf := w.Affixes.Infix
 		pre := w.Affixes.Prefix
 		// word is verb with <us> or <awn>
-		if len(inf) == 1 && (inf[0] == "us" || inf[0] == "awn") {
+		if len(inf) > 0 && (Contains(inf, []string{"us"}) || Contains(inf, []string{"awn"})) {
 			// it's a tì-<us> gerund; treat it like a noun
 			if len(pre) > 0 && ContainsStr(pre, "tì") && inf[0] == "us" {
 				reString = nSufRe
 				// Just a regular <us> or <awn> verb
 			} else {
-				reString = adjSufRe
+				//deny second position infixes & äpawn for participles
+				if !Contains(inf, []string{"ei", "äng", "ats", "uy", "eng", "eiy"}) &&
+					!(Contains(inf, []string{"awn"}) && Contains(inf, []string{"äp"}) && !Contains(inf, []string{"eyk"})) {
+					reString = adjSufRe
+				} else {
+					previousAttempt = ""
+					return previousAttempt
+				}
 			}
 			// It's a tsuk/ketsuk adj from a verb
 		} else if len(inf) == 0 && Contains(pre, []string{"tsuk", "ketsuk"}) {
 			reString = adjSufRe
 		} else if strings.Contains(target, "tswo") {
-			reString = "(tswo)?" + nSufRe
+			//deny all infixes in verb-tswo
+			if len(inf) == 0 {
+				reString = "(tswo)?" + nSufRe
+			} else {
+				previousAttempt = ""
+				return previousAttempt
+			}
 		} else {
-			reString = "(yu)?$"
+			//if want to deny only second position infixes for suffixized verb-yu:
+			//!Contains(inf, []string{"ei", "äng", "ats", "uy", "eng", "eiy"})
+			//for denying first position ones:
+			//!Contains(inf, []string{"ol", "er", "us", "awn", "am", "ìm", "ay", "ìy", "ìsy", "asy", "iv",
+			//"ìyev", "iyev", "imv", "ilv", "irv", "alm", "ìlm", "arm", "ìrm", "aly", "ìly", "ary", "ìry"})
+			//deny all infixes in verb-yu
+			if len(inf) == 0 && strings.Contains(target, "yu") {
+				reString = "(yu)?" + nSufRe
+			} else {
+				previousAttempt = ""
+				return previousAttempt
+			}
 		}
 	} else {
 		switch w.PartOfSpeech {
@@ -533,6 +620,18 @@ func (w *Word) infix(target string) string {
 		corTarget       = target
 	)
 
+	//detect verb-yu
+	ycompareWord := w.Navi
+	ycompareTarget := target
+	arrTarget := []string{target}
+	if strings.Contains(target, "yu") && !(Contains(arrTarget, []string{"ei", "äng", "ats", "eng", "eiy"})) {
+		ycompareTarget = strings.Replace(ycompareTarget, ycompareWord, "", 1)
+		ycompareTarget = strings.Replace(ycompareTarget, "yu", "", 1)
+		if ycompareTarget != "" {
+			return w.Navi
+		}
+	}
+
 	// hardcode for ner (n<0><er>rr)
 	if w.Navi == "nrr" && (strings.HasSuffix(target, "er")) {
 		w.InfixLocations = strings.Replace(w.InfixLocations, "<1><2>rr", "<1>rr", 1)
@@ -607,6 +706,27 @@ func (w *Word) infix(target string) string {
 	// handle <ol>ll and <er>rr
 	attempt = strings.Replace(attempt, "olll", "ol", 1)
 	attempt = strings.Replace(attempt, "errr", "er", 1)
+
+	//deny second position infixes & äpawn in participles
+	if Contains(matchInfixes, []string{"us", "awn"}) {
+		if Contains(matchInfixes, []string{"ei", "äng", "uy", "ats", "eiy", "eng"}) {
+			attempt = ""
+			return attempt
+		} else if Contains(matchInfixes, []string{"awn"}) && Contains(matchInfixes, []string{"äp"}) && !Contains(matchInfixes, []string{"eyk"}) {
+			attempt = ""
+			return attempt
+		}
+	}
+
+	//-uyu- verb-yu looking like <uy>u
+	allElseInfixes := []string{"ei", "äng", "ats", "eiy", "eng", "ìyev", "iyev", "ìlm", "ìly",
+		"ìrm", "ìry", "ìsy", "alm", "aly", "arm", "ary", "asy", "ìm", "imv", "ilv", "irv", "ìy",
+		"am", "ay", "er", "iv", "ol", "us", "awn", "äp", "eyk"}
+	toComment := ""
+	if Contains(matchInfixes, []string{"uy"}) && strings.Contains(target, "uyu") && !Contains(matchInfixes, allElseInfixes) {
+		toComment = "flagUYU"
+		w.Affixes.Comment = []string{toComment}
+	}
 
 	if len(matchInfixes) != 0 {
 		w.Affixes.Infix = append(w.Affixes.Infix, matchInfixes...)
