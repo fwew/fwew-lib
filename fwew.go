@@ -15,6 +15,7 @@
 package fwew_lib
 
 import (
+	"fmt"
 	"log"
 	"math/rand"
 	"strings"
@@ -190,7 +191,7 @@ func TranslateToNavi(searchWord string, langCode string) (results []Word) {
 func Random(amount int, args []string) (results []Word, err error) {
 	allWords, err := List(args)
 
-	if err != nil {
+	if err == nil {
 		log.Printf("Error getting fullDing: %s", err)
 		return
 	}
@@ -220,4 +221,242 @@ func Random(amount int, args []string) (results []Word, err error) {
 	}
 
 	return
+}
+
+/*
+ * Name generators
+ */
+func SingleNames(name_count int, dialect int, syllable_count int) (output string) {
+	// Make sure the numbers are good
+	if name_count > 50 || name_count <= 0 || syllable_count > 4 || syllable_count < 0 {
+		return "Max name count is 50, max syllable count is 4"
+	}
+
+	phoneme_distros()
+	calculate_rand_params()
+
+	// Charts and variables used for formatting
+	output = ""
+
+	// Fill the chart with names
+	for i := 0; i < name_count; i++ {
+		output += string(single_name_gen(rand_if_zero(syllable_count), dialect)) + "\n"
+	}
+
+	return output
+}
+
+func FullNames(ending string, name_count int, dialect int, syllable_count [3]int) (output string) {
+	// Make sure the numbers are good
+	if name_count > 50 || name_count <= 0 {
+		return "Max name count is 50, max syllable count is 4"
+	}
+
+	for i := 0; i < 3; i++ {
+		if syllable_count[i] > 4 || syllable_count[i] < 0 {
+			return "Max name count is 50, max syllable count is 4"
+		}
+	}
+
+	phoneme_distros()
+	calculate_rand_params()
+
+	// Charts and variables used for formatting
+	output = ""
+
+	// Fill the chart with names
+	for i := 0; i < name_count; i++ {
+		output += string(single_name_gen(rand_if_zero(syllable_count[0]), dialect))
+		output += " te "
+		output += string(single_name_gen(rand_if_zero(syllable_count[1]), dialect))
+		output += " "
+		output += string(single_name_gen(rand_if_zero(syllable_count[2]), dialect))
+		output += ending + "\n"
+	}
+
+	return output
+}
+
+func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj_mode int) (output string) {
+	// Make sure the numbers are good
+	if name_count > 50 || name_count <= 0 || syllable_count > 4 || syllable_count < 0 {
+		return "Max name count is 50, max syllable count is 4"
+	}
+
+	phoneme_distros()
+	calculate_rand_params()
+
+	output = ""
+
+	for i := 0; i < name_count; i++ {
+		output += string(single_name_gen(rand_if_zero(syllable_count), dialect))
+
+		/* Noun */
+		nmode := 0
+		if noun_mode != 1 && noun_mode != 2 {
+			nmode = rand.Intn(5) // 80% chance of normal noun
+			if nmode == 4 {
+				nmode = 2
+			} else {
+				nmode = 1
+			}
+		} else {
+			nmode = noun_mode
+		}
+
+		//two_word_noun := false
+
+		noun := ""
+		switch nmode {
+		case 1:
+			noun_word, err := Random(1, []string{"pos is n."})
+			if err != nil {
+				fmt.Println(noun_word)
+				fmt.Println(err)
+				noun += noun_word[0].Navi + " "
+			} else {
+				return "Error in normal noun"
+			}
+		case 2:
+			verb, err := Random(1, []string{"pos starts v"})
+			if err != nil {
+				noun += verb[0].Navi + "yu "
+			} else {
+				return "Error in verb-er"
+			}
+		default:
+			return "Error: unknown noun type"
+		}
+
+		/*if len(strings.Split(noun, " ")) > 1 {
+			print(noun)
+			two_word_noun = true
+		} else {
+			output += noun + " "
+		}
+
+		// Adjective
+		amode := 0
+		if adj_mode == 0 {
+			// "something" mode
+			amode = rand.Intn(8) - 1
+			if amode <= 2 {
+				// 50% chance of normal adjective
+				amode = 2
+			} else if amode <= 5 {
+				// Verb participles get two sides of the die
+				amode = 5
+			}
+		} else if adj_mode < 1 || adj_mode > 7 {
+			// "any" mode
+			amode = rand.Intn(5)
+		} else {
+			amode = adj_mode
+		}
+
+		adj := ""
+		switch amode {
+		// no case 1 (no adjective)
+		case 2: //nomal adjective
+			adj_word, err := Random(1, []string{"pos is adj."})
+			if err == nil {
+				adj = adj_word[0].Navi
+				// If the adj starts with a in forest, we don't need another a
+				if !two_word_noun && (adj[0] != 'a' || dialect != 1) {
+					if !(adj[:2] == "le" && adj != "ler" && adj != "leyr") {
+						adj = "a" + adj
+					}
+				} else if two_word_noun && (adj[len(adj)-1] != 'a' || dialect != 1) {
+					adj += "a "
+				}
+			} else {
+				return "Error in adjective"
+			}
+		case 3: //genitive noun
+			adj_word, err := Random(1, []string{"pos is n."})
+			if err == nil {
+				adj = adj_word[0].Navi
+				if adj == "tsko swizaw" {
+					adj = "Tsko Swizawyä"
+				} else if adj == "toruk makto" {
+					adj = "Torukä Maktoyuä"
+				} else if adj == "mo a fngä'" {
+					adj = "Moä a Fgnä'"
+				} else {
+					adj_rune := []rune(adj)
+					if has("aeìiä", string(adj_rune[len(adj_rune)-1])) {
+						adj += "yä"
+					} else {
+						adj += "ä"
+					}
+				}
+			} else {
+				return "Error in genitive noun"
+			}
+		case 4: //origin noun
+			adj_word, err := Random(1, []string{"pos is n."})
+			if err == nil {
+				if adj == "tsko swizaw" {
+					adj = "ta Tsko Swizaw"
+				} else if adj == "toruk makto" {
+					adj = "ta Torukä Makto"
+				} else if adj == "mo a fngä'" {
+					adj = "ta Mo a Fgnä'"
+				} else {
+					adj = "ta " + adj_word[0].Navi
+				}
+			} else {
+				return "Error in origin noun"
+			}
+		case 5: //participle verb
+			infix := "us"
+			find_verb := []string{"Eltur", "tìtxen", "s..i"}
+			for len(find_verb) == 2 != (len(find_verb) > 1 && find_verb[len(find_verb)-1] != "s..i") {
+				adj_word, err := Random(1, []string{"pos starts v"})
+				if err == nil {
+					find_verb = strings.Split(adj_word[0].InfixDots, " ")
+					if adj_word[0].PartOfSpeech == "vtr" && rand.Intn(2) == 1 {
+						infix = "awn"
+					}
+				} else {
+					return "Error in participle verb"
+				}
+			}
+			adj = insert_infix(find_verb, infix)
+		case 6: //active participle verb
+			find_verb := []string{"Eltur", "tìtxen", "s..i"}
+			for len(find_verb) == 2 != (len(find_verb) > 1 && find_verb[len(find_verb)-1] != "s..i") {
+				adj_word, err := Random(1, []string{"pos starts v"})
+				if err == nil {
+					find_verb = strings.Split(adj_word[0].InfixDots, " ")
+				} else {
+					return "Error in active participle verb"
+				}
+			}
+			adj = insert_infix(find_verb, "us")
+		case 7: //passive participle verb
+			find_verb := []string{"Eltur", "tìtxen", "s..i"}
+			for len(find_verb) == 1 {
+				adj_word, err := Random(1, []string{"pos starts vtr"})
+				if err == nil {
+					find_verb = strings.Split(adj_word[0].InfixDots, " ")
+				} else {
+					return "Error in passive participle verb"
+				}
+			}
+			adj = insert_infix(find_verb, "us")
+		}
+
+		output += adj*/
+
+		//if two_word_noun {
+		output += " " + noun
+		//}
+
+		output += "\n"
+
+		//fmt.Println(strconv.Itoa(nmode) + " " + strconv.Itoa(amode))
+	}
+
+	return output
 }
