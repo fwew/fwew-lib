@@ -8,7 +8,7 @@ import (
 /*
  * Name generators
  */
-func singleNames(name_count int, dialect int, syllable_count int) (output string) {
+func SingleNames(name_count int, dialect int, syllable_count int) (output string) {
 	// Make sure the numbers are good
 	if name_count > 50 || name_count <= 0 || syllable_count > 4 || syllable_count < 0 {
 		return "Max name count is 50, max syllable count is 4"
@@ -19,13 +19,13 @@ func singleNames(name_count int, dialect int, syllable_count int) (output string
 
 	// Fill the chart with names
 	for i := 0; i < name_count; i++ {
-		output += string(single_name_gen(rand_if_zero(syllable_count), dialect)) + "\n"
+		output += glottal_caps(string(single_name_gen(rand_if_zero(syllable_count), dialect))) + "\n"
 	}
 
 	return output
 }
 
-func fullNames(ending string, name_count int, dialect int, syllable_count [3]int) (output string) {
+func FullNames(ending string, name_count int, dialect int, syllable_count [3]int) (output string) {
 	// Make sure the numbers are good
 	if name_count > 50 || name_count <= 0 {
 		return "Max name count is 50, max syllable count is 4"
@@ -42,18 +42,18 @@ func fullNames(ending string, name_count int, dialect int, syllable_count [3]int
 
 	// Fill the chart with names
 	for i := 0; i < name_count; i++ {
-		output += string(single_name_gen(rand_if_zero(syllable_count[0]), dialect))
+		output += glottal_caps(string(single_name_gen(rand_if_zero(syllable_count[0]), dialect)))
 		output += " te "
-		output += string(single_name_gen(rand_if_zero(syllable_count[1]), dialect))
+		output += glottal_caps(string(single_name_gen(rand_if_zero(syllable_count[1]), dialect)))
 		output += " "
-		output += string(single_name_gen(rand_if_zero(syllable_count[2]), dialect))
+		output += glottal_caps(string(single_name_gen(rand_if_zero(syllable_count[2]), dialect)))
 		output += ending + "\n"
 	}
 
 	return output
 }
 
-func nameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj_mode int) (output string) {
+func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj_mode int) (output string) {
 	// Make sure the numbers are good
 	if name_count > 50 || name_count <= 0 || syllable_count > 4 || syllable_count < 0 {
 		return "Max name count is 50, max syllable count is 4"
@@ -62,7 +62,7 @@ func nameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 	output = ""
 
 	for i := 0; i < name_count; i++ {
-		output += string(single_name_gen(rand_if_zero(syllable_count), dialect))
+		output += glottal_caps(string(single_name_gen(rand_if_zero(syllable_count), dialect)))
 
 		/* Noun */
 		nmode := 0
@@ -104,10 +104,9 @@ func nameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 		output += " alu "
 
 		if len(strings.Split(noun, " ")) > 1 {
-			print(noun)
 			two_word_noun = true
 		} else {
-			output += noun + " "
+			output += glottal_caps(noun) + " "
 		}
 
 		// Adjective
@@ -148,7 +147,7 @@ func nameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 				return "Error in adjective"
 			}
 		case 3: //genitive noun
-			adj_word, err := Random(1, []string{"pos", "is ", "n."})
+			adj_word, err := Random(1, []string{"pos", "is", "n."})
 			if err == nil {
 				adj = adj_word[0].Navi
 				if adj == "tsko swizaw" {
@@ -193,9 +192,7 @@ func nameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 			adj = insert_infix(strings.Split(find_verb.InfixDots, " "), infix)
 			// If the adj starts with a in forest, we don't need another a
 			if !two_word_noun && (adj[0] != 'a' || dialect != 1) {
-				if !(adj[:2] == "le" && adj != "ler" && adj != "leyr") {
-					adj = "a" + adj
-				}
+				adj = "a" + adj
 			} else if two_word_noun && (adj[len(adj)-1] != 'a' || dialect != 1) {
 				adj += "a "
 			}
@@ -204,9 +201,7 @@ func nameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 			adj = insert_infix(strings.Split(find_verb.InfixDots, " "), "us")
 			// If the adj starts with a in forest, we don't need another a
 			if !two_word_noun && (adj[0] != 'a' || dialect != 1) {
-				if !(adj[:2] == "le" && adj != "ler" && adj != "leyr") {
-					adj = "a" + adj
-				}
+				adj = "a" + adj
 			} else if two_word_noun && (adj[len(adj)-1] != 'a' || dialect != 1) {
 				adj += "a "
 			}
@@ -215,18 +210,16 @@ func nameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 			adj = insert_infix(strings.Split(find_verb.InfixDots, " "), "awn")
 			// If the adj starts with a in forest, we don't need another a
 			if !two_word_noun && (adj[0] != 'a' || dialect != 1) {
-				if !(adj[:2] == "le" && adj != "ler" && adj != "leyr") {
-					adj = "a" + adj
-				}
+				adj = "a" + adj
 			} else if two_word_noun && (adj[len(adj)-1] != 'a' || dialect != 1) {
 				adj += "a "
 			}
 		}
 
-		output += adj
+		output += glottal_caps(adj)
 
 		if two_word_noun {
-			output += " " + noun
+			output += " " + glottal_caps(noun)
 		}
 
 		output += "\n"

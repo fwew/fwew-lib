@@ -3,6 +3,7 @@ package fwew_lib
 import (
 	"math/rand"
 	"strings"
+	"unicode"
 	"unicode/utf8"
 )
 
@@ -387,6 +388,22 @@ func single_name_gen(syllable_count int, dialect int) (name string) {
 		name += nucleus + coda
 	}
 	return name
+}
+
+func glottal_caps(input string) (output string) {
+	a := []rune(input)
+	n := 1
+	output = ""
+	if a[0] == rune('\'') {
+		output += "'" + string(unicode.ToUpper(a[1]))
+		n = 2
+	} else {
+		output += string(unicode.ToUpper(a[0]))
+	}
+	for ; n < len(a); n++ {
+		output += string(a[n])
+	}
+	return output
 }
 
 /* For formatting CLI output */
