@@ -168,7 +168,7 @@ func get_onset() (onset string, cluster bool) {
 	if selector > max_non_cluster { // If the number is too high for the non-cluster onsets,
 		selector -= max_non_cluster // you get to skip all of them.  It saves time.
 		// Linear search
-		for i := 0; i < len(cluster_likelihood)-1; i++ {
+		for i := 0; i < len(cluster_likelihood); i++ {
 			if selector < cluster_likelihood[i] {
 				return cluster_letters[i], true
 			}
@@ -177,8 +177,8 @@ func get_onset() (onset string, cluster bool) {
 		return cluster_letters[len(cluster_letters)-1], true
 	} else { // Non-clusters (single consonants)
 		// Linear search
-		for i := 0; i < len(onset_likelihood)-1; i++ {
-			if selector < onset_likelihood[i+1] {
+		for i := 0; i < len(onset_likelihood); i++ {
+			if selector < onset_likelihood[i] {
 				return onset_letters[i], false
 			}
 			selector -= onset_likelihood[i]
@@ -191,8 +191,8 @@ func get_onset() (onset string, cluster bool) {
 func get_nucleus() (onset string) {
 	selector := rand.Intn(max_nucleus)
 	// Linear search
-	for i := 0; i < len(nucleus_likelihood)-1; i++ {
-		if selector < nucleus_likelihood[i+1] {
+	for i := 0; i < len(nucleus_likelihood); i++ {
+		if selector < nucleus_likelihood[i] {
 			return nucleus_letters[i]
 		}
 		selector -= nucleus_likelihood[i]
@@ -204,8 +204,8 @@ func get_nucleus() (onset string) {
 func get_coda() (onset string) {
 	selector := rand.Intn(max_coda)
 	// Linear search
-	for i := 0; i < len(coda_likelihood)-1; i++ {
-		if selector < coda_likelihood[i+1] {
+	for i := 0; i < len(coda_likelihood); i++ {
+		if selector < coda_likelihood[i] {
 			return coda_letters[i]
 		}
 		selector -= coda_likelihood[i]
