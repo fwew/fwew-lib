@@ -13,6 +13,7 @@ import (
 // It will try to always get 3 args and an `and` in between. If less than 3 exist, than it will wil return the previous results.
 func List(args []string) (results []Word, err error) {
 	results, err = GetFullDict()
+
 	if err != nil {
 		return
 	}

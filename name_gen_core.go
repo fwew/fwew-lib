@@ -1,7 +1,6 @@
 package fwew_lib
 
 import (
-	"fmt"
 	"math/rand"
 	"strings"
 	"unicode/utf8"
@@ -123,14 +122,17 @@ func insert_infix(verb []string, infix string) (output string) {
 	for j := 0; j < len(verb); j++ {
 		some_verb := []rune(verb[j])
 		for k := 0; k < len(some_verb); k++ {
-			if some_verb[j] == '.' {
+			if some_verb[k] == '.' {
 				if !found_infix {
 					output += infix
 					found_infix = true
 				}
 			} else {
-				output += string(verb[j][k])
+				output += string(some_verb[k])
 			}
+		}
+		if j+1 < len(verb) {
+			output += "-"
 		}
 	}
 	return output
@@ -165,7 +167,7 @@ func get_onset() (onset string, cluster bool) {
 	if selector > max_non_cluster { // If the number is too high for the non-cluster onsets,
 		selector -= max_non_cluster // you get to skip all of them.  It saves time.
 		// Linear search
-		for i := 0; i < len(cluster_likelihood); i++ {
+		for i := 0; i < len(cluster_likelihood)-1; i++ {
 			if selector < cluster_likelihood[i] {
 				return cluster_letters[i], true
 			}
@@ -174,8 +176,8 @@ func get_onset() (onset string, cluster bool) {
 		return cluster_letters[len(cluster_letters)-1], true
 	} else { // Non-clusters (single consonants)
 		// Linear search
-		for i := 0; i < len(onset_likelihood); i++ {
-			if selector < onset_likelihood[i] {
+		for i := 0; i < len(onset_likelihood)-1; i++ {
+			if selector < onset_likelihood[i+1] {
 				return onset_letters[i], false
 			}
 			selector -= onset_likelihood[i]
@@ -188,8 +190,8 @@ func get_onset() (onset string, cluster bool) {
 func get_nucleus() (onset string) {
 	selector := rand.Intn(max_nucleus)
 	// Linear search
-	for i := 0; i < len(nucleus_likelihood); i++ {
-		if selector < nucleus_likelihood[i] {
+	for i := 0; i < len(nucleus_likelihood)-1; i++ {
+		if selector < nucleus_likelihood[i+1] {
 			return nucleus_letters[i]
 		}
 		selector -= nucleus_likelihood[i]
@@ -201,13 +203,37 @@ func get_nucleus() (onset string) {
 func get_coda() (onset string) {
 	selector := rand.Intn(max_coda)
 	// Linear search
-	for i := 0; i < len(coda_likelihood); i++ {
-		if selector < coda_likelihood[i] {
+	for i := 0; i < len(coda_likelihood)-1; i++ {
+		if selector < coda_likelihood[i+1] {
 			return coda_letters[i]
 		}
 		selector -= coda_likelihood[i]
 	}
 	return coda_letters[len(coda_letters)-1]
+}
+
+// Helper function for name-alu()
+func one_word_verb(intrans_or_si_allow bool) (words Word) {
+	start := "v"
+	if !intrans_or_si_allow {
+		start = "vtr"
+	}
+	word, err := Random(1, []string{"pos", "starts", start})
+	find_verb := strings.Split(word[0].InfixDots, " ")
+
+	/* The second condition here is a clever and efficient little thing
+	 * one word and not si: allowed (e.g. "takuk")
+	 * two words and not si: disallowed (e.g. "tswìk kxenerit")
+	 * one word and si: disallowed ("si" only)
+	 * two words and si: allowed (e.g. "unil si")
+	 * Any three-word verb: disallowed ("eltur tìtxen si" only)
+	 * != is used as an exclusive "or"
+	 */
+	for err == nil && ((len(find_verb) == 2) != (find_verb[len(find_verb)-1] == "s..i")) {
+		word, err = Random(1, []string{"pos", "starts", start})
+		find_verb = strings.Split(word[0].InfixDots, " ")
+	}
+	return word[0]
 }
 
 /* Helper function: turn ejectives into voiced plosives for reef */
@@ -263,8 +289,8 @@ func single_name_gen(syllable_count int, dialect int) (name string) {
 				}
 				first_cluster := onset[:first_cluster_num]
 				second_cluster := onset[first_cluster_num:]
-				if val, ok := valid_triple_consonants[coda][first_cluster][second_cluster]; ok {
-					fmt.Println(val)
+				if _, ok := valid_triple_consonants[coda][first_cluster][second_cluster]; ok {
+					// Do nothing.  We found a valid triple
 				} else {
 					onset = second_cluster
 				}
@@ -302,7 +328,6 @@ func single_name_gen(syllable_count int, dialect int) (name string) {
 				nucleus = "u"
 			}
 			if onsetlength == 0 && namelength > 0 && get_last_rune(name, 1) == first_rune(nucleus) {
-				//fmt.Println(name + " is split in forest")
 				onset = "y"
 			}
 		}
@@ -315,7 +340,6 @@ func single_name_gen(syllable_count int, dialect int) (name string) {
 				length = 1
 			}
 			if first_rune(onset) == get_last_rune(name, length) {
-				//fmt.Println(name + " may not have a " + onset)
 				onset = ""
 			}
 		}
@@ -349,13 +373,11 @@ func single_name_gen(syllable_count int, dialect int) (name string) {
 			if get_last_rune(name, 1) == "x" { // if there's an ejective in the onset
 				last_three := get_last_rune(name, 3)
 				if last_three != "s" && last_three != "f" { // that's not in a cluster,
-					//fmt.Println(name + " is softened in reef")
 					name = reef_ejective(name, last_three == "x") // it becomes a voiced plosive
 				}
 			} else if !psuedovowel && get_last_rune(name, 1) == "'" && get_last_rune(name, 2) != first_rune(nucleus) {
 				// 'a'aw is optionally 'aaw (the generator leaves it in)
 				if is_vowel(get_last_rune(name, 2)) { // Does kaw'it become kawit in reef?
-					//fmt.Println(name + " is shaved in reef")
 					name = shave_rune(name, 1)
 				}
 			}
@@ -365,31 +387,6 @@ func single_name_gen(syllable_count int, dialect int) (name string) {
 		name += nucleus + coda
 	}
 	return name
-}
-
-/* On startup, calculate the maximum random numbers */
-func calculate_rand_params() {
-	// Non-cluster onsets
-	for i := 0; i < len(onset_likelihood); i++ {
-		max_non_cluster += onset_likelihood[i]
-	}
-
-	max_onset = max_non_cluster
-
-	// Extra for clusters
-	for i := 0; i < len(cluster_likelihood); i++ {
-		max_onset += cluster_likelihood[i]
-	}
-
-	// Nucleus
-	for i := 0; i < len(nucleus_likelihood); i++ {
-		max_nucleus += nucleus_likelihood[i]
-	}
-
-	// Coda
-	for i := 0; i < len(coda_likelihood); i++ {
-		max_coda += coda_likelihood[i]
-	}
 }
 
 /* For formatting CLI output */
@@ -430,19 +427,13 @@ func has(word string, character string) (output bool) {
 	return false
 }
 
-func phoneme_distros() {
+func PhonemeDistros() {
 	// get the dict
-	AssureDict()
 	words, err := List([]string{})
-
-	//fmt.Println(len("ˈ"))
-	//fmt.Println(shave_rune_front("t͡snɪ", 2))
 
 	if err != nil || len(words) == 0 {
 		return
 	}
-
-	fmt.Println(len(words))
 
 	for i := 0; i < len(words); i++ {
 		word := strings.Split(words[i].IPA, " ")
@@ -546,16 +537,12 @@ func phoneme_distros() {
 				/* Found a triple consonant? */
 				if coda != "" && onset_if_cluster[1] != "" {
 					if val, ok := valid_triple_consonants[coda][onset_if_cluster[0]][onset_if_cluster[1]]; ok {
-						//do something here
 						valid_triple_consonants[coda][onset_if_cluster[0]][onset_if_cluster[1]] = val + 1
-						//fmt.Println(val)
-					} else if val, ok := valid_triple_consonants[coda][onset_if_cluster[0]]; ok {
-						valid_triple_consonants[coda][onset_if_cluster[0]][onset_if_cluster[1]] = 1 //{onset_if_cluster[1]: 1}
-						fmt.Println(val)
-					} else if val, ok := valid_triple_consonants[coda]; ok {
+					} else if _, ok := valid_triple_consonants[coda][onset_if_cluster[0]]; ok {
+						valid_triple_consonants[coda][onset_if_cluster[0]][onset_if_cluster[1]] = 1
+					} else if _, ok := valid_triple_consonants[coda]; ok {
 						valid_triple_consonants[coda][onset_if_cluster[0]] = make(map[string]int)
 						valid_triple_consonants[coda][onset_if_cluster[0]][onset_if_cluster[1]] = 1
-						fmt.Println(val)
 					} else {
 						valid_triple_consonants[coda] = make(map[string]map[string]int)
 						valid_triple_consonants[coda][onset_if_cluster[0]] = make(map[string]int)
@@ -616,27 +603,39 @@ func phoneme_distros() {
 		}
 	}
 
+	max_non_cluster = 0
+	max_onset = 0
+	max_nucleus = 0
+	max_coda = 0
+
 	//set to zero
 	for i := 0; i < len(onset_likelihood); i++ {
 		onset_likelihood[i] = onset_map[onset_letters[i]]
+		max_onset += onset_map[onset_letters[i]]
 	}
 
-	clusterable_1 := []string{"ts", "s", "f"}
-	clusterable_2 := []string{"p", "t", "k", "px", "tx", "kx", "m", "n", "ng", "r", "l", "w", "y"}
+	max_non_cluster = max_onset
+
+	cluster_1 := []string{"f", "s", "ts"}
+	cluster_2 := []string{"k", "kx", "l", "m", "n", "ng", "p",
+		"px", "t", "tx", "r", "w", "y"}
 	super_i := 0
-	for i := 0; i < len(clusterable_1); i++ {
-		for j := 0; j < len(clusterable_2); j++ {
-			cluster_letters[super_i] = clusterable_1[i] + clusterable_2[j]
-			cluster_likelihood[super_i] = cluster_map[clusterable_1[i]][clusterable_2[j]]
+	for i := 0; i < len(cluster_1); i++ {
+		for j := 0; j < len(cluster_2); j++ {
+			cluster_letters[super_i] = cluster_1[i] + cluster_2[j]
+			cluster_likelihood[super_i] = cluster_map[cluster_1[i]][cluster_2[j]]
+			max_onset += cluster_map[cluster_1[i]][cluster_2[j]]
 			super_i++
 		}
 	}
 
 	for i := 0; i < len(nucleus_likelihood); i++ {
 		nucleus_likelihood[i] = nucleus_map[nucleus_letters[i]]
+		max_nucleus += nucleus_map[nucleus_letters[i]]
 	}
 
 	for i := 0; i < len(coda_likelihood); i++ {
 		coda_likelihood[i] = coda_map[coda_letters[i]]
+		max_coda += coda_map[coda_letters[i]]
 	}
 }
