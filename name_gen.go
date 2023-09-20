@@ -64,6 +64,11 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 		return "Max name count is 50, max syllable count is 4"
 	}
 
+	allNouns, _ := List([]string{"pos", "is", "n."})
+	allAdjectives, _ := List([]string{"pos", "is", "adj."})
+	allVerbs, _ := List([]string{"pos", "starts", "v"})
+	allTransitiveVerbs, _ := List([]string{"pos", "starts", "vtr"})
+
 	output = ""
 
 	for i := 0; i < name_count; i++ {
@@ -87,17 +92,11 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 		noun := ""
 		switch nmode {
 		case 1:
-			noun_word, err := Random(1, []string{"pos", "is", "n."})
-			if err != nil {
-				return "Error in noun mode"
-			}
-			noun += noun_word[0].Navi + ""
+			noun_word := fast_random(allNouns).Navi
+			noun += noun_word
 		case 2:
-			verb, err := Random(1, []string{"pos", "starts", "v"})
-			if err != nil {
-				return "Error in verb-er"
-			}
-			a := strings.Split(verb[0].Navi, " ")
+			verb := fast_random(allVerbs).Navi
+			a := strings.Split(verb, " ")
 			for k := 0; k < len(a); k++ {
 				noun += a[k]
 			}
@@ -138,62 +137,51 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 			switch amode {
 			// no case 1 (no adjective)
 			case 2: //nomal adjective
-				adj_word, err := Random(1, []string{"pos", "is", "adj."})
-				if err == nil {
-					adj = adj_word[0].Navi
-					// If the adj starts with a in forest, we don't need another a
-					if !two_word_noun && (adj[0] != 'a' || dialect != 1) {
-						if !(adj[:2] == "le" && adj != "ler" && adj != "leyr") {
-							adj = "a" + glottal_caps(adj)
-						} else {
-							adj = glottal_caps(adj)
-						}
-					} else if two_word_noun && (adj[len(adj)-1] != 'a' || dialect != 1) {
-						adj = glottal_caps(adj) + "a "
+				adj_word := fast_random(allAdjectives)
+				adj = adj_word.Navi
+				// If the adj starts with a in forest, we don't need another a
+				if !two_word_noun && (adj[0] != 'a' || dialect != 1) {
+					if !(adj[:2] == "le" && adj != "ler" && adj != "leyr") {
+						adj = "a" + glottal_caps(adj)
+					} else {
+						adj = glottal_caps(adj)
 					}
-				} else {
-					return "Error in adjective"
+				} else if two_word_noun && (adj[len(adj)-1] != 'a' || dialect != 1) {
+					adj = glottal_caps(adj) + "a "
 				}
 			case 3: //genitive noun
-				adj_word, err := Random(1, []string{"pos", "is", "n."})
-				if err == nil {
-					adj = adj_word[0].Navi
-					if adj == "tsko swizaw" {
-						adj = "Tsko Swizawyä"
-					} else if adj == "toruk makto" {
-						adj = "Torukä Maktoyuä"
-					} else if adj == "mo a fngä'" {
-						adj = "Moä a Fgnä'"
-					} else {
-						adj_rune := []rune(adj)
-						if has("aeìiä", string(adj_rune[len(adj_rune)-1])) {
-							adj = glottal_caps(adj) + "yä"
-						} else {
-							adj = glottal_caps(adj) + "ä"
-						}
-					}
+				adj_word := fast_random(allNouns)
+
+				adj = adj_word.Navi
+				if adj == "tsko swizaw" {
+					adj = "Tsko Swizawyä"
+				} else if adj == "toruk makto" {
+					adj = "Torukä Maktoyuä"
+				} else if adj == "mo a fngä'" {
+					adj = "Moä a Fgnä'"
 				} else {
-					return "Error in genitive noun"
+					adj_rune := []rune(adj)
+					if has("aeìiä", string(adj_rune[len(adj_rune)-1])) {
+						adj = glottal_caps(adj) + "yä"
+					} else {
+						adj = glottal_caps(adj) + "ä"
+					}
 				}
 			case 4: //origin noun
-				adj_word, err := Random(1, []string{"pos", "is", "n."})
-				if err == nil {
-					adj = adj_word[0].Navi
-					if adj == "tsko swizaw" {
-						adj = "ta Tsko Swizaw"
-					} else if adj == "toruk makto" {
-						adj = "ta Torukä Makto"
-					} else if adj == "mo a fngä'" {
-						adj = "ta Mo a Fgnä'"
-					} else {
-						adj = "ta " + glottal_caps(adj)
-					}
+				adj_word := fast_random(allNouns)
+				adj = adj_word.Navi
+				if adj == "tsko swizaw" {
+					adj = "ta Tsko Swizaw"
+				} else if adj == "toruk makto" {
+					adj = "ta Torukä Makto"
+				} else if adj == "mo a fngä'" {
+					adj = "ta Mo a Fgnä'"
 				} else {
-					return "Error in origin noun"
+					adj = "ta " + glottal_caps(adj)
 				}
 			case 5: //participle verb
 				infix := "us"
-				find_verb := one_word_verb(true)
+				find_verb := one_word_verb(allVerbs)
 				// If it's transitive, 50% chance of <awn>
 				if find_verb.PartOfSpeech[2] == 'r' && rand.Intn(2) == 0 {
 					infix = "awn"
@@ -206,7 +194,7 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 					adj = glottal_caps(adj) + "a "
 				}
 			case 6: //active participle verb
-				find_verb := one_word_verb(true)
+				find_verb := one_word_verb(allVerbs)
 				adj = insert_infix(strings.Split(find_verb.InfixDots, " "), "us")
 				// If the adj starts with a in forest, we don't need another a
 				if !two_word_noun && (adj[0] != 'a' || dialect != 1) {
@@ -215,7 +203,7 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 					adj = glottal_caps(adj) + "a "
 				}
 			case 7: //passive participle verb
-				find_verb := one_word_verb(false)
+				find_verb := one_word_verb(allTransitiveVerbs)
 				adj = insert_infix(strings.Split(find_verb.InfixDots, " "), "awn")
 				// If the adj starts with a in forest, we don't need another a
 				if !two_word_noun && (adj[0] != 'a' || dialect != 1) {

@@ -214,13 +214,9 @@ func get_coda() (onset string) {
 }
 
 // Helper function for name-alu()
-func one_word_verb(intrans_or_si_allow bool) (words Word) {
-	start := "v"
-	if !intrans_or_si_allow {
-		start = "vtr"
-	}
-	word, err := Random(1, []string{"pos", "starts", start})
-	find_verb := strings.Split(word[0].InfixDots, " ")
+func one_word_verb(verbList []Word) (words Word) {
+	word := fast_random(verbList)
+	find_verb := strings.Split(word.InfixDots, " ")
 
 	/* The second condition here is a clever and efficient little thing
 	 * one word and not si: allowed (e.g. "takuk")
@@ -230,11 +226,11 @@ func one_word_verb(intrans_or_si_allow bool) (words Word) {
 	 * Any three-word verb: disallowed ("eltur tìtxen si" only)
 	 * != is used as an exclusive "or"
 	 */
-	for err == nil && ((len(find_verb) == 2) != (find_verb[len(find_verb)-1] == "s..i")) {
-		word, err = Random(1, []string{"pos", "starts", start})
-		find_verb = strings.Split(word[0].InfixDots, " ")
+	for (len(find_verb) == 2) != (find_verb[len(find_verb)-1] == "s..i") {
+		word = fast_random(verbList)
+		find_verb = strings.Split(word.InfixDots, " ")
 	}
-	return word[0]
+	return word
 }
 
 /* Helper function: turn ejectives into voiced plosives for reef */
@@ -404,6 +400,12 @@ func glottal_caps(input string) (output string) {
 		output += string(a[n])
 	}
 	return output
+}
+
+func fast_random(wordList []Word) (results Word) {
+	dictLength := len(wordList)
+
+	return wordList[rand.Intn(dictLength)]
 }
 
 /* For formatting CLI output */
