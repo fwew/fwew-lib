@@ -418,22 +418,6 @@ func fast_random(wordList []Word) (results Word) {
 	return wordList[rand.Intn(dictLength)]
 }
 
-/* For formatting CLI output */
-func chart_entry(input string, len int) (output string) {
-	for i := utf8.RuneCountInString(input); i < len; i++ {
-		input += " "
-	}
-	return input + "|"
-}
-
-/* For finding the largest number in a set */
-func record_number(current int, new int) (outup int) {
-	if new > current {
-		return new
-	}
-	return current
-}
-
 func nth_rune(word string, n int) (output string) {
 	r := []rune(word)
 	if n >= len(r) {
