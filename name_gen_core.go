@@ -321,11 +321,13 @@ func single_name_gen(syllable_count int, dialect int) (name string) {
 			}
 			// No identical vowels togther in forest
 		} else if dialect == 1 {
-			if nucleus == "ù" {
-				nucleus = "u"
-			}
 			if onsetlength == 0 && namelength > 0 && get_last_rune(name, 1) == first_rune(nucleus) {
 				onset = "y"
+			}
+		} else { //no psuedovowel or forest dialect
+			// If only we didn't have to hardcode the likelihood of ù compared to u :ìì:
+			if nucleus == "u" && rand.Intn(5) == 0 { // As of September 2023, the ratio of u to ù
+				nucleus = "ù" // was almost exactly 4 to 1 (615 to 158)
 			}
 		}
 
@@ -444,6 +446,29 @@ func has(word string, character string) (output bool) {
 		}
 	}
 	return false
+}
+
+// Helper function for name-alu
+func SortedWords() (nouns []Word, adjectives []Word, verbs []Word, transitiveVerbs []Word) {
+	words, err := List([]string{})
+
+	if err != nil || len(words) == 0 {
+		return
+	}
+
+	for i := 0; i < len(words); i++ {
+		if words[i].PartOfSpeech == "n." {
+			nouns = append(nouns, words[i])
+		} else if words[i].PartOfSpeech == "adj." {
+			adjectives = append(adjectives, words[i])
+		} else if words[i].PartOfSpeech[0] == 'v' {
+			verbs = append(verbs, words[i])
+			if words[i].PartOfSpeech[2] == 'r' {
+				transitiveVerbs = append(transitiveVerbs, words[i])
+			}
+		}
+	}
+	return
 }
 
 func PhonemeDistros() {
@@ -657,4 +682,16 @@ func PhonemeDistros() {
 		coda_likelihood[i] = coda_map[coda_letters[i]]
 		max_coda += coda_map[coda_letters[i]]
 	}
+}
+
+func getPhonemeDistrosMap() (allDistros map[string]map[string]map[string]int) {
+	allDistros = map[string]map[string]map[string]int{
+		"Clusters": cluster_map,
+		"Others": {
+			"Onsets": onset_map,
+			"Nuclei": nucleus_map,
+			"Codas":  coda_map,
+		},
+	}
+	return
 }

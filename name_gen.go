@@ -1,6 +1,7 @@
 package fwew_lib
 
 import (
+	"fmt"
 	"math/rand"
 	"strconv"
 	"strings"
@@ -48,10 +49,19 @@ func FullNames(ending string, name_count int, dialect int, syllable_count [3]int
 		output += glottal_caps(string(single_name_gen(rand_if_zero(syllable_count[1]), dialect)))
 		output += " "
 		output += glottal_caps(string(single_name_gen(rand_if_zero(syllable_count[2]), dialect)))
-		output += ending + "\n"
+		if output[len(output)-1] == '\'' {
+			output += ending[1:] + "\n"
+		} else {
+			output += ending + "\n"
+		}
 		if two_thousand_limit && len([]rune(output)) > 1914 {
 			output += "(stopped at " + strconv.Itoa(i+1) + ". 2000 Character limit)"
 			break
+		}
+
+		if len([]rune(output)) > 2000 {
+			fmt.Println(output)
+			fmt.Println("Made a name message with " + strconv.Itoa(i+1) + " names.")
 		}
 	}
 
@@ -64,10 +74,8 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 		return "Max name count is 50, max syllable count is 4"
 	}
 
-	allNouns, _ := List([]string{"pos", "is", "n."})
-	allAdjectives, _ := List([]string{"pos", "is", "adj."})
-	allVerbs, _ := List([]string{"pos", "starts", "v"})
-	allTransitiveVerbs, _ := List([]string{"pos", "starts", "vtr"})
+	// A single function that allows all these to be acquired with only one dictionary search
+	allNouns, allAdjectives, allVerbs, allTransitiveVerbs := SortedWords()
 
 	output = ""
 
