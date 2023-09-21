@@ -1,5 +1,13 @@
 package fwew_lib
 
+/*
+ *	The core of the name generator
+ *
+ *	All functions here except PhonemeFrequency are helper functions for
+ * 	name_gen.go.  PhonemeFrequency is called on startup for info for
+ *	the name generator.
+ */
+
 import (
 	"math/rand"
 	"strings"
@@ -471,6 +479,7 @@ func SortedWords() (nouns []Word, adjectives []Word, verbs []Word, transitiveVer
 	return
 }
 
+// Called on startup to feed and compile dictionary information into the name generator
 func PhonemeDistros() {
 	// get the dict
 	words, err := List([]string{})
@@ -682,16 +691,4 @@ func PhonemeDistros() {
 		coda_likelihood[i] = coda_map[coda_letters[i]]
 		max_coda += coda_map[coda_letters[i]]
 	}
-}
-
-func getPhonemeDistrosMap() (allDistros map[string]map[string]map[string]int) {
-	allDistros = map[string]map[string]map[string]int{
-		"Clusters": cluster_map,
-		"Others": {
-			"Onsets": onset_map,
-			"Nuclei": nucleus_map,
-			"Codas":  coda_map,
-		},
-	}
-	return
 }
