@@ -236,7 +236,7 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 	return output
 }
 
-func getPhonemeDistrosMap() (allDistros map[string]map[string]map[string]int) {
+func GetPhonemeDistrosMap() (allDistros map[string]map[string]map[string]int) {
 	allDistros = map[string]map[string]map[string]int{
 		"Clusters": cluster_map,
 		"Others": {
