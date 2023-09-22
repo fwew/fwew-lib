@@ -18,7 +18,6 @@ import (
 	"log"
 	"math/rand"
 	"strings"
-	"time"
 )
 
 // Global
@@ -200,8 +199,6 @@ func Random(amount int, args []string) (results []Word, err error) {
 	if dictLength == 0 {
 		return nil, NoResults
 	}
-
-	rand.Seed(time.Now().UnixNano())
 
 	// create random number
 	if amount <= 0 {
