@@ -472,6 +472,34 @@ func PhonemeDistros() {
 		return
 	}
 
+	//set the maps to zero
+
+	//Onsets
+	for i := 0; i < len(onset_letters); i++ {
+		onset_map[onset_letters[i]] = 0
+	}
+
+	//Clusters
+	cluster_1 := []string{"f", "s", "ts"}
+	cluster_2 := []string{"k", "kx", "l", "m", "n", "ng", "p",
+		"px", "t", "tx", "r", "w", "y"}
+	for i := 0; i < len(cluster_1); i++ {
+		for j := 0; j < len(cluster_2); j++ {
+			cluster_map[cluster_1[i]][cluster_2[j]] = 0
+		}
+	}
+
+	//Nuclei
+	for i := 0; i < len(nucleus_likelihood); i++ {
+		nucleus_map[nucleus_letters[i]] = 0
+	}
+
+	//Sodas
+	for i := 0; i < len(coda_likelihood); i++ {
+		coda_map[coda_letters[i]] = 0
+	}
+
+	// Look through all the words
 	for i := 0; i < len(words); i++ {
 		word := strings.Split(words[i].IPA, " ")
 
@@ -645,17 +673,17 @@ func PhonemeDistros() {
 	max_nucleus = 0
 	max_coda = 0
 
-	//set to zero
+	// Copy everything from the maps to the arrays
+
+	//Onsets
 	for i := 0; i < len(onset_likelihood); i++ {
 		onset_likelihood[i] = onset_map[onset_letters[i]]
 		max_onset += onset_map[onset_letters[i]]
 	}
 
+	//Clusters
 	max_non_cluster = max_onset
 
-	cluster_1 := []string{"f", "s", "ts"}
-	cluster_2 := []string{"k", "kx", "l", "m", "n", "ng", "p",
-		"px", "t", "tx", "r", "w", "y"}
 	super_i := 0
 	for i := 0; i < len(cluster_1); i++ {
 		for j := 0; j < len(cluster_2); j++ {
@@ -666,11 +694,13 @@ func PhonemeDistros() {
 		}
 	}
 
+	//Nuclei
 	for i := 0; i < len(nucleus_likelihood); i++ {
 		nucleus_likelihood[i] = nucleus_map[nucleus_letters[i]]
 		max_nucleus += nucleus_map[nucleus_letters[i]]
 	}
 
+	//Codas
 	for i := 0; i < len(coda_likelihood); i++ {
 		coda_likelihood[i] = coda_map[coda_letters[i]]
 		max_coda += coda_map[coda_letters[i]]
