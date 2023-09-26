@@ -29,11 +29,11 @@ func Test_cacheDict(t *testing.T) {
 		TR:             "dokunmak",
 	}
 
-	err := CacheDict()
+	err := CacheDictHash()
 	if err != nil {
 		t.Fatalf("Error caching Dictionary!!")
 	}
-	entry := dictionary[0]
+	entry := dictHash["'ampi"]
 	if !word.Equals(entry) {
 		t.Errorf("Read wrong word from cache:\n"+
 			"Id: \"%s\" == \"%s\"\n"+
