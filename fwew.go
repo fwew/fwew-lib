@@ -74,7 +74,7 @@ func (w *Word) similarity(other string) float64 {
 // !! Only one word is allowed, if spaces are found, they will be treated like part of the word !!
 // This will return an array of Words, that fit the input text
 // One Navi-Word can have multiple meanings and words (e.g. synonyms)
-func TranslateFromNavi(searchNaviWord string, checkFixes bool) (results []Word, err error) {
+func TranslateFromNaviHash(searchNaviWord string, checkFixes bool) (results []Word, err error) {
 	badChars := `~@#$%^&*()[]{}<>_/.,;:!?|+\`
 
 	// remove all the sketchy chars from arguments
@@ -94,93 +94,91 @@ func TranslateFromNavi(searchNaviWord string, checkFixes bool) (results []Word, 
 		return
 	}
 
-	err = RunOnDict(func(word Word) error {
-		// save original Navi word, we want to add "+" or "--" later again
-		naviWord := word.Navi
+	// Find the word
+	if _, ok := dictHash[searchNaviWord]; !ok {
+		return results, nil
+	}
 
-		// remove "+" and "--", we want to be able to search with and without those!
-		word.Navi = strings.ReplaceAll(word.Navi, "+", "")
-		word.Navi = strings.ReplaceAll(word.Navi, "--", "")
-		word.Navi = strings.ToLower(word.Navi)
+	firstResult := dictHash[searchNaviWord]
 
-		if word.Navi == searchNaviWord {
-			word.Navi = naviWord
-			results = append(results, word)
-			return nil
+	results = append(results, firstResult)
+
+	if checkFixes && firstResult.reconstruct(searchNaviWord) {
+		//when it's a verb ending on -uyu, it adds one more to output
+		if Contains(firstResult.Affixes.Comment, []string{"flagUYU"}) {
+			firstResult.Affixes.Comment = []string{}
+			results = append(results, firstResult)
+			word2 := firstResult.CloneWordStruct()
+			word2.Affixes.Infix = []string{}
+			word2.Affixes.Suffix = []string{"yu"}
+			results = append(results, word2)
 		}
-
-		// skip words that obviously won't work
-		s := word.similarity(searchNaviWord)
-
-		if debugMode {
-			log.Printf("Target: %s | Line: %s | [%f]\n", searchNaviWord, word.Navi, s)
-		}
-
-		if s < 0.50 && !strings.HasSuffix(searchNaviWord, "eyä") {
-			return nil
-		}
-
-		if checkFixes && word.reconstruct(searchNaviWord) {
-			//when it's a verb ending on -uyu, it adds one more to output
-			if Contains(word.Affixes.Comment, []string{"flagUYU"}) {
-				word.Affixes.Comment = []string{}
-				results = append(results, word)
-				word2 := word.CloneWordStruct()
-				word2.Affixes.Infix = []string{}
-				word2.Affixes.Suffix = []string{"yu"}
-				results = append(results, word2)
-			} else {
-				word.Navi = naviWord
-				results = append(results, word)
-			}
-		}
-
-		return nil
-	})
+	}
 
 	return
 }
 
-func TranslateToNavi(searchWord string, langCode string) (results []Word) {
-	RunOnDict(func(word Word) error {
-		var wordString string
-		switch langCode {
-		case "de":
-			wordString += word.DE
-		case "en":
-			wordString += word.EN
-		case "et":
-			wordString += word.ET
-		case "fr":
-			wordString += word.FR
-		case "hu":
-			wordString += word.HU
-		case "nl":
-			wordString += word.NL
-		case "pl":
-			wordString += word.PL
-		case "ru":
-			wordString += word.RU
-		case "sv":
-			wordString += word.SV
-		case "tr":
-			wordString += word.TR
-		}
-		wordString = StripChars(wordString, ",;.:?!()")
-		wordString = strings.ToLower(wordString)
-		searchWord = strings.ToLower(searchWord)
+func SearchNatlangWord(wordmap map[string][]string, searchWord string) (results []Word) {
 
-		// whole-word matching
-		for _, w := range strings.Split(wordString, space) {
-			if w == searchWord {
-				results = append(results, word)
-				break
-			}
-		}
+	// No Results if empty string after removing sketch chars
+	if len(searchWord) == 0 {
+		return
+	}
 
-		return nil
-	})
+	// Find the word
+	if _, ok := wordmap[searchWord]; !ok {
+		return results
+	}
+
+	firstResults := wordmap[searchWord]
+
+	for i := 0; i < len(firstResults); i++ {
+		results = append(results, dictHash[firstResults[i]])
+	}
+
 	return
+}
+
+func TranslateToNaviHash(searchWord string, langCode string) (results []Word) {
+	badChars := `~@#$%^&*()[]{}<>_/.,;:!?|+\`
+
+	// remove all the sketchy chars from arguments
+	for _, c := range badChars {
+		searchWord = strings.ReplaceAll(searchWord, string(c), "")
+	}
+
+	// normalize tìftang character
+	searchWord = strings.ReplaceAll(searchWord, "’", "'")
+	searchWord = strings.ReplaceAll(searchWord, "‘", "'")
+
+	// find everything lowercase
+	searchWord = strings.ToLower(searchWord)
+
+	switch langCode {
+	case "de":
+		return SearchNatlangWord(dictHash2.DE, searchWord)
+	case "en":
+		return SearchNatlangWord(dictHash2.EN, searchWord)
+	case "et":
+		return SearchNatlangWord(dictHash2.ET, searchWord)
+	case "fr":
+		return SearchNatlangWord(dictHash2.FR, searchWord)
+	case "hu":
+		return SearchNatlangWord(dictHash2.HU, searchWord)
+	case "nl":
+		return SearchNatlangWord(dictHash2.NL, searchWord)
+	case "pl":
+		return SearchNatlangWord(dictHash2.PL, searchWord)
+	case "ru":
+		return SearchNatlangWord(dictHash2.RU, searchWord)
+	case "sv":
+		return SearchNatlangWord(dictHash2.SV, searchWord)
+	case "tr":
+		return SearchNatlangWord(dictHash2.TR, searchWord)
+	}
+
+	// If we get an odd language code, return English
+	return SearchNatlangWord(dictHash2.EN, searchWord)
 }
 
 // Get random words out of the dictionary.
@@ -217,4 +215,11 @@ func Random(amount int, args []string) (results []Word, err error) {
 	}
 
 	return
+}
+
+func StartEverything() {
+	AssureDict()
+	CacheDictHash()
+	CacheDictHash2()
+	PhonemeDistros()
 }

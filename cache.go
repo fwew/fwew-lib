@@ -11,7 +11,24 @@ import (
 const dictFileName = "dictionary-v2.txt"
 
 var dictionary []Word
+var dictHash map[string]Word
 var dictionaryCached bool
+var dictHashCached bool
+var dictHash2 MetaDict
+var dictHash2Cached bool
+
+type MetaDict struct {
+	EN map[string][]string
+	DE map[string][]string
+	ET map[string][]string
+	FR map[string][]string
+	HU map[string][]string
+	NL map[string][]string
+	PL map[string][]string
+	RU map[string][]string
+	SV map[string][]string
+	TR map[string][]string
+}
 
 // check if a file exists
 func fileExists(filepath string) bool {
@@ -52,31 +69,139 @@ func FindDictionaryFile() string {
 
 // This will cache the whole dictionary.
 // Please call this, if you want to translate multiple words or running infinitely (e.g. CLI-go-prompt, discord-bot)
-func CacheDict() error {
+func CacheDictHash() error {
 	// dont run if already is cached
-	if len(dictionary) != 0 {
+	if len(dictHash) != 0 {
 		return nil
+	} else {
+		dictHash = make(map[string]Word)
 	}
 
 	err := runOnFile(func(word Word) error {
-		dictionary = append(dictionary, word)
+		standardizedWord := word.Navi
+		badChars := `~@#$%^&*()[]{}<>_/.,;:!?|+\`
+
+		// remove all the sketchy chars from arguments
+		for _, c := range badChars {
+			standardizedWord = strings.ReplaceAll(standardizedWord, string(c), "")
+		}
+
+		// normalize tìftang character
+		standardizedWord = strings.ReplaceAll(standardizedWord, "’", "'")
+		standardizedWord = strings.ReplaceAll(standardizedWord, "‘", "'")
+
+		// find everything lowercase
+		standardizedWord = strings.ToLower(standardizedWord)
+		dictHash[standardizedWord] = word
 		return nil
 	})
 	if err != nil {
 		log.Printf("Error caching dictionary: %s", err)
 		// uncache dict, to be save
-		UncacheDict()
+		UncacheHashDict()
 		return err
 	}
 
-	dictionaryCached = true
+	dictHashCached = true
 
 	return nil
 }
 
-func UncacheDict() {
-	dictionaryCached = false
-	dictionary = nil
+// Helper function for CacheDictHash2
+func AssignWord(wordmap map[string][]string, natlangWords string, naviWord string) (result map[string][]string) {
+	/* English */
+	standardizedWord := natlangWords
+	badChars := `~@#$%^&*()[]{}<>_/.,;:!?|+\`
+
+	// remove all the sketchy chars from arguments
+	for _, c := range badChars {
+		standardizedWord = strings.ReplaceAll(standardizedWord, string(c), "")
+	}
+
+	// normalize tìftang character
+	standardizedWord = strings.ReplaceAll(standardizedWord, "’", "'")
+	standardizedWord = strings.ReplaceAll(standardizedWord, "‘", "'")
+
+	// find everything lowercase
+	standardizedWord = strings.ToLower(standardizedWord)
+	newWords := strings.Split(standardizedWord, " ")
+
+	for i := 0; i < len(newWords); i++ {
+		duplicate := false
+		for j := 0; j < len(wordmap[newWords[i]]); j++ {
+			if wordmap[newWords[i]][j] == naviWord {
+				duplicate = true
+				break
+			}
+		}
+		if !duplicate {
+			wordmap[newWords[i]] = append(wordmap[newWords[i]], naviWord)
+		}
+	}
+	return wordmap
+}
+
+func CacheDictHash2() error {
+	// dont run if already is cached
+	if len(dictHash2.EN) != 0 {
+		return nil
+	} else {
+		dictHash2.EN = make(map[string][]string)
+		dictHash2.DE = make(map[string][]string)
+		dictHash2.ET = make(map[string][]string)
+		dictHash2.FR = make(map[string][]string)
+		dictHash2.HU = make(map[string][]string)
+		dictHash2.NL = make(map[string][]string)
+		dictHash2.PL = make(map[string][]string)
+		dictHash2.RU = make(map[string][]string)
+		dictHash2.SV = make(map[string][]string)
+		dictHash2.TR = make(map[string][]string)
+	}
+
+	// Set up the whole thing
+
+	err := runOnFile(func(word Word) error {
+		dictHash2.EN = AssignWord(dictHash2.EN, word.EN, word.Navi)
+		dictHash2.DE = AssignWord(dictHash2.DE, word.DE, word.Navi)
+		dictHash2.ET = AssignWord(dictHash2.ET, word.ET, word.Navi)
+		dictHash2.FR = AssignWord(dictHash2.FR, word.FR, word.Navi)
+		dictHash2.HU = AssignWord(dictHash2.HU, word.HU, word.Navi)
+		dictHash2.NL = AssignWord(dictHash2.NL, word.NL, word.Navi)
+		dictHash2.PL = AssignWord(dictHash2.PL, word.PL, word.Navi)
+		dictHash2.RU = AssignWord(dictHash2.RU, word.RU, word.Navi)
+		dictHash2.SV = AssignWord(dictHash2.SV, word.SV, word.Navi)
+		dictHash2.TR = AssignWord(dictHash2.TR, word.TR, word.Navi)
+		return nil
+	})
+	if err != nil {
+		log.Printf("Error caching dictionary: %s", err)
+		// uncache dict, to be save
+		UncacheHashDict2()
+		return err
+	}
+
+	dictHash2Cached = true
+
+	return nil
+}
+
+func UncacheHashDict() {
+	dictHashCached = false
+	dictHash = nil
+}
+
+func UncacheHashDict2() {
+	dictHash2Cached = false
+	dictHash2.EN = nil
+	dictHash2.DE = nil
+	dictHash2.ET = nil
+	dictHash2.FR = nil
+	dictHash2.HU = nil
+	dictHash2.NL = nil
+	dictHash2.PL = nil
+	dictHash2.RU = nil
+	dictHash2.SV = nil
+	dictHash2.TR = nil
 }
 
 // This will run the function `f` inside the cache or the file directly.
@@ -178,8 +303,8 @@ func UpdateDict() error {
 	}
 
 	if dictionaryCached {
-		UncacheDict()
-		err = CacheDict()
+		UncacheHashDict()
+		err = CacheDictHash()
 		if err != nil {
 			log.Printf("Error caching dict after updating ... Cache disabled")
 			return err
