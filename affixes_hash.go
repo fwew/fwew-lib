@@ -84,7 +84,6 @@ var adposuffixes = []string{
 }
 var determinerSuffixes = []string{"pe", "o"}
 var stemSuffixes = []string{"tsyìp", "fkeyk"}
-var animateSuffixes = []string{"yu", "tu"}
 
 var infixes = map[rune][]string{
 	rune('a'): {"ay", "asy", "aly", "ary", "am", "alm", "arm", "ats", "awn"},
@@ -299,17 +298,15 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 			}
 			fallthrough
 		case 4:
-			for _, oldSuffix := range animateSuffixes {
-				// If it has one of them,
-				if strings.HasSuffix(input.word, oldSuffix) {
-					newString = strings.TrimSuffix(input.word, oldSuffix)
-					if !isDuplicate(newString) {
-						//candidates = append(candidates, newString)
-						newCandidate := candidateDupe(input)
-						newCandidate.word = newString
-						newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, oldSuffix)
-						deconjugateHelper(newCandidate, prefixCheck, 5, unlenite)
-					}
+			// If it has one of them,
+			if strings.HasSuffix(input.word, "yu") {
+				newString = strings.TrimSuffix(input.word, "yu")
+				if !isDuplicate(newString) {
+					//candidates = append(candidates, newString)
+					newCandidate := candidateDupe(input)
+					newCandidate.word = newString
+					newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, "yu")
+					deconjugateHelper(newCandidate, prefixCheck, 5, unlenite)
 				}
 			}
 		}
