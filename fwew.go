@@ -112,6 +112,25 @@ func TranslateFromNaviHash(searchNaviWord string, checkFixes bool) (results []Wo
 						a.Affixes.Suffix = candidate.suffixes
 						results = append(results, a)
 					}
+				} else if candidate.insistPOS == "adj." {
+					posNoun := dictHash[candidate.word].PartOfSpeech
+					if posNoun == "adj." {
+						a := dictHash[candidate.word]
+						a.Affixes.Lenition = candidate.lenition
+						a.Affixes.Prefix = candidate.prefixes
+						a.Affixes.Suffix = candidate.suffixes
+						results = append(results, a)
+					}
+				} else if candidate.insistPOS == "v." {
+					posNoun := dictHash[candidate.word].PartOfSpeech
+					if strings.HasPrefix(posNoun, "v") {
+						a := dictHash[candidate.word]
+						a.Affixes.Lenition = candidate.lenition
+						a.Affixes.Prefix = candidate.prefixes
+						a.Affixes.Suffix = candidate.suffixes
+						a.Affixes.Infix = candidate.infixes
+						results = append(results, a)
+					}
 				} else {
 					a := dictHash[candidate.word]
 					a.Affixes.Lenition = candidate.lenition
