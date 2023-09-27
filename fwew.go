@@ -15,6 +15,7 @@
 package fwew_lib
 
 import (
+	"fmt"
 	"log"
 	"math/rand"
 	"strings"
@@ -95,23 +96,16 @@ func TranslateFromNaviHash(searchNaviWord string, checkFixes bool) (results []Wo
 	}
 
 	// Find the word
-	if _, ok := dictHash[searchNaviWord]; !ok {
-		return results, nil
+	if _, ok := dictHash[searchNaviWord]; ok {
+		results = append(results, dictHash[searchNaviWord])
 	}
 
-	firstResult := dictHash[searchNaviWord]
-
-	results = append(results, firstResult)
-
-	if checkFixes && firstResult.reconstruct(searchNaviWord) {
-		//when it's a verb ending on -uyu, it adds one more to output
-		if Contains(firstResult.Affixes.Comment, []string{"flagUYU"}) {
-			firstResult.Affixes.Comment = []string{}
-			results = append(results, firstResult)
-			word2 := firstResult.CloneWordStruct()
-			word2.Affixes.Infix = []string{}
-			word2.Affixes.Suffix = []string{"yu"}
-			results = append(results, word2)
+	if checkFixes {
+		for _, candidate := range deconjugate(searchNaviWord) {
+			fmt.Println(candidate)
+			if _, ok := dictHash[candidate]; ok {
+				results = append(results, dictHash[candidate])
+			}
 		}
 	}
 
