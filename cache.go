@@ -161,16 +161,23 @@ func CacheDictHash2() error {
 	// Set up the whole thing
 
 	err := runOnFile(func(word Word) error {
-		dictHash2.EN = AssignWord(dictHash2.EN, word.EN, strings.ToLower(word.Navi))
-		dictHash2.DE = AssignWord(dictHash2.DE, word.DE, strings.ToLower(word.Navi))
-		dictHash2.ET = AssignWord(dictHash2.ET, word.ET, strings.ToLower(word.Navi))
-		dictHash2.FR = AssignWord(dictHash2.FR, word.FR, strings.ToLower(word.Navi))
-		dictHash2.HU = AssignWord(dictHash2.HU, word.HU, strings.ToLower(word.Navi))
-		dictHash2.NL = AssignWord(dictHash2.NL, word.NL, strings.ToLower(word.Navi))
-		dictHash2.PL = AssignWord(dictHash2.PL, word.PL, strings.ToLower(word.Navi))
-		dictHash2.RU = AssignWord(dictHash2.RU, word.RU, strings.ToLower(word.Navi))
-		dictHash2.SV = AssignWord(dictHash2.SV, word.SV, strings.ToLower(word.Navi))
-		dictHash2.TR = AssignWord(dictHash2.TR, word.TR, strings.ToLower(word.Navi))
+		standardizedWord := word.Navi
+		badChars := `~@#$%^&*()[]{}<>_/.,;:!?|+\`
+
+		// remove all the sketchy chars from arguments
+		for _, c := range badChars {
+			standardizedWord = strings.ReplaceAll(standardizedWord, string(c), "")
+		}
+		dictHash2.EN = AssignWord(dictHash2.EN, word.EN, strings.ToLower(standardizedWord))
+		dictHash2.DE = AssignWord(dictHash2.DE, word.DE, strings.ToLower(standardizedWord))
+		dictHash2.ET = AssignWord(dictHash2.ET, word.ET, strings.ToLower(standardizedWord))
+		dictHash2.FR = AssignWord(dictHash2.FR, word.FR, strings.ToLower(standardizedWord))
+		dictHash2.HU = AssignWord(dictHash2.HU, word.HU, strings.ToLower(standardizedWord))
+		dictHash2.NL = AssignWord(dictHash2.NL, word.NL, strings.ToLower(standardizedWord))
+		dictHash2.PL = AssignWord(dictHash2.PL, word.PL, strings.ToLower(standardizedWord))
+		dictHash2.RU = AssignWord(dictHash2.RU, word.RU, strings.ToLower(standardizedWord))
+		dictHash2.SV = AssignWord(dictHash2.SV, word.SV, strings.ToLower(standardizedWord))
+		dictHash2.TR = AssignWord(dictHash2.TR, word.TR, strings.ToLower(standardizedWord))
 		return nil
 	})
 	if err != nil {
