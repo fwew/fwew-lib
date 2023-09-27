@@ -15,7 +15,6 @@
 package fwew_lib
 
 import (
-	"fmt"
 	"log"
 	"math/rand"
 	"strings"
@@ -102,9 +101,24 @@ func TranslateFromNaviHash(searchNaviWord string, checkFixes bool) (results []Wo
 
 	if checkFixes {
 		for _, candidate := range deconjugate(searchNaviWord) {
-			fmt.Println(candidate)
-			if _, ok := dictHash[candidate]; ok {
-				results = append(results, dictHash[candidate])
+			//fmt.Println(candidate)
+			if _, ok := dictHash[candidate.word]; ok {
+				if candidate.insistPOS == "n." {
+					posNoun := dictHash[candidate.word].PartOfSpeech
+					if posNoun == "n." || posNoun == "prop.n." {
+						a := dictHash[candidate.word]
+						a.Affixes.Lenition = candidate.lenition
+						a.Affixes.Prefix = candidate.prefixes
+						a.Affixes.Suffix = candidate.suffixes
+						results = append(results, a)
+					}
+				} else {
+					a := dictHash[candidate.word]
+					a.Affixes.Lenition = candidate.lenition
+					a.Affixes.Prefix = candidate.prefixes
+					a.Affixes.Suffix = candidate.suffixes
+					results = append(results, a)
+				}
 			}
 		}
 	}

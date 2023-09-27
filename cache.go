@@ -2,7 +2,6 @@ package fwew_lib
 
 import (
 	"bufio"
-	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -174,8 +173,6 @@ func CacheDictHash2() error {
 		dictHash2.TR = AssignWord(dictHash2.TR, word.TR, strings.ToLower(word.Navi))
 		return nil
 	})
-	fmt.Println(dictHash2.EN["new"])
-	fmt.Println(dictHash2.EN["a"])
 	if err != nil {
 		log.Printf("Error caching dictionary: %s", err)
 		// uncache dict, to be save
