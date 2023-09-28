@@ -118,225 +118,235 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 	if !isDuplicate(input.word) {
 		candidates = append(candidates, input)
 		newString := ""
-		switch prefixCheck {
-		// This one will demand this makes it use lenition
-		case 0:
-			if strings.HasPrefix(input.word, "a") {
-				newCandidate := candidateDupe(input)
-				newCandidate.word = input.word[1:]
-				newCandidate.prefixes = isDuplicateFix(newCandidate.prefixes, "a")
-				newCandidate.insistPOS = "adj."
-				deconjugateHelper(newCandidate, 1, suffixCheck, -1)
-			}
-			// determiner prefix: "fì", "tsa", "pe", "fra"
-			for _, element := range prefixes1lenition {
-				// If it has a lenition-causing prefix
-				if strings.HasPrefix(input.word, element) {
+
+		if input.insistPOS != "v." {
+			switch prefixCheck {
+			// This one will demand this makes it use lenition
+			case 0:
+				if strings.HasPrefix(input.word, "a") {
+					newCandidate := candidateDupe(input)
+					newCandidate.word = input.word[1:]
+					newCandidate.prefixes = isDuplicateFix(newCandidate.prefixes, "a")
+					newCandidate.insistPOS = "adj."
+					deconjugateHelper(newCandidate, 1, suffixCheck, -1)
+				}
+				// determiner prefix: "fì", "tsa", "pe", "fra"
+				for _, element := range prefixes1lenition {
+					// If it has a lenition-causing prefix
+					if strings.HasPrefix(input.word, element) {
+						lenited := false
+						newString = strings.TrimPrefix(input.word, element)
+						// find out the possible unlenited forms
+						for _, oldPrefix := range unlenitionLetters {
+							// If it has a letter that could have changed for lenition,
+							if strings.HasPrefix(newString, oldPrefix) {
+								// put all possibilities in the candidates
+								lenited = true
+								for _, newPrefix := range unlenition[oldPrefix] {
+									newCandidate := candidateDupe(input)
+									newCandidate.word = newPrefix + strings.TrimPrefix(newString, oldPrefix)
+									newCandidate.prefixes = isDuplicateFix(newCandidate.prefixes, element)
+									if oldPrefix != newPrefix {
+										newCandidate.lenition = []string{oldPrefix + "→" + newPrefix}
+									}
+									newCandidate.insistPOS = "n."
+									deconjugateHelper(newCandidate, 1, suffixCheck, -1)
+								}
+								break // We don't want the "ts" to become "txs"
+							}
+						}
+						if !lenited {
+							newCandidate := candidateDupe(input)
+							newCandidate.word = newString
+							newCandidate.prefixes = isDuplicateFix(newCandidate.prefixes, element)
+							newCandidate.insistPOS = "n."
+							deconjugateHelper(newCandidate, 1, suffixCheck, -1)
+						}
+					}
+				}
+				fallthrough
+			case 1:
+				// Non-lenition prefixes for nouns only
+				for _, element := range prefixes1Nouns {
+					// If it has a prefix
+					if strings.HasPrefix(input.word, element) {
+						// remove it
+						newString = strings.TrimPrefix(input.word, element)
+						// Make sure it's not a duplicate
+						if !isDuplicate(newString) {
+							newCandidate := candidateDupe(input)
+							newCandidate.word = newString
+							newCandidate.insistPOS = "n."
+							newCandidate.prefixes = isDuplicateFix(newCandidate.prefixes, element)
+							deconjugateHelper(newCandidate, 2, suffixCheck, -1)
+						}
+					}
+				}
+
+				// Non-lenition prefixes for anything
+				for _, element := range prefixes1Any {
+					// If it has a prefix
+					if strings.HasPrefix(input.word, element) {
+						// remove it
+						newString = strings.TrimPrefix(input.word, element)
+						// Make sure it's not a duplicate
+						if !isDuplicate(newString) {
+							newCandidate := candidateDupe(input)
+							newCandidate.word = newString
+							newCandidate.insistPOS = "any"
+							newCandidate.prefixes = isDuplicateFix(newCandidate.prefixes, element)
+							deconjugateHelper(newCandidate, 2, suffixCheck, -1)
+						}
+					}
+				}
+
+				// Short lenition check
+				if unlenite != -1 {
 					lenited := false
-					newString = strings.TrimPrefix(input.word, element)
-					// find out the possible unlenited forms
 					for _, oldPrefix := range unlenitionLetters {
 						// If it has a letter that could have changed for lenition,
-						if strings.HasPrefix(newString, oldPrefix) {
+						if strings.HasPrefix(input.word, oldPrefix) {
 							// put all possibilities in the candidates
-							lenited = true
 							for _, newPrefix := range unlenition[oldPrefix] {
+								lenited = true
 								newCandidate := candidateDupe(input)
-								newCandidate.word = newPrefix + strings.TrimPrefix(newString, oldPrefix)
-								newCandidate.prefixes = isDuplicateFix(newCandidate.prefixes, element)
+								newString = newPrefix + strings.TrimPrefix(input.word, oldPrefix)
+								newCandidate.insistPOS = "n."
+								newCandidate.word = newString
 								if oldPrefix != newPrefix {
 									newCandidate.lenition = []string{oldPrefix + "→" + newPrefix}
 								}
-								newCandidate.insistPOS = "n."
-								deconjugateHelper(newCandidate, 1, suffixCheck, -1)
+								deconjugateHelper(newCandidate, 2, suffixCheck, -1)
 							}
 							break // We don't want the "ts" to become "txs"
 						}
 					}
 					if !lenited {
-						newCandidate := candidateDupe(input)
-						newCandidate.word = newString
-						newCandidate.prefixes = isDuplicateFix(newCandidate.prefixes, element)
-						newCandidate.insistPOS = "n."
-						deconjugateHelper(newCandidate, 1, suffixCheck, -1)
+						deconjugateHelper(input, 1, suffixCheck, -1)
 					}
 				}
-			}
-			fallthrough
-		case 1:
-			// Non-lenition prefixes for nouns only
-			for _, element := range prefixes1Nouns {
-				// If it has a prefix
-				if strings.HasPrefix(input.word, element) {
-					// remove it
-					newString = strings.TrimPrefix(input.word, element)
-					// Make sure it's not a duplicate
-					if !isDuplicate(newString) {
-						newCandidate := candidateDupe(input)
-						newCandidate.word = newString
-						newCandidate.insistPOS = "n."
-						newCandidate.prefixes = isDuplicateFix(newCandidate.prefixes, element)
-						deconjugateHelper(newCandidate, 2, suffixCheck, -1)
-					}
-				}
-			}
 
-			// Non-lenition prefixes for anything
-			for _, element := range prefixes1Any {
-				// If it has a prefix
-				if strings.HasPrefix(input.word, element) {
-					// remove it
-					newString = strings.TrimPrefix(input.word, element)
-					// Make sure it's not a duplicate
-					if !isDuplicate(newString) {
-						newCandidate := candidateDupe(input)
-						newCandidate.word = newString
-						newCandidate.prefixes = isDuplicateFix(newCandidate.prefixes, element)
-						deconjugateHelper(newCandidate, 2, suffixCheck, -1)
-					}
-				}
-			}
-
-			// Short lenition check
-			if unlenite != -1 {
-				lenited := false
-				for _, oldPrefix := range unlenitionLetters {
-					// If it has a letter that could have changed for lenition,
-					if strings.HasPrefix(input.word, oldPrefix) {
-						// put all possibilities in the candidates
-						for _, newPrefix := range unlenition[oldPrefix] {
-							lenited = true
-							newCandidate := candidateDupe(input)
-							newString = newPrefix + strings.TrimPrefix(input.word, oldPrefix)
-							newCandidate.word = newString
-							if oldPrefix != newPrefix {
-								newCandidate.lenition = []string{oldPrefix + "→" + newPrefix}
-							}
-							deconjugateHelper(newCandidate, 2, suffixCheck, -1)
-						}
-						break // We don't want the "ts" to become "txs"
-					}
-				}
-				if !lenited {
-					deconjugateHelper(input, 1, suffixCheck, -1)
-				}
-			}
-
-			fallthrough
-		case 2:
-			if strings.HasPrefix(input.word, "fne") {
-				newString = strings.TrimPrefix(input.word, "fne")
-				newCandidate := candidateDupe(input)
-				newCandidate.word = newString
-				newCandidate.insistPOS = "n."
-				newCandidate.prefixes = isDuplicateFix(newCandidate.prefixes, "fne")
-				deconjugateHelper(newCandidate, 3, suffixCheck, -1)
-			}
-		}
-
-		switch suffixCheck {
-		case 0: // adpositions, sì, o
-			for _, oldSuffix := range lastSuffixes {
-				// If it has one of them,
-				if strings.HasSuffix(input.word, oldSuffix) {
-					newString = strings.TrimSuffix(input.word, oldSuffix)
-					if !isDuplicate(newString) {
-						//candidates = append(candidates, newString)
-						newCandidate := candidateDupe(input)
-						newCandidate.word = newString
-						newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, oldSuffix)
-						deconjugateHelper(newCandidate, prefixCheck, 1, unlenite)
-					}
-				}
-			}
-			fallthrough
-		case 1:
-			for _, oldSuffix := range adposuffixes {
-				// If it has one of them,
-				if strings.HasSuffix(input.word, oldSuffix) {
-					newString = strings.TrimSuffix(input.word, oldSuffix)
-					if !isDuplicate(newString) {
-						//candidates = append(candidates, newString)
-						newCandidate := candidateDupe(input)
-						newCandidate.word = newString
-						newCandidate.insistPOS = "n."
-						newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, oldSuffix)
-						deconjugateHelper(newCandidate, prefixCheck, 2, unlenite)
-					}
-				}
-			}
-			fallthrough
-		case 2:
-			for _, oldSuffix := range determinerSuffixes {
-				// If it has one of them,
-				if strings.HasSuffix(input.word, oldSuffix) {
-					newString = strings.TrimSuffix(input.word, oldSuffix)
-					if !isDuplicate(newString) {
-						//candidates = append(candidates, newString)
-						newCandidate := candidateDupe(input)
-						newCandidate.word = newString
-						newCandidate.insistPOS = "n."
-						newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, oldSuffix)
-						deconjugateHelper(newCandidate, prefixCheck, 3, unlenite)
-					}
-				}
-			}
-			fallthrough
-		case 3:
-			for _, oldSuffix := range stemSuffixes {
-				// If it has one of them,
-				if strings.HasSuffix(input.word, oldSuffix) {
-					newString = strings.TrimSuffix(input.word, oldSuffix)
-					if !isDuplicate(newString) {
-						//candidates = append(candidates, newString)
-						newCandidate := candidateDupe(input)
-						newCandidate.word = newString
-						newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, oldSuffix)
-						deconjugateHelper(newCandidate, prefixCheck, 4, unlenite)
-					}
-				}
-			}
-			fallthrough
-		case 4:
-			// If it has one of them,
-			if strings.HasSuffix(input.word, "yu") {
-				newString = strings.TrimSuffix(input.word, "yu")
-				if !isDuplicate(newString) {
-					//candidates = append(candidates, newString)
+				fallthrough
+			case 2:
+				if strings.HasPrefix(input.word, "fne") {
+					newString = strings.TrimPrefix(input.word, "fne")
 					newCandidate := candidateDupe(input)
 					newCandidate.word = newString
-					newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, "yu")
-					deconjugateHelper(newCandidate, prefixCheck, 5, unlenite)
+					newCandidate.insistPOS = "n."
+					newCandidate.prefixes = isDuplicateFix(newCandidate.prefixes, "fne")
+					deconjugateHelper(newCandidate, 3, suffixCheck, -1)
+				}
+			}
+
+			switch suffixCheck {
+			case 0: // adpositions, sì, o
+				for _, oldSuffix := range lastSuffixes {
+					// If it has one of them,
+					if strings.HasSuffix(input.word, oldSuffix) {
+						newString = strings.TrimSuffix(input.word, oldSuffix)
+						if !isDuplicate(newString) {
+							//candidates = append(candidates, newString)
+							newCandidate := candidateDupe(input)
+							newCandidate.word = newString
+							newCandidate.insistPOS = "any"
+							newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, oldSuffix)
+							deconjugateHelper(newCandidate, prefixCheck, 1, unlenite)
+						}
+					}
+				}
+				fallthrough
+			case 1:
+				for _, oldSuffix := range adposuffixes {
+					// If it has one of them,
+					if strings.HasSuffix(input.word, oldSuffix) {
+						newString = strings.TrimSuffix(input.word, oldSuffix)
+						if !isDuplicate(newString) {
+							//candidates = append(candidates, newString)
+							newCandidate := candidateDupe(input)
+							newCandidate.word = newString
+							newCandidate.insistPOS = "n."
+							newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, oldSuffix)
+							deconjugateHelper(newCandidate, prefixCheck, 2, unlenite)
+						}
+					}
+				}
+				fallthrough
+			case 2:
+				for _, oldSuffix := range determinerSuffixes {
+					// If it has one of them,
+					if strings.HasSuffix(input.word, oldSuffix) {
+						newString = strings.TrimSuffix(input.word, oldSuffix)
+						if !isDuplicate(newString) {
+							//candidates = append(candidates, newString)
+							newCandidate := candidateDupe(input)
+							newCandidate.word = newString
+							newCandidate.insistPOS = "n."
+							newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, oldSuffix)
+							deconjugateHelper(newCandidate, prefixCheck, 3, unlenite)
+						}
+					}
+				}
+				fallthrough
+			case 3:
+				for _, oldSuffix := range stemSuffixes {
+					// If it has one of them,
+					if strings.HasSuffix(input.word, oldSuffix) {
+						newString = strings.TrimSuffix(input.word, oldSuffix)
+						if !isDuplicate(newString) {
+							//candidates = append(candidates, newString)
+							newCandidate := candidateDupe(input)
+							newCandidate.word = newString
+							newCandidate.insistPOS = "n."
+							newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, oldSuffix)
+							deconjugateHelper(newCandidate, prefixCheck, 4, unlenite)
+						}
+					}
+				}
+				fallthrough
+			case 4:
+				// If it has one of them,
+				if strings.HasSuffix(input.word, "yu") {
+					newString = strings.TrimSuffix(input.word, "yu")
+					if !isDuplicate(newString) {
+						//candidates = append(candidates, newString)
+						newCandidate := candidateDupe(input)
+						newCandidate.word = newString
+						newCandidate.insistPOS = "v."
+						newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, "yu")
+						deconjugateHelper(newCandidate, prefixCheck, 5, unlenite)
+					}
 				}
 			}
 		}
 
-		// Check for infixes
-		runes := []rune(input.word)
-		for i, c := range runes {
-			// Infixes can only begin with vowels
-			if has("aäeiìou", string(c)) {
-				shortString := string(runes[i:])
-				for _, infix := range infixes[c] {
-					if strings.HasPrefix(shortString, infix) {
-						newCandidate := candidateDupe(input)
-						newCandidate.word = string(runes[:i]) + strings.TrimPrefix(shortString, infix)
-						newCandidate.infixes = isDuplicateFix(newCandidate.infixes, infix)
-						newCandidate.insistPOS = "v."
-						deconjugateHelper(newCandidate, prefixCheck, 5, unlenite)
+		if input.insistPOS == "any" || input.insistPOS == "v." {
+			// Check for infixes
+			runes := []rune(input.word)
+			for i, c := range runes {
+				// Infixes can only begin with vowels
+				if has("aäeiìou", string(c)) {
+					shortString := string(runes[i:])
+					for _, infix := range infixes[c] {
+						if strings.HasPrefix(shortString, infix) {
+							newCandidate := candidateDupe(input)
+							newCandidate.word = string(runes[:i]) + strings.TrimPrefix(shortString, infix)
+							newCandidate.infixes = isDuplicateFix(newCandidate.infixes, infix)
+							newCandidate.insistPOS = "v."
+							deconjugateHelper(newCandidate, prefixCheck, 5, unlenite)
 
-						if infix == "ol" {
-							newCandidate := candidateDupe(input)
-							newCandidate.word = string(runes[:i]) + "ll" + strings.TrimPrefix(shortString, infix)
-							newCandidate.infixes = isDuplicateFix(newCandidate.infixes, infix)
-							newCandidate.insistPOS = "v."
-							deconjugateHelper(newCandidate, prefixCheck, 5, unlenite)
-						} else if infix == "er" {
-							newCandidate := candidateDupe(input)
-							newCandidate.word = string(runes[:i]) + "rr" + strings.TrimPrefix(shortString, infix)
-							newCandidate.infixes = isDuplicateFix(newCandidate.infixes, infix)
-							newCandidate.insistPOS = "v."
-							deconjugateHelper(newCandidate, prefixCheck, 5, unlenite)
+							if infix == "ol" {
+								newCandidate := candidateDupe(input)
+								newCandidate.word = string(runes[:i]) + "ll" + strings.TrimPrefix(shortString, infix)
+								newCandidate.infixes = isDuplicateFix(newCandidate.infixes, infix)
+								newCandidate.insistPOS = "v."
+								deconjugateHelper(newCandidate, prefixCheck, 5, unlenite)
+							} else if infix == "er" {
+								newCandidate := candidateDupe(input)
+								newCandidate.word = string(runes[:i]) + "rr" + strings.TrimPrefix(shortString, infix)
+								newCandidate.infixes = isDuplicateFix(newCandidate.infixes, infix)
+								newCandidate.insistPOS = "v."
+								deconjugateHelper(newCandidate, prefixCheck, 5, unlenite)
+							}
 						}
 					}
 				}
@@ -352,6 +362,7 @@ func deconjugate(input string) []ConjugationCandidate {
 	candidates = []ConjugationCandidate{} //empty array of strings
 	newCandidate := ConjugationCandidate{}
 	newCandidate.word = input
+	newCandidate.insistPOS = "any"
 	deconjugateHelper(newCandidate, 0, 0, 0)
 	candidates = candidates[1:]
 	return candidates
