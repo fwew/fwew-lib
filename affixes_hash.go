@@ -58,7 +58,7 @@ var unlenition = map[string][]string{
 var prefixes1Nouns = []string{"fì", "tsa", "kaw", "fra"}
 var prefixes1lenition = []string{"pe", "fay", "tsay", "fìme", "tsame", "fìpxe",
 	"tsapxe", "pxe", "pepe", "peme", "pay", "ay", "me"}
-var prefixes1Any = []string{"tì", "sä"}
+var prefixes1Any = []string{"tì", "sä", "ke", "nì"}
 var stemPrefixes = []string{"fne", "sna", "munsna"}
 
 var lastSuffixes = []string{"sì", "to", "a"}
@@ -153,6 +153,12 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 				}
 				fallthrough
 			case 1:
+				if input.word == "pxoeng" {
+					newCandidate := candidateDupe(input)
+					newCandidate.word = "oeng"
+					newCandidate.prefixes = isDuplicateFix(newCandidate.prefixes, "pxe")
+					deconjugateHelper(newCandidate, 2, suffixCheck, -1)
+				}
 				for _, element := range prefixes1lenition {
 					// If it has a lenition-causing prefix
 					if strings.HasPrefix(input.word, element) {
@@ -209,9 +215,16 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 						deconjugateHelper(newCandidate, 3, suffixCheck, -1)
 					}
 				}
-
 				fallthrough
 			case 3:
+				if strings.HasPrefix(input.word, "tsuk") {
+					newCandidate := candidateDupe(input)
+					newCandidate.word = strings.TrimPrefix(input.word, "tsuk")
+					newCandidate.prefixes = isDuplicateFix(newCandidate.prefixes, "tsuk")
+					newCandidate.insistPOS = "v."
+					deconjugateHelper(newCandidate, 4, suffixCheck, -1)
+				}
+
 				for _, element := range stemPrefixes {
 					// If it has a prefix
 					if strings.HasPrefix(input.word, element) {
@@ -222,11 +235,11 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 						newCandidate.word = newString
 						newCandidate.insistPOS = "n."
 						newCandidate.prefixes = isDuplicateFix(newCandidate.prefixes, element)
-						deconjugateHelper(newCandidate, 2, suffixCheck, -1)
+						deconjugateHelper(newCandidate, 4, suffixCheck, -1)
 
 						// check "tsatan", "tan" and "atan"
 						newCandidate.word = get_last_rune(element, 1) + newString
-						deconjugateHelper(newCandidate, 2, suffixCheck, -1)
+						deconjugateHelper(newCandidate, 4, suffixCheck, -1)
 					}
 				}
 			}
@@ -252,7 +265,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 			}
 
 			switch suffixCheck {
-			case 0: // adpositions, sì, o
+			case 0:
 				for _, oldSuffix := range lastSuffixes {
 					// If it has one of them,
 					if strings.HasSuffix(input.word, oldSuffix) {
@@ -266,7 +279,19 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 					}
 				}
 				fallthrough
-			case 1:
+			case 1: // adpositions, sì, o
+				// If it has one of them,
+				if strings.HasSuffix(input.word, "tswo") {
+					newString = strings.TrimSuffix(input.word, "tswo")
+
+					newCandidate := candidateDupe(input)
+					newCandidate.word = newString
+					newCandidate.insistPOS = "v."
+					newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, "tswo")
+					deconjugateHelper(newCandidate, prefixCheck, 6, unlenite)
+				}
+				fallthrough
+			case 2:
 				for _, oldSuffix := range adposuffixes {
 					// If it has one of them,
 					if strings.HasSuffix(input.word, oldSuffix) {
@@ -277,10 +302,25 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 						newCandidate.insistPOS = "n."
 						newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, oldSuffix)
 						deconjugateHelper(newCandidate, prefixCheck, 2, unlenite)
+
+						if oldSuffix == "ä" {
+							// soaiä, tìftiä, etx.
+							newString += "a"
+							newCandidate.word = newString
+							deconjugateHelper(newCandidate, prefixCheck, 3, unlenite)
+						} else if oldSuffix == "yä" && strings.HasSuffix(newString, "e") {
+							// oengeyä
+							newCandidate.word = strings.TrimSuffix(newString, "e")
+							deconjugateHelper(newCandidate, prefixCheck, 3, unlenite)
+						} else if oldSuffix == "l" && strings.HasSuffix(newString, "a") {
+							// oengal
+							newCandidate.word = strings.TrimSuffix(newString, "a")
+							deconjugateHelper(newCandidate, prefixCheck, 3, unlenite)
+						}
 					}
 				}
 				fallthrough
-			case 2:
+			case 3:
 				for _, oldSuffix := range determinerSuffixes {
 					// If it has one of them,
 					if strings.HasSuffix(input.word, oldSuffix) {
@@ -291,11 +331,11 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 						newCandidate.word = newString
 						newCandidate.insistPOS = "n."
 						newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, oldSuffix)
-						deconjugateHelper(newCandidate, prefixCheck, 3, unlenite)
+						deconjugateHelper(newCandidate, prefixCheck, 4, unlenite)
 					}
 				}
 				fallthrough
-			case 3:
+			case 4:
 				for _, oldSuffix := range stemSuffixes {
 					// If it has one of them,
 					if strings.HasSuffix(input.word, oldSuffix) {
@@ -306,12 +346,12 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 						newCandidate.word = newString
 						newCandidate.insistPOS = "n."
 						newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, oldSuffix)
-						deconjugateHelper(newCandidate, prefixCheck, 4, unlenite)
+						deconjugateHelper(newCandidate, prefixCheck, 5, unlenite)
 
 					}
 				}
 				fallthrough
-			case 4:
+			case 5:
 				// If it has one of them,
 				if strings.HasSuffix(input.word, "yu") {
 					newString = strings.TrimSuffix(input.word, "yu")
@@ -321,8 +361,12 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 					newCandidate.word = newString
 					newCandidate.insistPOS = "v."
 					newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, "yu")
-					deconjugateHelper(newCandidate, prefixCheck, 5, unlenite)
+					deconjugateHelper(newCandidate, prefixCheck, 6, unlenite)
 
+					if strings.HasSuffix(newString, "si") {
+						newCandidate.word = strings.TrimSuffix(newString, "si") + " si"
+						deconjugateHelper(newCandidate, prefixCheck, 6, unlenite)
+					}
 				}
 			}
 		}

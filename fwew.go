@@ -115,7 +115,7 @@ func TranslateFromNaviHash(searchNaviWord string, checkFixes bool) (results []Wo
 					}
 				} else if candidate.insistPOS == "adj." {
 					posNoun := dictHash[candidate.word].PartOfSpeech
-					if posNoun == "adj." {
+					if posNoun == "adj." || posNoun == "num." {
 						a := dictHash[candidate.word]
 						a.Affixes.Lenition = candidate.lenition
 						a.Affixes.Prefix = candidate.prefixes
