@@ -371,7 +371,6 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 						newCandidate.insistPOS = "n."
 						newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, oldSuffix)
 						deconjugateHelper(newCandidate, prefixCheck, 5, unlenite)
-
 					}
 				}
 				fallthrough
