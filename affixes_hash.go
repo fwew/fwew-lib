@@ -61,7 +61,7 @@ var prefixes1lenition = []string{"pe", "fay", "tsay", "fìme", "tsame", "fìpxe"
 var prefixes1Any = []string{"tì", "sä", "ke", "nì"}
 var stemPrefixes = []string{"fne", "sna", "munsna"}
 
-var lastSuffixes = []string{"sì", "to", "a"}
+var lastSuffixes = []string{"sì", "to"}
 var adposuffixes = []string{
 	// adpositions that can be mistaken for case endings
 	"pxel",                //"agentive"
@@ -190,9 +190,15 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 							newCandidate.insistPOS = "n."
 							deconjugateHelper(newCandidate, 2, suffixCheck, -1)
 
-							// check "pxeylan", "ylan" and "eylan"
-							newCandidate.word = get_last_rune(element, 1) + newString
-							deconjugateHelper(newCandidate, 2, suffixCheck, -1)
+							if has("aäeiìou", get_last_rune(element, 1)) {
+								// check "pxeyktan", "yktan" and "eyktan"
+								newCandidate.word = get_last_rune(element, 1) + newString
+								deconjugateHelper(newCandidate, 2, suffixCheck, -1)
+
+								// check "pxeylan", "ylan" and "'eylan"
+								newCandidate.word = "'" + newCandidate.word
+								deconjugateHelper(newCandidate, 2, suffixCheck, -1)
+							}
 						}
 					}
 				}
@@ -266,6 +272,16 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 
 			switch suffixCheck {
 			case 0:
+				// If it has one of them,
+				if strings.HasSuffix(input.word, "a") {
+					newString = strings.TrimSuffix(input.word, "a")
+
+					newCandidate := candidateDupe(input)
+					newCandidate.word = newString
+					newCandidate.insistPOS = "adj."
+					newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, "a")
+					deconjugateHelper(newCandidate, prefixCheck, 1, unlenite)
+				}
 				for _, oldSuffix := range lastSuffixes {
 					// If it has one of them,
 					if strings.HasSuffix(input.word, oldSuffix) {
@@ -309,8 +325,16 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 							newCandidate.word = newString
 							deconjugateHelper(newCandidate, prefixCheck, 3, unlenite)
 						} else if oldSuffix == "yä" && strings.HasSuffix(newString, "e") {
+							// A one-off
+							if newString == "tse" {
+								newCandidate.word = "tsaw"
+								deconjugateHelper(newCandidate, prefixCheck, 3, unlenite)
+							}
 							// oengeyä
 							newCandidate.word = strings.TrimSuffix(newString, "e")
+							deconjugateHelper(newCandidate, prefixCheck, 3, unlenite)
+							// sneyä -> sno
+							newCandidate.word = newCandidate.word + "o"
 							deconjugateHelper(newCandidate, prefixCheck, 3, unlenite)
 						} else if oldSuffix == "l" && strings.HasSuffix(newString, "a") {
 							// oengal
