@@ -56,8 +56,8 @@ var unlenition = map[string][]string{
 }
 
 var prefixes1Nouns = []string{"fì", "tsa", "kaw", "fra"}
-var prefixes1lenition = []string{"fay", "tsay", "fìme", "tsame", "fìpxe",
-	"tsapxe", "pxe", "pepe", "peme", "pay", "ay", "me", "pe"}
+var prefixes1lenition = []string{"pe", "fay", "tsay", "fìme", "tsame", "fìpxe",
+	"tsapxe", "pxe", "pepe", "peme", "pay", "ay", "me"}
 var prefixes1Any = []string{"tì", "sä"}
 var stemPrefixes = []string{"fne", "sna", "munsna"}
 
@@ -120,26 +120,6 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 	if !isDuplicate(input) {
 		candidates = append(candidates, input)
 		newString := ""
-
-		// Short lenition check
-		if unlenite != -1 {
-			for _, oldPrefix := range unlenitionLetters {
-				// If it has a letter that could have changed for lenition,
-				if strings.HasPrefix(input.word, oldPrefix) {
-					// put all possibilities in the candidates
-					for _, newPrefix := range unlenition[oldPrefix] {
-						newCandidate := candidateDupe(input)
-						newString = newPrefix + strings.TrimPrefix(input.word, oldPrefix)
-						newCandidate.word = newString
-						if oldPrefix != newPrefix {
-							newCandidate.lenition = []string{oldPrefix + "→" + newPrefix}
-						}
-						deconjugateHelper(newCandidate, prefixCheck, suffixCheck, -1)
-					}
-					break // We don't want the "ts" to become "txs"
-				}
-			}
-		}
 
 		if input.insistPOS != "v." {
 			switch prefixCheck {
@@ -206,7 +186,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 
 							// check "pxeylan", "ylan" and "eylan"
 							newCandidate.word = get_last_rune(element, 1) + newString
-							deconjugateHelper(newCandidate, 2, suffixCheck, 0)
+							deconjugateHelper(newCandidate, 2, suffixCheck, -1)
 						}
 					}
 				}
@@ -247,6 +227,26 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 						// check "tsatan", "tan" and "atan"
 						newCandidate.word = get_last_rune(element, 1) + newString
 						deconjugateHelper(newCandidate, 2, suffixCheck, -1)
+					}
+				}
+			}
+
+			// Short lenition check
+			if unlenite != -1 {
+				for _, oldPrefix := range unlenitionLetters {
+					// If it has a letter that could have changed for lenition,
+					if strings.HasPrefix(input.word, oldPrefix) {
+						// put all possibilities in the candidates
+						for _, newPrefix := range unlenition[oldPrefix] {
+							newCandidate := candidateDupe(input)
+							newString = newPrefix + strings.TrimPrefix(input.word, oldPrefix)
+							newCandidate.word = newString
+							if oldPrefix != newPrefix {
+								newCandidate.lenition = []string{oldPrefix + "→" + newPrefix}
+							}
+							deconjugateHelper(newCandidate, prefixCheck, suffixCheck, -1)
+						}
+						break // We don't want the "ts" to become "txs"
 					}
 				}
 			}
