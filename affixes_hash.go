@@ -45,7 +45,7 @@ var unlenition = map[string][]string{
 	"k":  {"kx"},
 	"s":  {"s", "t", "ts"},
 	"t":  {"tx"},
-	"a":  {"e", "'a"},
+	"a":  {"a", "'a"},
 	"ä":  {"ä", "'ä"},
 	"e":  {"e", "'e"},
 	"i":  {"i", "'i"},
