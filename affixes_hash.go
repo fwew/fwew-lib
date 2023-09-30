@@ -45,14 +45,14 @@ var unlenition = map[string][]string{
 	"k":  {"kx"},
 	"s":  {"s", "t", "ts"},
 	"t":  {"tx"},
-	"a":  {"'a"},
-	"ä":  {"'ä"},
-	"e":  {"'e"},
-	"i":  {"'i"},
-	"ì":  {"'ì"},
-	"o":  {"'o"},
-	"u":  {"'u"},
-	"ù":  {"'ù"},
+	"a":  {"e", "'a"},
+	"ä":  {"ä", "'ä"},
+	"e":  {"e", "'e"},
+	"i":  {"i", "'i"},
+	"ì":  {"ì", "'ì"},
+	"o":  {"o", "'o"},
+	"u":  {"u", "'u"},
+	"ù":  {"ù", "'ù"},
 }
 
 var prefixes1Nouns = []string{"fì", "tsa", "kaw", "fra"}
@@ -164,15 +164,29 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 					if strings.HasPrefix(input.word, element) {
 						lenited := false
 						newString = strings.TrimPrefix(input.word, element)
+
+						newCandidate := candidateDupe(input)
+						newCandidate.prefixes = isDuplicateFix(newCandidate.prefixes, element)
+						newCandidate.insistPOS = "n."
+
+						// Could it be pekoyu (pe + 'ekoyu, not pe + kxoyu)
+						if has("aäeiìou", get_last_rune(element, 1)) {
+							// check "pxeyktan", "yktan" and "eyktan"
+							newCandidate.word = get_last_rune(element, 1) + newString
+							deconjugateHelper(newCandidate, 2, suffixCheck, -1)
+
+							// check "pxeylan", "ylan" and "'eylan"
+							newCandidate.word = "'" + newCandidate.word
+							deconjugateHelper(newCandidate, 2, suffixCheck, -1)
+						}
+
 						// find out the possible unlenited forms
 						for _, oldPrefix := range unlenitionLetters {
 							// If it has a letter that could have changed for lenition,
 							if strings.HasPrefix(newString, oldPrefix) {
 								// put all possibilities in the candidates
 								lenited = true
-								newCandidate := candidateDupe(input)
-								newCandidate.prefixes = isDuplicateFix(newCandidate.prefixes, element)
-								newCandidate.insistPOS = "n."
+
 								for _, newPrefix := range unlenition[oldPrefix] {
 									newCandidate.word = newPrefix + strings.TrimPrefix(newString, oldPrefix)
 									if oldPrefix != newPrefix {
@@ -184,21 +198,8 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 							}
 						}
 						if !lenited {
-							newCandidate := candidateDupe(input)
 							newCandidate.word = newString
-							newCandidate.prefixes = isDuplicateFix(newCandidate.prefixes, element)
-							newCandidate.insistPOS = "n."
 							deconjugateHelper(newCandidate, 2, suffixCheck, -1)
-
-							if has("aäeiìou", get_last_rune(element, 1)) {
-								// check "pxeyktan", "yktan" and "eyktan"
-								newCandidate.word = get_last_rune(element, 1) + newString
-								deconjugateHelper(newCandidate, 2, suffixCheck, -1)
-
-								// check "pxeylan", "ylan" and "'eylan"
-								newCandidate.word = "'" + newCandidate.word
-								deconjugateHelper(newCandidate, 2, suffixCheck, -1)
-							}
 						}
 					}
 				}
