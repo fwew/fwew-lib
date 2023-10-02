@@ -58,7 +58,7 @@ var unlenition = map[string][]string{
 var prefixes1Nouns = []string{"fì", "tsa", "fra"}
 var prefixes1lenition = []string{"pe", "fay", "tsay", "fìme", "tsame", "fìpxe",
 	"tsapxe", "pxe", "pepe", "peme", "pay", "ay", "me"}
-var prefixes1Any = []string{"tì", "ke", "nì"}
+var prefixes1Any = []string{"tì", "ke"}
 var stemPrefixes = []string{"fne", "sna", "munsna"}
 
 var lastSuffixes = []string{"sì", "to"}
