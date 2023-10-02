@@ -214,7 +214,7 @@ func TranslateFromNaviHash(searchNaviWord string, checkFixes bool) (results []Wo
 								if candidate.infixes[0] == "awn" || candidate.infixes[0] == "us" {
 									results = append(results, a)
 								}
-							} else if identicalRunes(rebuiltVerb+"a", searchNaviWord) && len(candidate.infixes) == 1 && candidate.infixes[0] == "a" {
+							} else if identicalRunes(rebuiltVerb+"a", searchNaviWord) && len(candidate.infixes) == 1 {
 								// v<us>erb-a and v<awn>erb-a
 								if candidate.infixes[0] == "awn" || candidate.infixes[0] == "us" {
 									results = append(results, a)
