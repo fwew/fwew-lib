@@ -15,6 +15,7 @@
 package fwew_lib
 
 import (
+	"fmt"
 	"log"
 	"math/rand"
 	"strings"
@@ -70,6 +71,23 @@ func (w *Word) similarity(other string) float64 {
 	return (iratio + lratio) / 2
 }
 
+func identicalRunes(first string, second string) bool {
+	a := []rune(first)
+	b := []rune(second)
+
+	if len(a) != len(b) {
+		return false
+	}
+
+	for i, c := range a {
+		if b[i] != c {
+			return false
+		}
+	}
+
+	return true
+}
+
 // Translate some navi text.
 // !! Only one word is allowed, if spaces are found, they will be treated like part of the word !!
 // This will return an array of Words, that fit the input text
@@ -95,53 +113,110 @@ func TranslateFromNaviHash(searchNaviWord string, checkFixes bool) (results []Wo
 	}
 
 	// Find the word
-	if _, ok := dictHash[searchNaviWord]; ok {
-		for _, b := range dictHash[searchNaviWord] {
+	for _, b := range dictHash[searchNaviWord] {
+		if _, ok := dictHash[searchNaviWord]; ok {
 			results = append(results, b)
+		}
+	}
 
-			if checkFixes {
-				for _, candidate := range deconjugate(searchNaviWord) {
-					for _, c := range dictHash[candidate.word] {
-						//fmt.Println(candidate)
-						if _, ok := dictHash[candidate.word]; ok {
-							if candidate.insistPOS == "n." {
-								posNoun := c.PartOfSpeech
-								//posNoun == "n." || posNoun == "prop.n." || posNoun == "pn."
-								if strings.HasSuffix(posNoun, "n.") && !strings.HasPrefix(posNoun, "v") {
-									a := c
-									a.Affixes.Lenition = candidate.lenition
-									a.Affixes.Prefix = candidate.prefixes
-									a.Affixes.Suffix = candidate.suffixes
-									results = append(results, a)
-								}
+	if checkFixes {
+		conjugations := deconjugate(searchNaviWord)
+		for _, candidate := range conjugations {
+			for _, c := range dictHash[candidate.word] {
+				if _, ok := dictHash[candidate.word]; ok {
+					if candidate.insistPOS == "n." {
+						posNoun := c.PartOfSpeech
+						//posNoun == "n." || posNoun == "prop.n." || posNoun == "pn."
+						if strings.HasSuffix(posNoun, "n.") && !strings.HasPrefix(posNoun, "v") {
+							a := c
+							a.Affixes.Lenition = candidate.lenition
+							a.Affixes.Prefix = candidate.prefixes
+							a.Affixes.Suffix = candidate.suffixes
+							results = append(results, a)
+						}
 
-							} else if candidate.insistPOS == "adj." {
-								posNoun := c.PartOfSpeech
-								if posNoun == "adj." || posNoun == "num." {
-									a := c
-									a.Affixes.Lenition = candidate.lenition
-									a.Affixes.Prefix = candidate.prefixes
-									a.Affixes.Suffix = candidate.suffixes
-									results = append(results, a)
+					} else if candidate.insistPOS == "adj." {
+						posNoun := c.PartOfSpeech
+						if posNoun == "adj." || posNoun == "num." {
+							a := c
+							a.Affixes.Lenition = candidate.lenition
+							a.Affixes.Prefix = candidate.prefixes
+							a.Affixes.Suffix = candidate.suffixes
+							results = append(results, a)
+						}
+					} else if candidate.insistPOS == "v." {
+						posNoun := c.PartOfSpeech
+						if strings.HasPrefix(posNoun, "v") {
+							a := c
+							a.Affixes.Lenition = candidate.lenition
+							a.Affixes.Prefix = candidate.prefixes
+							a.Affixes.Suffix = candidate.suffixes
+							a.Affixes.Infix = candidate.infixes
+							fmt.Println(candidate.infixes)
+
+							// Make it verify the infixes are in the correct place
+
+							// pre-first position infixes
+							rebuiltVerb := c.InfixLocations
+							firstInfixes := ""
+							found := false
+
+							for _, infix := range prefirst {
+								for _, newInfix := range candidate.infixes {
+									if newInfix == infix {
+										firstInfixes += infix
+										found = true
+									}
 								}
-							} else if candidate.insistPOS == "v." {
-								posNoun := c.PartOfSpeech
-								if strings.HasPrefix(posNoun, "v") {
-									a := c
-									a.Affixes.Lenition = candidate.lenition
-									a.Affixes.Prefix = candidate.prefixes
-									a.Affixes.Suffix = candidate.suffixes
-									a.Affixes.Infix = candidate.infixes
-									results = append(results, a)
+							}
+							rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<0>", firstInfixes)
+
+							// first position infixes
+							found = false
+							for _, infix := range first {
+								for _, newInfix := range candidate.infixes {
+									if newInfix == infix {
+										rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<1>", infix)
+										found = true
+										break
+									}
 								}
-							} else {
-								a := c
-								a.Affixes.Lenition = candidate.lenition
-								a.Affixes.Prefix = candidate.prefixes
-								a.Affixes.Suffix = candidate.suffixes
+								if found {
+									break
+								}
+							}
+							rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<1>", "")
+
+							// second position infixes
+							found = false
+							for _, infix := range second {
+								for _, newInfix := range candidate.infixes {
+									if newInfix == infix {
+										rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<2>", infix)
+										found = true
+										break
+									}
+								}
+								if found {
+									break
+								}
+							}
+							rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<2>", "")
+
+							rebuiltVerb = strings.TrimSpace(rebuiltVerb)
+
+							fmt.Println(rebuiltVerb + " " + searchNaviWord)
+
+							if identicalRunes(rebuiltVerb, searchNaviWord) {
 								results = append(results, a)
 							}
 						}
+					} else {
+						a := c
+						a.Affixes.Lenition = candidate.lenition
+						a.Affixes.Prefix = candidate.prefixes
+						a.Affixes.Suffix = candidate.suffixes
+						results = append(results, a)
 					}
 				}
 			}

@@ -97,6 +97,11 @@ var infixes = map[rune][]string{
 	rune('u'): {"us", "uy"},
 }
 
+var prefirst = []string{"äp", "eyk"}
+var first = []string{"ay", "asy", "aly", "ary", "ìy", "ìsy", "ìly", "ìry", "ol", "er", "ìm",
+	"ìlm", "ìrm", "am", "alm", "arm", "ìyev", "iyev", "iv", "ilv", "irv", "imv", "us", "awn"}
+var second = []string{"ei", "eiy", "äng", "eng", "uy", "ats"}
+
 func isDuplicate(input ConjugationCandidate) bool {
 	for _, a := range candidates {
 		if input.word == a.word && input.insistPOS == a.insistPOS {
@@ -114,6 +119,10 @@ func isDuplicateFix(fixes []string, fix string) (newFixes []string) {
 	}
 	fixes = append(fixes, fix)
 	return fixes
+}
+
+func verifyInfixes(original string, bare string, infixes []string) {
+
 }
 
 func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck int, unlenite int8) []ConjugationCandidate {
