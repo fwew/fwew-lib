@@ -15,7 +15,6 @@
 package fwew_lib
 
 import (
-	"fmt"
 	"log"
 	"math/rand"
 	"strings"
@@ -152,7 +151,6 @@ func TranslateFromNaviHash(searchNaviWord string, checkFixes bool) (results []Wo
 							a.Affixes.Prefix = candidate.prefixes
 							a.Affixes.Suffix = candidate.suffixes
 							a.Affixes.Infix = candidate.infixes
-							fmt.Println(candidate.infixes)
 
 							// Make it verify the infixes are in the correct place
 
@@ -204,8 +202,6 @@ func TranslateFromNaviHash(searchNaviWord string, checkFixes bool) (results []Wo
 							rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<2>", "")
 
 							rebuiltVerb = strings.TrimSpace(rebuiltVerb)
-
-							fmt.Println(rebuiltVerb + " " + searchNaviWord)
 
 							if identicalRunes(rebuiltVerb, searchNaviWord) {
 								results = append(results, a)
