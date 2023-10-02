@@ -203,7 +203,11 @@ func TranslateFromNaviHash(searchNaviWord string, checkFixes bool) (results []Wo
 
 							rebuiltVerb = strings.TrimSpace(rebuiltVerb)
 
+							// normal infixes
 							if identicalRunes(rebuiltVerb, searchNaviWord) {
+								results = append(results, a)
+							} else if identicalRunes("tì"+rebuiltVerb, searchNaviWord) && len(candidate.infixes) == 1 && candidate.infixes[0] == "us" {
+								// tì + v<us>erb constructions
 								results = append(results, a)
 							}
 						}
