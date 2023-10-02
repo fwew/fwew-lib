@@ -166,8 +166,8 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 					deconjugateHelper(newCandidate, 1, suffixCheck, -1)
 				} else if strings.HasPrefix(input.word, "nì") {
 					newCandidate := candidateDupe(input)
-					newCandidate.word = input.word[1:]
-					newCandidate.prefixes = isDuplicateFix(newCandidate.prefixes, "a")
+					newCandidate.word = strings.TrimPrefix(input.word, "nì")
+					newCandidate.prefixes = isDuplicateFix(newCandidate.prefixes, "nì")
 					newCandidate.insistPOS = "nì."
 					// No other affixes allowed
 					deconjugateHelper(newCandidate, 10, 10, -1) // No other fixes
