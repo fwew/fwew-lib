@@ -58,7 +58,6 @@ var unlenition = map[string][]string{
 var prefixes1Nouns = []string{"fì", "tsa", "fra"}
 var prefixes1lenition = []string{"pe", "fay", "tsay", "fìme", "tsame", "fìpxe",
 	"tsapxe", "pxe", "pepe", "peme", "pay", "ay", "me"}
-var prefixes1Any = []string{"tì", "ke"}
 var stemPrefixes = []string{"fne", "sna", "munsna"}
 
 var lastSuffixes = []string{"sì", "to"}
@@ -130,6 +129,32 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 		candidates = append(candidates, input)
 		newString := ""
 
+		// Short lenition check
+		if unlenite != -1 {
+			for _, oldPrefix := range unlenitionLetters {
+				// If it has a letter that could have changed for lenition,
+				if strings.HasPrefix(input.word, oldPrefix) {
+					// put all possibilities in the candidates
+					for _, newPrefix := range unlenition[oldPrefix] {
+						newCandidate := candidateDupe(input)
+						newString = newPrefix + strings.TrimPrefix(input.word, oldPrefix)
+						newCandidate.word = newString
+						if oldPrefix != newPrefix {
+							newCandidate.lenition = []string{oldPrefix + "→" + newPrefix}
+						}
+						deconjugateHelper(newCandidate, prefixCheck, suffixCheck, -1)
+					}
+					break // We don't want the "ts" to become "txs"
+				}
+			}
+		}
+
+		// Make sure that the first set of prefices (a, nì, ke) aren't combined with suffixes
+		newPrefixCheck := prefixCheck
+		if newPrefixCheck == 0 {
+			newPrefixCheck = 1
+		}
+
 		if input.insistPOS != "v." {
 			switch prefixCheck {
 			case 0:
@@ -139,8 +164,28 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 					newCandidate.prefixes = isDuplicateFix(newCandidate.prefixes, "a")
 					newCandidate.insistPOS = "adj."
 					deconjugateHelper(newCandidate, 1, suffixCheck, -1)
-				}
+				} else if strings.HasPrefix(input.word, "nì") {
+					newCandidate := candidateDupe(input)
+					newCandidate.word = input.word[1:]
+					newCandidate.prefixes = isDuplicateFix(newCandidate.prefixes, "a")
+					newCandidate.insistPOS = "nì."
+					// No other affixes allowed
+					deconjugateHelper(newCandidate, 10, 10, -1) // No other fixes
+				} else if strings.HasPrefix(input.word, "ke") {
+					// remove it
+					newString = strings.TrimPrefix(input.word, "ke")
 
+					newCandidate := candidateDupe(input)
+					newCandidate.word = newString
+					newCandidate.insistPOS = "any"
+					newCandidate.prefixes = isDuplicateFix(newCandidate.prefixes, "ke")
+					deconjugateHelper(newCandidate, 10, 10, -1)
+
+					newCandidate.word = "e" + newString
+					deconjugateHelper(newCandidate, 10, 10, -1)
+				}
+				fallthrough
+			case 1:
 				// Non-lenition prefixes for nouns only
 				for _, element := range prefixes1Nouns {
 					// If it has a prefix
@@ -152,15 +197,15 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 						newCandidate.word = newString
 						newCandidate.insistPOS = "n."
 						newCandidate.prefixes = isDuplicateFix(newCandidate.prefixes, element)
-						deconjugateHelper(newCandidate, 1, suffixCheck, -1)
+						deconjugateHelper(newCandidate, 2, suffixCheck, -1)
 
 						// check "tsatan", "tan" and "atan"
 						newCandidate.word = get_last_rune(element, 1) + newString
-						deconjugateHelper(newCandidate, 1, suffixCheck, -1)
+						deconjugateHelper(newCandidate, 2, suffixCheck, -1)
 					}
 				}
 				fallthrough
-			case 1:
+			case 2:
 				// This one will demand this makes it use lenition
 				for _, element := range prefixes1lenition {
 					// If it has a lenition-causing prefix
@@ -176,11 +221,11 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 						if has("aäeiìou", get_last_rune(element, 1)) {
 							// check "pxeyktan", "yktan" and "eyktan"
 							newCandidate.word = get_last_rune(element, 1) + newString
-							deconjugateHelper(newCandidate, 2, suffixCheck, -1)
+							deconjugateHelper(newCandidate, 3, suffixCheck, -1)
 
 							// check "pxeylan", "ylan" and "'eylan"
 							newCandidate.word = "'" + newCandidate.word
-							deconjugateHelper(newCandidate, 2, suffixCheck, -1)
+							deconjugateHelper(newCandidate, 3, suffixCheck, -1)
 						}
 
 						// find out the possible unlenited forms
@@ -195,34 +240,15 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 									if oldPrefix != newPrefix {
 										newCandidate.lenition = []string{oldPrefix + "→" + newPrefix}
 									}
-									deconjugateHelper(newCandidate, 2, suffixCheck, -1)
+									deconjugateHelper(newCandidate, 3, suffixCheck, -1)
 								}
 								break // We don't want the "ts" to become "txs"
 							}
 						}
 						if !lenited {
 							newCandidate.word = newString
-							deconjugateHelper(newCandidate, 2, suffixCheck, -1)
+							deconjugateHelper(newCandidate, 3, suffixCheck, -1)
 						}
-					}
-				}
-				fallthrough
-			case 2:
-				// Non-lenition prefixes for anything
-				for _, element := range prefixes1Any {
-					// If it has a prefix
-					if strings.HasPrefix(input.word, element) {
-						// remove it
-						newString = strings.TrimPrefix(input.word, element)
-
-						newCandidate := candidateDupe(input)
-						newCandidate.word = newString
-						newCandidate.insistPOS = "any"
-						newCandidate.prefixes = isDuplicateFix(newCandidate.prefixes, element)
-						deconjugateHelper(newCandidate, 3, suffixCheck, -1)
-
-						newCandidate.word = get_last_rune(element, 1) + newString
-						deconjugateHelper(newCandidate, 3, suffixCheck, -1)
 					}
 				}
 				fallthrough
@@ -239,37 +265,30 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 					// If it has a prefix
 					if strings.HasPrefix(input.word, element) {
 						// remove it
-						newString = strings.TrimPrefix(input.word, element)
-
 						newCandidate := candidateDupe(input)
-						newCandidate.word = newString
+						newCandidate.word = strings.TrimPrefix(input.word, element)
 						newCandidate.insistPOS = "n."
 						newCandidate.prefixes = isDuplicateFix(newCandidate.prefixes, element)
 						deconjugateHelper(newCandidate, 4, suffixCheck, -1)
 
 						// check "tsatan", "tan" and "atan"
-						newCandidate.word = get_last_rune(element, 1) + newString
+						newCandidate.word = get_last_rune(element, 1) + newCandidate.word
 						deconjugateHelper(newCandidate, 4, suffixCheck, -1)
 					}
 				}
+				fallthrough
+			case 4:
+				if strings.HasPrefix(input.word, "tì") {
+					if input.insistPOS == "any" || input.insistPOS == "n." {
+						// remove it
+						newCandidate := candidateDupe(input)
+						newCandidate.word = strings.TrimPrefix(input.word, "tì")
+						newCandidate.insistPOS = "any"
+						newCandidate.prefixes = isDuplicateFix(newCandidate.prefixes, "tì")
+						deconjugateHelper(newCandidate, 10, 10, -1) // No other prefixes allowed
 
-				// Short lenition check
-				if unlenite != -1 {
-					for _, oldPrefix := range unlenitionLetters {
-						// If it has a letter that could have changed for lenition,
-						if strings.HasPrefix(input.word, oldPrefix) {
-							// put all possibilities in the candidates
-							for _, newPrefix := range unlenition[oldPrefix] {
-								newCandidate := candidateDupe(input)
-								newString = newPrefix + strings.TrimPrefix(input.word, oldPrefix)
-								newCandidate.word = newString
-								if oldPrefix != newPrefix {
-									newCandidate.lenition = []string{oldPrefix + "→" + newPrefix}
-								}
-								deconjugateHelper(newCandidate, 4, suffixCheck, -1)
-							}
-							break // We don't want the "ts" to become "txs"
-						}
+						newCandidate.word = "ì" + newCandidate.word
+						deconjugateHelper(newCandidate, 10, 10, -1) // Or any additional suffixes
 					}
 				}
 			}
@@ -284,7 +303,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 					newCandidate.word = newString
 					newCandidate.insistPOS = "adj."
 					newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, "a")
-					deconjugateHelper(newCandidate, prefixCheck, 1, unlenite)
+					deconjugateHelper(newCandidate, newPrefixCheck, 1, unlenite)
 				}
 				for _, oldSuffix := range lastSuffixes {
 					// If it has one of them,
@@ -295,7 +314,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 						newCandidate.word = newString
 						newCandidate.insistPOS = "any"
 						newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, oldSuffix)
-						deconjugateHelper(newCandidate, prefixCheck, 1, unlenite)
+						deconjugateHelper(newCandidate, newPrefixCheck, 1, unlenite)
 					}
 				}
 				fallthrough
@@ -308,7 +327,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 					newCandidate.word = newString
 					newCandidate.insistPOS = "v."
 					newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, "tswo")
-					deconjugateHelper(newCandidate, prefixCheck, 6, unlenite)
+					deconjugateHelper(newCandidate, newPrefixCheck, 6, unlenite)
 				}
 				fallthrough
 			case 2:
@@ -322,29 +341,29 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 							newCandidate.word = newString
 							newCandidate.insistPOS = "n."
 							newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, oldSuffix)
-							deconjugateHelper(newCandidate, prefixCheck, 3, unlenite)
+							deconjugateHelper(newCandidate, newPrefixCheck, 3, unlenite)
 
 							if oldSuffix == "ä" {
 								// soaiä, tìftiä, etx.
 								newString += "a"
 								newCandidate.word = newString
-								deconjugateHelper(newCandidate, prefixCheck, 3, unlenite)
+								deconjugateHelper(newCandidate, newPrefixCheck, 3, unlenite)
 							} else if oldSuffix == "yä" && strings.HasSuffix(newString, "e") {
 								// A one-off
 								if newString == "tse" {
 									newCandidate.word = "tsaw"
-									deconjugateHelper(newCandidate, prefixCheck, 3, unlenite)
+									deconjugateHelper(newCandidate, newPrefixCheck, 3, unlenite)
 								}
 								// oengeyä
 								newCandidate.word = strings.TrimSuffix(newString, "e")
-								deconjugateHelper(newCandidate, prefixCheck, 3, unlenite)
+								deconjugateHelper(newCandidate, newPrefixCheck, 3, unlenite)
 								// sneyä -> sno
 								newCandidate.word = newCandidate.word + "o"
-								deconjugateHelper(newCandidate, prefixCheck, 3, unlenite)
+								deconjugateHelper(newCandidate, newPrefixCheck, 3, unlenite)
 							} else if oldSuffix == "l" && strings.HasSuffix(newString, "a") {
 								// oengal
 								newCandidate.word = strings.TrimSuffix(newString, "a")
-								deconjugateHelper(newCandidate, prefixCheck, 3, unlenite)
+								deconjugateHelper(newCandidate, newPrefixCheck, 3, unlenite)
 							}
 						}
 					}
@@ -361,7 +380,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 						newCandidate.word = newString
 						newCandidate.insistPOS = "n."
 						newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, oldSuffix)
-						deconjugateHelper(newCandidate, prefixCheck, 4, unlenite)
+						deconjugateHelper(newCandidate, newPrefixCheck, 4, unlenite)
 					}
 				}
 				fallthrough
@@ -376,7 +395,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 						newCandidate.word = newString
 						newCandidate.insistPOS = "n."
 						newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, oldSuffix)
-						deconjugateHelper(newCandidate, prefixCheck, 5, unlenite)
+						deconjugateHelper(newCandidate, newPrefixCheck, 5, unlenite)
 					}
 				}
 				fallthrough
@@ -390,11 +409,11 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 					newCandidate.word = newString
 					newCandidate.insistPOS = "v."
 					newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, "yu")
-					deconjugateHelper(newCandidate, prefixCheck, 6, unlenite)
+					deconjugateHelper(newCandidate, newPrefixCheck, 6, unlenite)
 
 					if strings.HasSuffix(newString, "si") {
 						newCandidate.word = strings.TrimSuffix(newString, "si") + " si"
-						deconjugateHelper(newCandidate, prefixCheck, 6, unlenite)
+						deconjugateHelper(newCandidate, newPrefixCheck, 6, unlenite)
 					}
 				}
 			}
@@ -413,20 +432,20 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 							newCandidate.word = string(runes[:i]) + strings.TrimPrefix(shortString, infix)
 							newCandidate.infixes = isDuplicateFix(newCandidate.infixes, infix)
 							newCandidate.insistPOS = "v."
-							deconjugateHelper(newCandidate, prefixCheck, suffixCheck, unlenite)
+							deconjugateHelper(newCandidate, newPrefixCheck, suffixCheck, unlenite)
 
 							if infix == "ol" {
 								newCandidate := candidateDupe(input)
 								newCandidate.word = string(runes[:i]) + "ll" + strings.TrimPrefix(shortString, infix)
 								newCandidate.infixes = isDuplicateFix(newCandidate.infixes, infix)
 								newCandidate.insistPOS = "v."
-								deconjugateHelper(newCandidate, prefixCheck, suffixCheck, unlenite)
+								deconjugateHelper(newCandidate, newPrefixCheck, suffixCheck, unlenite)
 							} else if infix == "er" {
 								newCandidate := candidateDupe(input)
 								newCandidate.word = string(runes[:i]) + "rr" + strings.TrimPrefix(shortString, infix)
 								newCandidate.infixes = isDuplicateFix(newCandidate.infixes, infix)
 								newCandidate.insistPOS = "v."
-								deconjugateHelper(newCandidate, prefixCheck, suffixCheck, unlenite)
+								deconjugateHelper(newCandidate, newPrefixCheck, suffixCheck, unlenite)
 							}
 						}
 					}

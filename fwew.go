@@ -221,6 +221,15 @@ func TranslateFromNaviHash(searchNaviWord string, checkFixes bool) (results []Wo
 								}
 							}
 						}
+					} else if candidate.insistPOS == "nì." {
+						posNoun := c.PartOfSpeech
+						if posNoun == "adj." || posNoun == "pn." {
+							a := c
+							a.Affixes.Lenition = candidate.lenition
+							a.Affixes.Prefix = candidate.prefixes
+							a.Affixes.Suffix = candidate.suffixes
+							results = append(results, a)
+						}
 					} else {
 						a := c
 						a.Affixes.Lenition = candidate.lenition
