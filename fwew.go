@@ -96,48 +96,53 @@ func TranslateFromNaviHash(searchNaviWord string, checkFixes bool) (results []Wo
 
 	// Find the word
 	if _, ok := dictHash[searchNaviWord]; ok {
-		results = append(results, dictHash[searchNaviWord])
-	}
+		for _, b := range dictHash[searchNaviWord] {
+			results = append(results, b)
 
-	if checkFixes {
-		for _, candidate := range deconjugate(searchNaviWord) {
-			//fmt.Println(candidate)
-			if _, ok := dictHash[candidate.word]; ok {
-				if candidate.insistPOS == "n." {
-					posNoun := dictHash[candidate.word].PartOfSpeech
-					//posNoun == "n." || posNoun == "prop.n." || posNoun == "pn."
-					if strings.HasSuffix(posNoun, "n.") && !strings.HasPrefix(posNoun, "v") {
-						a := dictHash[candidate.word]
-						a.Affixes.Lenition = candidate.lenition
-						a.Affixes.Prefix = candidate.prefixes
-						a.Affixes.Suffix = candidate.suffixes
-						results = append(results, a)
+			if checkFixes {
+				for _, candidate := range deconjugate(searchNaviWord) {
+					for _, c := range dictHash[candidate.word] {
+						//fmt.Println(candidate)
+						if _, ok := dictHash[candidate.word]; ok {
+							if candidate.insistPOS == "n." {
+								posNoun := c.PartOfSpeech
+								//posNoun == "n." || posNoun == "prop.n." || posNoun == "pn."
+								if strings.HasSuffix(posNoun, "n.") && !strings.HasPrefix(posNoun, "v") {
+									a := c
+									a.Affixes.Lenition = candidate.lenition
+									a.Affixes.Prefix = candidate.prefixes
+									a.Affixes.Suffix = candidate.suffixes
+									results = append(results, a)
+								}
+
+							} else if candidate.insistPOS == "adj." {
+								posNoun := c.PartOfSpeech
+								if posNoun == "adj." || posNoun == "num." {
+									a := c
+									a.Affixes.Lenition = candidate.lenition
+									a.Affixes.Prefix = candidate.prefixes
+									a.Affixes.Suffix = candidate.suffixes
+									results = append(results, a)
+								}
+							} else if candidate.insistPOS == "v." {
+								posNoun := c.PartOfSpeech
+								if strings.HasPrefix(posNoun, "v") {
+									a := c
+									a.Affixes.Lenition = candidate.lenition
+									a.Affixes.Prefix = candidate.prefixes
+									a.Affixes.Suffix = candidate.suffixes
+									a.Affixes.Infix = candidate.infixes
+									results = append(results, a)
+								}
+							} else {
+								a := c
+								a.Affixes.Lenition = candidate.lenition
+								a.Affixes.Prefix = candidate.prefixes
+								a.Affixes.Suffix = candidate.suffixes
+								results = append(results, a)
+							}
+						}
 					}
-				} else if candidate.insistPOS == "adj." {
-					posNoun := dictHash[candidate.word].PartOfSpeech
-					if posNoun == "adj." || posNoun == "num." {
-						a := dictHash[candidate.word]
-						a.Affixes.Lenition = candidate.lenition
-						a.Affixes.Prefix = candidate.prefixes
-						a.Affixes.Suffix = candidate.suffixes
-						results = append(results, a)
-					}
-				} else if candidate.insistPOS == "v." {
-					posNoun := dictHash[candidate.word].PartOfSpeech
-					if strings.HasPrefix(posNoun, "v") {
-						a := dictHash[candidate.word]
-						a.Affixes.Lenition = candidate.lenition
-						a.Affixes.Prefix = candidate.prefixes
-						a.Affixes.Suffix = candidate.suffixes
-						a.Affixes.Infix = candidate.infixes
-						results = append(results, a)
-					}
-				} else {
-					a := dictHash[candidate.word]
-					a.Affixes.Lenition = candidate.lenition
-					a.Affixes.Prefix = candidate.prefixes
-					a.Affixes.Suffix = candidate.suffixes
-					results = append(results, a)
 				}
 			}
 		}
@@ -161,7 +166,9 @@ func SearchNatlangWord(wordmap map[string][]string, searchWord string) (results 
 	firstResults := wordmap[searchWord]
 
 	for i := 0; i < len(firstResults); i++ {
-		results = append(results, dictHash[firstResults[i]])
+		for _, c := range dictHash[firstResults[i]] {
+			results = append(results, c)
+		}
 	}
 
 	return

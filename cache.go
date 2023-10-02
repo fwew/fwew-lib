@@ -11,7 +11,7 @@ import (
 const dictFileName = "dictionary-v2.txt"
 
 var dictionary []Word
-var dictHash map[string]Word
+var dictHash map[string][]Word
 var dictionaryCached bool
 var dictHashCached bool
 var dictHash2 MetaDict
@@ -74,7 +74,7 @@ func CacheDictHash() error {
 	if len(dictHash) != 0 {
 		return nil
 	} else {
-		dictHash = make(map[string]Word)
+		dictHash = make(map[string][]Word)
 	}
 
 	err := runOnFile(func(word Word) error {
@@ -92,7 +92,7 @@ func CacheDictHash() error {
 
 		// find everything lowercase
 		standardizedWord = strings.ToLower(standardizedWord)
-		dictHash[standardizedWord] = word
+		dictHash[standardizedWord] = append(dictHash[standardizedWord], word)
 		return nil
 	})
 	if err != nil {
