@@ -254,20 +254,22 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 				}
 
 				// Short lenition check
-				for _, oldPrefix := range unlenitionLetters {
-					// If it has a letter that could have changed for lenition,
-					if strings.HasPrefix(input.word, oldPrefix) {
-						// put all possibilities in the candidates
-						for _, newPrefix := range unlenition[oldPrefix] {
-							newCandidate := candidateDupe(input)
-							newString = newPrefix + strings.TrimPrefix(input.word, oldPrefix)
-							newCandidate.word = newString
-							if oldPrefix != newPrefix {
-								newCandidate.lenition = []string{oldPrefix + "→" + newPrefix}
+				if unlenite != -1 {
+					for _, oldPrefix := range unlenitionLetters {
+						// If it has a letter that could have changed for lenition,
+						if strings.HasPrefix(input.word, oldPrefix) {
+							// put all possibilities in the candidates
+							for _, newPrefix := range unlenition[oldPrefix] {
+								newCandidate := candidateDupe(input)
+								newString = newPrefix + strings.TrimPrefix(input.word, oldPrefix)
+								newCandidate.word = newString
+								if oldPrefix != newPrefix {
+									newCandidate.lenition = []string{oldPrefix + "→" + newPrefix}
+								}
+								deconjugateHelper(newCandidate, 4, suffixCheck, -1)
 							}
-							deconjugateHelper(newCandidate, 4, suffixCheck, -1)
+							break // We don't want the "ts" to become "txs"
 						}
-						break // We don't want the "ts" to become "txs"
 					}
 				}
 			}
