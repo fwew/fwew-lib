@@ -209,6 +209,16 @@ func TranslateFromNaviHash(searchNaviWord string, checkFixes bool) (results []Wo
 							} else if identicalRunes("tì"+rebuiltVerb, searchNaviWord) && len(candidate.infixes) == 1 && candidate.infixes[0] == "us" {
 								// tì + v<us>erb constructions
 								results = append(results, a)
+							} else if identicalRunes("a"+rebuiltVerb, searchNaviWord) && len(candidate.infixes) == 1 {
+								// a-v<us>erb and a-v<awn>erb
+								if candidate.infixes[0] == "awn" || candidate.infixes[0] == "us" {
+									results = append(results, a)
+								}
+							} else if identicalRunes(rebuiltVerb+"a", searchNaviWord) && len(candidate.infixes) == 1 && candidate.infixes[0] == "a" {
+								// v<us>erb-a and v<awn>erb-a
+								if candidate.infixes[0] == "awn" || candidate.infixes[0] == "us" {
+									results = append(results, a)
+								}
 							}
 						}
 					} else {
