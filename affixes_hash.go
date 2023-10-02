@@ -320,7 +320,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 							newCandidate.word = newString
 							newCandidate.insistPOS = "n."
 							newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, oldSuffix)
-							deconjugateHelper(newCandidate, prefixCheck, 2, unlenite)
+							deconjugateHelper(newCandidate, prefixCheck, 3, unlenite)
 
 							if oldSuffix == "ä" {
 								// soaiä, tìftiä, etx.
