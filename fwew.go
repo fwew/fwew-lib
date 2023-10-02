@@ -171,10 +171,12 @@ func TranslateFromNaviHash(searchNaviWord string, checkFixes bool) (results []Wo
 
 							// first position infixes
 							found = false
+							firstInfixes = ""
 							for _, infix := range first {
 								for _, newInfix := range candidate.infixes {
 									if newInfix == infix {
 										rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<1>", infix)
+										firstInfixes = infix
 										found = true
 										break
 									}
@@ -209,14 +211,12 @@ func TranslateFromNaviHash(searchNaviWord string, checkFixes bool) (results []Wo
 							} else if identicalRunes("tì"+rebuiltVerb, searchNaviWord) && len(candidate.infixes) == 1 && candidate.infixes[0] == "us" {
 								// tì + v<us>erb constructions
 								results = append(results, a)
-							} else if identicalRunes("a"+rebuiltVerb, searchNaviWord) && len(candidate.infixes) == 1 {
-								// a-v<us>erb and a-v<awn>erb
-								if candidate.infixes[0] == "awn" || candidate.infixes[0] == "us" {
+							} else if firstInfixes == "us" || firstInfixes == "awn" {
+								if identicalRunes("a"+rebuiltVerb, searchNaviWord) {
+									// a-v<us>erb and a-v<awn>erb
 									results = append(results, a)
-								}
-							} else if identicalRunes(rebuiltVerb+"a", searchNaviWord) && len(candidate.infixes) == 1 {
-								// v<us>erb-a and v<awn>erb-a
-								if candidate.infixes[0] == "awn" || candidate.infixes[0] == "us" {
+								} else if identicalRunes(rebuiltVerb+"a", searchNaviWord) {
+									// v<us>erb-a and v<awn>erb-a
 									results = append(results, a)
 								}
 							}
