@@ -283,7 +283,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 						// remove it
 						newCandidate := candidateDupe(input)
 						newCandidate.word = strings.TrimPrefix(input.word, "tì")
-						newCandidate.insistPOS = "any"
+						newCandidate.insistPOS = "v."
 						newCandidate.prefixes = isDuplicateFix(newCandidate.prefixes, "tì")
 						deconjugateHelper(newCandidate, 10, 10, -1) // No other prefixes allowed
 
