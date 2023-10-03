@@ -226,7 +226,16 @@ func TranslateFromNaviHash(searchNaviWord string, checkFixes bool) (results []Wo
 							} else {
 								d := Word{}
 								d.Navi = searchNaviWord
-								d.InfixDots = "Did you mean " + rebuiltVerb + "?"
+								d.EN = "Did you mean **" + rebuiltVerb + "**?"
+								d.DE = "Did you mean **" + rebuiltVerb + "**?"
+								d.ET = "Did you mean **" + rebuiltVerb + "**?"
+								d.FR = "Did you mean **" + rebuiltVerb + "**?"
+								d.NL = "Did you mean **" + rebuiltVerb + "**?"
+								d.HU = "Did you mean **" + rebuiltVerb + "**?"
+								d.PL = "Did you mean **" + rebuiltVerb + "**?"
+								d.RU = "Did you mean **" + rebuiltVerb + "**?"
+								d.SV = "Did you mean **" + rebuiltVerb + "**?"
+								d.TR = "Did you mean **" + rebuiltVerb + "**?"
 								d.IPA = c.IPA
 								d.PartOfSpeech = "err."
 								results = append(results, d)
