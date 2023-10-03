@@ -129,26 +129,6 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 		candidates = append(candidates, input)
 		newString := ""
 
-		// Short lenition check
-		if unlenite != -1 {
-			for _, oldPrefix := range unlenitionLetters {
-				// If it has a letter that could have changed for lenition,
-				if strings.HasPrefix(input.word, oldPrefix) {
-					// put all possibilities in the candidates
-					for _, newPrefix := range unlenition[oldPrefix] {
-						newCandidate := candidateDupe(input)
-						newString = newPrefix + strings.TrimPrefix(input.word, oldPrefix)
-						newCandidate.word = newString
-						if oldPrefix != newPrefix {
-							newCandidate.lenition = []string{oldPrefix + "→" + newPrefix}
-						}
-						deconjugateHelper(newCandidate, prefixCheck, suffixCheck, -1)
-					}
-					break // We don't want the "ts" to become "txs"
-				}
-			}
-		}
-
 		// Make sure that the first set of prefices (a, nì, ke) aren't combined with suffixes
 		newPrefixCheck := prefixCheck
 		if newPrefixCheck == 0 {
@@ -415,6 +395,26 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 						newCandidate.word = strings.TrimSuffix(newString, "si") + " si"
 						deconjugateHelper(newCandidate, newPrefixCheck, 6, unlenite)
 					}
+				}
+			}
+		}
+
+		// Short lenition check
+		if unlenite != -1 {
+			for _, oldPrefix := range unlenitionLetters {
+				// If it has a letter that could have changed for lenition,
+				if strings.HasPrefix(input.word, oldPrefix) {
+					// put all possibilities in the candidates
+					for _, newPrefix := range unlenition[oldPrefix] {
+						newCandidate := candidateDupe(input)
+						newString = newPrefix + strings.TrimPrefix(input.word, oldPrefix)
+						newCandidate.word = newString
+						if oldPrefix != newPrefix {
+							newCandidate.lenition = []string{oldPrefix + "→" + newPrefix}
+						}
+						deconjugateHelper(newCandidate, prefixCheck, suffixCheck, -1)
+					}
+					break // We don't want the "ts" to become "txs"
 				}
 			}
 		}
