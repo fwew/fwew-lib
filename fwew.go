@@ -208,9 +208,11 @@ func TranslateFromNaviHash(searchNaviWord string, checkFixes bool) (results []Wo
 							// normal infixes
 							if identicalRunes(rebuiltVerb, searchNaviWord) {
 								results = append(results, a)
-							} else if identicalRunes("tì"+rebuiltVerb, searchNaviWord) && len(candidate.infixes) == 1 && candidate.infixes[0] == "us" {
-								// tì + v<us>erb constructions
-								results = append(results, a)
+							} else if len(candidate.infixes) == 1 && candidate.infixes[0] == "us" {
+								if identicalRunes("tì"+rebuiltVerb, searchNaviWord) || identicalRunes("sì"+rebuiltVerb, searchNaviWord) {
+									// tì + v<us>erb constructions
+									results = append(results, a)
+								}
 							} else if firstInfixes == "us" || firstInfixes == "awn" {
 								if identicalRunes("a"+rebuiltVerb, searchNaviWord) {
 									// a-v<us>erb and a-v<awn>erb
