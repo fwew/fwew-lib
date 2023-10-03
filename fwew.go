@@ -223,6 +223,13 @@ func TranslateFromNaviHash(searchNaviWord string, checkFixes bool) (results []Wo
 									// v<us>erb-a and v<awn>erb-a
 									results = append(results, a)
 								}
+							} else {
+								d := Word{}
+								d.Navi = searchNaviWord
+								d.InfixDots = "Did you mean " + rebuiltVerb + "?"
+								d.IPA = c.IPA
+								d.PartOfSpeech = "err."
+								results = append(results, d)
 							}
 						}
 					} else if candidate.insistPOS == "nì." {
