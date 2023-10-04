@@ -254,16 +254,19 @@ func reef_plosives(letter string) (voiced string) {
 }
 
 /* Helper function: Replace an ejective with a voiced plosive. */
-func reef_ejective(name string, double bool) (reefy_name string) {
+func reef_ejective(name string) (reefy_name string) {
 	onset_new := ""
+	last_third := get_last_rune(name, 3)
 
-	if double { // Adjacent ejectives become adjacent voiced plosives, too
+	if last_third == "x" { // Adjacent ejectives become adjacent voiced plosives, too
 		onset_new += reef_plosives(get_last_rune(name, 4))
+	} else if last_third == "n" && get_last_rune(name, 2) == "k" {
+		onset_new += "-" // disambiguate on-gi vs o-ngi
 	}
 
 	onset_new += reef_plosives(get_last_rune(name, 2))
 
-	if double {
+	if last_third == "x" {
 		return shave_rune(name, 4) + onset_new
 	}
 
@@ -381,10 +384,10 @@ func single_name_gen(syllable_count int, dialect int) (name string) {
 		// reef dialect stuff
 		if dialect == 2 && namelength > 1 { // In reef dialect,
 			if get_last_rune(name, 1) == "x" { // if there's an ejective in the onset
-				last_three := get_last_rune(name, 3)
-				if last_three != "s" && last_three != "f" { // that's not in a cluster,
-					name = reef_ejective(name, last_three == "x") // it becomes a voiced plosive
-				}
+				name = reef_ejective(name)
+
+				// that's not in a cluster,
+				// it becomes a voiced plosive
 			} else if !psuedovowel && get_last_rune(name, 1) == "'" && get_last_rune(name, 2) != first_rune(nucleus) {
 				// 'a'aw is optionally 'aaw (the generator leaves it in)
 				if is_vowel(get_last_rune(name, 2)) { // Does kaw'it become kawit in reef?
