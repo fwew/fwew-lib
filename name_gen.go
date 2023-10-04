@@ -247,7 +247,6 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 
 		if two_word_noun {
 			output += " "
-			fmt.Println(noun)
 			noun_words := strings.Split(noun, " ")
 			for _, a := range noun_words {
 				output += glottal_caps(a) + " "
