@@ -165,10 +165,12 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 					if !(adj[:2] == "le" && adj != "ler" && adj != "leyr") {
 						adj = "a" + glottal_caps(adj)
 					} else {
-						adj = glottal_caps(adj)
+						adj = glottal_caps(adj) // le-adjectives
 					}
 				} else if two_word_noun && (adj[len(adj)-1] != 'a' || dialect != 1) {
 					adj = glottal_caps(adj) + "a"
+				} else {
+					adj = glottal_caps(adj) // forest dialect a-adjectives like axpa or alaksi
 				}
 			case 3: //genitive noun
 				adj_word := fast_random(allNouns)
