@@ -329,11 +329,11 @@ func single_name_gen(syllable_count int, dialect int) (name string) {
 			}
 			// No identical vowels togther in forest
 		} else if dialect == 1 {
-			if onsetlength == 0 && namelength > 0 && get_last_rune(name, 1) == first_rune(nucleus) {
-				onset = "y"
-			}
 			if nucleus == "ù" { // As of September 2023, the ratio of u to ù
 				nucleus = "u" // was almost exactly 4 to 1 (615 to 158)
+			}
+			if onsetlength == 0 && namelength > 0 && get_last_rune(name, 1) == first_rune(nucleus) {
+				onset = "y"
 			}
 		} else if nucleus_map["ù"] == 0 { //no psuedovowel or forest dialect
 			// If only we didn't have to hardcode the likelihood of ù compared to u :ìì:
