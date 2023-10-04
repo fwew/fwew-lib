@@ -164,11 +164,11 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 				if !two_word_noun && (strings.ToLower(string(adj[0])) != "a" || dialect != 1) {
 					if !(adj[:2] == "le" && adj != "ler" && adj != "leyr") {
 						adj = "a" + glottal_caps(adj)
+					} else {
+						adj = glottal_caps(adj)
 					}
 				} else if two_word_noun && (adj[len(adj)-1] != 'a' || dialect != 1) {
 					adj = glottal_caps(adj) + "a"
-				} else {
-					adj = glottal_caps(adj)
 				}
 			case 3: //genitive noun
 				adj_word := fast_random(allNouns)
@@ -246,6 +246,8 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 		}
 
 		if two_word_noun {
+			output += " "
+			fmt.Println(noun)
 			noun_words := strings.Split(noun, " ")
 			for _, a := range noun_words {
 				output += glottal_caps(a) + " "
