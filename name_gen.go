@@ -159,15 +159,16 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 			case 2: //nomal adjective
 				adj_word := fast_random(allAdjectives)
 				adj = adj_word.Navi
+
 				// If the adj starts with a in forest, we don't need another a
-				if !two_word_noun && (adj[0] != 'a' || dialect != 1) {
+				if !two_word_noun && (strings.ToLower(string(adj[0])) != "a" || dialect != 1) {
 					if !(adj[:2] == "le" && adj != "ler" && adj != "leyr") {
 						adj = "a" + glottal_caps(adj)
-					} else {
-						adj = glottal_caps(adj)
 					}
 				} else if two_word_noun && (adj[len(adj)-1] != 'a' || dialect != 1) {
-					adj = glottal_caps(adj) + "a "
+					adj = glottal_caps(adj) + "a"
+				} else {
+					adj = glottal_caps(adj)
 				}
 			case 3: //genitive noun
 				adj_word := fast_random(allNouns)
@@ -182,9 +183,9 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 				} else {
 					adj_rune := []rune(adj)
 					if has("aeìiä", string(adj_rune[len(adj_rune)-1])) {
-						adj = glottal_caps(adj) + "yä"
+						adj = adj + "yä"
 					} else {
-						adj = glottal_caps(adj) + "ä"
+						adj = adj + "ä"
 					}
 				}
 			case 4: //origin noun
@@ -211,7 +212,9 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 				if !two_word_noun && (adj[0] != 'a' || dialect != 1) {
 					adj = "a" + glottal_caps(adj)
 				} else if two_word_noun && (adj[len(adj)-1] != 'a' || dialect != 1) {
-					adj = glottal_caps(adj) + "a "
+					adj = glottal_caps(adj) + "a"
+				} else {
+					adj = glottal_caps(adj)
 				}
 			case 6: //active participle verb
 				find_verb := one_word_verb(allVerbs)
@@ -220,7 +223,9 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 				if !two_word_noun && (adj[0] != 'a' || dialect != 1) {
 					adj = "a" + glottal_caps(adj)
 				} else if two_word_noun && (adj[len(adj)-1] != 'a' || dialect != 1) {
-					adj = glottal_caps(adj) + "a "
+					adj = glottal_caps(adj) + "a"
+				} else {
+					adj = glottal_caps(adj)
 				}
 			case 7: //passive participle verb
 				find_verb := one_word_verb(allTransitiveVerbs)
@@ -229,7 +234,9 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 				if !two_word_noun && (adj[0] != 'a' || dialect != 1) {
 					adj = "a" + glottal_caps(adj)
 				} else if two_word_noun && (adj[len(adj)-1] != 'a' || dialect != 1) {
-					adj = glottal_caps(adj) + "a "
+					adj = glottal_caps(adj) + "a"
+				} else {
+					adj = glottal_caps(adj)
 				}
 			}
 
