@@ -183,9 +183,9 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 				} else {
 					adj_rune := []rune(adj)
 					if has("aeìiä", string(adj_rune[len(adj_rune)-1])) {
-						adj = adj + "yä"
+						adj = glottal_caps(adj) + "yä"
 					} else {
-						adj = adj + "ä"
+						adj = glottal_caps(adj) + "ä"
 					}
 				}
 			case 4: //origin noun
@@ -246,7 +246,11 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 		}
 
 		if two_word_noun {
-			output += " " + glottal_caps(noun)
+			noun_words := strings.Split(noun, " ")
+			for _, a := range noun_words {
+				output += glottal_caps(a) + " "
+			}
+			output = output[:len(output)-1]
 		}
 
 		output += "\n"
