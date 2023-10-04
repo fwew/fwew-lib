@@ -55,7 +55,7 @@ func FullNames(ending string, name_count int, dialect int, syllable_count [3]int
 
 		// we don't want Neytiri''itan
 		if output[len(output)-1] == '\'' {
-			output = output[:1]
+			output = output[:len(output)-1]
 		}
 
 		// In reef dialect, glottal stops between nonidentical vowels are dropped
