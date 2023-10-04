@@ -44,21 +44,33 @@ func FullNames(ending string, name_count int, dialect int, syllable_count [3]int
 
 	// Fill the chart with names
 	for i := 0; i < name_count; i++ {
+		// Fill it with three names
 		output += glottal_caps(string(single_name_gen(rand_if_zero(syllable_count[0]), dialect)))
 		output += " te "
 		output += glottal_caps(string(single_name_gen(rand_if_zero(syllable_count[1]), dialect)))
 		output += " "
 		output += glottal_caps(string(single_name_gen(rand_if_zero(syllable_count[2]), dialect)))
+
+		ending2 := ending
+
+		// we don't want Neytiri''itan
 		if output[len(output)-1] == '\'' {
-			output += ending[1:] + "\n"
-		} else {
-			output += ending + "\n"
+			output = output[:1]
 		}
+
+		// In reef dialect, glottal stops between nonidentical vowels are dropped
+		if dialect == 2 && has("aäeìouù", get_last_rune(output, 1)) {
+			ending2 = ending[1:]
+		}
+
+		// Add the ending
+		output += ending2 + "\n"
 		if two_thousand_limit && len([]rune(output)) > 1914 {
 			output += "(stopped at " + strconv.Itoa(i+1) + ". 2000 Character limit)"
 			break
 		}
 
+		// We want to know what the message that exceeded 2000 characters looked like
 		if len([]rune(output)) > 2000 {
 			fmt.Println(output)
 			fmt.Println("Made a name message with " + strconv.Itoa(i+1) + " names.")
