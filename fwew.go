@@ -366,6 +366,11 @@ func Random(amount int, args []string) (results []Word, err error) {
 	return
 }
 
+// Get all words with spaces
+func GetMultiwordWords() [][]string {
+	return multiword_words
+}
+
 func StartEverything() {
 	AssureDict()
 	CacheDictHash()

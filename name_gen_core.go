@@ -94,6 +94,8 @@ var valid_triple_consonants = map[string]map[string]map[string]int{
 	},
 }
 
+var multiword_words = [][]string{}
+
 /* Calculated on startup to assist the random number generators and letter selector */
 var max_onset = 0
 var max_non_cluster = 0
@@ -500,7 +502,7 @@ func PhonemeDistros() {
 		nucleus_map[nucleus_letters[i]] = 0
 	}
 
-	//Sodas
+	//Codas
 	for i := 0; i < len(coda_likelihood); i++ {
 		coda_map[coda_letters[i]] = 0
 	}
@@ -508,6 +510,11 @@ func PhonemeDistros() {
 	// Look through all the words
 	for i := 0; i < len(words); i++ {
 		word := strings.Split(words[i].IPA, " ")
+
+		// Piggybacking off of the frequency script to get all words with spaces
+		if len(strings.Split(words[i].Navi, " ")) > 1 {
+			multiword_words = append(multiword_words, strings.Split(strings.ToLower(words[i].Navi), " "))
+		}
 
 		for j := 0; j < len(word); j++ {
 			word[j] = strings.Replace(word[j], "]", "", 1500)
