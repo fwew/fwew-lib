@@ -293,7 +293,7 @@ func SearchNatlangWord(wordmap map[string][]string, searchWord string) (results 
 	return
 }
 
-func TranslateToNaviHash(searchWord string, langCode string) (results []Word) {
+func TranslateToNaviHash(searchWord string, langCode string) (results [][]Word) {
 	badChars := `~@#$%^&*()[]{}<>_/.,;:!?|+\`
 
 	// remove all the sketchy chars from arguments
@@ -308,31 +308,60 @@ func TranslateToNaviHash(searchWord string, langCode string) (results []Word) {
 	// find everything lowercase
 	searchWord = strings.ToLower(searchWord)
 
-	switch langCode {
-	case "de":
-		return SearchNatlangWord(dictHash2.DE, searchWord)
-	case "en":
-		return SearchNatlangWord(dictHash2.EN, searchWord)
-	case "et":
-		return SearchNatlangWord(dictHash2.ET, searchWord)
-	case "fr":
-		return SearchNatlangWord(dictHash2.FR, searchWord)
-	case "hu":
-		return SearchNatlangWord(dictHash2.HU, searchWord)
-	case "nl":
-		return SearchNatlangWord(dictHash2.NL, searchWord)
-	case "pl":
-		return SearchNatlangWord(dictHash2.PL, searchWord)
-	case "ru":
-		return SearchNatlangWord(dictHash2.RU, searchWord)
-	case "sv":
-		return SearchNatlangWord(dictHash2.SV, searchWord)
-	case "tr":
-		return SearchNatlangWord(dictHash2.TR, searchWord)
+	results = [][]Word{}
+
+	for _, word := range strings.Split(searchWord, " ") {
+		results = append(results, []Word{})
+		switch langCode {
+		case "de":
+			for _, a := range SearchNatlangWord(dictHash2.DE, word) {
+				results[len(results)-1] = append(results[len(results)-1], a)
+			}
+		case "en":
+			for _, a := range SearchNatlangWord(dictHash2.EN, word) {
+				results[len(results)-1] = append(results[len(results)-1], a)
+			}
+		case "et":
+			for _, a := range SearchNatlangWord(dictHash2.ET, word) {
+				results[len(results)-1] = append(results[len(results)-1], a)
+			}
+		case "fr":
+			for _, a := range SearchNatlangWord(dictHash2.FR, word) {
+				results[len(results)-1] = append(results[len(results)-1], a)
+			}
+		case "hu":
+			for _, a := range SearchNatlangWord(dictHash2.HU, word) {
+				results[len(results)-1] = append(results[len(results)-1], a)
+			}
+		case "nl":
+			for _, a := range SearchNatlangWord(dictHash2.NL, word) {
+				results[len(results)-1] = append(results[len(results)-1], a)
+			}
+		case "pl":
+			for _, a := range SearchNatlangWord(dictHash2.PL, word) {
+				results[len(results)-1] = append(results[len(results)-1], a)
+			}
+		case "ru":
+			for _, a := range SearchNatlangWord(dictHash2.RU, word) {
+				results[len(results)-1] = append(results[len(results)-1], a)
+			}
+		case "sv":
+			for _, a := range SearchNatlangWord(dictHash2.SV, word) {
+				results[len(results)-1] = append(results[len(results)-1], a)
+			}
+		case "tr":
+			for _, a := range SearchNatlangWord(dictHash2.TR, word) {
+				results[len(results)-1] = append(results[len(results)-1], a)
+			}
+		default:
+			// If we get an odd language code, return English
+			for _, a := range SearchNatlangWord(dictHash2.EN, searchWord) {
+				results[len(results)-1] = append(results[len(results)-1], a)
+			}
+		}
 	}
 
-	// If we get an odd language code, return English
-	return SearchNatlangWord(dictHash2.EN, searchWord)
+	return
 }
 
 // Get random words out of the dictionary.
