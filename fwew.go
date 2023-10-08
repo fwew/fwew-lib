@@ -144,6 +144,7 @@ func TranslateFromNaviHash(searchNaviWords string, checkFixes bool) (results [][
 							found = false
 							break
 						} else {
+							found = false
 							// Find all words the second word can represent
 							secondWords := []Word{}
 
