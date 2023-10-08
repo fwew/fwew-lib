@@ -139,12 +139,11 @@ func TranslateFromNaviHash(searchNaviWords string, checkFixes bool) (results [][
 					keepAffixes := *new(affix)
 					// There could be more than one pair (win säpi and win si for example)
 					for j, pairWord := range pairWordSet {
+						found = false
 						// Don't cause an index out of range error
 						if i+j+1 >= len(allWords) {
-							found = false
 							break
 						} else {
-							found = false
 							// Find all words the second word can represent
 							secondWords := []Word{}
 
@@ -212,9 +211,9 @@ func TranslateFromNaviHash(searchNaviWords string, checkFixes bool) (results [][
 						keepAffixes := *new(affix)
 						// There could be more than one pair (win säpi and win si for example)
 						for j, pairWord := range pairWordSet {
+							found = false
 							// Don't cause an index out of range error
 							if i+j+1 >= len(allWords) {
-								found = false
 								break
 							} else {
 								// Find all words the second word can represent

@@ -512,7 +512,7 @@ func PhonemeDistros() {
 		word := strings.Split(words[i].IPA, " ")
 
 		// Piggybacking off of the frequency script to get all words with spaces
-		all_words := strings.Split(words[i].Navi, " ")
+		all_words := strings.Split(strings.ToLower(words[i].Navi), " ")
 		if len(all_words) > 1 {
 			if _, ok := multiword_words[all_words[0]]; ok {
 				multiword_words[all_words[0]] = append(multiword_words[all_words[0]], all_words[1:])
