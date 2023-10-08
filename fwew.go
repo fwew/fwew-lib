@@ -120,10 +120,77 @@ func TranslateFromNaviHash(searchNaviWords string, checkFixes bool) (results [][
 		// Make sure we have a place to put the found words
 		results = append(results, []Word{})
 
+		bareNaviWord := false
 		// Find the word
-		for _, b := range dictHash[searchNaviWord] {
-			if _, ok := dictHash[searchNaviWord]; ok {
+		if _, ok := dictHash[searchNaviWord]; ok {
+			bareNaviWord = true
+			for _, b := range dictHash[searchNaviWord] {
 				results[len(results)-1] = append(results[len(results)-1], b)
+			}
+		}
+
+		// Bunch of duplicate code for the edge case of eltur tìtxen si and others like it
+		if !bareNaviWord {
+			found := false
+			// See if it is in the list known to start multiword words
+			if _, ok := multiword_words[searchNaviWord]; ok {
+				// If so, loop through it
+				for _, pairWordSet := range multiword_words[searchNaviWord] {
+					keepAffixes := *new(affix)
+					// There could be more than one pair (win säpi and win si for example)
+					for j, pairWord := range pairWordSet {
+						// Don't cause an index out of range error
+						if i+j+1 >= len(allWords) {
+							found = false
+							break
+						} else {
+							// Find all words the second word can represent
+							secondWords := []Word{}
+
+							// First by itself
+							if pairWord == allWords[i+j+1] {
+								found = true
+								continue
+							}
+
+							// And then by its possible conjugations
+							for _, b := range TestDeconjugations(allWords[i+j+1]) {
+								secondWords = append(secondWords, b)
+							}
+
+							// Do any of the conjugations work?
+							for _, b := range secondWords {
+								if b.Navi == pairWord {
+									found = true
+									keepAffixes = addAffixes(keepAffixes, b.Affixes)
+								}
+							}
+
+							// Chain is broken.  Exit.
+							if !found {
+								break
+							}
+						}
+					}
+					if found {
+						fullWord := searchNaviWord
+						for _, pairWord := range pairWordSet {
+							fullWord += " " + pairWord
+						}
+						for _, definition := range dictHash[fullWord] {
+							// Replace the word
+							results[len(results)-1] = []Word{definition}
+							results[len(results)-1][0].Affixes = keepAffixes
+
+							//fmt.Println(results[len(results)-1][0].Affixes)
+							i += len(pairWordSet) + 1
+						}
+					}
+				}
+			}
+			// We found it!
+			if found {
+				continue
 			}
 		}
 
