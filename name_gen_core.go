@@ -94,7 +94,7 @@ var valid_triple_consonants = map[string]map[string]map[string]int{
 	},
 }
 
-var multiword_words = [][]string{}
+var multiword_words = map[string][][]string{}
 
 /* Calculated on startup to assist the random number generators and letter selector */
 var max_onset = 0
@@ -512,8 +512,13 @@ func PhonemeDistros() {
 		word := strings.Split(words[i].IPA, " ")
 
 		// Piggybacking off of the frequency script to get all words with spaces
-		if len(strings.Split(words[i].Navi, " ")) > 1 {
-			multiword_words = append(multiword_words, strings.Split(strings.ToLower(words[i].Navi), " "))
+		all_words := strings.Split(words[i].Navi, " ")
+		if len(all_words) > 1 {
+			if _, ok := multiword_words[all_words[0]]; ok {
+				multiword_words[all_words[0]] = append(multiword_words[all_words[0]], all_words[1:])
+			} else {
+				multiword_words[all_words[0]] = [][]string{all_words[1:]}
+			}
 		}
 
 		for j := 0; j < len(word); j++ {

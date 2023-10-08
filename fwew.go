@@ -91,175 +91,113 @@ func identicalRunes(first string, second string) bool {
 // !! Only one word is allowed, if spaces are found, they will be treated like part of the word !!
 // This will return an array of Words, that fit the input text
 // One Navi-Word can have multiple meanings and words (e.g. synonyms)
-func TranslateFromNaviHash(searchNaviWord string, checkFixes bool) (results []Word, err error) {
+func TranslateFromNaviHash(searchNaviWords string, checkFixes bool) (results [][]Word, err error) {
 	badChars := `~@#$%^&*()[]{}<>_/.,;:!?|+\`
 
 	// remove all the sketchy chars from arguments
 	for _, c := range badChars {
-		searchNaviWord = strings.ReplaceAll(searchNaviWord, string(c), "")
+		searchNaviWords = strings.ReplaceAll(searchNaviWords, string(c), "")
 	}
 
 	// normalize tìftang character
-	searchNaviWord = strings.ReplaceAll(searchNaviWord, "’", "'")
-	searchNaviWord = strings.ReplaceAll(searchNaviWord, "‘", "'")
+	searchNaviWords = strings.ReplaceAll(searchNaviWords, "’", "'")
+	searchNaviWords = strings.ReplaceAll(searchNaviWords, "‘", "'")
 
 	// find everything lowercase
-	searchNaviWord = strings.ToLower(searchNaviWord)
+	searchNaviWords = strings.ToLower(searchNaviWords)
 
 	// No Results if empty string after removing sketch chars
-	if len(searchNaviWord) == 0 {
+	if len(searchNaviWords) == 0 {
 		return
 	}
 
-	// Find the word
-	for _, b := range dictHash[searchNaviWord] {
-		if _, ok := dictHash[searchNaviWord]; ok {
-			results = append(results, b)
+	allWords := strings.Split(searchNaviWords, " ")
+
+	i := 0
+
+	for i < len(allWords) {
+		searchNaviWord := allWords[i]
+		// Make sure we have a place to put the found words
+		results = append(results, []Word{})
+
+		// Find the word
+		for _, b := range dictHash[searchNaviWord] {
+			if _, ok := dictHash[searchNaviWord]; ok {
+				results[len(results)-1] = append(results[len(results)-1], b)
+			}
 		}
-	}
 
-	if checkFixes {
-		conjugations := deconjugate(searchNaviWord)
-		for _, candidate := range conjugations {
-			for _, c := range dictHash[candidate.word] {
-				if _, ok := dictHash[candidate.word]; ok {
-					if candidate.insistPOS == "n." {
-						posNoun := c.PartOfSpeech
-						//posNoun == "n." || posNoun == "prop.n." || posNoun == "pn."
-						if strings.HasSuffix(posNoun, "n.") && !strings.HasPrefix(posNoun, "v") {
-							a := c
-							a.Affixes.Lenition = candidate.lenition
-							a.Affixes.Prefix = candidate.prefixes
-							a.Affixes.Suffix = candidate.suffixes
-							results = append(results, a)
-						}
+		if checkFixes {
+			// Find all possible unconjugated versions of the word
+			for _, a := range TestDeconjugations(searchNaviWord) {
+				results[len(results)-1] = append(results[len(results)-1], a)
+			}
 
-					} else if candidate.insistPOS == "adj." {
-						posNoun := c.PartOfSpeech
-						if posNoun == "adj." || posNoun == "num." {
-							a := c
-							a.Affixes.Lenition = candidate.lenition
-							a.Affixes.Prefix = candidate.prefixes
-							a.Affixes.Suffix = candidate.suffixes
-							results = append(results, a)
-						}
-					} else if candidate.insistPOS == "v." {
-						posNoun := c.PartOfSpeech
-						if strings.HasPrefix(posNoun, "v") {
-							a := c
-							a.Affixes.Lenition = candidate.lenition
-							a.Affixes.Prefix = candidate.prefixes
-							a.Affixes.Suffix = candidate.suffixes
-							a.Affixes.Infix = candidate.infixes
-
-							// Make it verify the infixes are in the correct place
-
-							// pre-first position infixes
-							rebuiltVerb := c.InfixLocations
-							firstInfixes := ""
-							found := false
-
-							for _, infix := range prefirst {
-								for _, newInfix := range candidate.infixes {
-									if newInfix == infix {
-										firstInfixes += infix
-										found = true
-									}
-								}
-							}
-							rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<0>", firstInfixes)
-
-							// first position infixes
-							found = false
-							firstInfixes = ""
-							for _, infix := range first {
-								for _, newInfix := range candidate.infixes {
-									if newInfix == infix {
-										rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<1>", infix)
-										firstInfixes = infix
-										found = true
-										break
-									}
-								}
-								if found {
-									break
-								}
-							}
-							rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<1>", "")
-
-							// second position infixes
-							found = false
-							for _, infix := range second {
-								for _, newInfix := range candidate.infixes {
-									if newInfix == infix {
-										rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<2>", infix)
-										found = true
-										break
-									}
-								}
-								if found {
-									break
-								}
-							}
-							rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<2>", "")
-
-							rebuiltVerb = strings.TrimSpace(rebuiltVerb)
-
-							// normal infixes
-							if identicalRunes(rebuiltVerb, searchNaviWord) {
-								results = append(results, a)
-							} else if len(candidate.prefixes) == 1 && candidate.prefixes[0] == "tì" {
-								if len(candidate.infixes) == 1 && candidate.infixes[0] == "us" {
-									if "tì"+rebuiltVerb == searchNaviWord || "sì"+rebuiltVerb == searchNaviWord {
-										// tì + v<us>erb constructions
-										results = append(results, a)
-									}
-								}
-							} else if firstInfixes == "us" || firstInfixes == "awn" {
-								if identicalRunes("a"+rebuiltVerb, searchNaviWord) {
-									// a-v<us>erb and a-v<awn>erb
-									results = append(results, a)
-								} else if identicalRunes(rebuiltVerb+"a", searchNaviWord) {
-									// v<us>erb-a and v<awn>erb-a
-									results = append(results, a)
-								}
+			// Check if the word could have more than one word
+			found := false
+			// Find the results words
+			for _, a := range results[len(results)-1] {
+				// See if it is in the list known to start multiword words
+				if _, ok := multiword_words[a.Navi]; ok {
+					// If so, loop through it
+					for _, pairWordSet := range multiword_words[a.Navi] {
+						keepAffixes := *new(affix)
+						// There could be more than one pair (win säpi and win si for example)
+						for j, pairWord := range pairWordSet {
+							// Don't cause an index out of range error
+							if i+j+1 >= len(allWords) {
+								found = false
+								break
 							} else {
-								d := Word{}
-								d.Navi = searchNaviWord
-								d.EN = "Did you mean **" + rebuiltVerb + "**?"
-								d.DE = "Did you mean **" + rebuiltVerb + "**?"
-								d.ET = "Did you mean **" + rebuiltVerb + "**?"
-								d.FR = "Did you mean **" + rebuiltVerb + "**?"
-								d.NL = "Did you mean **" + rebuiltVerb + "**?"
-								d.HU = "Did you mean **" + rebuiltVerb + "**?"
-								d.PL = "Did you mean **" + rebuiltVerb + "**?"
-								d.RU = "Did you mean **" + rebuiltVerb + "**?"
-								d.SV = "Did you mean **" + rebuiltVerb + "**?"
-								d.TR = "Did you mean **" + rebuiltVerb + "**?"
-								d.IPA = c.IPA
-								d.PartOfSpeech = "err."
-								results = append(results, d)
+								// Find all words the second word can represent
+								secondWords := []Word{}
+
+								// First by itself
+								if pairWord == allWords[i+j+1] {
+									found = true
+									continue
+								}
+
+								// And then by its possible conjugations
+								for _, b := range TestDeconjugations(allWords[i+j+1]) {
+									secondWords = append(secondWords, b)
+								}
+
+								// Do any of the conjugations work?
+								for _, b := range secondWords {
+									if b.Navi == pairWord {
+										found = true
+										keepAffixes = addAffixes(keepAffixes, b.Affixes)
+									}
+								}
+
+								// Chain is broken.  Exit.
+								if !found {
+									break
+								}
 							}
 						}
-					} else if candidate.insistPOS == "nì." {
-						posNoun := c.PartOfSpeech
-						if posNoun == "adj." || posNoun == "pn." {
-							a := c
-							a.Affixes.Lenition = candidate.lenition
-							a.Affixes.Prefix = candidate.prefixes
-							a.Affixes.Suffix = candidate.suffixes
-							results = append(results, a)
+						if found {
+							fullWord := a.Navi
+							for _, pairWord := range pairWordSet {
+								fullWord += " " + pairWord
+							}
+							for _, definition := range dictHash[fullWord] {
+								// Replace the word
+								keepAffixes = addAffixes(keepAffixes, a.Affixes)
+
+								results[len(results)-1] = []Word{definition}
+								results[len(results)-1][0].Affixes = keepAffixes
+
+								//fmt.Println(results[len(results)-1][0].Affixes)
+								i += len(pairWordSet)
+							}
 						}
-					} else {
-						a := c
-						a.Affixes.Lenition = candidate.lenition
-						a.Affixes.Prefix = candidate.prefixes
-						a.Affixes.Suffix = candidate.suffixes
-						results = append(results, a)
 					}
 				}
 			}
 		}
+		i++
 	}
 
 	return
@@ -367,7 +305,7 @@ func Random(amount int, args []string) (results []Word, err error) {
 }
 
 // Get all words with spaces
-func GetMultiwordWords() [][]string {
+func GetMultiwordWords() map[string][][]string {
 	return multiword_words
 }
 

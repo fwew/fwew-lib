@@ -55,6 +55,25 @@ type affix struct {
 	Comment  []string
 }
 
+func addAffixes(a affix, z affix) (w affix) {
+	for _, b := range a.Prefix {
+		z.Prefix = append(z.Prefix, b)
+	}
+	for _, b := range a.Infix {
+		z.Infix = append(z.Infix, b)
+	}
+	for _, b := range a.Suffix {
+		z.Suffix = append(z.Suffix, b)
+	}
+	for _, b := range a.Lenition {
+		z.Lenition = append(z.Lenition, b)
+	}
+	for _, b := range a.Comment {
+		z.Comment = append(z.Comment, b)
+	}
+	return z
+}
+
 func (w Word) String() string {
 	// this string only doesn't get translated or called from Text() because they're var names
 	return fmt.Sprintf(""+

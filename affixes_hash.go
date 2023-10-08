@@ -467,3 +467,148 @@ func deconjugate(input string) []ConjugationCandidate {
 	candidates = candidates[1:]
 	return candidates
 }
+
+func TestDeconjugations(searchNaviWord string) (results []Word) {
+	conjugations := deconjugate(searchNaviWord)
+	for _, candidate := range conjugations {
+		for _, c := range dictHash[candidate.word] {
+			if _, ok := dictHash[candidate.word]; ok {
+				if candidate.insistPOS == "n." {
+					posNoun := c.PartOfSpeech
+					//posNoun == "n." || posNoun == "prop.n." || posNoun == "pn."
+					if strings.HasSuffix(posNoun, "n.") && !strings.HasPrefix(posNoun, "v") {
+						a := c
+						a.Affixes.Lenition = candidate.lenition
+						a.Affixes.Prefix = candidate.prefixes
+						a.Affixes.Suffix = candidate.suffixes
+						results = append(results, a)
+					}
+
+				} else if candidate.insistPOS == "adj." {
+					posNoun := c.PartOfSpeech
+					if posNoun == "adj." || posNoun == "num." {
+						a := c
+						a.Affixes.Lenition = candidate.lenition
+						a.Affixes.Prefix = candidate.prefixes
+						a.Affixes.Suffix = candidate.suffixes
+						results = append(results, a)
+					}
+				} else if candidate.insistPOS == "v." {
+					posNoun := c.PartOfSpeech
+					if strings.HasPrefix(posNoun, "v") {
+						a := c
+						a.Affixes.Lenition = candidate.lenition
+						a.Affixes.Prefix = candidate.prefixes
+						a.Affixes.Suffix = candidate.suffixes
+						a.Affixes.Infix = candidate.infixes
+
+						// Make it verify the infixes are in the correct place
+
+						// pre-first position infixes
+						rebuiltVerb := c.InfixLocations
+						firstInfixes := ""
+						found := false
+
+						for _, infix := range prefirst {
+							for _, newInfix := range candidate.infixes {
+								if newInfix == infix {
+									firstInfixes += infix
+									found = true
+								}
+							}
+						}
+						rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<0>", firstInfixes)
+
+						// first position infixes
+						found = false
+						firstInfixes = ""
+						for _, infix := range first {
+							for _, newInfix := range candidate.infixes {
+								if newInfix == infix {
+									rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<1>", infix)
+									firstInfixes = infix
+									found = true
+									break
+								}
+							}
+							if found {
+								break
+							}
+						}
+						rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<1>", "")
+
+						// second position infixes
+						found = false
+						for _, infix := range second {
+							for _, newInfix := range candidate.infixes {
+								if newInfix == infix {
+									rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<2>", infix)
+									found = true
+									break
+								}
+							}
+							if found {
+								break
+							}
+						}
+						rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<2>", "")
+
+						rebuiltVerb = strings.TrimSpace(rebuiltVerb)
+
+						// normal infixes
+						if identicalRunes(rebuiltVerb, searchNaviWord) {
+							results = append(results, a)
+						} else if len(candidate.prefixes) == 1 && candidate.prefixes[0] == "tì" {
+							if len(candidate.infixes) == 1 && candidate.infixes[0] == "us" {
+								if "tì"+rebuiltVerb == searchNaviWord || "sì"+rebuiltVerb == searchNaviWord {
+									// tì + v<us>erb constructions
+									results = append(results, a)
+								}
+							}
+						} else if firstInfixes == "us" || firstInfixes == "awn" {
+							if identicalRunes("a"+rebuiltVerb, searchNaviWord) {
+								// a-v<us>erb and a-v<awn>erb
+								results = append(results, a)
+							} else if identicalRunes(rebuiltVerb+"a", searchNaviWord) {
+								// v<us>erb-a and v<awn>erb-a
+								results = append(results, a)
+							}
+						} else {
+							d := Word{}
+							d.Navi = searchNaviWord
+							d.EN = "Did you mean **" + rebuiltVerb + "**?"
+							d.DE = "Did you mean **" + rebuiltVerb + "**?"
+							d.ET = "Did you mean **" + rebuiltVerb + "**?"
+							d.FR = "Did you mean **" + rebuiltVerb + "**?"
+							d.NL = "Did you mean **" + rebuiltVerb + "**?"
+							d.HU = "Did you mean **" + rebuiltVerb + "**?"
+							d.PL = "Did you mean **" + rebuiltVerb + "**?"
+							d.RU = "Did you mean **" + rebuiltVerb + "**?"
+							d.SV = "Did you mean **" + rebuiltVerb + "**?"
+							d.TR = "Did you mean **" + rebuiltVerb + "**?"
+							d.IPA = c.IPA
+							d.PartOfSpeech = "err."
+							results = append(results, d)
+						}
+					}
+				} else if candidate.insistPOS == "nì." {
+					posNoun := c.PartOfSpeech
+					if posNoun == "adj." || posNoun == "pn." {
+						a := c
+						a.Affixes.Lenition = candidate.lenition
+						a.Affixes.Prefix = candidate.prefixes
+						a.Affixes.Suffix = candidate.suffixes
+						results = append(results, a)
+					}
+				} else {
+					a := c
+					a.Affixes.Lenition = candidate.lenition
+					a.Affixes.Prefix = candidate.prefixes
+					a.Affixes.Suffix = candidate.suffixes
+					results = append(results, a)
+				}
+			}
+		}
+	}
+	return
+}
