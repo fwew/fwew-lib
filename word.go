@@ -201,8 +201,8 @@ const (
 	valNull  = "NULL"
 )
 
-func (w *Word) ToOutputLine(i int, withMarkdown, showIPA, showInfixes, showDashed, showInfDots, showSource bool, langCode string) (output string, err error) {
-	num := fmt.Sprintf("[%d]", i+1)
+func (w *Word) ToOutputLine(i string, withMarkdown, showIPA, showInfixes, showDashed, showInfDots, showSource bool, langCode string) (output string, err error) {
+	num := fmt.Sprintf("[%s]", i)
 	nav := w.Navi
 	ipa := fmt.Sprintf("[%s]", w.IPA)
 	pos := "" + w.PartOfSpeech
