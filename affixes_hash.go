@@ -500,22 +500,24 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 				}
 
 				// If the insistPOS and found word agree they are nouns
-				if gerund && strings.HasPrefix(c.PartOfSpeech, "v") {
-					// Make sure the <us> is in the correct place
-					rebuiltVerb := strings.ReplaceAll(c.InfixLocations, "<0>", "")
-					rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<1>", "us")
-					rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<2>", "")
+				if gerund {
+					if strings.HasPrefix(c.PartOfSpeech, "v") {
+						// Make sure the <us> is in the correct place
+						rebuiltVerb := strings.ReplaceAll(c.InfixLocations, "<0>", "")
+						rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<1>", "us")
+						rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<2>", "")
 
-					// Does the noun actually contain the verb?
-					if strings.Contains(searchNaviWord, rebuiltVerb) {
-						a := c
-						a.Affixes.Lenition = candidate.lenition
-						a.Affixes.Prefix = candidate.prefixes
-						a.Affixes.Infix = candidate.infixes
-						a.Affixes.Suffix = candidate.suffixes
-						results = append(results, a)
-					} else {
-						results = append(results, infixError(searchNaviWord, "tì"+rebuiltVerb, c.IPA))
+						// Does the noun actually contain the verb?
+						if strings.Contains(searchNaviWord, rebuiltVerb) {
+							a := c
+							a.Affixes.Lenition = candidate.lenition
+							a.Affixes.Prefix = candidate.prefixes
+							a.Affixes.Infix = candidate.infixes
+							a.Affixes.Suffix = candidate.suffixes
+							results = append(results, a)
+						} else {
+							results = append(results, infixError(searchNaviWord, "tì"+rebuiltVerb, c.IPA))
+						}
 					}
 				} else if candidate.insistPOS == "n." && strings.HasSuffix(c.PartOfSpeech, "n.") {
 					a := c
