@@ -30,6 +30,18 @@ type MetaDict struct {
 	TR map[string][]string
 }
 
+var letterMap = map[rune]int{
+	' ': -1, '\'': 0, 'a': 1, '2': 2, '3': 3,
+	'ä': 4, 'e': 5, '4': 6, '5': 7,
+	'f': 8, 'h': 9, 'i': 10, 'ì': 11,
+	'j': 12, 'k': 13, 'q': 14, 'l': 15,
+	'1': 16, 'm': 17, 'n': 18, 'g': 19,
+	'o': 20, 'p': 21, 'b': 22, 'r': 23,
+	'0': 24, 's': 25, 't': 26, 'c': 27,
+	'd': 28, 'u': 29, 'v': 30, 'w': 31,
+	'y': 32, 'z': 33, '-': 34,
+}
+
 // check if a file exists
 func fileExists(filepath string) bool {
 	fileStat, err := os.Stat(filepath)
@@ -65,6 +77,41 @@ func FindDictionaryFile() string {
 	}
 
 	return ""
+}
+
+func AppendAndAlphabetize(words []Word, word Word) []Word {
+	newWords := []Word{}
+	newWordCompacted := []rune(compress(strings.ToLower(word.Syllables)))
+	oldWordCompacted := []rune("bdgj")
+	i := 0
+	found := false
+	// loop through all the words
+	for i = 0; i < len(words); i++ {
+		if !found {
+			oldWordCompacted = []rune(compress(strings.ToLower(words[i].Syllables)))
+			lowestLen := len(newWordCompacted)
+			if lowestLen > len(oldWordCompacted) {
+				lowestLen = len(oldWordCompacted)
+			}
+			// compare an individual word
+			for j := 0; j < lowestLen; j++ {
+				// If the new letter is bigger, wait until it gets
+				if letterMap[newWordCompacted[j]] > letterMap[oldWordCompacted[j]] {
+					break
+				} else if letterMap[newWordCompacted[j]] < letterMap[oldWordCompacted[j]] {
+					found = true
+					newWords = append(newWords, word)
+					break
+				}
+				// If equal, continue
+			}
+		}
+		newWords = append(newWords, words[i])
+	}
+	if !found {
+		newWords = append(newWords, word)
+	}
+	return newWords
 }
 
 // This will cache the whole dictionary.
