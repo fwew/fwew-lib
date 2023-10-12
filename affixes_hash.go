@@ -1,6 +1,7 @@
 package fwew_lib
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -120,8 +121,22 @@ func isDuplicateFix(fixes []string, fix string) (newFixes []string) {
 	return fixes
 }
 
-func verifyInfixes(original string, bare string, infixes []string) {
-
+func infixError(query string, didYouMean string, ipa string) Word {
+	d := Word{}
+	d.Navi = query
+	d.EN = "Did you mean **" + didYouMean + "**?"
+	d.DE = "Did you mean **" + didYouMean + "**?"
+	d.ET = "Did you mean **" + didYouMean + "**?"
+	d.FR = "Did you mean **" + didYouMean + "**?"
+	d.NL = "Did you mean **" + didYouMean + "**?"
+	d.HU = "Did you mean **" + didYouMean + "**?"
+	d.PL = "Did you mean **" + didYouMean + "**?"
+	d.RU = "Did you mean **" + didYouMean + "**?"
+	d.SV = "Did you mean **" + didYouMean + "**?"
+	d.TR = "Did you mean **" + didYouMean + "**?"
+	d.IPA = ipa
+	d.PartOfSpeech = "err."
+	return d
 }
 
 func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck int, unlenite int8) []ConjugationCandidate {
@@ -473,17 +488,41 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 	for _, candidate := range conjugations {
 		for _, c := range dictHash[candidate.word] {
 			if _, ok := dictHash[candidate.word]; ok {
-				if candidate.insistPOS == "n." {
-					posNoun := c.PartOfSpeech
-					//posNoun == "n." || posNoun == "prop.n." || posNoun == "pn."
-					if strings.HasSuffix(posNoun, "n.") && !strings.HasPrefix(posNoun, "v") {
+				// Find gerunds (tì-v<us>erb, treated like a noun)
+				gerund := false
+				if len(candidate.infixes) == 1 && candidate.infixes[0] == "us" {
+					for _, prefix := range candidate.prefixes {
+						if prefix == "tì" {
+							gerund = true
+							break
+						}
+					}
+				}
+
+				// If the insistPOS and found word agree they are nouns
+				if gerund && strings.HasPrefix(c.PartOfSpeech, "v") {
+					// Make sure the <us> is in the correct place
+					rebuiltVerb := strings.ReplaceAll(c.InfixLocations, "<0>", "")
+					rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<1>", "us")
+					rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<2>", "")
+
+					// Does the noun actually contain the verb?
+					if strings.Contains(searchNaviWord, rebuiltVerb) {
 						a := c
 						a.Affixes.Lenition = candidate.lenition
 						a.Affixes.Prefix = candidate.prefixes
+						a.Affixes.Infix = candidate.infixes
 						a.Affixes.Suffix = candidate.suffixes
 						results = append(results, a)
+					} else {
+						results = append(results, infixError(searchNaviWord, "tì"+rebuiltVerb, c.IPA))
 					}
-
+				} else if candidate.insistPOS == "n." && strings.HasSuffix(c.PartOfSpeech, "n.") {
+					a := c
+					a.Affixes.Lenition = candidate.lenition
+					a.Affixes.Prefix = candidate.prefixes
+					a.Affixes.Suffix = candidate.suffixes
+					results = append(results, a)
 				} else if candidate.insistPOS == "adj." {
 					posNoun := c.PartOfSpeech
 					if posNoun == "adj." || posNoun == "num." {
@@ -558,13 +597,6 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 						// normal infixes
 						if identicalRunes(rebuiltVerb, searchNaviWord) {
 							results = append(results, a)
-						} else if len(candidate.prefixes) == 1 && candidate.prefixes[0] == "tì" {
-							if len(candidate.infixes) == 1 && candidate.infixes[0] == "us" {
-								if "tì"+rebuiltVerb == searchNaviWord || "sì"+rebuiltVerb == searchNaviWord {
-									// tì + v<us>erb constructions
-									results = append(results, a)
-								}
-							}
 						} else if firstInfixes == "us" || firstInfixes == "awn" {
 							if identicalRunes("a"+rebuiltVerb, searchNaviWord) {
 								// a-v<us>erb and a-v<awn>erb
@@ -572,23 +604,13 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 							} else if identicalRunes(rebuiltVerb+"a", searchNaviWord) {
 								// v<us>erb-a and v<awn>erb-a
 								results = append(results, a)
+							} else if firstInfixes == "us" {
+								fmt.Println(searchNaviWord + " should've been " + rebuiltVerb)
+								results = append(results, infixError(searchNaviWord, rebuiltVerb, c.IPA))
 							}
-						} else {
-							d := Word{}
-							d.Navi = searchNaviWord
-							d.EN = "Did you mean **" + rebuiltVerb + "**?"
-							d.DE = "Did you mean **" + rebuiltVerb + "**?"
-							d.ET = "Did you mean **" + rebuiltVerb + "**?"
-							d.FR = "Did you mean **" + rebuiltVerb + "**?"
-							d.NL = "Did you mean **" + rebuiltVerb + "**?"
-							d.HU = "Did you mean **" + rebuiltVerb + "**?"
-							d.PL = "Did you mean **" + rebuiltVerb + "**?"
-							d.RU = "Did you mean **" + rebuiltVerb + "**?"
-							d.SV = "Did you mean **" + rebuiltVerb + "**?"
-							d.TR = "Did you mean **" + rebuiltVerb + "**?"
-							d.IPA = c.IPA
-							d.PartOfSpeech = "err."
-							results = append(results, d)
+						} else if gerund { // ti is needed to weed out non-productive tì-verbs
+							fmt.Println(searchNaviWord + " should be " + rebuiltVerb)
+							results = append(results, infixError(searchNaviWord, rebuiltVerb, c.IPA))
 						}
 					}
 				} else if candidate.insistPOS == "nì." {
@@ -600,7 +622,7 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 						a.Affixes.Suffix = candidate.suffixes
 						results = append(results, a)
 					}
-				} else {
+				} else if candidate.insistPOS == "any" {
 					a := c
 					a.Affixes.Lenition = candidate.lenition
 					a.Affixes.Prefix = candidate.prefixes
