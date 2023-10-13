@@ -1,7 +1,6 @@
 package fwew_lib
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -510,11 +509,8 @@ func deconjugate(input string) []ConjugationCandidate {
 }
 
 func TestDeconjugations(searchNaviWord string) (results []Word) {
-	fmt.Println(searchNaviWord)
-
 	conjugations := deconjugate(searchNaviWord)
 	for _, candidate := range conjugations {
-		fmt.Println(candidate.word)
 		for _, c := range dictHash[candidate.word] {
 			if _, ok := dictHash[candidate.word]; ok {
 				// Find gerunds (tì-v<us>erb, treated like a noun)
@@ -554,8 +550,6 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 						}
 					}
 				}
-
-				fmt.Println(candidate.insistPOS)
 
 				// If the insistPOS and found word agree they are nouns
 				if gerund {
@@ -659,7 +653,6 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 							if !participle {
 								// Trim -yu
 								newString := strings.ReplaceAll(rebuiltVerb, " ", "")
-								fmt.Println("Compare " + searchNaviWord + " to " + newString)
 
 								if strings.Contains(searchNaviWord, newString) {
 									results = append(results, a)
