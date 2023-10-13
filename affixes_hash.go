@@ -1,6 +1,7 @@
 package fwew_lib
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -452,32 +453,40 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 		}
 
 		if input.insistPOS == "any" || input.insistPOS == "v." || input.insistPOS == "adj." {
-			// Check for infixes
-			runes := []rune(input.word)
-			for i, c := range runes {
-				// Infixes can only begin with vowels
-				if has("aäeiìou", string(c)) {
-					shortString := string(runes[i:])
-					for _, infix := range infixes[c] {
-						if strings.HasPrefix(shortString, infix) {
-							newCandidate := candidateDupe(input)
-							newCandidate.word = string(runes[:i]) + strings.TrimPrefix(shortString, infix)
-							newCandidate.infixes = isDuplicateFix(newCandidate.infixes, infix)
-							newCandidate.insistPOS = "v."
-							deconjugateHelper(newCandidate, newPrefixCheck, suffixCheck, unlenite)
+			// Maybe someone else came in with stripped infixes
+			if len(input.word) > 2 && input.word[len(input.word)-3] != ' ' && strings.HasSuffix(input.word, "si") {
+				newCandidate := candidateDupe(input)
+				newCandidate.word = strings.TrimSuffix(input.word, "si") + " si"
+				newCandidate.insistPOS = "v."
+				deconjugateHelper(newCandidate, newPrefixCheck, suffixCheck, unlenite)
+			} else { // If there is a "si", we don't need to check for infixes
+				// Check for infixes
+				runes := []rune(input.word)
+				for i, c := range runes {
+					// Infixes can only begin with vowels
+					if has("aäeiìou", string(c)) {
+						shortString := string(runes[i:])
+						for _, infix := range infixes[c] {
+							if strings.HasPrefix(shortString, infix) {
+								newCandidate := candidateDupe(input)
+								newCandidate.word = string(runes[:i]) + strings.TrimPrefix(shortString, infix)
+								newCandidate.infixes = isDuplicateFix(newCandidate.infixes, infix)
+								newCandidate.insistPOS = "v."
+								deconjugateHelper(newCandidate, newPrefixCheck, suffixCheck, unlenite)
 
-							if infix == "ol" {
-								newCandidate := candidateDupe(input)
-								newCandidate.word = string(runes[:i]) + "ll" + strings.TrimPrefix(shortString, infix)
-								newCandidate.infixes = isDuplicateFix(newCandidate.infixes, infix)
-								newCandidate.insistPOS = "v."
-								deconjugateHelper(newCandidate, newPrefixCheck, suffixCheck, unlenite)
-							} else if infix == "er" {
-								newCandidate := candidateDupe(input)
-								newCandidate.word = string(runes[:i]) + "rr" + strings.TrimPrefix(shortString, infix)
-								newCandidate.infixes = isDuplicateFix(newCandidate.infixes, infix)
-								newCandidate.insistPOS = "v."
-								deconjugateHelper(newCandidate, newPrefixCheck, suffixCheck, unlenite)
+								if infix == "ol" {
+									newCandidate := candidateDupe(input)
+									newCandidate.word = string(runes[:i]) + "ll" + strings.TrimPrefix(shortString, infix)
+									newCandidate.infixes = isDuplicateFix(newCandidate.infixes, infix)
+									newCandidate.insistPOS = "v."
+									deconjugateHelper(newCandidate, newPrefixCheck, suffixCheck, unlenite)
+								} else if infix == "er" {
+									newCandidate := candidateDupe(input)
+									newCandidate.word = string(runes[:i]) + "rr" + strings.TrimPrefix(shortString, infix)
+									newCandidate.infixes = isDuplicateFix(newCandidate.infixes, infix)
+									newCandidate.insistPOS = "v."
+									deconjugateHelper(newCandidate, newPrefixCheck, suffixCheck, unlenite)
+								}
 							}
 						}
 					}
@@ -501,8 +510,11 @@ func deconjugate(input string) []ConjugationCandidate {
 }
 
 func TestDeconjugations(searchNaviWord string) (results []Word) {
+	fmt.Println(searchNaviWord)
+
 	conjugations := deconjugate(searchNaviWord)
 	for _, candidate := range conjugations {
+		fmt.Println(candidate.word)
 		for _, c := range dictHash[candidate.word] {
 			if _, ok := dictHash[candidate.word]; ok {
 				// Find gerunds (tì-v<us>erb, treated like a noun)
@@ -542,6 +554,8 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 						}
 					}
 				}
+
+				fmt.Println(candidate.insistPOS)
 
 				// If the insistPOS and found word agree they are nouns
 				if gerund {
@@ -645,6 +659,7 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 							if !participle {
 								// Trim -yu
 								newString := strings.ReplaceAll(rebuiltVerb, " ", "")
+								fmt.Println("Compare " + searchNaviWord + " to " + newString)
 
 								if strings.Contains(searchNaviWord, newString) {
 									results = append(results, a)
@@ -666,7 +681,7 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 									}
 
 									if !lenited {
-										results = append(results, infixError(searchNaviWord, rebuiltVerb, c.IPA))
+										results = append(results, infixError(searchNaviWord, rebuiltVerb+"yu", c.IPA))
 									}
 								}
 							}
