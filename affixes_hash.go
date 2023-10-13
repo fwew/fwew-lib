@@ -1,7 +1,6 @@
 package fwew_lib
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -54,6 +53,24 @@ var unlenition = map[string][]string{
 	"o":  {"o", "'o"},
 	"u":  {"u", "'u"},
 	"ù":  {"ù", "'ù"},
+}
+
+var lenitionable = []string{
+	"ts",
+	"px", "tx", "kx",
+	"p", "t", "k",
+	"f", "s", "h",
+	"'",
+}
+var lenition = map[string]string{
+	"px": "p",
+	"tx": "t",
+	"kx": "k",
+	"p":  "f",
+	"t":  "s",
+	"k":  "h",
+	"ts": "s",
+	"'":  "",
 }
 
 var prefixes1Nouns = []string{"fì", "tsa", "fra"}
@@ -490,10 +507,37 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 			if _, ok := dictHash[candidate.word]; ok {
 				// Find gerunds (tì-v<us>erb, treated like a noun)
 				gerund := false
+				yu := false
+				participle := false
+
+				// Find -yu verbs that act as nouns
+				if len(candidate.suffixes) > 0 {
+					// Reverse search is more likely to find it immediately
+					for i := len(candidate.suffixes) - 1; i >= 0; i-- {
+						if candidate.suffixes[i] == "yu" {
+							yu = true
+							break
+						}
+					}
+				}
+
+				// Find gerunds (tì-v<us>erb, the act of [verb]ing)
 				if len(candidate.infixes) == 1 && candidate.infixes[0] == "us" {
-					for _, prefix := range candidate.prefixes {
-						if prefix == "tì" {
+					// Reverse search is more likely to find it immediately
+					for i := len(candidate.prefixes) - 1; i >= 0; i-- {
+						if candidate.prefixes[i] == "tì" {
 							gerund = true
+							break
+						}
+					}
+					if !gerund {
+						participle = true
+					}
+				} else if len(candidate.infixes) > 0 {
+					// Now reverse search is just gratuitous
+					for i := len(candidate.infixes) - 1; i >= 0; i-- {
+						if candidate.infixes[i] == "us" || candidate.infixes[i] == "awn" {
+							participle = true
 							break
 						}
 					}
@@ -597,22 +641,51 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 						rebuiltVerb = strings.TrimSpace(rebuiltVerb)
 
 						// normal infixes
-						if identicalRunes(rebuiltVerb, searchNaviWord) {
-							results = append(results, a)
-						} else if firstInfixes == "us" || firstInfixes == "awn" {
-							if identicalRunes("a"+rebuiltVerb, searchNaviWord) {
-								// a-v<us>erb and a-v<awn>erb
+						if yu {
+							if !participle {
+								// Trim -yu
+								newString := strings.ReplaceAll(rebuiltVerb, " ", "")
+
+								if strings.Contains(searchNaviWord, newString) {
+									results = append(results, a)
+								} else {
+									lenited := false
+									// Could it be a lenited form?
+									// Give it lenition
+									for _, l := range lenitionable {
+										// If it has a letter that could have changed for lenition,
+										if strings.HasPrefix(newString, l) {
+											// put all possibilities in the candidates
+											newWord := lenition[l] + strings.TrimPrefix(newString, l)
+											if strings.Contains(searchNaviWord, newWord) {
+												results = append(results, a)
+												lenited = true
+											}
+											break
+										}
+									}
+
+									if !lenited {
+										results = append(results, infixError(searchNaviWord, rebuiltVerb, c.IPA))
+									}
+								}
+							}
+						} else {
+							if identicalRunes(rebuiltVerb, searchNaviWord) {
 								results = append(results, a)
-							} else if identicalRunes(rebuiltVerb+"a", searchNaviWord) {
-								// v<us>erb-a and v<awn>erb-a
-								results = append(results, a)
-							} else if firstInfixes == "us" {
-								fmt.Println(searchNaviWord + " should've been " + rebuiltVerb)
+							} else if participle {
+								if identicalRunes("a"+rebuiltVerb, searchNaviWord) {
+									// a-v<us>erb and a-v<awn>erb
+									results = append(results, a)
+								} else if identicalRunes(rebuiltVerb+"a", searchNaviWord) {
+									// v<us>erb-a and v<awn>erb-a
+									results = append(results, a)
+								} else if firstInfixes == "us" {
+									results = append(results, infixError(searchNaviWord, rebuiltVerb, c.IPA))
+								}
+							} else if gerund { // ti is needed to weed out non-productive tì-verbs
 								results = append(results, infixError(searchNaviWord, rebuiltVerb, c.IPA))
 							}
-						} else if gerund { // ti is needed to weed out non-productive tì-verbs
-							fmt.Println(searchNaviWord + " should be " + rebuiltVerb)
-							results = append(results, infixError(searchNaviWord, rebuiltVerb, c.IPA))
 						}
 					}
 				} else if candidate.insistPOS == "nì." {
