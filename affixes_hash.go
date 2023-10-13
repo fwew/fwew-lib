@@ -571,12 +571,15 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 							results = append(results, infixError(searchNaviWord, "tì"+rebuiltVerb, c.IPA))
 						}
 					}
-				} else if candidate.insistPOS == "n." && strings.HasSuffix(c.PartOfSpeech, "n.") {
-					a := c
-					a.Affixes.Lenition = candidate.lenition
-					a.Affixes.Prefix = candidate.prefixes
-					a.Affixes.Suffix = candidate.suffixes
-					results = append(results, a)
+				} else if candidate.insistPOS == "n." {
+					// n., pn. and Prop.n. (but not vin.)
+					if c.PartOfSpeech[0] != 'v' && strings.HasSuffix(c.PartOfSpeech, "n.") {
+						a := c
+						a.Affixes.Lenition = candidate.lenition
+						a.Affixes.Prefix = candidate.prefixes
+						a.Affixes.Suffix = candidate.suffixes
+						results = append(results, a)
+					}
 				} else if candidate.insistPOS == "adj." {
 					posNoun := c.PartOfSpeech
 					if posNoun == "adj." || posNoun == "num." {
