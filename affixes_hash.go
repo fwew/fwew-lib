@@ -732,22 +732,22 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 							results = append(results, infixError(searchNaviWord, "Did you mean **"+rebuiltVerb+"**?", c.IPA))
 						}
 					}
-				}
-			} else if candidate.insistPOS == "nì." {
-				posNoun := c.PartOfSpeech
-				if posNoun == "adj." || posNoun == "pn." {
+				} else if candidate.insistPOS == "nì." {
+					posNoun := c.PartOfSpeech
+					if posNoun == "adj." || posNoun == "pn." {
+						a := c
+						a.Affixes.Lenition = candidate.lenition
+						a.Affixes.Prefix = candidate.prefixes
+						a.Affixes.Suffix = candidate.suffixes
+						results = append(results, a)
+					}
+				} else {
 					a := c
 					a.Affixes.Lenition = candidate.lenition
 					a.Affixes.Prefix = candidate.prefixes
 					a.Affixes.Suffix = candidate.suffixes
 					results = append(results, a)
 				}
-			} else if candidate.insistPOS == "any" {
-				a := c
-				a.Affixes.Lenition = candidate.lenition
-				a.Affixes.Prefix = candidate.prefixes
-				a.Affixes.Suffix = candidate.suffixes
-				results = append(results, a)
 			}
 		}
 	}

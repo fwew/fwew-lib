@@ -87,11 +87,7 @@ func identicalRunes(first string, second string) bool {
 	return true
 }
 
-// Translate some navi text.
-// !! Multiple words are supported !!
-// This will return a 2D array of Words, that fit the input text
-// One Navi-Word can have multiple meanings and words (e.g. synonyms)
-func TranslateFromNaviHash(searchNaviWords string, checkFixes bool) (results [][]Word, err error) {
+func clean(searchNaviWords string) (words string) {
 	badChars := `~@#$%^&*()[]{}<>_/.,;:!?|+\`
 
 	// remove all the sketchy chars from arguments
@@ -111,31 +107,133 @@ func TranslateFromNaviHash(searchNaviWords string, checkFixes bool) (results [][
 		return
 	}
 
-	allWords := strings.Split(searchNaviWords, " ")
+	return searchNaviWords
+}
+
+// Translate some navi text.
+// !! Multiple words are supported !!
+// This will return a 2D array of Words, that fit the input text
+// One Navi-Word can have multiple meanings and words (e.g. synonyms)
+func TranslateFromNaviHash(searchNaviWords string, checkFixes bool) (results [][]Word, err error) {
+	searchNaviWords = clean(searchNaviWords)
+
+	// No Results if empty string after removing sketch chars
+	if len(searchNaviWords) == 0 {
+		return
+	}
+
+	allWords := strings.Split(clean(searchNaviWords), " ")
 
 	i := 0
 
+	results = [][]Word{}
+
 	for i < len(allWords) {
-		searchNaviWord := allWords[i]
-		// Make sure we have a place to put the found words
+		// Set up receptacle for words
 		results = append(results, []Word{})
 
-		bareNaviWord := false
-		// Find the word
-		if _, ok := dictHash[searchNaviWord]; ok {
-			bareNaviWord = true
-			for _, b := range dictHash[searchNaviWord] {
-				results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], b)
+		j, newWords, error2 := TranslateFromNaviHashHelper(i, allWords, checkFixes)
+		if error2 == nil {
+			for _, newWord := range newWords {
+				results[len(results)-1] = append(results[len(results)-1], newWord)
 			}
 		}
+		i += j
+		i++
+	}
 
-		// Bunch of duplicate code for the edge case of eltur tìtxen si and others like it
-		if !bareNaviWord {
-			found := false
+	return
+}
+
+func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) (steps int, results []Word, err error) {
+	results = []Word{}
+	i := start
+
+	searchNaviWord := allWords[i]
+
+	bareNaviWord := false
+	// Find the word
+	if _, ok := dictHash[searchNaviWord]; ok {
+		bareNaviWord = true
+		for _, b := range dictHash[searchNaviWord] {
+			results = AppendAndAlphabetize(results, b)
+		}
+	}
+
+	// Bunch of duplicate code for the edge case of eltur tìtxen si and others like it
+	if !bareNaviWord {
+		found := false
+		// See if it is in the list known to start multiword words
+		if _, ok := multiword_words[searchNaviWord]; ok {
+			// If so, loop through it
+			for _, pairWordSet := range multiword_words[searchNaviWord] {
+				keepAffixes := *new(affix)
+				// There could be more than one pair (win säpi and win si for example)
+				for j, pairWord := range pairWordSet {
+					found = false
+					// Don't cause an index out of range error
+					if i+j+1 >= len(allWords) {
+						break
+					} else {
+						// Find all words the second word can represent
+						secondWords := []Word{}
+
+						// First by itself
+						if pairWord == allWords[i+j+1] {
+							found = true
+							continue
+						}
+
+						// And then by its possible conjugations
+						for _, b := range TestDeconjugations(allWords[i+j+1]) {
+							secondWords = AppendAndAlphabetize(secondWords, b)
+						}
+
+						// Do any of the conjugations work?
+						for _, b := range secondWords {
+							if b.Navi == pairWord {
+								found = true
+								keepAffixes = addAffixes(keepAffixes, b.Affixes)
+							}
+						}
+
+						// Chain is broken.  Exit.
+						if !found {
+							break
+						}
+					}
+				}
+				if found {
+					fullWord := searchNaviWord
+					for _, pairWord := range pairWordSet {
+						fullWord += " " + pairWord
+					}
+					for _, definition := range dictHash[fullWord] {
+						// Replace the word
+						results = []Word{definition}
+						results[0].Affixes = keepAffixes
+
+						i += len(pairWordSet) + 1
+					}
+				}
+			}
+		}
+	}
+
+	if checkFixes {
+		// Find all possible unconjugated versions of the word
+		for _, a := range TestDeconjugations(searchNaviWord) {
+			results = AppendAndAlphabetize(results, a)
+		}
+
+		// Check if the word could have more than one word
+		found := false
+		// Find the results words
+		for _, a := range results {
 			// See if it is in the list known to start multiword words
-			if _, ok := multiword_words[searchNaviWord]; ok {
+			if _, ok := multiword_words[a.Navi]; ok {
 				// If so, loop through it
-				for _, pairWordSet := range multiword_words[searchNaviWord] {
+				for _, pairWordSet := range multiword_words[a.Navi] {
 					keepAffixes := *new(affix)
 					// There could be more than one pair (win säpi and win si for example)
 					for j, pairWord := range pairWordSet {
@@ -173,101 +271,26 @@ func TranslateFromNaviHash(searchNaviWords string, checkFixes bool) (results [][
 						}
 					}
 					if found {
-						fullWord := searchNaviWord
+						fullWord := a.Navi
 						for _, pairWord := range pairWordSet {
 							fullWord += " " + pairWord
 						}
 						for _, definition := range dictHash[fullWord] {
 							// Replace the word
-							results[len(results)-1] = []Word{definition}
-							results[len(results)-1][0].Affixes = keepAffixes
+							keepAffixes = addAffixes(keepAffixes, a.Affixes)
 
-							//fmt.Println(results[len(results)-1][0].Affixes)
-							i += len(pairWordSet) + 1
-						}
-					}
-				}
-			}
-			// We found it!
-			if found {
-				continue
-			}
-		}
+							results = []Word{definition}
+							results[0].Affixes = keepAffixes
 
-		if checkFixes {
-			// Find all possible unconjugated versions of the word
-			for _, a := range TestDeconjugations(searchNaviWord) {
-				results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], a)
-			}
-
-			// Check if the word could have more than one word
-			found := false
-			// Find the results words
-			for _, a := range results[len(results)-1] {
-				// See if it is in the list known to start multiword words
-				if _, ok := multiword_words[a.Navi]; ok {
-					// If so, loop through it
-					for _, pairWordSet := range multiword_words[a.Navi] {
-						keepAffixes := *new(affix)
-						// There could be more than one pair (win säpi and win si for example)
-						for j, pairWord := range pairWordSet {
-							found = false
-							// Don't cause an index out of range error
-							if i+j+1 >= len(allWords) {
-								break
-							} else {
-								// Find all words the second word can represent
-								secondWords := []Word{}
-
-								// First by itself
-								if pairWord == allWords[i+j+1] {
-									found = true
-									continue
-								}
-
-								// And then by its possible conjugations
-								for _, b := range TestDeconjugations(allWords[i+j+1]) {
-									secondWords = AppendAndAlphabetize(secondWords, b)
-								}
-
-								// Do any of the conjugations work?
-								for _, b := range secondWords {
-									if b.Navi == pairWord {
-										found = true
-										keepAffixes = addAffixes(keepAffixes, b.Affixes)
-									}
-								}
-
-								// Chain is broken.  Exit.
-								if !found {
-									break
-								}
-							}
-						}
-						if found {
-							fullWord := a.Navi
-							for _, pairWord := range pairWordSet {
-								fullWord += " " + pairWord
-							}
-							for _, definition := range dictHash[fullWord] {
-								// Replace the word
-								keepAffixes = addAffixes(keepAffixes, a.Affixes)
-
-								results[len(results)-1] = []Word{definition}
-								results[len(results)-1][0].Affixes = keepAffixes
-
-								//fmt.Println(results[len(results)-1][0].Affixes)
-								i += len(pairWordSet)
-							}
+							i += len(pairWordSet)
 						}
 					}
 				}
 			}
 		}
-		i++
 	}
 
-	return
+	return i - start, results, nil
 }
 
 func SearchNatlangWord(wordmap map[string][]string, searchWord string) (results []Word) {
@@ -294,70 +317,72 @@ func SearchNatlangWord(wordmap map[string][]string, searchWord string) (results 
 }
 
 func TranslateToNaviHash(searchWord string, langCode string) (results [][]Word) {
-	badChars := `~@#$%^&*()[]{}<>_/.,;:!?|+\`
+	searchWord = clean(searchWord)
 
-	// remove all the sketchy chars from arguments
-	for _, c := range badChars {
-		searchWord = strings.ReplaceAll(searchWord, string(c), "")
+	// No Results if empty string after removing sketch chars
+	if len(searchWord) == 0 {
+		return
 	}
-
-	// normalize tìftang character
-	searchWord = strings.ReplaceAll(searchWord, "’", "'")
-	searchWord = strings.ReplaceAll(searchWord, "‘", "'")
-
-	// find everything lowercase
-	searchWord = strings.ToLower(searchWord)
 
 	results = [][]Word{}
 
 	for _, word := range strings.Split(searchWord, " ") {
 		results = append(results, []Word{})
-		switch langCode {
-		case "de":
-			for _, a := range SearchNatlangWord(dictHash2.DE, word) {
-				results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], a)
-			}
-		case "en":
-			for _, a := range SearchNatlangWord(dictHash2.EN, word) {
-				results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], a)
-			}
-		case "et":
-			for _, a := range SearchNatlangWord(dictHash2.ET, word) {
-				results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], a)
-			}
-		case "fr":
-			for _, a := range SearchNatlangWord(dictHash2.FR, word) {
-				results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], a)
-			}
-		case "hu":
-			for _, a := range SearchNatlangWord(dictHash2.HU, word) {
-				results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], a)
-			}
-		case "nl":
-			for _, a := range SearchNatlangWord(dictHash2.NL, word) {
-				results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], a)
-			}
-		case "pl":
-			for _, a := range SearchNatlangWord(dictHash2.PL, word) {
-				results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], a)
-			}
-		case "ru":
-			for _, a := range SearchNatlangWord(dictHash2.RU, word) {
-				results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], a)
-			}
-		case "sv":
-			for _, a := range SearchNatlangWord(dictHash2.SV, word) {
-				results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], a)
-			}
-		case "tr":
-			for _, a := range SearchNatlangWord(dictHash2.TR, word) {
-				results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], a)
-			}
-		default:
-			// If we get an odd language code, return English
-			for _, a := range SearchNatlangWord(dictHash2.EN, searchWord) {
-				results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], a)
-			}
+		for _, a := range TranslateToNaviHashHelper(word, langCode) {
+			results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], a)
+		}
+	}
+
+	return
+}
+
+func TranslateToNaviHashHelper(searchWord string, langCode string) (results []Word) {
+	results = []Word{}
+	switch langCode {
+	case "de":
+		for _, a := range SearchNatlangWord(dictHash2.DE, searchWord) {
+			results = AppendAndAlphabetize(results, a)
+		}
+	case "en":
+		for _, a := range SearchNatlangWord(dictHash2.EN, searchWord) {
+			results = AppendAndAlphabetize(results, a)
+		}
+	case "et":
+		for _, a := range SearchNatlangWord(dictHash2.ET, searchWord) {
+			results = AppendAndAlphabetize(results, a)
+		}
+	case "fr":
+		for _, a := range SearchNatlangWord(dictHash2.FR, searchWord) {
+			results = AppendAndAlphabetize(results, a)
+		}
+	case "hu":
+		for _, a := range SearchNatlangWord(dictHash2.HU, searchWord) {
+			results = AppendAndAlphabetize(results, a)
+		}
+	case "nl":
+		for _, a := range SearchNatlangWord(dictHash2.NL, searchWord) {
+			results = AppendAndAlphabetize(results, a)
+		}
+	case "pl":
+		for _, a := range SearchNatlangWord(dictHash2.PL, searchWord) {
+			results = AppendAndAlphabetize(results, a)
+		}
+	case "ru":
+		for _, a := range SearchNatlangWord(dictHash2.RU, searchWord) {
+			results = AppendAndAlphabetize(results, a)
+		}
+	case "sv":
+		for _, a := range SearchNatlangWord(dictHash2.SV, searchWord) {
+			results = AppendAndAlphabetize(results, a)
+		}
+	case "tr":
+		for _, a := range SearchNatlangWord(dictHash2.TR, searchWord) {
+			results = AppendAndAlphabetize(results, a)
+		}
+	default:
+		// If we get an odd language code, return English
+		for _, a := range SearchNatlangWord(dictHash2.EN, searchWord) {
+			results = AppendAndAlphabetize(results, a)
 		}
 	}
 
@@ -369,19 +394,7 @@ func TranslateToNaviHash(searchWord string, langCode string) (results [][]Word) 
 // This will return a 2D array of Words, that fit the input text
 // One Word can have multiple meanings and words (e.g. synonyms)
 func BidirectionalSearch(searchNaviWords string, checkFixes bool, langCode string) (results [][]Word, err error) {
-	badChars := `~@#$%^&*()[]{}<>_/.,;:!?|+\`
-
-	// remove all the sketchy chars from arguments
-	for _, c := range badChars {
-		searchNaviWords = strings.ReplaceAll(searchNaviWords, string(c), "")
-	}
-
-	// normalize tìftang character
-	searchNaviWords = strings.ReplaceAll(searchNaviWords, "’", "'")
-	searchNaviWords = strings.ReplaceAll(searchNaviWords, "‘", "'")
-
-	// find everything lowercase
-	searchNaviWords = strings.ToLower(searchNaviWords)
+	searchNaviWords = clean(searchNaviWords)
 
 	// No Results if empty string after removing sketch chars
 	if len(searchNaviWords) == 0 {
@@ -392,206 +405,33 @@ func BidirectionalSearch(searchNaviWords string, checkFixes bool, langCode strin
 
 	i := 0
 
+	results = [][]Word{}
 	for i < len(allWords) {
-		/*
-		 * Search the Na'vi word
-		 */
-		searchNaviWord := allWords[i]
-		// Make sure we have a place to put the found words
+		// Set up receptacle for words
 		results = append(results, []Word{})
 
-		bareNaviWord := false
-		// Find the word
-		if _, ok := dictHash[searchNaviWord]; ok {
-			bareNaviWord = true
-			for _, b := range dictHash[searchNaviWord] {
-				results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], b)
+		// Search for Na'vi words
+		j, newWords, error2 := TranslateFromNaviHashHelper(i, allWords, checkFixes)
+		if error2 == nil {
+			for _, newWord := range newWords {
+				results[len(results)-1] = append(results[len(results)-1], newWord)
 			}
 		}
 
-		// Bunch of duplicate code for the edge case of eltur tìtxen si and others like it
-		if !bareNaviWord {
-			found := false
-			// See if it is in the list known to start multiword words
-			if _, ok := multiword_words[searchNaviWord]; ok {
-				// If so, loop through it
-				for _, pairWordSet := range multiword_words[searchNaviWord] {
-					keepAffixes := *new(affix)
-					// There could be more than one pair (win säpi and win si for example)
-					for j, pairWord := range pairWordSet {
-						found = false
-						// Don't cause an index out of range error
-						if i+j+1 >= len(allWords) {
-							break
-						} else {
-							// Find all words the second word can represent
-							secondWords := []Word{}
-
-							// First by itself
-							if pairWord == allWords[i+j+1] {
-								found = true
-								continue
-							}
-
-							// And then by its possible conjugations
-							for _, b := range TestDeconjugations(allWords[i+j+1]) {
-								secondWords = AppendAndAlphabetize(secondWords, b)
-							}
-
-							// Do any of the conjugations work?
-							for _, b := range secondWords {
-								if b.Navi == pairWord {
-									found = true
-									keepAffixes = addAffixes(keepAffixes, b.Affixes)
-								}
-							}
-
-							// Chain is broken.  Exit.
-							if !found {
-								break
-							}
-						}
-					}
-					if found {
-						fullWord := searchNaviWord
-						for _, pairWord := range pairWordSet {
-							fullWord += " " + pairWord
-						}
-						for _, definition := range dictHash[fullWord] {
-							// Replace the word
-							results[len(results)-1] = []Word{definition}
-							results[len(results)-1][0].Affixes = keepAffixes
-
-							i += len(pairWordSet) + 1
-						}
-					}
-				}
-			}
-			// We found it!
-			if found {
-				continue
-			}
+		// Search for natural language words
+		natlangWords := []Word{}
+		for _, a := range TranslateToNaviHashHelper(allWords[i], langCode) {
+			// We want them alphabetized with their fellow natlang words...
+			natlangWords = AppendAndAlphabetize(natlangWords, a)
 		}
 
-		if checkFixes {
-			// Find all possible unconjugated versions of the word
-			for _, a := range TestDeconjugations(searchNaviWord) {
-				results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], a)
-			}
-
-			// Check if the word could have more than one word
-			found := false
-			// Find the results words
-			for _, a := range results[len(results)-1] {
-				// See if it is in the list known to start multiword words
-				if _, ok := multiword_words[a.Navi]; ok {
-					// If so, loop through it
-					for _, pairWordSet := range multiword_words[a.Navi] {
-						keepAffixes := *new(affix)
-						// There could be more than one pair (win säpi and win si for example)
-						for j, pairWord := range pairWordSet {
-							found = false
-							// Don't cause an index out of range error
-							if i+j+1 >= len(allWords) {
-								break
-							} else {
-								// Find all words the second word can represent
-								secondWords := []Word{}
-
-								// First by itself
-								if pairWord == allWords[i+j+1] {
-									found = true
-									continue
-								}
-
-								// And then by its possible conjugations
-								for _, b := range TestDeconjugations(allWords[i+j+1]) {
-									secondWords = AppendAndAlphabetize(secondWords, b)
-								}
-
-								// Do any of the conjugations work?
-								for _, b := range secondWords {
-									if b.Navi == pairWord {
-										found = true
-										keepAffixes = addAffixes(keepAffixes, b.Affixes)
-									}
-								}
-
-								// Chain is broken.  Exit.
-								if !found {
-									break
-								}
-							}
-						}
-						if found {
-							fullWord := a.Navi
-							for _, pairWord := range pairWordSet {
-								fullWord += " " + pairWord
-							}
-							for _, definition := range dictHash[fullWord] {
-								// Replace the word
-								keepAffixes = addAffixes(keepAffixes, a.Affixes)
-
-								results[len(results)-1] = []Word{definition}
-								results[len(results)-1][0].Affixes = keepAffixes
-								i += len(pairWordSet)
-							}
-						}
-					}
-				}
-			}
+		for _, a := range natlangWords {
+			// ...but not with the Na'vi words
+			results[len(results)-1] = append(results[len(results)-1], a)
 		}
 
-		/*
-		 * Search in the natural language selected
-		 */
-		switch langCode {
-		case "de":
-			for _, a := range SearchNatlangWord(dictHash2.DE, searchNaviWord) {
-				results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], a)
-			}
-		case "en":
-			for _, a := range SearchNatlangWord(dictHash2.EN, searchNaviWord) {
-				results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], a)
-			}
-		case "et":
-			for _, a := range SearchNatlangWord(dictHash2.ET, searchNaviWord) {
-				results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], a)
-			}
-		case "fr":
-			for _, a := range SearchNatlangWord(dictHash2.FR, searchNaviWord) {
-				results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], a)
-			}
-		case "hu":
-			for _, a := range SearchNatlangWord(dictHash2.HU, searchNaviWord) {
-				results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], a)
-			}
-		case "nl":
-			for _, a := range SearchNatlangWord(dictHash2.NL, searchNaviWord) {
-				results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], a)
-			}
-		case "pl":
-			for _, a := range SearchNatlangWord(dictHash2.PL, searchNaviWord) {
-				results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], a)
-			}
-		case "ru":
-			for _, a := range SearchNatlangWord(dictHash2.RU, searchNaviWord) {
-				results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], a)
-			}
-		case "sv":
-			for _, a := range SearchNatlangWord(dictHash2.SV, searchNaviWord) {
-				results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], a)
-			}
-		case "tr":
-			for _, a := range SearchNatlangWord(dictHash2.TR, searchNaviWord) {
-				results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], a)
-			}
-		default:
-			// If we get an odd language code, return English
-			for _, a := range SearchNatlangWord(dictHash2.EN, searchNaviWord) {
-				results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], a)
-			}
-		}
+		i += j
+
 		i++
 	}
 
