@@ -1,8 +1,6 @@
 package fwew_lib
 
 import (
-	"fmt"
-	"strconv"
 	"strings"
 )
 
@@ -204,7 +202,6 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 			for _, element := range verbPrefixes {
 				// If it has a prefix
 				if strings.HasPrefix(input.word, element) {
-					fmt.Println("= " + input.word)
 					// remove it
 					newCandidate := candidateDupe(input)
 					newCandidate.word = strings.TrimPrefix(input.word, element)
@@ -513,7 +510,6 @@ func deconjugate(input string) []ConjugationCandidate {
 func TestDeconjugations(searchNaviWord string) (results []Word) {
 	conjugations := deconjugate(searchNaviWord)
 	for _, candidate := range conjugations {
-		fmt.Println(candidate.word + " " + candidate.insistPOS)
 		for _, c := range dictHash[candidate.word] {
 			if _, ok := dictHash[candidate.word]; ok {
 				// Find gerunds (tì-v<us>erb, treated like a noun)
@@ -660,7 +656,6 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 						a.Affixes.Infix = candidate.infixes
 
 						if infixBan {
-							fmt.Println(strconv.Itoa(len(candidate.infixes)) + " is a " + c.Navi)
 							if len(candidate.infixes) > 0 {
 								continue // No nonsense here
 							} else {
