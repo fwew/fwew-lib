@@ -213,7 +213,7 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 						results = []Word{definition}
 						results[0].Affixes = keepAffixes
 
-						i += len(pairWordSet) + 1
+						i += len(pairWordSet)
 					}
 				}
 			}
