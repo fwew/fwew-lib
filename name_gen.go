@@ -162,7 +162,7 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 
 				// If the adj starts with a in forest, we don't need another a
 				if !two_word_noun && (strings.ToLower(string(adj[0])) != "a" || dialect != 1) {
-					if !(adj[:2] == "le" && adj != "ler" && adj != "leyr") {
+					if !(adj[:2] == "le" && adj != "ler" && adj != "leyr" && adj != "lewnga'") {
 						adj = "a" + glottal_caps(adj)
 					} else {
 						adj = glottal_caps(adj) // le-adjectives
