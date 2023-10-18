@@ -42,10 +42,16 @@ func List(args []string) (results []Word, err error) {
 
 func preventCompressBug(input string) string {
 	// Be sure nothing can contaminate the data to compress
-	removeChars := []string{"q", "b", "d", "g", "c", "0", "1", "2", "3", "4", "5"}
+	removeChars := []string{"q", "b", "d", "c", "0", "1", "2", "3", "4", "5"}
 	for _, char := range removeChars {
 		input = strings.ReplaceAll(input, char, ";")
 	}
+
+	// We don't want to interrupt any g that's part of ng
+	input = strings.ReplaceAll(input, "ng", "[-]")
+	input = strings.ReplaceAll(input, "g", ";")
+	input = strings.ReplaceAll(input, "[-]", "ng")
+
 	return input
 }
 
@@ -83,6 +89,11 @@ func listWords(args []string, words []Word) (results []Word, err error) {
 	// /list stress = 1
 
 	wordsLen := len(words)
+
+	switch what {
+	case Text("w_word"):
+		spec = preventCompressBug(spec)
+	}
 
 	for i, word := range words {
 		switch what {
@@ -143,7 +154,6 @@ func listWords(args []string, words []Word) (results []Word, err error) {
 					results = AppendAndAlphabetize(results, word)
 				}
 			case Text("c_has"):
-				spec = preventCompressBug(spec)
 				if spec == "+" && strings.Contains(navi, spec) {
 					results = AppendAndAlphabetize(results, word)
 				} else if strings.Contains(compress(syll), compress(spec)) {
@@ -162,7 +172,6 @@ func listWords(args []string, words []Word) (results []Word, err error) {
 					results = AppendAndAlphabetize(results, word)
 				}
 			case Text("c_not-has"):
-				spec = preventCompressBug(spec)
 				if spec == "+" && !strings.Contains(navi, spec) {
 					results = AppendAndAlphabetize(results, word)
 				} else if !strings.Contains(compress(syll), compress(spec)) {
