@@ -40,6 +40,15 @@ func List(args []string) (results []Word, err error) {
 	return
 }
 
+func preventCompressBug(input string) string {
+	// Be sure nothing can contaminate the data to compress
+	removeChars := []string{"q", "b", "d", "g", "c", "0", "1", "2", "3", "4", "5"}
+	for _, char := range removeChars {
+		input = strings.ReplaceAll(input, char, ";")
+	}
+	return input
+}
+
 func listWords(args []string, words []Word) (results []Word, err error) {
 	var (
 		what = strings.ToLower(args[0])
@@ -134,6 +143,7 @@ func listWords(args []string, words []Word) (results []Word, err error) {
 					results = AppendAndAlphabetize(results, word)
 				}
 			case Text("c_has"):
+				spec = preventCompressBug(spec)
 				if spec == "+" && strings.Contains(navi, spec) {
 					results = AppendAndAlphabetize(results, word)
 				} else if strings.Contains(compress(syll), compress(spec)) {
@@ -152,6 +162,7 @@ func listWords(args []string, words []Word) (results []Word, err error) {
 					results = AppendAndAlphabetize(results, word)
 				}
 			case Text("c_not-has"):
+				spec = preventCompressBug(spec)
 				if spec == "+" && !strings.Contains(navi, spec) {
 					results = AppendAndAlphabetize(results, word)
 				} else if !strings.Contains(compress(syll), compress(spec)) {
