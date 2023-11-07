@@ -98,7 +98,9 @@ func listWords(args []string, words []Word) (results []Word, err error) {
 	for i, word := range words {
 		switch what {
 		case Text("w_pos"):
-			pos := strings.ToLower(word.PartOfSpeech)
+			pos := strings.ReplaceAll(word.PartOfSpeech, ".", "")
+			pos = strings.ToLower(pos)
+			spec = strings.ReplaceAll(spec, ".", "")
 			switch cond {
 			case Text("c_starts"):
 				if strings.HasPrefix(pos, spec) {
