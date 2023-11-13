@@ -798,7 +798,7 @@ var englishWords = []struct {
 func TestTranslateFromNavi(t *testing.T) {
 	for _, tt := range naviWords {
 		t.Run(tt.name, func(t *testing.T) {
-			if got, err := TranslateFromNavi(tt.args.searchNaviText, true); err != nil || !wordSimpleEqual(got, tt.want, true) {
+			if got, err := TranslateFromNaviHash(tt.args.searchNaviText, true); err != nil || !wordSimpleEqual(got, tt.want, true) {
 				t.Errorf("TranslateFromNavi() = %v, want %v", got, tt.want)
 			}
 		})
@@ -806,25 +806,25 @@ func TestTranslateFromNavi(t *testing.T) {
 }
 
 func TestTranslateFromNaviCached(t *testing.T) {
-	CacheDict()
+	CacheDictHash()
 	TestTranslateFromNavi(t)
-	UncacheDict()
+	UncacheHashDict()
 }
 
 func BenchmarkTranslateFromNavi(b *testing.B) {
 	for _, bm := range naviWords {
 		b.Run(bm.name, func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				TranslateFromNavi(bm.args.searchNaviText, true)
+				TranslateFromNaviHash(bm.args.searchNaviText, true)
 			}
 		})
 	}
 }
 
 func BenchmarkTranslateFromNaviCached(b *testing.B) {
-	CacheDict()
+	CacheDictHash()
 	BenchmarkTranslateFromNavi(b)
-	UncacheDict()
+	UncacheHashDict()
 }
 
 func BenchmarkTranslateFromNaviBig(b *testing.B) {
@@ -840,22 +840,22 @@ func BenchmarkTranslateFromNaviBig(b *testing.B) {
 
 		b.Run(line, func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				TranslateFromNavi(line, true)
+				TranslateFromNaviHash(line, true)
 			}
 		})
 	}
 }
 
 func BenchmarkTranslateFromNaviBigCached(b *testing.B) {
-	CacheDict()
+	CacheDictHash()
 	BenchmarkTranslateFromNaviBig(b)
-	UncacheDict()
+	UncacheHashDict()
 }
 
 func TestTranslateToNavi(t *testing.T) {
 	for _, tt := range englishWords {
 		t.Run(tt.name, func(t *testing.T) {
-			if gotResults := TranslateToNavi(tt.args.searchNaviText, tt.args.languageCode); !wordSimpleEqual(gotResults, tt.want, false) {
+			if gotResults := TranslateToNaviHash(tt.args.searchNaviText, tt.args.languageCode); !wordSimpleEqual(gotResults, tt.want, false) {
 				t.Errorf("TranslateToNavi() = %v, want %v", gotResults, tt.want)
 			}
 		})
@@ -863,9 +863,9 @@ func TestTranslateToNavi(t *testing.T) {
 }
 
 func TestTranslateToNaviCached(t *testing.T) {
-	CacheDict()
+	CacheDictHash2()
 	TestTranslateToNavi(t)
-	UncacheDict()
+	UncacheHashDict2()
 }
 
 func BenchmarkTranslateToNaviBig(b *testing.B) {
@@ -881,16 +881,16 @@ func BenchmarkTranslateToNaviBig(b *testing.B) {
 
 		b.Run(line, func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				TranslateToNavi(line, "en")
+				TranslateToNaviHash(line, "en")
 			}
 		})
 	}
 }
 
 func BenchmarkTranslateToNaviBigCached(b *testing.B) {
-	CacheDict()
+	CacheDictHash2()
 	BenchmarkTranslateToNaviBig(b)
-	UncacheDict()
+	UncacheHashDict2()
 }
 
 func TestRandom(t *testing.T) {
@@ -954,7 +954,7 @@ func TestRandom(t *testing.T) {
 }
 
 func TestRandomCached(t *testing.T) {
-	CacheDict()
+	CacheDictHash()
 	TestRandom(t)
-	UncacheDict()
+	UncacheHashDict()
 }

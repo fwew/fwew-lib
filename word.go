@@ -55,6 +55,25 @@ type affix struct {
 	Comment  []string
 }
 
+func addAffixes(a affix, z affix) (w affix) {
+	for _, b := range a.Prefix {
+		z.Prefix = append(z.Prefix, b)
+	}
+	for _, b := range a.Infix {
+		z.Infix = append(z.Infix, b)
+	}
+	for _, b := range a.Suffix {
+		z.Suffix = append(z.Suffix, b)
+	}
+	for _, b := range a.Lenition {
+		z.Lenition = append(z.Lenition, b)
+	}
+	for _, b := range a.Comment {
+		z.Comment = append(z.Comment, b)
+	}
+	return z
+}
+
 func (w Word) String() string {
 	// this string only doesn't get translated or called from Text() because they're var names
 	return fmt.Sprintf(""+
@@ -182,8 +201,8 @@ const (
 	valNull  = "NULL"
 )
 
-func (w *Word) ToOutputLine(i int, withMarkdown, showIPA, showInfixes, showDashed, showInfDots, showSource bool, langCode string) (output string, err error) {
-	num := fmt.Sprintf("[%d]", i+1)
+func (w *Word) ToOutputLine(i string, withMarkdown, showIPA, showInfixes, showDashed, showInfDots, showSource bool, langCode string) (output string, err error) {
+	num := fmt.Sprintf("[%s]", i)
 	nav := w.Navi
 	ipa := fmt.Sprintf("[%s]", w.IPA)
 	pos := "" + w.PartOfSpeech
