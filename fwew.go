@@ -18,7 +18,6 @@ import (
 	"log"
 	"math/rand"
 	"strings"
-	"time"
 )
 
 // Global
@@ -75,7 +74,7 @@ func (w *Word) similarity(other string) float64 {
 // !! Only one word is allowed, if spaces are found, they will be treated like part of the word !!
 // This will return an array of Words, that fit the input text
 // One Navi-Word can have multiple meanings and words (e.g. synonyms)
-func TranslateFromNavi(searchNaviWord string) (results []Word, err error) {
+func TranslateFromNavi(searchNaviWord string, checkFixes bool) (results []Word, err error) {
 	badChars := `~@#$%^&*()[]{}<>_/.,;:!?|+\`
 
 	// remove all the sketchy chars from arguments
@@ -121,7 +120,7 @@ func TranslateFromNavi(searchNaviWord string) (results []Word, err error) {
 			return nil
 		}
 
-		if word.reconstruct(searchNaviWord) {
+		if checkFixes && word.reconstruct(searchNaviWord) {
 			//when it's a verb ending on -uyu, it adds one more to output
 			if Contains(word.Affixes.Comment, []string{"flagUYU"}) {
 				word.Affixes.Comment = []string{}
@@ -200,8 +199,6 @@ func Random(amount int, args []string) (results []Word, err error) {
 	if dictLength == 0 {
 		return nil, NoResults
 	}
-
-	rand.Seed(time.Now().UnixNano())
 
 	// create random number
 	if amount <= 0 {

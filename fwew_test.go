@@ -798,7 +798,7 @@ var englishWords = []struct {
 func TestTranslateFromNavi(t *testing.T) {
 	for _, tt := range naviWords {
 		t.Run(tt.name, func(t *testing.T) {
-			if got, err := TranslateFromNavi(tt.args.searchNaviText); err != nil || !wordSimpleEqual(got, tt.want, true) {
+			if got, err := TranslateFromNavi(tt.args.searchNaviText, true); err != nil || !wordSimpleEqual(got, tt.want, true) {
 				t.Errorf("TranslateFromNavi() = %v, want %v", got, tt.want)
 			}
 		})
@@ -815,7 +815,7 @@ func BenchmarkTranslateFromNavi(b *testing.B) {
 	for _, bm := range naviWords {
 		b.Run(bm.name, func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				TranslateFromNavi(bm.args.searchNaviText)
+				TranslateFromNavi(bm.args.searchNaviText, true)
 			}
 		})
 	}
@@ -840,7 +840,7 @@ func BenchmarkTranslateFromNaviBig(b *testing.B) {
 
 		b.Run(line, func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				TranslateFromNavi(line)
+				TranslateFromNavi(line, true)
 			}
 		})
 	}
