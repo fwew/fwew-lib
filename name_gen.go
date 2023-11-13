@@ -44,21 +44,33 @@ func FullNames(ending string, name_count int, dialect int, syllable_count [3]int
 
 	// Fill the chart with names
 	for i := 0; i < name_count; i++ {
+		// Fill it with three names
 		output += glottal_caps(string(single_name_gen(rand_if_zero(syllable_count[0]), dialect)))
 		output += " te "
 		output += glottal_caps(string(single_name_gen(rand_if_zero(syllable_count[1]), dialect)))
 		output += " "
 		output += glottal_caps(string(single_name_gen(rand_if_zero(syllable_count[2]), dialect)))
+
+		ending2 := ending
+
+		// we don't want Neytiri''itan
 		if output[len(output)-1] == '\'' {
-			output += ending[1:] + "\n"
-		} else {
-			output += ending + "\n"
+			output = output[:len(output)-1]
 		}
+
+		// In reef dialect, glottal stops between nonidentical vowels are dropped
+		if dialect == 2 && has("aäeìouù", get_last_rune(output, 1)) {
+			ending2 = ending[1:]
+		}
+
+		// Add the ending
+		output += ending2 + "\n"
 		if two_thousand_limit && len([]rune(output)) > 1914 {
 			output += "(stopped at " + strconv.Itoa(i+1) + ". 2000 Character limit)"
 			break
 		}
 
+		// We want to know what the message that exceeded 2000 characters looked like
 		if len([]rune(output)) > 2000 {
 			fmt.Println(output)
 			fmt.Println("Made a name message with " + strconv.Itoa(i+1) + " names.")
@@ -147,15 +159,18 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 			case 2: //nomal adjective
 				adj_word := fast_random(allAdjectives)
 				adj = adj_word.Navi
+
 				// If the adj starts with a in forest, we don't need another a
-				if !two_word_noun && (adj[0] != 'a' || dialect != 1) {
-					if !(adj[:2] == "le" && adj != "ler" && adj != "leyr") {
-						adj = "a" + glottal_caps(adj)
+				if !two_word_noun && (strings.ToLower(string(adj[0])) != "a" || dialect != 1) {
+					if (adj[:2] == "le" && adj != "ler" && adj != "leyr" && adj != "lewnga'") || adj == "lafyon" {
+						adj = glottal_caps(adj) // le-adjectives
 					} else {
-						adj = glottal_caps(adj)
+						adj = "a" + glottal_caps(adj)
 					}
 				} else if two_word_noun && (adj[len(adj)-1] != 'a' || dialect != 1) {
-					adj = glottal_caps(adj) + "a "
+					adj = glottal_caps(adj) + "a"
+				} else {
+					adj = glottal_caps(adj) // forest dialect a-adjectives like axpa or alaksi
 				}
 			case 3: //genitive noun
 				adj_word := fast_random(allNouns)
@@ -199,7 +214,9 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 				if !two_word_noun && (adj[0] != 'a' || dialect != 1) {
 					adj = "a" + glottal_caps(adj)
 				} else if two_word_noun && (adj[len(adj)-1] != 'a' || dialect != 1) {
-					adj = glottal_caps(adj) + "a "
+					adj = glottal_caps(adj) + "a"
+				} else {
+					adj = glottal_caps(adj)
 				}
 			case 6: //active participle verb
 				find_verb := one_word_verb(allVerbs)
@@ -208,7 +225,9 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 				if !two_word_noun && (adj[0] != 'a' || dialect != 1) {
 					adj = "a" + glottal_caps(adj)
 				} else if two_word_noun && (adj[len(adj)-1] != 'a' || dialect != 1) {
-					adj = glottal_caps(adj) + "a "
+					adj = glottal_caps(adj) + "a"
+				} else {
+					adj = glottal_caps(adj)
 				}
 			case 7: //passive participle verb
 				find_verb := one_word_verb(allTransitiveVerbs)
@@ -217,7 +236,9 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 				if !two_word_noun && (adj[0] != 'a' || dialect != 1) {
 					adj = "a" + glottal_caps(adj)
 				} else if two_word_noun && (adj[len(adj)-1] != 'a' || dialect != 1) {
-					adj = glottal_caps(adj) + "a "
+					adj = glottal_caps(adj) + "a"
+				} else {
+					adj = glottal_caps(adj)
 				}
 			}
 
@@ -227,7 +248,12 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 		}
 
 		if two_word_noun {
-			output += " " + glottal_caps(noun)
+			output += " "
+			noun_words := strings.Split(noun, " ")
+			for _, a := range noun_words {
+				output += glottal_caps(a) + " "
+			}
+			output = output[:len(output)-1]
 		}
 
 		output += "\n"

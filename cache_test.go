@@ -29,12 +29,12 @@ func Test_cacheDict(t *testing.T) {
 		TR:             "dokunmak",
 	}
 
-	err := CacheDict()
+	err := CacheDictHash()
 	if err != nil {
 		t.Fatalf("Error caching Dictionary!!")
 	}
-	entry := dictionary[0]
-	if !word.Equals(entry) {
+	entry := dictHash["'ampi"]
+	if !word.Equals(entry[0]) {
 		t.Errorf("Read wrong word from cache:\n"+
 			"Id: \"%s\" == \"%s\"\n"+
 			"Navi: \"%s\" == \"%s\"\n"+
@@ -55,24 +55,24 @@ func Test_cacheDict(t *testing.T) {
 			"SV: \"%s\" == \"%s\"\n"+
 			"TR: \"%s\" == \"%s\"\n"+
 			"InfixDots: \"%s\" == \"%s\"\n",
-			word.ID, entry.ID,
-			word.Navi, entry.Navi,
-			word.IPA, entry.IPA,
-			word.InfixLocations, entry.InfixLocations,
-			word.PartOfSpeech, entry.PartOfSpeech,
-			word.Source, entry.Source,
-			word.Stressed, entry.Stressed,
-			word.Syllables, entry.Syllables,
-			word.DE, entry.DE,
-			word.EN, entry.EN,
-			word.ET, entry.ET,
-			word.FR, entry.FR,
-			word.HU, entry.HU,
-			word.NL, entry.NL,
-			word.PL, entry.PL,
-			word.RU, entry.RU,
-			word.SV, entry.SV,
-			word.TR, entry.TR,
-			word.InfixDots, entry.InfixDots)
+			word.ID, entry[0].ID,
+			word.Navi, entry[0].Navi,
+			word.IPA, entry[0].IPA,
+			word.InfixLocations, entry[0].InfixLocations,
+			word.PartOfSpeech, entry[0].PartOfSpeech,
+			word.Source, entry[0].Source,
+			word.Stressed, entry[0].Stressed,
+			word.Syllables, entry[0].Syllables,
+			word.DE, entry[0].DE,
+			word.EN, entry[0].EN,
+			word.ET, entry[0].ET,
+			word.FR, entry[0].FR,
+			word.HU, entry[0].HU,
+			word.NL, entry[0].NL,
+			word.PL, entry[0].PL,
+			word.RU, entry[0].RU,
+			word.SV, entry[0].SV,
+			word.TR, entry[0].TR,
+			word.InfixDots, entry[0].InfixDots)
 	}
 }

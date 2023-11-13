@@ -94,6 +94,8 @@ var valid_triple_consonants = map[string]map[string]map[string]int{
 	},
 }
 
+var multiword_words = map[string][][]string{}
+
 /* Calculated on startup to assist the random number generators and letter selector */
 var max_onset = 0
 var max_non_cluster = 0
@@ -254,16 +256,19 @@ func reef_plosives(letter string) (voiced string) {
 }
 
 /* Helper function: Replace an ejective with a voiced plosive. */
-func reef_ejective(name string, double bool) (reefy_name string) {
+func reef_ejective(name string) (reefy_name string) {
 	onset_new := ""
+	last_third := get_last_rune(name, 3)
 
-	if double { // Adjacent ejectives become adjacent voiced plosives, too
+	if last_third == "x" { // Adjacent ejectives become adjacent voiced plosives, too
 		onset_new += reef_plosives(get_last_rune(name, 4))
+	} else if last_third == "n" && get_last_rune(name, 2) == "k" {
+		onset_new += "-" // disambiguate on-gi vs o-ngi
 	}
 
 	onset_new += reef_plosives(get_last_rune(name, 2))
 
-	if double {
+	if last_third == "x" {
 		return shave_rune(name, 4) + onset_new
 	}
 
@@ -329,10 +334,13 @@ func single_name_gen(syllable_count int, dialect int) (name string) {
 			}
 			// No identical vowels togther in forest
 		} else if dialect == 1 {
+			if nucleus == "ù" { // As of September 2023, the ratio of u to ù
+				nucleus = "u" // was almost exactly 4 to 1 (615 to 158)
+			}
 			if onsetlength == 0 && namelength > 0 && get_last_rune(name, 1) == first_rune(nucleus) {
 				onset = "y"
 			}
-		} else { //no psuedovowel or forest dialect
+		} else if nucleus_map["ù"] == 0 { //no psuedovowel or forest dialect
 			// If only we didn't have to hardcode the likelihood of ù compared to u :ìì:
 			if nucleus == "u" && rand.Intn(5) == 0 { // As of September 2023, the ratio of u to ù
 				nucleus = "ù" // was almost exactly 4 to 1 (615 to 158)
@@ -378,10 +386,10 @@ func single_name_gen(syllable_count int, dialect int) (name string) {
 		// reef dialect stuff
 		if dialect == 2 && namelength > 1 { // In reef dialect,
 			if get_last_rune(name, 1) == "x" { // if there's an ejective in the onset
-				last_three := get_last_rune(name, 3)
-				if last_three != "s" && last_three != "f" { // that's not in a cluster,
-					name = reef_ejective(name, last_three == "x") // it becomes a voiced plosive
-				}
+				name = reef_ejective(name)
+
+				// that's not in a cluster,
+				// it becomes a voiced plosive
 			} else if !psuedovowel && get_last_rune(name, 1) == "'" && get_last_rune(name, 2) != first_rune(nucleus) {
 				// 'a'aw is optionally 'aaw (the generator leaves it in)
 				if is_vowel(get_last_rune(name, 2)) { // Does kaw'it become kawit in reef?
@@ -494,7 +502,7 @@ func PhonemeDistros() {
 		nucleus_map[nucleus_letters[i]] = 0
 	}
 
-	//Sodas
+	//Codas
 	for i := 0; i < len(coda_likelihood); i++ {
 		coda_map[coda_letters[i]] = 0
 	}
@@ -502,6 +510,16 @@ func PhonemeDistros() {
 	// Look through all the words
 	for i := 0; i < len(words); i++ {
 		word := strings.Split(words[i].IPA, " ")
+
+		// Piggybacking off of the frequency script to get all words with spaces
+		all_words := strings.Split(strings.ToLower(words[i].Navi), " ")
+		if len(all_words) > 1 {
+			if _, ok := multiword_words[all_words[0]]; ok {
+				multiword_words[all_words[0]] = append(multiword_words[all_words[0]], all_words[1:])
+			} else {
+				multiword_words[all_words[0]] = [][]string{all_words[1:]}
+			}
+		}
 
 		for j := 0; j < len(word); j++ {
 			word[j] = strings.Replace(word[j], "]", "", 1500)
