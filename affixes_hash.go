@@ -371,29 +371,35 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 						newCandidate.word = newString
 						newCandidate.insistPOS = "n."
 						newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, oldSuffix)
-						deconjugateHelper(newCandidate, newPrefixCheck, 3, unlenite, false)
+						// all set to 4 to avoid mengeyä -> mengo -> me + 'eng + o
+						deconjugateHelper(newCandidate, newPrefixCheck, 4, unlenite, false)
 
 						if oldSuffix == "ä" {
 							// soaiä, tìftiä, etx.
 							newString += "a"
 							newCandidate.word = newString
-							deconjugateHelper(newCandidate, newPrefixCheck, 3, unlenite, false)
+							deconjugateHelper(newCandidate, newPrefixCheck, 4, unlenite, false)
 						} else if oldSuffix == "yä" && strings.HasSuffix(newString, "e") {
 							// A one-off
 							if newString == "tse" {
 								newCandidate.word = "tsaw"
-								deconjugateHelper(newCandidate, newPrefixCheck, 3, unlenite, false)
+								deconjugateHelper(newCandidate, newPrefixCheck, 4, unlenite, false)
 							}
+							// ngeyä -> nga
+							newCandidate.word = strings.TrimSuffix(newString, "e") + "a"
+							deconjugateHelper(newCandidate, newPrefixCheck, 4, unlenite, false)
 							// oengeyä
 							newCandidate.word = strings.TrimSuffix(newString, "e")
-							deconjugateHelper(newCandidate, newPrefixCheck, 3, unlenite, false)
+							if newCandidate.word == "oeng" { //no mengeyä -> meng -> me + 'eng
+								deconjugateHelper(newCandidate, newPrefixCheck, 4, unlenite, false)
+							}
 							// sneyä -> sno
-							newCandidate.word = newCandidate.word + "o"
-							deconjugateHelper(newCandidate, newPrefixCheck, 3, unlenite, false)
+							newCandidate.word = strings.TrimSuffix(newString, "e") + "o"
+							deconjugateHelper(newCandidate, newPrefixCheck, 4, unlenite, false)
 						} else if oldSuffix == "l" && strings.HasSuffix(newString, "a") {
 							// oengal
 							newCandidate.word = strings.TrimSuffix(newString, "a")
-							deconjugateHelper(newCandidate, newPrefixCheck, 3, unlenite, false)
+							deconjugateHelper(newCandidate, newPrefixCheck, 4, unlenite, false)
 						}
 					}
 				}
@@ -512,6 +518,7 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 	for _, candidate := range conjugations {
 		for _, c := range dictHash[candidate.word] {
 			if _, ok := dictHash[candidate.word]; ok {
+
 				// Find gerunds (tì-v<us>erb, treated like a noun)
 				gerund := false
 				infixBan := false
@@ -590,7 +597,7 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 					}
 				} else if candidate.insistPOS == "n." {
 					// n., pn. and Prop.n. (but not vin.)
-					if c.PartOfSpeech[0] != 'v' && strings.HasSuffix(c.PartOfSpeech, "n.") {
+					if len(candidate.infixes) == 0 && c.PartOfSpeech[0] != 'v' && strings.HasSuffix(c.PartOfSpeech, "n.") {
 						a := c
 						a.Affixes.Lenition = candidate.lenition
 						a.Affixes.Prefix = candidate.prefixes
@@ -599,7 +606,7 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 					}
 				} else if candidate.insistPOS == "adj." {
 					posNoun := c.PartOfSpeech
-					if posNoun == "adj." || posNoun == "num." {
+					if len(candidate.infixes) == 0 && (posNoun == "adj." || posNoun == "num.") {
 						a := c
 						a.Affixes.Lenition = candidate.lenition
 						a.Affixes.Prefix = candidate.prefixes
@@ -734,20 +741,21 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 					}
 				} else if candidate.insistPOS == "nì." {
 					posNoun := c.PartOfSpeech
-					if posNoun == "adj." || posNoun == "pn." {
+					if len(candidate.infixes) == 0 && (posNoun == "adj." || posNoun == "pn.") {
 						a := c
 						a.Affixes.Lenition = candidate.lenition
 						a.Affixes.Prefix = candidate.prefixes
 						a.Affixes.Suffix = candidate.suffixes
 						results = append(results, a)
 					}
-				} else {
+				} else if len(candidate.infixes) == 0 {
 					a := c
 					a.Affixes.Lenition = candidate.lenition
 					a.Affixes.Prefix = candidate.prefixes
 					a.Affixes.Suffix = candidate.suffixes
 					results = append(results, a)
 				}
+
 			}
 		}
 	}
