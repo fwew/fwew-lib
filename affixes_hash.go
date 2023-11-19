@@ -1,7 +1,6 @@
 package fwew_lib
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -160,10 +159,6 @@ func infixError(query string, didYouMean string, ipa string) Word {
 }
 
 func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck int, unlenite int8, checkInfixes bool) []ConjugationCandidate {
-	fmt.Println(input.word + "(" + input.insistPOS + ")")
-	fmt.Println(input.prefixes)
-	fmt.Println(input.infixes)
-	fmt.Println(input.suffixes)
 	if !isDuplicate(input) {
 		candidates = append(candidates, input)
 		newString := ""
