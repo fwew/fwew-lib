@@ -1,6 +1,7 @@
 package fwew_lib
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -519,6 +520,10 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 		for _, c := range dictHash[candidate.word] {
 			if _, ok := dictHash[candidate.word]; ok {
 
+				if candidate.word == "plltxe" {
+					fmt.Println(candidate)
+				}
+
 				// Find gerunds (tì-v<us>erb, treated like a noun)
 				gerund := false
 				infixBan := false
@@ -671,6 +676,8 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 						}
 
 						// Make it verify the infixes are in the correct place
+						ol := false
+						er := false
 
 						// pre-first position infixes
 						rebuiltVerb := c.InfixLocations
@@ -696,6 +703,11 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 									rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<1>", infix)
 									firstInfixes = infix
 									found = true
+									if infix == "ol" {
+										ol = true
+									} else if infix == "er" {
+										er = true
+									}
 									break
 								}
 							}
@@ -722,6 +734,13 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 						rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<2>", "")
 
 						rebuiltVerb = strings.TrimSpace(rebuiltVerb)
+
+						if ol && strings.Contains(rebuiltVerb, "olll") {
+							rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "olll", "ol")
+						}
+						if er && strings.Contains(rebuiltVerb, "errr") {
+							rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "errr", "er")
+						}
 
 						if identicalRunes(rebuiltVerb, searchNaviWord) {
 							results = append(results, a)
