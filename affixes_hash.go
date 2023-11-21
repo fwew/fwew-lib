@@ -1,7 +1,6 @@
 package fwew_lib
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -519,10 +518,6 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 	for _, candidate := range conjugations {
 		for _, c := range dictHash[candidate.word] {
 			if _, ok := dictHash[candidate.word]; ok {
-
-				if candidate.word == "plltxe" {
-					fmt.Println(candidate)
-				}
 
 				// Find gerunds (tì-v<us>erb, treated like a noun)
 				gerund := false
