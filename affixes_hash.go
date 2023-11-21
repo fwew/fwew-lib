@@ -374,7 +374,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 						// all set to 4 to avoid mengeyä -> mengo -> me + 'eng + o
 						deconjugateHelper(newCandidate, newPrefixCheck, 4, unlenite, false)
 
-						if oldSuffix == "ä" {
+						if oldSuffix == "ä" && !strings.HasSuffix(input.word, "yä") { // Don't make peyä -> yä -> ya (air)
 							// soaiä, tìftiä, etx.
 							newString += "a"
 							newCandidate.word = newString
