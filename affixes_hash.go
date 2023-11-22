@@ -374,7 +374,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 						// all set to 4 to avoid mengeyä -> mengo -> me + 'eng + o
 						deconjugateHelper(newCandidate, newPrefixCheck, 4, unlenite, false)
 
-						if oldSuffix == "ä" {
+						if oldSuffix == "ä" && !strings.HasSuffix(input.word, "yä") { // Don't make peyä -> yä -> ya (air)
 							// soaiä, tìftiä, etx.
 							newString += "a"
 							newCandidate.word = newString
@@ -671,6 +671,8 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 						}
 
 						// Make it verify the infixes are in the correct place
+						ol := false
+						er := false
 
 						// pre-first position infixes
 						rebuiltVerb := c.InfixLocations
@@ -696,6 +698,11 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 									rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<1>", infix)
 									firstInfixes = infix
 									found = true
+									if infix == "ol" {
+										ol = true
+									} else if infix == "er" {
+										er = true
+									}
 									break
 								}
 							}
@@ -722,6 +729,13 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 						rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<2>", "")
 
 						rebuiltVerb = strings.TrimSpace(rebuiltVerb)
+
+						if ol && strings.Contains(rebuiltVerb, "olll") {
+							rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "olll", "ol")
+						}
+						if er && strings.Contains(rebuiltVerb, "errr") {
+							rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "errr", "er")
+						}
 
 						if identicalRunes(rebuiltVerb, searchNaviWord) {
 							results = append(results, a)
