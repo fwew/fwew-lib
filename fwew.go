@@ -129,13 +129,15 @@ func TranslateFromNaviHash(searchNaviWords string, checkFixes bool) (results [][
 	results = [][]Word{}
 
 	for i < len(allWords) {
-		// Set up receptacle for words
-		results = append(results, []Word{})
 
 		j, newWords, error2 := TranslateFromNaviHashHelper(i, allWords, checkFixes)
 		if error2 == nil {
 			for _, newWord := range newWords {
-				results[len(results)-1] = append(results[len(results)-1], newWord)
+				// Set up receptacle for words
+				results = append(results, []Word{})
+				for _, newResult := range newWord {
+					results[len(results)-1] = append(results[len(results)-1], newResult)
+				}
 			}
 		}
 		i += j
@@ -145,8 +147,9 @@ func TranslateFromNaviHash(searchNaviWords string, checkFixes bool) (results [][
 	return
 }
 
-func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) (steps int, results []Word, err error) {
-	results = []Word{}
+func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) (steps int, results [][]Word, err error) {
+	results = [][]Word{}
+	results = append(results, []Word{})
 	i := start
 
 	searchNaviWord := allWords[i]
@@ -156,7 +159,7 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 	if _, ok := dictHash[searchNaviWord]; ok {
 		bareNaviWord = true
 		for _, b := range dictHash[searchNaviWord] {
-			results = AppendAndAlphabetize(results, b)
+			results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], b)
 		}
 	}
 
@@ -168,6 +171,8 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 			// If so, loop through it
 			for _, pairWordSet := range multiword_words[searchNaviWord] {
 				keepAffixes := *new(affix)
+
+				extraWord := 0
 				// There could be more than one pair (win säpi and win si for example)
 				for j, pairWord := range pairWordSet {
 					found = false
@@ -175,6 +180,19 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 					if i+j+1 >= len(allWords) {
 						break
 					} else {
+						// For "[word] ke si and [word] rä'ä si"
+						if allWords[i+j+1] == "ke" || allWords[i+j+1] == "rä'ä" {
+							if i+j+2 < len(allWords) && allWords[i+j+2] == "si" {
+								extraWord = 1
+								results = [][]Word{}
+								results = append(results, []Word{})
+								results = append(results, []Word{})
+								for _, b := range dictHash[allWords[i+j+1]] {
+									results[0] = append(results[0], b)
+								}
+								j += 1
+							}
+						}
 						// Find all words the second word can represent
 						secondWords := []Word{}
 
@@ -210,11 +228,10 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 					}
 					for _, definition := range dictHash[fullWord] {
 						// Replace the word
-						results = []Word{definition}
-						results[0].Affixes = keepAffixes
-
-						i += len(pairWordSet)
+						results[len(results)-1] = append(results[len(results)-1], definition)
+						results[len(results)-1][0].Affixes = keepAffixes
 					}
+					i += len(pairWordSet) + extraWord
 				}
 			}
 		}
@@ -223,18 +240,20 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 	if checkFixes {
 		// Find all possible unconjugated versions of the word
 		for _, a := range TestDeconjugations(searchNaviWord) {
-			results = AppendAndAlphabetize(results, a)
+			results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], a)
 		}
 
 		// Check if the word could have more than one word
 		found := false
 		// Find the results words
-		for _, a := range results {
+		for _, a := range results[len(results)-1] {
 			// See if it is in the list known to start multiword words
 			if _, ok := multiword_words[a.Navi]; ok {
 				// If so, loop through it
 				for _, pairWordSet := range multiword_words[a.Navi] {
 					keepAffixes := *new(affix)
+
+					extraWord := 0
 					// There could be more than one pair (win säpi and win si for example)
 					for j, pairWord := range pairWordSet {
 						found = false
@@ -242,6 +261,19 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 						if i+j+1 >= len(allWords) {
 							break
 						} else {
+							// For "[word] ke si and [word] rä'ä si"
+							if allWords[i+j+1] == "ke" || allWords[i+j+1] == "rä'ä" {
+								if i+j+2 < len(allWords) && allWords[i+j+2] == "si" {
+									extraWord = 1
+									results = [][]Word{}
+									results = append(results, []Word{})
+									results = append(results, []Word{})
+									for _, b := range dictHash[allWords[i+j+1]] {
+										results[0] = append(results[0], b)
+									}
+									j += 1
+								}
+							}
 							// Find all words the second word can represent
 							secondWords := []Word{}
 
@@ -279,11 +311,10 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 							// Replace the word
 							keepAffixes = addAffixes(keepAffixes, a.Affixes)
 
-							results = []Word{definition}
-							results[0].Affixes = keepAffixes
-
-							i += len(pairWordSet)
+							results[len(results)-1] = append(results[len(results)-1], definition)
+							results[len(results)-1][0].Affixes = keepAffixes
 						}
+						i += len(pairWordSet) + extraWord
 					}
 				}
 			}
@@ -407,14 +438,16 @@ func BidirectionalSearch(searchNaviWords string, checkFixes bool, langCode strin
 
 	results = [][]Word{}
 	for i < len(allWords) {
-		// Set up receptacle for words
-		results = append(results, []Word{})
 
 		// Search for Na'vi words
 		j, newWords, error2 := TranslateFromNaviHashHelper(i, allWords, checkFixes)
 		if error2 == nil {
 			for _, newWord := range newWords {
-				results[len(results)-1] = append(results[len(results)-1], newWord)
+				// Set up receptacle for words
+				results = append(results, []Word{})
+				for _, newResult := range newWord {
+					results[len(results)-1] = append(results[len(results)-1], newResult)
+				}
 			}
 		}
 
