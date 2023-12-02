@@ -147,6 +147,28 @@ func TranslateFromNaviHash(searchNaviWords string, checkFixes bool) (results [][
 	return
 }
 
+// Helper for TranslateFromNaviHashHelper
+func IsVerb(input string) (result bool) {
+	_, possibilities, err := TranslateFromNaviHashHelper(0, []string{input}, true)
+	if err != nil {
+		return false
+	}
+	for _, a := range possibilities {
+		for _, b := range a {
+			if b.PartOfSpeech[0] == 'v' {
+				for _, c := range b.Affixes.Infix {
+					// <us> and <awn> are participles, so they become adjectives
+					if c == "us" || c == "awn" {
+						return false
+					}
+				}
+				return true
+			}
+		}
+	}
+	return false
+}
+
 func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) (steps int, results [][]Word, err error) {
 	results = [][]Word{}
 	results = append(results, []Word{})
@@ -181,17 +203,17 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 						break
 					} else {
 						// For "[word] ke si and [word] rä'ä si"
-						if allWords[i+j+1] == "ke" || allWords[i+j+1] == "rä'ä" {
-							if i+j+2 < len(allWords) && allWords[i+j+2] == "si" {
-								extraWord = 1
-								results = [][]Word{}
-								results = append(results, []Word{})
-								results = append(results, []Word{})
-								for _, b := range dictHash[allWords[i+j+1]] {
-									results[0] = append(results[0], b)
-								}
-								j += 1
+						// "ke" only goes before the verb it negates, while "rä'ä" can come before or after
+						if (allWords[i+j+1] == "ke" && IsVerb(allWords[i+j+2])) || (allWords[i+j+1] == "rä'ä" && IsVerb(allWords[i+j]+" "+allWords[i+j+2])) {
+							extraWord = 1
+							results = [][]Word{}
+							results = append(results, []Word{})
+							results = append(results, []Word{})
+							for _, b := range dictHash[allWords[i+j+1]] {
+								results[0] = append(results[0], b)
 							}
+							found = true
+							j += 1
 						}
 						// Find all words the second word can represent
 						secondWords := []Word{}
@@ -228,8 +250,13 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 					}
 					for _, definition := range dictHash[fullWord] {
 						// Replace the word
-						results[len(results)-1] = append(results[len(results)-1], definition)
-						results[len(results)-1][0].Affixes = keepAffixes
+						if len(results) > 0 && len(results[0]) > 0 && (results[0][0].Navi == "ke" || results[0][0].Navi == "rä'ä") {
+							results[1] = append(results[len(results)-1], definition)
+							results[1][len(results[1])-1].Affixes = keepAffixes
+						} else {
+							results[0] = []Word{definition}
+							results[0][len(results[0])-1].Affixes = keepAffixes
+						}
 					}
 					i += len(pairWordSet) + extraWord
 				}
@@ -238,9 +265,18 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 	}
 
 	if checkFixes {
-		// Find all possible unconjugated versions of the word
-		for _, a := range TestDeconjugations(searchNaviWord) {
-			results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], a)
+		if len(results) > 0 && len(results[0]) > 0 {
+			if !(strings.ToLower(results[len(results)-1][0].Navi) != searchNaviWord && strings.HasPrefix(strings.ToLower(results[len(results)-1][0].Navi), searchNaviWord)) {
+				// Find all possible unconjugated versions of the word
+				for _, a := range TestDeconjugations(searchNaviWord) {
+					results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], a)
+				}
+			}
+		} else {
+			// Find all possible unconjugated versions of the word
+			for _, a := range TestDeconjugations(searchNaviWord) {
+				results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], a)
+			}
 		}
 
 		// Check if the word could have more than one word
@@ -261,18 +297,17 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 						if i+j+1 >= len(allWords) {
 							break
 						} else {
-							// For "[word] ke si and [word] rä'ä si"
-							if allWords[i+j+1] == "ke" || allWords[i+j+1] == "rä'ä" {
-								if i+j+2 < len(allWords) && allWords[i+j+2] == "si" {
-									extraWord = 1
-									results = [][]Word{}
-									results = append(results, []Word{})
-									results = append(results, []Word{})
-									for _, b := range dictHash[allWords[i+j+1]] {
-										results[0] = append(results[0], b)
-									}
-									j += 1
+							// "ke" only goes before the verb it negates, while "rä'ä" can come before or after
+							if (allWords[i+j+1] == "ke" && IsVerb(allWords[i+j+2])) || (allWords[i+j+1] == "rä'ä" && IsVerb(allWords[i+j]+" "+allWords[i+j+2])) {
+								extraWord = 1
+								results = [][]Word{}
+								results = append(results, []Word{})
+								results = append(results, []Word{})
+								for _, b := range dictHash[allWords[i+j+1]] {
+									results[0] = append(results[0], b)
 								}
+
+								j += 1
 							}
 							// Find all words the second word can represent
 							secondWords := []Word{}
@@ -311,8 +346,13 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 							// Replace the word
 							keepAffixes = addAffixes(keepAffixes, a.Affixes)
 
-							results[len(results)-1] = append(results[len(results)-1], definition)
-							results[len(results)-1][0].Affixes = keepAffixes
+							if len(results) > 0 && len(results[0]) > 0 && (results[0][0].Navi == "ke" || results[0][0].Navi == "rä'ä") {
+								results[1] = append(results[len(results)-1], definition)
+								results[1][0].Affixes = keepAffixes
+							} else {
+								results[0] = []Word{definition}
+								results[0][0].Affixes = keepAffixes
+							}
 						}
 						i += len(pairWordSet) + extraWord
 					}

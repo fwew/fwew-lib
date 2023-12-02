@@ -1,6 +1,7 @@
 package fwew_lib
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -168,6 +169,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 		return candidates
 	}
 	if !isDuplicate(input) {
+		fmt.Println(input.word)
 		candidates = append(candidates, input)
 		newString := ""
 
@@ -185,6 +187,8 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 				newCandidate.prefixes = isDuplicateFix(newCandidate.prefixes, "a")
 				newCandidate.insistPOS = "adj."
 				deconjugateHelper(newCandidate, 1, suffixCheck, -1, false)
+				newCandidate.insistPOS = "v."
+				deconjugateHelper(newCandidate, 1, suffixCheck, -1, true)
 			} else if strings.HasPrefix(input.word, "nì") {
 				newCandidate := candidateDupe(input)
 				newCandidate.word = strings.TrimPrefix(input.word, "nì")
@@ -378,6 +382,8 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 				newCandidate.word = newString
 				newCandidate.insistPOS = "adj."
 				newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, "a")
+				deconjugateHelper(newCandidate, newPrefixCheck, 2, unlenite, true)
+				newCandidate.insistPOS = "v."
 				deconjugateHelper(newCandidate, newPrefixCheck, 2, unlenite, true)
 			}
 			for _, oldSuffix := range lastSuffixes {
