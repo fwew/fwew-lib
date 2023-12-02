@@ -203,8 +203,7 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 						break
 					} else {
 						// For "[word] ke si and [word] rä'ä si"
-						// "ke" only goes before the verb it negates, while "rä'ä" can come before or after
-						if (allWords[i+j+1] == "ke" && IsVerb(allWords[i+j+2])) || (allWords[i+j+1] == "rä'ä" && IsVerb(allWords[i+j]+" "+allWords[i+j+2])) {
+						if (allWords[i+j+1] == "ke" || allWords[i+j+1] == "rä'ä") && IsVerb(allWords[i+j+2]) {
 							extraWord = 1
 							results = [][]Word{}
 							results = append(results, []Word{})
@@ -297,8 +296,7 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 						if i+j+1 >= len(allWords) {
 							break
 						} else {
-							// "ke" only goes before the verb it negates, while "rä'ä" can come before or after
-							if (allWords[i+j+1] == "ke" && IsVerb(allWords[i+j+2])) || (allWords[i+j+1] == "rä'ä" && IsVerb(allWords[i+j]+" "+allWords[i+j+2])) {
+							if (allWords[i+j+1] == "ke" || allWords[i+j+1] == "rä'ä") && IsVerb(allWords[i+j+2]) {
 								extraWord = 1
 								results = [][]Word{}
 								results = append(results, []Word{})

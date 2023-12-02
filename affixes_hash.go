@@ -1,7 +1,6 @@
 package fwew_lib
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -168,8 +167,34 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 		candidates = append(candidates, input)
 		return candidates
 	}
+	// For lrrtok-susi and others
+	if (input.insistPOS == "adj." || input.insistPOS == "any") && strings.HasSuffix(input.word, "-susi") {
+		found := false
+		trimmedWord := strings.TrimSuffix(input.word, "-susi")
+		for _, pairWordSet := range multiword_words[trimmedWord] {
+			for _, pairWord := range pairWordSet {
+				if pairWord == "si" {
+					found = true
+					break
+				}
+			}
+			if found {
+				break
+			}
+		}
+
+		if found {
+			newCandidate := candidateDupe(input)
+			newCandidate.word = trimmedWord + " si"
+			newCandidate.infixes = []string{"us"}
+			newCandidate.insistPOS = "v."
+			candidates = append(candidates, input) // to bump the real candidate into recognition
+			candidates = append(candidates, newCandidate)
+		}
+
+		return candidates
+	}
 	if !isDuplicate(input) {
-		fmt.Println(input.word)
 		candidates = append(candidates, input)
 		newString := ""
 
@@ -751,7 +776,7 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 							rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "errr", "er")
 						}
 
-						if identicalRunes(rebuiltVerb, searchNaviWord) {
+						if identicalRunes(rebuiltVerb, strings.ReplaceAll(searchNaviWord, "-", " ")) {
 							results = append(results, a)
 						} else if participle {
 							if identicalRunes("a"+rebuiltVerb, searchNaviWord) {
