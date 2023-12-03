@@ -168,9 +168,15 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 		return candidates
 	}
 	// For lrrtok-susi and others
-	if (input.insistPOS == "adj." || input.insistPOS == "any") && strings.HasSuffix(input.word, "-susi") {
+	if (input.insistPOS == "adj." || input.insistPOS == "any") && (strings.HasSuffix(input.word, "-susi") || strings.HasSuffix(input.word, "-susia")) {
 		found := false
 		trimmedWord := strings.TrimSuffix(input.word, "-susi")
+		aPosition := 0
+		if strings.HasSuffix(input.word, "-susia") {
+			trimmedWord = strings.TrimSuffix(input.word, "-susia")
+			aPosition = 1
+		}
+
 		for _, pairWordSet := range multiword_words[trimmedWord] {
 			for _, pairWord := range pairWordSet {
 				if pairWord == "si" {
@@ -183,15 +189,38 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 			}
 		}
 
+		if !found && aPosition == 0 && strings.HasPrefix(trimmedWord, "a") {
+			noA := strings.TrimPrefix(trimmedWord, "a")
+			for _, pairWordSet := range multiword_words[noA] {
+				for _, pairWord := range pairWordSet {
+					if pairWord == "si" {
+						found = true
+						break
+					}
+				}
+				if found {
+					aPosition = -1
+					break
+				}
+			}
+		}
+
+		candidates = append(candidates, input) // to bump the real candidate into recognition
+
 		if found {
 			newCandidate := candidateDupe(input)
 			newCandidate.word = trimmedWord + " si"
+			if aPosition == -1 {
+				newCandidate.word = strings.TrimPrefix(trimmedWord, "a") + " si"
+				newCandidate.prefixes = append(newCandidate.prefixes, "a")
+			}
 			newCandidate.infixes = []string{"us"}
 			newCandidate.insistPOS = "v."
-			candidates = append(candidates, input) // to bump the real candidate into recognition
+			if aPosition == 1 {
+				newCandidate.suffixes = append(newCandidate.suffixes, "a")
+			}
 			candidates = append(candidates, newCandidate)
 		}
-
 		return candidates
 	}
 	if !isDuplicate(input) {
@@ -497,7 +526,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 
 		if checkInfixes {
 			// Maybe someone else came in with stripped infixes
-			if len(input.word) > 2 && input.word[len(input.word)-3] != ' ' && strings.HasSuffix(input.word, "si") {
+			if len(input.word) > 2 && input.word[len(input.word)-3] != ' ' && strings.HasSuffix(input.word, "si") && input.word != "susi" {
 				newCandidate := candidateDupe(input)
 				newCandidate.word = strings.TrimSuffix(input.word, "si") + " si"
 				newCandidate.insistPOS = "v."
@@ -779,10 +808,12 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 						if identicalRunes(rebuiltVerb, strings.ReplaceAll(searchNaviWord, "-", " ")) {
 							results = append(results, a)
 						} else if participle {
-							if identicalRunes("a"+rebuiltVerb, searchNaviWord) {
+							// In case we have a [word]-susi
+							rebuiltHyphen := strings.ReplaceAll(searchNaviWord, "-", " ")
+							if identicalRunes("a"+rebuiltVerb, rebuiltHyphen) {
 								// a-v<us>erb and a-v<awn>erb
 								results = append(results, a)
-							} else if identicalRunes(rebuiltVerb+"a", searchNaviWord) {
+							} else if identicalRunes(rebuiltVerb+"a", rebuiltHyphen) {
 								// v<us>erb-a and v<awn>erb-a
 								results = append(results, a)
 							} else if firstInfixes == "us" {
