@@ -526,7 +526,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 
 		if checkInfixes {
 			// Maybe someone else came in with stripped infixes
-			if len(input.word) > 2 && input.word[len(input.word)-3] != ' ' && strings.HasSuffix(input.word, "si") && input.word != "susi" {
+			if len(input.word) > 2 && input.word[len(input.word)-3] != ' ' && strings.HasSuffix(input.word, "si") && input.word != "susi" && input.word != "satsi" {
 				newCandidate := candidateDupe(input)
 				newCandidate.word = strings.TrimSuffix(input.word, "si") + " si"
 				newCandidate.insistPOS = "v."
