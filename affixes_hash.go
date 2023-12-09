@@ -334,7 +334,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 							for _, newPrefix := range unlenition[oldPrefix] {
 								newCandidate.word = newPrefix + strings.TrimPrefix(newString, oldPrefix)
 								if oldPrefix != newPrefix {
-									newCandidate.lenition = []string{oldPrefix + "→" + newPrefix}
+									newCandidate.lenition = []string{newPrefix + "→" + oldPrefix}
 								}
 								deconjugateHelper(newCandidate, 4, suffixCheck, -1, false)
 							}
@@ -396,7 +396,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 						// all set to 2 to avoid mengeyä -> mengo -> me + 'eng + o
 						deconjugateHelper(newCandidate, newPrefixCheck, 3, unlenite, false)
 
-						if oldSuffix == "ä" && !strings.HasSuffix(input.word, "yä") { // Don't make peyä -> yä -> ya (air)
+						if oldSuffix == "ä" && !strings.HasSuffix(input.word, "yä") && strings.HasSuffix(input.word, "iä") { // Don't make peyä -> yä -> ya (air)
 							// soaiä, tìftiä, etx.
 							newString += "a"
 							newCandidate.word = newString
@@ -515,7 +515,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 						newString = newPrefix + strings.TrimPrefix(input.word, oldPrefix)
 						newCandidate.word = newString
 						if oldPrefix != newPrefix {
-							newCandidate.lenition = []string{oldPrefix + "→" + newPrefix}
+							newCandidate.lenition = []string{newPrefix + "→" + oldPrefix}
 						}
 						deconjugateHelper(newCandidate, prefixCheck, suffixCheck, -1, false)
 					}
