@@ -120,6 +120,13 @@ func (w Word) String() string {
 	)
 }
 
+// Make a simple word to show what query led to this word
+func simpleWord(name string) Word {
+	var word Word
+	word.Navi = name
+	return word
+}
+
 // Initialize Word with one row of the dictionary.
 func newWord(dataFields []string, order dictPos) Word {
 	var word Word

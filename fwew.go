@@ -112,7 +112,8 @@ func clean(searchNaviWords string) (words string) {
 
 // Translate some navi text.
 // !! Multiple words are supported !!
-// This will return a 2D array of Words, that fit the input text
+// This will return a 2D array of Words that fit the input text
+// The first word will only contain the query put into the translate command
 // One Navi-Word can have multiple meanings and words (e.g. synonyms)
 func TranslateFromNaviHash(searchNaviWords string, checkFixes bool) (results [][]Word, err error) {
 	searchNaviWords = clean(searchNaviWords)
@@ -148,6 +149,18 @@ func TranslateFromNaviHash(searchNaviWords string, checkFixes bool) (results [][
 }
 
 // Helper for TranslateFromNaviHashHelper
+func AppendToFront(words []Word, input string) []Word {
+	// Get the query it's looking for
+	dummyWord := []Word{simpleWord(input)}
+	// Append it to the front of the list
+	for _, a := range words {
+		dummyWord = append(dummyWord, a)
+	}
+	// Make it the list
+	return dummyWord
+}
+
+// Helper for TranslateFromNaviHashHelper
 func IsVerb(input string) (result bool) {
 	_, possibilities, err := TranslateFromNaviHashHelper(0, []string{input}, true)
 	if err != nil {
@@ -155,7 +168,7 @@ func IsVerb(input string) (result bool) {
 	}
 	for _, a := range possibilities {
 		for _, b := range a {
-			if b.PartOfSpeech[0] == 'v' {
+			if len(b.PartOfSpeech) > 0 && b.PartOfSpeech[0] == 'v' {
 				for _, c := range b.Affixes.Infix {
 					// <us> and <awn> are participles, so they become adjectives
 					if c == "us" || c == "awn" {
@@ -176,10 +189,14 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 
 	searchNaviWord := allWords[i]
 
+	// Get the query it's looking for
+	results[len(results)-1] = AppendToFront(results[len(results)-1], searchNaviWord)
+
 	bareNaviWord := false
 	// Find the word
 	if _, ok := dictHash[searchNaviWord]; ok {
 		bareNaviWord = true
+
 		for _, b := range dictHash[searchNaviWord] {
 			results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], b)
 		}
@@ -247,14 +264,20 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 					for _, pairWord := range pairWordSet {
 						fullWord += " " + pairWord
 					}
+
 					for _, definition := range dictHash[fullWord] {
 						// Replace the word
-						if len(results) > 0 && len(results[0]) > 0 && (results[0][0].Navi == "ke" || results[0][0].Navi == "rä'ä") {
+						if len(results) > 0 && len(results[0]) > 1 && (results[0][1].Navi == "ke" || results[0][1].Navi == "rä'ä") {
+							// Get the query it's looking for
+							results[0] = AppendToFront([]Word{results[0][len(results[0])-1]}, results[0][1].Navi)
 							results[1] = append(results[len(results)-1], definition)
-							results[1][len(results[1])-1].Affixes = keepAffixes
+							results[1] = AppendToFront(results[1], fullWord)
+							results[1][1].Affixes = keepAffixes
 						} else {
-							results[0] = []Word{definition}
-							results[0][len(results[0])-1].Affixes = keepAffixes
+							// Get the query it's looking for
+							results[0] = append(results[0], definition)
+							results[0] = AppendToFront(results[0], fullWord)
+							results[0][0].Affixes = keepAffixes
 						}
 					}
 					i += len(pairWordSet) + extraWord
@@ -287,6 +310,7 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 				// If so, loop through it
 				for _, pairWordSet := range multiword_words[a.Navi] {
 					keepAffixes := *new(affix)
+					keepAffixes = addAffixes(keepAffixes, a.Affixes)
 
 					extraWord := 0
 					// There could be more than one pair (win säpi and win si for example)
@@ -340,15 +364,23 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 						for _, pairWord := range pairWordSet {
 							fullWord += " " + pairWord
 						}
+
+						// Get the query it's looking for
+						results[0] = AppendToFront(results[0], fullWord)
+
 						for _, definition := range dictHash[fullWord] {
 							// Replace the word
-							keepAffixes = addAffixes(keepAffixes, a.Affixes)
 
-							if len(results) > 0 && len(results[0]) > 0 && (results[0][0].Navi == "ke" || results[0][0].Navi == "rä'ä") {
+							if len(results) > 0 && len(results[0]) > 1 && (results[0][1].Navi == "ke" || results[0][1].Navi == "rä'ä") {
+								// Get the query it's looking for
+								results[0] = AppendToFront([]Word{results[0][len(results[0])-1]}, results[0][1].Navi)
 								results[1] = append(results[len(results)-1], definition)
-								results[1][0].Affixes = keepAffixes
+								results[1] = AppendToFront(results[1], fullWord)
+								results[1][1].Affixes = keepAffixes
 							} else {
-								results[0] = []Word{definition}
+								// Get the query it's looking for
+								results[0] = append(results[0], definition)
+								results[0] = AppendToFront(results[0], fullWord)
 								results[0][0].Affixes = keepAffixes
 							}
 						}
@@ -357,6 +389,11 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 				}
 			}
 		}
+	}
+
+	// If we found nothing, at least return the query
+	if len(results[0]) == 0 {
+		return i - start, [][]Word{{simpleWord(searchNaviWord)}}, nil
 	}
 
 	return i - start, results, nil
@@ -400,6 +437,12 @@ func TranslateToNaviHash(searchWord string, langCode string) (results [][]Word) 
 		for _, a := range TranslateToNaviHashHelper(word, langCode) {
 			results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], a)
 		}
+		// Append the query to the front of the list
+		tempResults := []Word{simpleWord(word)}
+		for _, b := range results[len(results)-1] {
+			tempResults = append(tempResults, b)
+		}
+		results[len(results)-1] = tempResults
 	}
 
 	return
