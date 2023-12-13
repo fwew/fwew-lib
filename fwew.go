@@ -221,9 +221,11 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 						// For "[word] ke si and [word] rä'ä si"
 						if (allWords[i+j+1] == "ke" || allWords[i+j+1] == "rä'ä") && IsVerb(allWords[i+j+2]) {
 							extraWord = 1
-							results = append(results, []Word{simpleWord(allWords[i+j+1])})
-							for _, b := range dictHash[allWords[i+j+1]] {
-								results[1] = AppendToFront(results[1], b)
+							if len(results) == 1 {
+								results = append(results, []Word{simpleWord(allWords[i+j+1])})
+								for _, b := range dictHash[allWords[i+j+1]] {
+									results[1] = AppendToFront(results[1], b)
+								}
 							}
 							found = true
 							j += 1
@@ -271,7 +273,6 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 						if len(results) > 0 && len(results[0]) > 1 && (results[0][1].Navi == "ke" || results[0][1].Navi == "rä'ä") {
 							// Get the query it's looking for
 							results[0][len(results[0])-1].Navi = results[0][1].Navi
-							results[1] = AppendToFront(results[len(results)-1], simpleWord(searchNaviWord))
 							results[1] = AppendToFront(results[1], definition)
 							results[1][1].Affixes = keepAffixes
 						} else {
@@ -322,9 +323,11 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 						} else {
 							if (allWords[i+j+1] == "ke" || allWords[i+j+1] == "rä'ä") && IsVerb(allWords[i+j+2]) {
 								extraWord = 1
-								results = append(results, []Word{simpleWord(allWords[i+j+1])})
-								for _, b := range dictHash[allWords[i+j+1]] {
-									results[1] = AppendToFront(results[1], b)
+								if len(results) == 1 {
+									results = append(results, []Word{simpleWord(allWords[i+j+1])})
+									for _, b := range dictHash[allWords[i+j+1]] {
+										results[1] = AppendToFront(results[1], b)
+									}
 								}
 
 								j += 1
@@ -372,7 +375,6 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 							if len(results) > 0 && len(results[0]) > 1 && (results[0][1].Navi == "ke" || results[0][1].Navi == "rä'ä") {
 								// Get the query it's looking for
 								results[0][len(results[0])-1].Navi = results[0][1].Navi
-								results[1] = AppendToFront(results[len(results)-1], simpleWord(searchNaviWord))
 								results[1] = AppendToFront(results[1], definition)
 								results[1][1].Affixes = keepAffixes
 							} else {
