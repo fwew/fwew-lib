@@ -83,7 +83,7 @@ func FullNames(ending string, name_count int, dialect int, syllable_count [3]int
 
 		// In reef dialect, glottal stops between nonidentical vowels are dropped
 		if dialect == 2 && has("aäeìouù", get_last_rune(output, 1)) {
-			ending2 = ending[1:]
+			ending2 = ending2[1:]
 		}
 
 		// Add the ending
