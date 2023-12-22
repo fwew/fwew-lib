@@ -178,7 +178,9 @@ func listWords(args []string, words []Word) (results []Word, err error) {
 					results = AppendAndAlphabetize(results, word)
 				}
 			case Text("c_not-ends"):
-				if !strings.HasSuffix(syll, spec) {
+				if plus && !strings.HasSuffix(word.Navi, spec) {
+					results = AppendAndAlphabetize(results, word)
+				} else if !strings.HasSuffix(syll, spec) {
 					results = AppendAndAlphabetize(results, word)
 				}
 			case Text("c_not-has"):
