@@ -148,17 +148,23 @@ func listWords(args []string, words []Word) (results []Word, err error) {
 			spec = compress(spec)
 			syll = compress(syll)
 			syll = strings.ReplaceAll(syll, "-", "")
+			plus := false
+			if spec[len(spec)-1] == '+' {
+				plus = true
+			}
 			switch cond {
 			case Text("c_starts"):
 				if strings.HasPrefix(syll, spec) {
 					results = AppendAndAlphabetize(results, word)
 				}
 			case Text("c_ends"):
-				if strings.HasSuffix(syll, spec) {
+				if plus && strings.HasSuffix(compress(word.Navi), spec) {
+					results = AppendAndAlphabetize(results, word)
+				} else if strings.HasSuffix(syll, spec) {
 					results = AppendAndAlphabetize(results, word)
 				}
 			case Text("c_has"):
-				if spec == "+" && strings.Contains(syll, spec) {
+				if plus && strings.HasSuffix(compress(word.Navi), spec) {
 					results = AppendAndAlphabetize(results, word)
 				} else if strings.Contains(syll, spec) {
 					results = AppendAndAlphabetize(results, word)
@@ -176,7 +182,7 @@ func listWords(args []string, words []Word) (results []Word, err error) {
 					results = AppendAndAlphabetize(results, word)
 				}
 			case Text("c_not-has"):
-				if spec == "+" && !strings.Contains(syll, spec) {
+				if plus && !strings.HasSuffix(compress(word.Navi), spec) {
 					results = AppendAndAlphabetize(results, word)
 				} else if !strings.Contains(syll, spec) {
 					results = AppendAndAlphabetize(results, word)
