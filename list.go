@@ -11,7 +11,7 @@ import (
 // Filter the dictionary based on the args.
 // args can be empty, if so, the whole Dict will be returned (This also happens if < 3 args are given)
 // It will try to always get 3 args and an `and` in between. If less than 3 exist, than it will wil return the previous results.
-func List(args []string, checkDigraphs bool) (results []Word, err error) {
+func List(args []string, checkDigraphs uint8) (results []Word, err error) {
 	results, err = GetFullDict()
 
 	if err != nil {
@@ -55,7 +55,7 @@ func preventCompressBug(input string) string {
 	return input
 }
 
-func listWords(args []string, words []Word, checkDigraphs bool) (results []Word, err error) {
+func listWords(args []string, words []Word, checkDigraphs uint8) (results []Word, err error) {
 	var (
 		what = strings.ToLower(args[0])
 		cond = strings.ToLower(args[1])
@@ -146,11 +146,15 @@ func listWords(args []string, words []Word, checkDigraphs bool) (results []Word,
 		case Text("w_word"):
 			syll := word.Syllables
 			naviWord := word.Navi
-			if checkDigraphs {
+			switch checkDigraphs {
+			case 1:
 				spec = compress(spec)
+				fallthrough
+			case 2:
 				syll = compress(syll)
 				naviWord = compress(naviWord)
 			}
+
 			syll = strings.ReplaceAll(syll, "-", "")
 			plus := false
 			if spec[len(spec)-1] == '+' {
