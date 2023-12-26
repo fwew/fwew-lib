@@ -560,8 +560,8 @@ func BidirectionalSearch(searchNaviWords string, checkFixes bool, langCode strin
 // Get random words out of the dictionary.
 // If args are applied, the dict will be filtered for args before random words are chosen.
 // args will be put into the `List()` algorithm.
-func Random(amount int, args []string) (results []Word, err error) {
-	allWords, err := List(args)
+func Random(amount int, args []string, checkDigraphs bool) (results []Word, err error) {
+	allWords, err := List(args, checkDigraphs)
 
 	if err != nil {
 		log.Printf("Error getting fullDing: %s", err)

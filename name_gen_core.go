@@ -456,7 +456,7 @@ func has(word string, character string) (output bool) {
 
 // Helper function for name-alu
 func SortedWords() (nouns []Word, adjectives []Word, verbs []Word, transitiveVerbs []Word) {
-	words, err := List([]string{})
+	words, err := List([]string{}, false)
 
 	if err != nil || len(words) == 0 {
 		return
@@ -480,7 +480,7 @@ func SortedWords() (nouns []Word, adjectives []Word, verbs []Word, transitiveVer
 // Called on startup to feed and compile dictionary information into the name generator
 func PhonemeDistros() {
 	// get the dict
-	words, err := List([]string{})
+	words, err := List([]string{}, false)
 
 	if err != nil || len(words) == 0 {
 		return

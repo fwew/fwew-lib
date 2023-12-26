@@ -11,7 +11,7 @@ import (
 // Filter the dictionary based on the args.
 // args can be empty, if so, the whole Dict will be returned (This also happens if < 3 args are given)
 // It will try to always get 3 args and an `and` in between. If less than 3 exist, than it will wil return the previous results.
-func List(args []string) (results []Word, err error) {
+func List(args []string, checkDigraphs bool) (results []Word, err error) {
 	results, err = GetFullDict()
 
 	if err != nil {
@@ -22,7 +22,7 @@ func List(args []string) (results []Word, err error) {
 		// get 3 args and remove 4th
 		simpleArgs := args[0:3]
 
-		results, err = listWords(simpleArgs, results)
+		results, err = listWords(simpleArgs, results, checkDigraphs)
 		if err != nil {
 			return
 		}
@@ -55,7 +55,7 @@ func preventCompressBug(input string) string {
 	return input
 }
 
-func listWords(args []string, words []Word) (results []Word, err error) {
+func listWords(args []string, words []Word, checkDigraphs bool) (results []Word, err error) {
 	var (
 		what = strings.ToLower(args[0])
 		cond = strings.ToLower(args[1])
@@ -145,8 +145,12 @@ func listWords(args []string, words []Word) (results []Word, err error) {
 			}
 		case Text("w_word"):
 			syll := word.Syllables
-			spec = compress(spec)
-			syll = compress(syll)
+			naviWord := word.Navi
+			if checkDigraphs {
+				spec = compress(spec)
+				syll = compress(syll)
+				naviWord = compress(naviWord)
+			}
 			syll = strings.ReplaceAll(syll, "-", "")
 			plus := false
 			if spec[len(spec)-1] == '+' {
@@ -158,13 +162,13 @@ func listWords(args []string, words []Word) (results []Word, err error) {
 					results = AppendAndAlphabetize(results, word)
 				}
 			case Text("c_ends"):
-				if plus && strings.HasSuffix(compress(word.Navi), spec) {
+				if plus && strings.HasSuffix(naviWord, spec) {
 					results = AppendAndAlphabetize(results, word)
 				} else if strings.HasSuffix(syll, spec) {
 					results = AppendAndAlphabetize(results, word)
 				}
 			case Text("c_has"):
-				if plus && strings.HasSuffix(compress(word.Navi), spec) {
+				if plus && strings.HasSuffix(naviWord, spec) {
 					results = AppendAndAlphabetize(results, word)
 				} else if strings.Contains(syll, spec) {
 					results = AppendAndAlphabetize(results, word)
@@ -182,7 +186,7 @@ func listWords(args []string, words []Word) (results []Word, err error) {
 					results = AppendAndAlphabetize(results, word)
 				}
 			case Text("c_not-has"):
-				if plus && !strings.HasSuffix(compress(word.Navi), spec) {
+				if plus && !strings.HasSuffix(naviWord, spec) {
 					results = AppendAndAlphabetize(results, word)
 				} else if !strings.Contains(syll, spec) {
 					results = AppendAndAlphabetize(results, word)
