@@ -42,6 +42,18 @@ func FullNames(ending string, name_count int, dialect int, syllable_count [3]int
 	// Charts and variables used for formatting
 	output = ""
 
+	endings := map[string]string{
+		"'itu":  "descendent",
+		"'itan": "son",
+		"'ite":  "daughter",
+	}
+
+	randomize := true
+
+	if _, ok := endings[ending]; ok {
+		randomize = false
+	}
+
 	// Fill the chart with names
 	for i := 0; i < name_count; i++ {
 		// Fill it with three names
@@ -52,6 +64,17 @@ func FullNames(ending string, name_count int, dialect int, syllable_count [3]int
 		output += glottal_caps(string(single_name_gen(rand_if_zero(syllable_count[2]), dialect)))
 
 		ending2 := ending
+		if randomize {
+			pick := rand.Intn(3)
+			switch pick {
+			case 0:
+				ending2 = "'itan"
+			case 1:
+				ending2 = "'ite"
+			case 2:
+				ending2 = "'itu"
+			}
+		}
 
 		// we don't want Neytiri''itan
 		if output[len(output)-1] == '\'' {
@@ -60,7 +83,7 @@ func FullNames(ending string, name_count int, dialect int, syllable_count [3]int
 
 		// In reef dialect, glottal stops between nonidentical vowels are dropped
 		if dialect == 2 && has("aäeìouù", get_last_rune(output, 1)) {
-			ending2 = ending[1:]
+			ending2 = ending2[1:]
 		}
 
 		// Add the ending

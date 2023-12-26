@@ -144,43 +144,51 @@ func listWords(args []string, words []Word) (results []Word, err error) {
 				}
 			}
 		case Text("w_word"):
-			navi := strings.ToLower(word.Navi)
 			syll := word.Syllables
+			spec = compress(spec)
+			syll = compress(syll)
+			syll = strings.ReplaceAll(syll, "-", "")
+			plus := false
+			if spec[len(spec)-1] == '+' {
+				plus = true
+			}
 			switch cond {
 			case Text("c_starts"):
-				if strings.HasPrefix(navi, spec) {
+				if strings.HasPrefix(syll, spec) {
 					results = AppendAndAlphabetize(results, word)
 				}
 			case Text("c_ends"):
-				if strings.HasSuffix(navi, spec) {
+				if plus && strings.HasSuffix(compress(word.Navi), spec) {
+					results = AppendAndAlphabetize(results, word)
+				} else if strings.HasSuffix(syll, spec) {
 					results = AppendAndAlphabetize(results, word)
 				}
 			case Text("c_has"):
-				if spec == "+" && strings.Contains(navi, spec) {
+				if plus && strings.HasSuffix(compress(word.Navi), spec) {
 					results = AppendAndAlphabetize(results, word)
-				} else if strings.Contains(compress(syll), compress(spec)) {
+				} else if strings.Contains(syll, spec) {
 					results = AppendAndAlphabetize(results, word)
 				}
 			case Text("c_like"):
-				if Glob(spec, navi) {
+				if Glob(spec, syll) {
 					results = AppendAndAlphabetize(results, word)
 				}
 			case Text("c_not-starts"):
-				if !strings.HasPrefix(navi, spec) {
+				if !strings.HasPrefix(syll, spec) {
 					results = AppendAndAlphabetize(results, word)
 				}
 			case Text("c_not-ends"):
-				if !strings.HasSuffix(navi, spec) {
+				if !strings.HasSuffix(syll, spec) {
 					results = AppendAndAlphabetize(results, word)
 				}
 			case Text("c_not-has"):
-				if spec == "+" && !strings.Contains(navi, spec) {
+				if plus && !strings.HasSuffix(compress(word.Navi), spec) {
 					results = AppendAndAlphabetize(results, word)
-				} else if !strings.Contains(compress(syll), compress(spec)) {
+				} else if !strings.Contains(syll, spec) {
 					results = AppendAndAlphabetize(results, word)
 				}
 			case Text("c_not-like"):
-				if !Glob(spec, navi) {
+				if !Glob(spec, syll) {
 					results = AppendAndAlphabetize(results, word)
 				}
 			}

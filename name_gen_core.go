@@ -386,10 +386,16 @@ func single_name_gen(syllable_count int, dialect int) (name string) {
 		// reef dialect stuff
 		if dialect == 2 && namelength > 1 { // In reef dialect,
 			if get_last_rune(name, 1) == "x" { // if there's an ejective in the onset
-				name = reef_ejective(name)
-
-				// that's not in a cluster,
-				// it becomes a voiced plosive
+				if namelength > 2 {
+					// that's not in a cluster,
+					last_rune := get_last_rune(name, 3)
+					if !(last_rune == "s" || last_rune == "f") {
+						// it becomes a voiced plosive
+						name = reef_ejective(name)
+					}
+				} else {
+					name = reef_ejective(name)
+				}
 			} else if !psuedovowel && get_last_rune(name, 1) == "'" && get_last_rune(name, 2) != first_rune(nucleus) {
 				// 'a'aw is optionally 'aaw (the generator leaves it in)
 				if is_vowel(get_last_rune(name, 2)) { // Does kaw'it become kawit in reef?
