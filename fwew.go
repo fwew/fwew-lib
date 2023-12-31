@@ -598,6 +598,10 @@ func GetMultiwordWords() map[string][][]string {
 	return multiword_words
 }
 
+func GetHomonyms() (results [][]Word, err error) {
+	return TranslateFromNaviHash(homonyms, false)
+}
+
 func StartEverything() {
 	AssureDict()
 	CacheDictHash()

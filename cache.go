@@ -16,6 +16,7 @@ var dictionaryCached bool
 var dictHashCached bool
 var dictHash2 MetaDict
 var dictHash2Cached bool
+var homonyms string
 
 type MetaDict struct {
 	EN map[string][]string
@@ -124,6 +125,8 @@ func CacheDictHash() error {
 		dictHash = make(map[string][]Word)
 	}
 
+	tempHoms := []string{}
+
 	err := runOnFile(func(word Word) error {
 		standardizedWord := word.Navi
 		badChars := `~@#$%^&*()[]{}<>_/.,;:!?|+\`
@@ -139,9 +142,49 @@ func CacheDictHash() error {
 
 		// find everything lowercase
 		standardizedWord = strings.ToLower(standardizedWord)
+
+		// If the word appears more than once, record it
+		if _, ok := dictHash[standardizedWord]; ok {
+			found := false
+			for _, a := range tempHoms {
+				if a == standardizedWord {
+					found = true
+					break
+				}
+			}
+			if !found {
+				tempHoms = append(tempHoms, standardizedWord)
+			}
+		}
+		if strings.Contains(standardizedWord, "é") {
+			noAcute := strings.ReplaceAll(standardizedWord, "é", "e")
+			found := false
+			for _, a := range tempHoms {
+				if a == noAcute {
+					found = true
+					break
+				}
+			}
+			if !found {
+				tempHoms = append(tempHoms, noAcute)
+				tempHoms = append(tempHoms, standardizedWord)
+			}
+		}
+
 		dictHash[standardizedWord] = append(dictHash[standardizedWord], word)
 		return nil
 	})
+
+	// Reverse the order to make accidental and new homonyms easier to see
+	// Also make it a string for easier searching
+	i := len(tempHoms)
+	for i > 0 {
+		i--
+		homonyms += tempHoms[i] + " "
+	}
+
+	homonyms = strings.TrimSuffix(homonyms, " ")
+
 	if err != nil {
 		log.Printf("Error caching dictionary: %s", err)
 		// uncache dict, to be save
