@@ -104,43 +104,43 @@ func listWords(args []string, words []Word, checkDigraphs uint8) (results []Word
 			switch cond {
 			case Text("c_starts"):
 				if strings.HasPrefix(pos, spec) {
-					results = AppendAndAlphabetize(results, word)
+					results = append(results, word)
 				}
 			case Text("c_ends"):
 				if strings.HasSuffix(pos, spec) {
-					results = AppendAndAlphabetize(results, word)
+					results = append(results, word)
 				}
 			case Text("c_is"):
 				if pos == spec {
-					results = AppendAndAlphabetize(results, word)
+					results = append(results, word)
 				}
 			case Text("c_has"):
 				if strings.Contains(pos, spec) {
-					results = AppendAndAlphabetize(results, word)
+					results = append(results, word)
 				}
 			case Text("c_like"):
 				if Glob(spec, pos) {
-					results = AppendAndAlphabetize(results, word)
+					results = append(results, word)
 				}
 			case Text("c_not-starts"):
 				if !strings.HasPrefix(pos, spec) {
-					results = AppendAndAlphabetize(results, word)
+					results = append(results, word)
 				}
 			case Text("c_not-ends"):
 				if !strings.HasSuffix(pos, spec) {
-					results = AppendAndAlphabetize(results, word)
+					results = append(results, word)
 				}
 			case Text("c_not-is"):
 				if pos != spec {
-					results = AppendAndAlphabetize(results, word)
+					results = append(results, word)
 				}
 			case Text("c_not-has"):
 				if !strings.Contains(pos, spec) {
-					results = AppendAndAlphabetize(results, word)
+					results = append(results, word)
 				}
 			case Text("c_not-like"):
 				if !Glob(spec, pos) {
-					results = AppendAndAlphabetize(results, word)
+					results = append(results, word)
 				}
 			}
 		case Text("w_word"):
@@ -164,41 +164,41 @@ func listWords(args []string, words []Word, checkDigraphs uint8) (results []Word
 			switch cond {
 			case Text("c_starts"):
 				if strings.HasPrefix(syll, spec) {
-					results = AppendAndAlphabetize(results, word)
+					results = append(results, word)
 				}
 			case Text("c_ends"):
 				if plus && strings.HasSuffix(naviWord, spec) {
-					results = AppendAndAlphabetize(results, word)
+					results = append(results, word)
 				} else if strings.HasSuffix(syll, spec) {
-					results = AppendAndAlphabetize(results, word)
+					results = append(results, word)
 				}
 			case Text("c_has"):
 				if plus && strings.HasSuffix(naviWord, spec) {
-					results = AppendAndAlphabetize(results, word)
+					results = append(results, word)
 				} else if strings.Contains(syll, spec) {
-					results = AppendAndAlphabetize(results, word)
+					results = append(results, word)
 				}
 			case Text("c_like"):
 				if Glob(spec, syll) {
-					results = AppendAndAlphabetize(results, word)
+					results = append(results, word)
 				}
 			case Text("c_not-starts"):
 				if !strings.HasPrefix(syll, spec) {
-					results = AppendAndAlphabetize(results, word)
+					results = append(results, word)
 				}
 			case Text("c_not-ends"):
 				if !strings.HasSuffix(syll, spec) {
-					results = AppendAndAlphabetize(results, word)
+					results = append(results, word)
 				}
 			case Text("c_not-has"):
 				if plus && !strings.HasSuffix(naviWord, spec) {
-					results = AppendAndAlphabetize(results, word)
+					results = append(results, word)
 				} else if !strings.Contains(syll, spec) {
-					results = AppendAndAlphabetize(results, word)
+					results = append(results, word)
 				}
 			case Text("c_not-like"):
 				if !Glob(spec, syll) {
-					results = AppendAndAlphabetize(results, word)
+					results = append(results, word)
 				}
 			}
 		case Text("w_words"):
@@ -211,11 +211,11 @@ func listWords(args []string, words []Word, checkDigraphs uint8) (results []Word
 			switch cond {
 			case Text("c_first"):
 				if i < specNumber {
-					results = AppendAndAlphabetize(results, word)
+					results = append(results, word)
 				}
 			case Text("c_last"):
 				if i >= wordsLen-specNumber && i <= wordsLen {
-					results = AppendAndAlphabetize(results, word)
+					results = append(results, word)
 				}
 			}
 		case Text("w_syllables"):
@@ -228,27 +228,27 @@ func listWords(args []string, words []Word, checkDigraphs uint8) (results []Word
 			switch cond {
 			case "<":
 				if word.SyllableCount() < ispec {
-					results = AppendAndAlphabetize(results, word)
+					results = append(results, word)
 				}
 			case "<=":
 				if word.SyllableCount() <= ispec {
-					results = AppendAndAlphabetize(results, word)
+					results = append(results, word)
 				}
 			case "=":
 				if word.SyllableCount() == ispec {
-					results = AppendAndAlphabetize(results, word)
+					results = append(results, word)
 				}
 			case ">=":
 				if word.SyllableCount() >= ispec {
-					results = AppendAndAlphabetize(results, word)
+					results = append(results, word)
 				}
 			case ">":
 				if word.SyllableCount() > ispec {
-					results = AppendAndAlphabetize(results, word)
+					results = append(results, word)
 				}
 			case "!=":
 				if word.SyllableCount() != ispec {
-					results = AppendAndAlphabetize(results, word)
+					results = append(results, word)
 				}
 			}
 		case Text("w_stress"):
@@ -267,35 +267,35 @@ func listWords(args []string, words []Word, checkDigraphs uint8) (results []Word
 			switch cond {
 			case "<":
 				if istress < ispec {
-					results = AppendAndAlphabetize(results, word)
+					results = append(results, word)
 				}
 			case "<=":
 				if istress <= ispec {
-					results = AppendAndAlphabetize(results, word)
+					results = append(results, word)
 				}
 			case "=":
 				if ispec < 0 {
 					if word.SyllableCount()+ispec+1 == istress {
-						results = AppendAndAlphabetize(results, word)
+						results = append(results, word)
 					}
 				} else if istress == ispec {
-					results = AppendAndAlphabetize(results, word)
+					results = append(results, word)
 				}
 			case ">=":
 				if istress >= ispec {
-					results = AppendAndAlphabetize(results, word)
+					results = append(results, word)
 				}
 			case ">":
 				if istress > ispec {
-					results = AppendAndAlphabetize(results, word)
+					results = append(results, word)
 				}
 			case "!=":
 				if ispec < 0 {
 					if word.SyllableCount()+ispec+1 != istress {
-						results = AppendAndAlphabetize(results, word)
+						results = append(results, word)
 					}
 				} else if istress != ispec {
-					results = AppendAndAlphabetize(results, word)
+					results = append(results, word)
 				}
 			}
 		case Text("w_length"):
@@ -309,35 +309,35 @@ func listWords(args []string, words []Word, checkDigraphs uint8) (results []Word
 			switch cond {
 			case "<":
 				if ilength < ispec {
-					results = AppendAndAlphabetize(results, word)
+					results = append(results, word)
 				}
 			case "<=":
 				if ilength <= ispec {
-					results = AppendAndAlphabetize(results, word)
+					results = append(results, word)
 				}
 			case "=":
 				if ispec < 0 {
 					if word.SyllableCount()+ispec+1 == ilength {
-						results = AppendAndAlphabetize(results, word)
+						results = append(results, word)
 					}
 				} else if ilength == ispec {
-					results = AppendAndAlphabetize(results, word)
+					results = append(results, word)
 				}
 			case ">=":
 				if ilength >= ispec {
-					results = AppendAndAlphabetize(results, word)
+					results = append(results, word)
 				}
 			case ">":
 				if ilength > ispec {
-					results = AppendAndAlphabetize(results, word)
+					results = append(results, word)
 				}
 			case "!=":
 				if ispec < 0 {
 					if word.SyllableCount()+ispec+1 != ilength {
-						results = AppendAndAlphabetize(results, word)
+						results = append(results, word)
 					}
 				} else if ilength != ispec {
-					results = AppendAndAlphabetize(results, word)
+					results = append(results, word)
 				}
 			}
 		}

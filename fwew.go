@@ -587,7 +587,7 @@ func Random(amount int, args []string, checkDigraphs uint8) (results []Word, err
 	perm := rand.Perm(dictLength)
 
 	for _, i := range perm[:amount] {
-		results = AppendAndAlphabetize(results, allWords[i])
+		results = append(results, allWords[i])
 	}
 
 	return
