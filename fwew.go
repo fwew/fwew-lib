@@ -598,6 +598,7 @@ func GetMultiwordWords() map[string][][]string {
 	return multiword_words
 }
 
+// Get all words with multiple definitions
 func GetHomonyms() (results [][]Word, err error) {
 	return TranslateFromNaviHash(homonyms, false)
 }

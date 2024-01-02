@@ -146,11 +146,12 @@ func listWords(args []string, words []Word, checkDigraphs uint8) (results []Word
 		case Text("w_word"):
 			syll := word.Syllables
 			naviWord := word.Navi
+
 			switch checkDigraphs {
-			case 1:
+			case 1: // 1: compress spec and syllables (consider all digraphs)
 				spec = compress(spec)
 				fallthrough
-			case 2:
+			case 2: // 2: compress syllables, but not spec (find fake digraphs)
 				syll = compress(syll)
 				naviWord = compress(naviWord)
 			}
