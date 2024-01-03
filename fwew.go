@@ -726,9 +726,9 @@ func ReefMe(ipa string) []string {
 			breakdown += "-"
 
 			// tsy
-			if len(syllable) >= 5 && syllable[0:5] == "tʃ" {
+			if strings.HasPrefix(syllable, "tʃ") {
 				breakdown += "ch"
-				syllable = syllable[5:]
+				syllable = strings.TrimPrefix(syllable, "tʃ")
 			} else if len(syllable) >= 4 && syllable[0:4] == "t͡s" {
 				// ts
 				breakdown += "ts"
