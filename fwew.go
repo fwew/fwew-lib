@@ -789,9 +789,7 @@ func ReefMe(ipa string) []string {
 			} else if has("ʃʒ", nth_rune(syllable, 0)) {
 				// one sound representd as a cluster
 				if nth_rune(syllable, 0) == "ʃ" {
-					breakdown += "sy"
-				} else if nth_rune(syllable, 0) == "ʒ" {
-					breakdown += "cy"
+					breakdown += "sh"
 				}
 				syllable = syllable[len(nth_rune(syllable, 0)):]
 			}
