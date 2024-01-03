@@ -660,7 +660,7 @@ func is_vowel_ipa(letter string) (found bool) {
 	return false
 }
 
-func ReefMe(ipa string) []string {
+func ReefMe(ipa string, inter bool) []string {
 	if ipa == "ʒɛjk'.ˈsu:.li" {
 		return []string{"jake-sùl-ly", "ʒɛjk'.ˈsʊ:.li"}
 	} else if ipa == "ˈz·ɛŋ.kɛ" {
@@ -671,39 +671,40 @@ func ReefMe(ipa string) []string {
 
 	// Reefify the IPA first
 	ipaReef := strings.ReplaceAll(ipa, "·", "")
-	ipaReef = EjectiveSoftener(ipaReef, "p'", "b")
-	ipaReef = EjectiveSoftener(ipaReef, "t'", "d")
-	ipaReef = EjectiveSoftener(ipaReef, "k'", "g")
+	if !inter {
+		ipaReef = EjectiveSoftener(ipaReef, "p'", "b")
+		ipaReef = EjectiveSoftener(ipaReef, "t'", "d")
+		ipaReef = EjectiveSoftener(ipaReef, "k'", "g")
 
-	ipaReef = strings.ReplaceAll(ipaReef, "t͡sj", "tʃ")
-	ipaReef = strings.ReplaceAll(ipaReef, "sj", "ʃ")
+		ipaReef = strings.ReplaceAll(ipaReef, "t͡sj", "tʃ")
+		ipaReef = strings.ReplaceAll(ipaReef, "sj", "ʃ")
 
-	temp := ""
-	runes := []rune(ipaReef)
+		temp := ""
+		runes := []rune(ipaReef)
 
-	for i, a := range runes {
-		if i != 0 && i != len(runes)-1 && a == 'ʔ' {
-			if runes[i-1] == '.' {
-				if is_vowel_ipa(string(runes[i+1])) && is_vowel_ipa(string(runes[i-2])) {
-					if runes[i+1] != runes[i-2] {
-						continue
+		for i, a := range runes {
+			if i != 0 && i != len(runes)-1 && a == 'ʔ' {
+				if runes[i-1] == '.' {
+					if is_vowel_ipa(string(runes[i+1])) && is_vowel_ipa(string(runes[i-2])) {
+						if runes[i+1] != runes[i-2] {
+							continue
+						}
 					}
-				}
-			} else if runes[i+1] == '.' {
-				if is_vowel_ipa(string(runes[i+2])) && is_vowel_ipa(string(runes[i-1])) {
-					if runes[i+2] != runes[i-1] {
-						continue
+				} else if runes[i+1] == '.' {
+					if is_vowel_ipa(string(runes[i+2])) && is_vowel_ipa(string(runes[i-1])) {
+						if runes[i+2] != runes[i-1] {
+							continue
+						}
 					}
 				}
 			}
+			temp += string(a)
 		}
-		temp += string(a)
+
+		ipaReef = temp
 	}
 
-	ipaReef = temp
-
 	// now Romanize the reef IPA
-
 	word := strings.Split(ipaReef, " ")
 
 	breakdown = ""
@@ -834,11 +835,13 @@ func ReefMe(ipa string) []string {
 					}
 				}
 			}
-
 		}
+		breakdown += " "
 	}
 
 	breakdown = strings.TrimPrefix(breakdown, "-")
+	breakdown = strings.ReplaceAll(breakdown, " -", " ")
+	breakdown = strings.TrimSuffix(breakdown, " ")
 
 	return []string{breakdown, ipaReef}
 }
