@@ -230,7 +230,7 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 				adj = strings.ReplaceAll(adj, "-", "")
 			case 4: //origin noun
 				adj_word := fast_random(allNouns)
-				adj = convertDialect(adj_word, dialect)
+				adj = strings.ToLower(adj_word.Navi)
 				if adj == "tsko swizaw" {
 					adj = "ta Tsko Swizaw"
 				} else if adj == "toruk makto" || adj == "torùk makto" {
@@ -242,7 +242,12 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 				} else if adj == "mo a fngä'" {
 					adj = "ta Mo a Fgnä'"
 				} else {
-					adj = "ta " + glottal_caps(adj)
+					adj = convertDialect(adj_word, dialect)
+					if two_word_noun {
+						adj = "ta " + glottal_caps(adj)
+					} else {
+						adj = glottal_caps(adj) + "ta"
+					}
 				}
 
 				adj = strings.ReplaceAll(adj, "-", "")
