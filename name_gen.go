@@ -244,9 +244,9 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 				} else {
 					adj = convertDialect(adj_word, dialect)
 					if two_word_noun {
-						adj = "ta " + glottal_caps(adj)
-					} else {
 						adj = glottal_caps(adj) + "ta"
+					} else {
+						adj = "ta " + glottal_caps(adj)
 					}
 				}
 
