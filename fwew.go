@@ -15,6 +15,7 @@
 package fwew_lib
 
 import (
+	"fmt"
 	"log"
 	"math/rand"
 	"strings"
@@ -650,7 +651,7 @@ func EjectiveSoftener(ipa string, oldLetter string, newLetter string) (newIpa st
 /* Is it a vowel? (for when the psuedovowel bool won't work) */
 func is_vowel_ipa(letter string) (found bool) {
 	// Also arranged from most to least common (not accounting for diphthongs)
-	vowels := []string{"a", "e", "u", "ɪ", "o", "i", "æ", "ʊ"}
+	vowels := []string{"a", "ɛ", "u", "ɪ", "o", "i", "æ", "ʊ"}
 	// Linear search
 	for i := 0; i < 8; i++ {
 		if letter == vowels[i] {
@@ -685,14 +686,23 @@ func ReefMe(ipa string, inter bool) []string {
 		for i, a := range runes {
 			if i != 0 && i != len(runes)-1 && a == 'ʔ' {
 				if runes[i-1] == '.' {
+					fmt.Println(string(runes[i+1]) + " == " + string(runes[i-2]))
 					if is_vowel_ipa(string(runes[i+1])) && is_vowel_ipa(string(runes[i-2])) {
 						if runes[i+1] != runes[i-2] {
 							continue
 						}
 					}
 				} else if runes[i+1] == '.' {
+					fmt.Println(string(runes[i+2]) + " == " + string(runes[i-1]))
 					if is_vowel_ipa(string(runes[i+2])) && is_vowel_ipa(string(runes[i-1])) {
 						if runes[i+2] != runes[i-1] {
+							continue
+						}
+					}
+				} else if runes[i-1] == 'ˈ' && i > 1 {
+					fmt.Println(string(runes[i+1]) + " == " + string(runes[i-3]))
+					if is_vowel_ipa(string(runes[i+1])) && is_vowel_ipa(string(runes[i-3])) {
+						if runes[i+1] != runes[i-3] {
 							continue
 						}
 					}
