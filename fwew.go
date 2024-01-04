@@ -27,6 +27,31 @@ const (
 
 var debugMode bool
 
+/* To help deduce phonemes */
+var romanization2 = map[string]string{
+	// Vowels
+	"a": "a", "i": "i", "ɪ": "ì",
+	"o": "o", "ɛ": "e", "u": "u",
+	"æ": "ä",
+	// Diphthongs
+	"aw": "aw", "ɛj": "ey",
+	"aj": "ay", "ɛw": "ew",
+	// Psuedovowels
+	"ṛ": "rr", "ḷ": "ll",
+	// Consonents
+	"t": "t", "p": "p", "ʔ": "'",
+	"n": "n", "k": "k", "l": "l",
+	"s": "s", "ɾ": "r", "j": "y",
+	"t͡s": "ts", "t'": "tx", "m": "m",
+	"v": "v", "w": "w", "h": "h",
+	"ŋ": "ng", "z": "z", "k'": "kx",
+	"p'": "px", "f": "f", "r": "r",
+	// Reef dialect
+	"b": "b", "d": "d", "g": "g",
+	"ʃ": "sh", "tʃ": "ch", "ʊ": "ù",
+	// mistakes and rarities
+	"ʒ": "ch", "": "", " ": ""}
+
 func intersection(a, b string) (c string) {
 	m := make(map[rune]bool)
 	for _, r := range a {
@@ -560,8 +585,8 @@ func BidirectionalSearch(searchNaviWords string, checkFixes bool, langCode strin
 // Get random words out of the dictionary.
 // If args are applied, the dict will be filtered for args before random words are chosen.
 // args will be put into the `List()` algorithm.
-func Random(amount int, args []string) (results []Word, err error) {
-	allWords, err := List(args)
+func Random(amount int, args []string, checkDigraphs uint8) (results []Word, err error) {
+	allWords, err := List(args, checkDigraphs)
 
 	if err != nil {
 		log.Printf("Error getting fullDing: %s", err)
@@ -587,7 +612,7 @@ func Random(amount int, args []string) (results []Word, err error) {
 	perm := rand.Perm(dictLength)
 
 	for _, i := range perm[:amount] {
-		results = AppendAndAlphabetize(results, allWords[i])
+		results = append(results, allWords[i])
 	}
 
 	return
@@ -596,6 +621,235 @@ func Random(amount int, args []string) (results []Word, err error) {
 // Get all words with spaces
 func GetMultiwordWords() map[string][][]string {
 	return multiword_words
+}
+
+// Get all words with multiple definitions
+func GetHomonyms() (results [][]Word, err error) {
+	return TranslateFromNaviHash(homonyms, false)
+}
+
+func EjectiveSoftener(ipa string, oldLetter string, newLetter string) (newIpa string) {
+	ipa = "." + ipa
+
+	for i, k := range []string{"t͡s", "s", "f"} {
+		ipa = strings.ReplaceAll(ipa, k+oldLetter, string(i))
+	}
+
+	ipa = strings.ReplaceAll(ipa, "."+oldLetter, "."+newLetter)
+	ipa = strings.ReplaceAll(ipa, ".ˈ"+oldLetter, ".ˈ"+newLetter)
+
+	for i, k := range []string{"t͡s", "s", "f"} {
+		ipa = strings.ReplaceAll(ipa, string(i), k+oldLetter)
+	}
+
+	ipa = strings.TrimPrefix(ipa, ".")
+
+	return ipa
+}
+
+/* Is it a vowel? (for when the psuedovowel bool won't work) */
+func is_vowel_ipa(letter string) (found bool) {
+	// Also arranged from most to least common (not accounting for diphthongs)
+	vowels := []string{"a", "ɛ", "u", "ɪ", "o", "i", "æ", "ʊ"}
+	// Linear search
+	for i := 0; i < 8; i++ {
+		if letter == vowels[i] {
+			return true
+		}
+	}
+	return false
+}
+
+func ReefMe(ipa string, inter bool) []string {
+	if ipa == "ʒɛjk'.ˈsu:.li" {
+		return []string{"jake-sùl-ly", "ʒɛjk'.ˈsʊ:.li"}
+	} else if ipa == "ˈz·ɛŋ.kɛ" {
+		return []string{"zen-ke", "ˈz·ɛŋ.kɛ"}
+	}
+
+	breakdown := ""
+
+	// Reefify the IPA first
+	ipaReef := strings.ReplaceAll(ipa, "·", "")
+	if !inter {
+		ipaReef = EjectiveSoftener(ipaReef, "p'", "b")
+		ipaReef = EjectiveSoftener(ipaReef, "t'", "d")
+		ipaReef = EjectiveSoftener(ipaReef, "k'", "g")
+
+		ipaReef = strings.ReplaceAll(ipaReef, "t͡sj", "tʃ")
+		ipaReef = strings.ReplaceAll(ipaReef, "sj", "ʃ")
+
+		temp := ""
+		runes := []rune(ipaReef)
+
+		for i, a := range runes {
+			if i != 0 && i != len(runes)-1 && a == 'ʔ' {
+				if runes[i-1] == '.' {
+					if is_vowel_ipa(string(runes[i+1])) && is_vowel_ipa(string(runes[i-2])) {
+						if runes[i+1] != runes[i-2] {
+							continue
+						}
+					}
+				} else if runes[i+1] == '.' {
+					if is_vowel_ipa(string(runes[i+2])) && is_vowel_ipa(string(runes[i-1])) {
+						if runes[i+2] != runes[i-1] {
+							continue
+						}
+					}
+				} else if runes[i-1] == 'ˈ' && i > 1 {
+					if is_vowel_ipa(string(runes[i+1])) && is_vowel_ipa(string(runes[i-3])) {
+						if runes[i+1] != runes[i-3] {
+							continue
+						}
+					}
+				}
+			}
+			temp += string(a)
+		}
+
+		ipaReef = temp
+	}
+
+	// now Romanize the reef IPA
+	word := strings.Split(ipaReef, " ")
+
+	breakdown = ""
+
+	for j := 0; j < len(word); j++ {
+		word[j] = strings.ReplaceAll(word[j], "]", "")
+		// "or" means there's more than one IPA in this word, and we only want one
+		if word[j] == "or" {
+			break
+		}
+
+		syllables := strings.Split(word[j], ".")
+
+		/* Onset */
+		for k := 0; k < len(syllables); k++ {
+			syllable := strings.ReplaceAll(syllables[k], "·", "")
+			syllable = strings.ReplaceAll(syllable, "ˈ", "")
+			syllable = strings.ReplaceAll(syllable, "ˌ", "")
+
+			breakdown += "-"
+
+			// tsy
+			if strings.HasPrefix(syllable, "tʃ") {
+				breakdown += "ch"
+				syllable = strings.TrimPrefix(syllable, "tʃ")
+			} else if len(syllable) >= 4 && syllable[0:4] == "t͡s" {
+				// ts
+				breakdown += "ts"
+				//tsp
+				if has("ptk", nth_rune(syllable, 3)) {
+					if nth_rune(syllable, 4) == "'" {
+						// ts + ejective onset
+						breakdown += romanization2[syllable[4:6]]
+						syllable = syllable[6:]
+					} else {
+						// ts + unvoiced plosive
+						breakdown += romanization2[string(syllable[4])]
+						syllable = syllable[5:]
+					}
+				} else if has("lɾmnŋwj", nth_rune(syllable, 3)) {
+					// ts + other consonent
+					breakdown += romanization2[nth_rune(syllable, 3)]
+					syllable = syllable[4+len(nth_rune(syllable, 3)):]
+				} else {
+					// ts without a cluster
+					syllable = syllable[4:]
+				}
+			} else if has("fs", nth_rune(syllable, 0)) {
+				//
+				breakdown += nth_rune(syllable, 0)
+				if has("ptk", nth_rune(syllable, 1)) {
+					if nth_rune(syllable, 2) == "'" {
+						// f/s + ejective onset
+						breakdown += romanization2[syllable[1:3]]
+						syllable = syllable[3:]
+					} else {
+						// f/s + unvoiced plosive
+						breakdown += romanization2[string(syllable[1])]
+						syllable = syllable[2:]
+					}
+				} else if has("lɾmnŋwj", nth_rune(syllable, 1)) {
+					// f/s + other consonent
+					breakdown += romanization2[nth_rune(syllable, 1)]
+					syllable = syllable[1+len(nth_rune(syllable, 1)):]
+				} else {
+					// f/s without a cluster
+					syllable = syllable[1:]
+				}
+			} else if has("ptk", nth_rune(syllable, 0)) {
+				if nth_rune(syllable, 1) == "'" {
+					// ejective
+					breakdown += romanization2[syllable[0:2]]
+					syllable = syllable[2:]
+				} else {
+					// unvoiced plosive
+					breakdown += romanization2[string(syllable[0])]
+					syllable = syllable[1:]
+				}
+			} else if has("ʔlɾhmnŋvwjzbdg", nth_rune(syllable, 0)) {
+				// other normal onset
+				breakdown += romanization2[nth_rune(syllable, 0)]
+				syllable = syllable[len(nth_rune(syllable, 0)):]
+			} else if has("ʃʒ", nth_rune(syllable, 0)) {
+				// one sound representd as a cluster
+				if nth_rune(syllable, 0) == "ʃ" {
+					breakdown += "sh"
+				}
+				syllable = syllable[len(nth_rune(syllable, 0)):]
+			}
+
+			/*
+			 * Nucleus
+			 */
+			if len(syllable) > 1 && has("jw", nth_rune(syllable, 1)) {
+				//diphthong
+				breakdown += romanization2[syllable[0:len(nth_rune(syllable, 0))+1]]
+				syllable = string([]rune(syllable)[2:])
+			} else if len(syllable) > 1 && has("lr", nth_rune(syllable, 0)) {
+				breakdown += romanization2[syllable[0:3]]
+				continue
+			} else {
+				//vowel
+				breakdown += romanization2[nth_rune(syllable, 0)]
+				syllable = string([]rune(syllable)[1:])
+			}
+
+			/*
+			 * Coda
+			 */
+			if len(syllable) > 0 {
+				if nth_rune(syllable, 0) == "s" {
+					breakdown += "sss" //oìsss only
+				} else {
+					if syllable == "k̚" {
+						breakdown += "k"
+					} else if syllable == "p̚" {
+						breakdown += "p"
+					} else if syllable == "t̚" {
+						breakdown += "t"
+					} else if syllable == "ʔ̚" {
+						breakdown += "'"
+					} else {
+						if syllable[0] == 'k' && len(syllable) > 1 {
+							breakdown += "kx"
+						} else {
+							breakdown += romanization2[syllable]
+						}
+					}
+				}
+			}
+		}
+		breakdown += " "
+	}
+
+	breakdown = strings.TrimPrefix(breakdown, "-")
+	breakdown = strings.ReplaceAll(breakdown, " -", " ")
+	breakdown = strings.TrimSuffix(breakdown, " ")
+
+	return []string{breakdown, ipaReef}
 }
 
 func StartEverything() {
