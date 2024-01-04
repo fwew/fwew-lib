@@ -15,7 +15,6 @@
 package fwew_lib
 
 import (
-	"fmt"
 	"log"
 	"math/rand"
 	"strings"
@@ -686,21 +685,18 @@ func ReefMe(ipa string, inter bool) []string {
 		for i, a := range runes {
 			if i != 0 && i != len(runes)-1 && a == 'ʔ' {
 				if runes[i-1] == '.' {
-					fmt.Println(string(runes[i+1]) + " == " + string(runes[i-2]))
 					if is_vowel_ipa(string(runes[i+1])) && is_vowel_ipa(string(runes[i-2])) {
 						if runes[i+1] != runes[i-2] {
 							continue
 						}
 					}
 				} else if runes[i+1] == '.' {
-					fmt.Println(string(runes[i+2]) + " == " + string(runes[i-1]))
 					if is_vowel_ipa(string(runes[i+2])) && is_vowel_ipa(string(runes[i-1])) {
 						if runes[i+2] != runes[i-1] {
 							continue
 						}
 					}
 				} else if runes[i-1] == 'ˈ' && i > 1 {
-					fmt.Println(string(runes[i+1]) + " == " + string(runes[i-3]))
 					if is_vowel_ipa(string(runes[i+1])) && is_vowel_ipa(string(runes[i-3])) {
 						if runes[i+1] != runes[i-3] {
 							continue
