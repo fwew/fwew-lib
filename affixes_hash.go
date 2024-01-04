@@ -159,14 +159,23 @@ func infixError(query string, didYouMean string, ipa string) Word {
 }
 
 func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck int, unlenite int8, checkInfixes bool) []ConjugationCandidate {
-	// For "tsa" with case endings
-	// Canonized in:
-	// https://naviteri.org/2011/08/new-vocabulary-clothing/comment-page-1/#comment-912
-	if input.word == "tsa" && len(input.suffixes) == 1 {
-		input.word = "tsaw"
-		candidates = append(candidates, input)
-		return candidates
+	// Exceptions for how words conjugate
+	if len(input.suffixes) == 1 {
+		if input.word == "tsa" {
+			// For "tsa" with case endings
+			// Canonized in:
+			// https://naviteri.org/2011/08/new-vocabulary-clothing/comment-page-1/#comment-912
+			input.word = "tsaw"
+			candidates = append(candidates, input)
+			return candidates
+		} else if input.word == "oenga" {
+			// The a re-appears when case endings are added (it uses a instead of ì)
+			input.word = "oeng"
+			candidates = append(candidates, input)
+			return candidates
+		}
 	}
+
 	// For lrrtok-susi and others
 	if (input.insistPOS == "adj." || input.insistPOS == "any") && (strings.HasSuffix(input.word, "-susi") || strings.HasSuffix(input.word, "-susia")) {
 		found := false
@@ -383,6 +392,23 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 
 		switch suffixCheck {
 		case 0: // adpositions, sì, o, case endings
+			// special case: short genitives of pronouns like "oey" and "ngey"
+			if strings.HasSuffix(input.word, "y") {
+				// oey to oe
+				newCandidate := candidateDupe(input)
+				newCandidate.word = strings.TrimSuffix(input.word, "y")
+				newCandidate.insistPOS = "pn."
+				newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, "y")
+				deconjugateHelper(newCandidate, newPrefixCheck, 10, unlenite, false)
+
+				// ngey to nga
+				if strings.HasSuffix(newCandidate.word, "e") {
+					newCandidate.word = strings.TrimSuffix(newCandidate.word, "e") + "a"
+					newCandidate.insistPOS = "pn."
+					deconjugateHelper(newCandidate, newPrefixCheck, 10, unlenite, false)
+				}
+			}
+
 			if input.insistPOS == "any" || input.insistPOS == "n." {
 				for _, oldSuffix := range adposuffixes {
 					// If it has one of them,
@@ -417,10 +443,6 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 							}
 							// sneyä -> sno
 							newCandidate.word = strings.TrimSuffix(newString, "e") + "o"
-							deconjugateHelper(newCandidate, newPrefixCheck, 3, unlenite, false)
-						} else if oldSuffix == "l" && strings.HasSuffix(newString, "a") {
-							// oengal
-							newCandidate.word = strings.TrimSuffix(newString, "a")
 							deconjugateHelper(newCandidate, newPrefixCheck, 3, unlenite, false)
 						}
 					}
@@ -666,6 +688,15 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 				} else if candidate.insistPOS == "n." {
 					// n., pn. and Prop.n. (but not vin.)
 					if len(candidate.infixes) == 0 && c.PartOfSpeech[0] != 'v' && strings.HasSuffix(c.PartOfSpeech, "n.") {
+						a := c
+						a.Affixes.Lenition = candidate.lenition
+						a.Affixes.Prefix = candidate.prefixes
+						a.Affixes.Suffix = candidate.suffixes
+						results = append(results, a)
+					}
+				} else if candidate.insistPOS == "pn." {
+					// pn.
+					if len(candidate.infixes) == 0 && strings.HasSuffix(c.PartOfSpeech, "pn.") {
 						a := c
 						a.Affixes.Lenition = candidate.lenition
 						a.Affixes.Prefix = candidate.prefixes
