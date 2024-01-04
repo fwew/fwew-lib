@@ -126,8 +126,69 @@ func shave_rune(word string, n int) (letter string) {
 	return string(r[:len(r)-n])
 }
 
+// helper for insert-infix
+func quickReef(input string) string {
+	output := strings.ReplaceAll(input, "tsy", "ch")
+	output = strings.ReplaceAll(output, "sy", "sh")
+
+	ejectiveMap := map[string]string{"px": "b", "tx": "d", "kx": "g"}
+
+	for _, e := range []string{"px", "tx", "kx"} {
+		// Don't convert clusters
+		output = strings.ReplaceAll(output, "f"+e, "1")
+		output = strings.ReplaceAll(output, "s"+e, "2")
+		// convert syllable-initial ejectives
+		for _, a := range []string{"a", "e", "i", "o", "u", "ì", "ù", "ä", "rr", "ll"} {
+			output = strings.ReplaceAll(output, e+a, ejectiveMap[e]+a)
+		}
+		// restore clusters
+		output = strings.ReplaceAll(output, "1", "f"+e)
+		output = strings.ReplaceAll(output, "2", "s"+e)
+	}
+
+	temp := ""
+	runes := []rune(output)
+
+	for i, a := range runes {
+		if i != 0 && i != len(runes)-1 && a == rune('\'') {
+			if is_vowel(string(runes[i+1])) && is_vowel(string(runes[i-1])) {
+				if runes[i+1] != runes[i-1] {
+					continue
+				}
+			}
+		}
+		temp += string(a)
+	}
+
+	output = temp
+
+	return output
+}
+
+// helper for insert-infix
+func specialU(input string, ipa string) string {
+	split := strings.Split(input, "u")
+
+	runes := []rune(ipa)
+	output := ""
+
+	i := 0
+	for _, a := range runes {
+		if a == 'u' {
+			output += split[i] + "u"
+			i++
+		} else if a == 'ʊ' {
+			output += split[i] + "ù"
+			i++
+		}
+	}
+	output += split[i]
+
+	return output
+}
+
 /* Helper function for name-alu */
-func insert_infix(verb []string, infix string) (output string) {
+func insert_infix(verb []string, infix string, dialect int) (output string) {
 	output = ""
 	found_infix := false
 	for j := 0; j < len(verb); j++ {
@@ -273,6 +334,20 @@ func reef_ejective(name string) (reefy_name string) {
 	}
 
 	return shave_rune(name, 2) + onset_new
+}
+
+// Helper function for name-alu
+func convertDialect(word Word, dialect int) string {
+	output := ""
+	switch dialect {
+	case 0: // interdialect
+		output += ReefMe(word.IPA, true)[0]
+	case 2: // reef
+		output += ReefMe(word.IPA, false)[0]
+	default: // forest
+		output += word.Navi
+	}
+	return output
 }
 
 /* Randomly construct a phonotactically valid Na'vi word
@@ -456,7 +531,7 @@ func has(word string, character string) (output bool) {
 
 // Helper function for name-alu
 func SortedWords() (nouns []Word, adjectives []Word, verbs []Word, transitiveVerbs []Word) {
-	words, err := List([]string{})
+	words, err := List([]string{}, 0)
 
 	if err != nil || len(words) == 0 {
 		return
@@ -480,7 +555,7 @@ func SortedWords() (nouns []Word, adjectives []Word, verbs []Word, transitiveVer
 // Called on startup to feed and compile dictionary information into the name generator
 func PhonemeDistros() {
 	// get the dict
-	words, err := List([]string{})
+	words, err := List([]string{}, 0)
 
 	if err != nil || len(words) == 0 {
 		return

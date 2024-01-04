@@ -135,14 +135,15 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 		noun := ""
 		switch nmode {
 		case 1:
-			noun_word := fast_random(allNouns).Navi
-			noun += noun_word
+			noun_word := fast_random(allNouns)
+			noun += strings.ReplaceAll(convertDialect(noun_word, dialect), "-", "")
 		case 2:
-			verb := fast_random(allVerbs).Navi
-			a := strings.Split(verb, " ")
+			verb := fast_random(allVerbs)
+			a := strings.Split(convertDialect(verb, dialect), " ")
 			for k := 0; k < len(a); k++ {
 				noun += a[k]
 			}
+			noun = strings.ReplaceAll(noun, "-", "")
 			noun += "yu"
 		default:
 			return "Error: unknown noun type"
@@ -181,7 +182,8 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 			// no case 1 (no adjective)
 			case 2: //nomal adjective
 				adj_word := fast_random(allAdjectives)
-				adj = adj_word.Navi
+				adj = convertDialect(adj_word, dialect)
+				adj = strings.ReplaceAll(adj, "-", "")
 
 				// If the adj starts with a in forest, we don't need another a
 				if !two_word_noun && (strings.ToLower(string(adj[0])) != "a" || dialect != 1) {
@@ -198,33 +200,57 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 			case 3: //genitive noun
 				adj_word := fast_random(allNouns)
 
-				adj = adj_word.Navi
+				adj = strings.ToLower(adj_word.Navi)
 				if adj == "tsko swizaw" {
 					adj = "Tsko Swizawyä"
-				} else if adj == "toruk makto" {
-					adj = "Torukä Maktoyuä"
+				} else if adj == "toruk makto" || adj == "torùk makto" {
+					if dialect == 0 || dialect == 2 {
+						adj = "Torùkä Maktoyuä"
+					} else {
+						adj = "Torukä Maktoyuä"
+					}
 				} else if adj == "mo a fngä'" {
 					adj = "Moä a Fgnä'"
 				} else {
-					adj_rune := []rune(adj)
+					adj = convertDialect(adj_word, dialect)
+					adjSplit := strings.Split(adj, " ")
+					adj_rune := []rune(adjSplit[0])
 					if has("aeìiä", string(adj_rune[len(adj_rune)-1])) {
-						adj = glottal_caps(adj) + "yä"
+						adjSplit[0] = adjSplit[0] + "yä"
 					} else {
-						adj = glottal_caps(adj) + "ä"
+						adjSplit[0] = adjSplit[0] + "ä"
 					}
+					adj = ""
+					for _, a := range adjSplit {
+						adj += glottal_caps(a) + " "
+					}
+					adj = strings.TrimSuffix(adj, " ")
 				}
+
+				adj = strings.ReplaceAll(adj, "-", "")
 			case 4: //origin noun
 				adj_word := fast_random(allNouns)
-				adj = adj_word.Navi
+				adj = strings.ToLower(adj_word.Navi)
 				if adj == "tsko swizaw" {
 					adj = "ta Tsko Swizaw"
-				} else if adj == "toruk makto" {
-					adj = "ta Torukä Makto"
+				} else if adj == "toruk makto" || adj == "torùk makto" {
+					if dialect == 0 || dialect == 2 {
+						adj = "ta Torùkä Maktoyu"
+					} else {
+						adj = "ta Torukä Maktoyu"
+					}
 				} else if adj == "mo a fngä'" {
 					adj = "ta Mo a Fgnä'"
 				} else {
-					adj = "ta " + glottal_caps(adj)
+					adj = convertDialect(adj_word, dialect)
+					if two_word_noun {
+						adj = glottal_caps(adj) + "ta"
+					} else {
+						adj = "ta " + glottal_caps(adj)
+					}
 				}
+
+				adj = strings.ReplaceAll(adj, "-", "")
 			case 5: //participle verb
 				infix := "us"
 				find_verb := one_word_verb(allVerbs)
@@ -232,7 +258,16 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 				if find_verb.PartOfSpeech[2] == 'r' && rand.Intn(2) == 0 {
 					infix = "awn"
 				}
-				adj = insert_infix(strings.Split(find_verb.InfixDots, " "), infix)
+				adj = find_verb.InfixDots
+				switch dialect {
+				case 2: // reef
+					adj = quickReef(adj)
+					fallthrough
+				case 0: // interdialect
+					adj = specialU(adj, find_verb.IPA)
+				}
+
+				adj = insert_infix(strings.Split(adj, " "), infix, dialect)
 				// If the adj starts with a in forest, we don't need another a
 				if !two_word_noun && (adj[0] != 'a' || dialect != 1) {
 					adj = "a" + glottal_caps(adj)
@@ -243,7 +278,17 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 				}
 			case 6: //active participle verb
 				find_verb := one_word_verb(allVerbs)
-				adj = insert_infix(strings.Split(find_verb.InfixDots, " "), "us")
+				adj = find_verb.InfixDots
+				switch dialect {
+				case 2: // reef
+					adj = quickReef(adj)
+					fallthrough
+				case 0: // interdialect
+					adj = specialU(adj, find_verb.IPA)
+				}
+
+				adj = insert_infix(strings.Split(adj, " "), "us", dialect)
+
 				// If the adj starts with a in forest, we don't need another a
 				if !two_word_noun && (adj[0] != 'a' || dialect != 1) {
 					adj = "a" + glottal_caps(adj)
@@ -254,7 +299,16 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 				}
 			case 7: //passive participle verb
 				find_verb := one_word_verb(allTransitiveVerbs)
-				adj = insert_infix(strings.Split(find_verb.InfixDots, " "), "awn")
+				adj = find_verb.InfixDots
+				switch dialect {
+				case 2: // reef
+					adj = quickReef(adj)
+					fallthrough
+				case 0: // interdialect
+					adj = specialU(adj, find_verb.IPA)
+				}
+
+				adj = insert_infix(strings.Split(adj, " "), "us", dialect)
 				// If the adj starts with a in forest, we don't need another a
 				if !two_word_noun && (adj[0] != 'a' || dialect != 1) {
 					adj = "a" + glottal_caps(adj)

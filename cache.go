@@ -16,6 +16,7 @@ var dictionaryCached bool
 var dictHashCached bool
 var dictHash2 MetaDict
 var dictHash2Cached bool
+var homonyms string
 
 type MetaDict struct {
 	EN map[string][]string
@@ -79,38 +80,91 @@ func FindDictionaryFile() string {
 	return ""
 }
 
-func AppendAndAlphabetize(words []Word, word Word) []Word {
-	newWords := []Word{}
-	newWordCompacted := []rune(compress(strings.ToLower(word.Syllables)))
-	oldWordCompacted := []rune("bdgj")
-	i := 0
-	found := false
-	// loop through all the words
-	for i = 0; i < len(words); i++ {
-		if !found {
-			oldWordCompacted = []rune(compress(strings.ToLower(words[i].Syllables)))
-			lowestLen := len(newWordCompacted)
-			if lowestLen > len(oldWordCompacted) {
-				lowestLen = len(oldWordCompacted)
-			}
-			// compare an individual word
-			for j := 0; j < lowestLen; j++ {
-				// If the new letter is bigger, wait until it gets
-				if letterMap[newWordCompacted[j]] > letterMap[oldWordCompacted[j]] {
-					break
-				} else if letterMap[newWordCompacted[j]] < letterMap[oldWordCompacted[j]] {
-					found = true
-					newWords = append(newWords, word)
-					break
-				}
-				// If equal, continue
-			}
+func AlphabetizeHelper(a string, b string) bool {
+	aCompacted := []rune(strings.ReplaceAll((strings.ToLower(a)), "-", ""))
+
+	// Start in the middle
+	bCompacted := []rune(strings.ReplaceAll(compress(strings.ToLower(b)), "-", ""))
+	lowestLen := len(aCompacted)
+	if lowestLen > len(bCompacted) {
+		lowestLen = len(bCompacted)
+	}
+	// compare an individual word
+	for j := 0; j < lowestLen; j++ {
+		// If the new letter is bigger, wait until it gets
+		if letterMap[aCompacted[j]] < letterMap[bCompacted[j]] {
+			return true
+		} else if letterMap[aCompacted[j]] > letterMap[bCompacted[j]] {
+			return false
 		}
-		newWords = append(newWords, words[i])
+		// If equal, continue
 	}
-	if !found {
-		newWords = append(newWords, word)
+
+	// longer words go after
+	return len(aCompacted) < len(bCompacted)
+}
+
+func AppendAndAlphabetize(words []Word, word Word) []Word {
+	// new array
+	switch len(words) {
+	case 0:
+		return []Word{word}
+	case 1:
+		newWords := []Word{}
+		if word.ID == words[0].ID {
+			return words
+		}
+		if AlphabetizeHelper(words[0].Syllables, word.Syllables) {
+			newWords = []Word{words[0], word}
+		} else {
+			newWords = []Word{word, words[0]}
+		}
+		return newWords
+	case 2:
+		newWords := []Word{}
+		if word.ID == words[0].ID {
+			return words
+		}
+		if AlphabetizeHelper(word.Syllables, words[0].Syllables) {
+			newWords = []Word{word, words[0], words[1]}
+		} else if AlphabetizeHelper(words[1].Syllables, word.Syllables) {
+			newWords = []Word{words[0], words[1], word}
+		} else {
+			newWords = []Word{words[0], word, words[1]}
+		}
+		return newWords
 	}
+
+	// start in the middle
+	halfway := len(words) / 2
+
+	// Copy the first half
+	newWords := make([]Word, len(words[:halfway]))
+	copy(newWords, words[:halfway])
+
+	// Copy the second half
+	oldWords := make([]Word, len(words[halfway:]))
+	copy(oldWords, words[halfway:])
+
+	// compare an individual word
+	if AlphabetizeHelper(word.Syllables, words[halfway].Syllables) {
+		// Copy the first half
+		newWords = AppendAndAlphabetize(newWords, word)
+
+		// Join them
+		for _, a := range oldWords {
+			newWords = append(newWords, a)
+		}
+	} else {
+		// Copy the second half
+		oldWords = AppendAndAlphabetize(oldWords, word)
+
+		// Join them
+		for _, a := range oldWords {
+			newWords = append(newWords, a)
+		}
+	}
+
 	return newWords
 }
 
@@ -123,6 +177,8 @@ func CacheDictHash() error {
 	} else {
 		dictHash = make(map[string][]Word)
 	}
+
+	tempHoms := []string{}
 
 	err := runOnFile(func(word Word) error {
 		standardizedWord := word.Navi
@@ -139,9 +195,49 @@ func CacheDictHash() error {
 
 		// find everything lowercase
 		standardizedWord = strings.ToLower(standardizedWord)
+
+		// If the word appears more than once, record it
+		if _, ok := dictHash[standardizedWord]; ok {
+			found := false
+			for _, a := range tempHoms {
+				if a == standardizedWord {
+					found = true
+					break
+				}
+			}
+			if !found {
+				tempHoms = append(tempHoms, standardizedWord)
+			}
+		}
+		if strings.Contains(standardizedWord, "é") {
+			noAcute := strings.ReplaceAll(standardizedWord, "é", "e")
+			found := false
+			for _, a := range tempHoms {
+				if a == noAcute {
+					found = true
+					break
+				}
+			}
+			if !found {
+				tempHoms = append(tempHoms, noAcute)
+				tempHoms = append(tempHoms, standardizedWord)
+			}
+		}
+
 		dictHash[standardizedWord] = append(dictHash[standardizedWord], word)
 		return nil
 	})
+
+	// Reverse the order to make accidental and new homonyms easier to see
+	// Also make it a string for easier searching
+	i := len(tempHoms)
+	for i > 0 {
+		i--
+		homonyms += tempHoms[i] + " "
+	}
+
+	homonyms = strings.TrimSuffix(homonyms, " ")
+
 	if err != nil {
 		log.Printf("Error caching dictionary: %s", err)
 		// uncache dict, to be save

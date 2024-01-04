@@ -34,7 +34,7 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
-func wordSimpleEqual(w1a, w2a []Word, checkAffixes bool) bool {
+func wordSimpleEqual(w1a, w2a []Word) bool {
 	w1l := len(w1a)
 	w2l := len(w2a)
 
@@ -57,11 +57,10 @@ func wordSimpleEqual(w1a, w2a []Word, checkAffixes bool) bool {
 			//w1.RU != w2.RU ||
 			//w1.SV != w2.SV ||
 			w1.Navi != w2.Navi ||
-			(checkAffixes &&
-				(!reflect.DeepEqual(w1.Affixes.Prefix, w2.Affixes.Prefix) ||
-					!reflect.DeepEqual(w1.Affixes.Infix, w2.Affixes.Infix) ||
-					!reflect.DeepEqual(w1.Affixes.Suffix, w2.Affixes.Suffix) ||
-					!reflect.DeepEqual(w1.Affixes.Lenition, w2.Affixes.Lenition))) {
+			(!reflect.DeepEqual(w1.Affixes.Prefix, w2.Affixes.Prefix) ||
+				!reflect.DeepEqual(w1.Affixes.Infix, w2.Affixes.Infix) ||
+				!reflect.DeepEqual(w1.Affixes.Suffix, w2.Affixes.Suffix) ||
+				!reflect.DeepEqual(w1.Affixes.Lenition, w2.Affixes.Lenition)) {
 
 			return false
 		}
@@ -798,7 +797,7 @@ var englishWords = []struct {
 func TestTranslateFromNavi(t *testing.T) {
 	for _, tt := range naviWords {
 		t.Run(tt.name, func(t *testing.T) {
-			if got, err := TranslateFromNaviHash(tt.args.searchNaviText, true); err != nil || !wordSimpleEqual(got, tt.want, true) {
+			if got, err := TranslateFromNaviHash(tt.args.searchNaviText, true); err != nil || !wordSimpleEqual(got, tt.want) {
 				t.Errorf("TranslateFromNavi() = %v, want %v", got, tt.want)
 			}
 		})
@@ -855,7 +854,7 @@ func BenchmarkTranslateFromNaviBigCached(b *testing.B) {
 func TestTranslateToNavi(t *testing.T) {
 	for _, tt := range englishWords {
 		t.Run(tt.name, func(t *testing.T) {
-			if gotResults := TranslateToNaviHash(tt.args.searchNaviText, tt.args.languageCode); !wordSimpleEqual(gotResults, tt.want, false) {
+			if gotResults := TranslateToNaviHash(tt.args.searchNaviText, tt.args.languageCode); !wordSimpleEqual(gotResults, tt.want) {
 				t.Errorf("TranslateToNavi() = %v, want %v", gotResults, tt.want)
 			}
 		})
@@ -946,7 +945,7 @@ func TestRandom(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if gotResults, _ := Random(tt.args.amount, nil); !(len(gotResults) == tt.args.amount) {
+			if gotResults, _ := Random(tt.args.amount, nil, true); !(len(gotResults) == tt.args.amount) {
 				t.Errorf("Random() = %v, want %v", len(gotResults), tt.args.amount)
 			}
 		})
