@@ -127,9 +127,6 @@ func clean(searchNaviWords string) (words string) {
 	// find everything lowercase
 	searchNaviWords = strings.ToLower(searchNaviWords)
 
-	// normalize ù
-	searchNaviWords = strings.ReplaceAll(searchNaviWords, "ù", "u")
-
 	// No Results if empty string after removing sketch chars
 	if len(searchNaviWords) == 0 {
 		return
