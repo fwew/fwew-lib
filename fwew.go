@@ -218,10 +218,11 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 
 	bareNaviWord := false
 	// Find the word
-	if _, ok := dictHash[searchNaviWord]; ok {
+	a := strings.ReplaceAll(searchNaviWord, "ù", "u")
+	if _, ok := dictHash[a]; ok {
 		bareNaviWord = true
 
-		for _, b := range dictHash[searchNaviWord] {
+		for _, b := range dictHash[a] {
 			results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], b)
 		}
 	}
