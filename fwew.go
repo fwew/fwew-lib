@@ -292,8 +292,9 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 					}
 
 					results[0] = []Word{results[0][0]}
+					a := strings.ReplaceAll(fullWord, "ù", "u")
 
-					for _, definition := range dictHash[fullWord] {
+					for _, definition := range dictHash[a] {
 						// Replace the word
 						if len(results) > 0 && len(results[0]) > 1 && (results[0][1].Navi == "ke" || results[0][1].Navi == "rä'ä") {
 							// Get the query it's looking for
@@ -350,8 +351,7 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 								extraWord = 1
 								if len(results) == 1 {
 									results = append(results, []Word{simpleWord(allWords[i+j+1])})
-									a := strings.ReplaceAll(allWords[i+j+1], "ù", "u")
-									for _, b := range dictHash[a] {
+									for _, b := range dictHash[allWords[i+j+1]] {
 										results[1] = AppendToFront(results[1], b)
 									}
 								}
