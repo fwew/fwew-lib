@@ -350,7 +350,8 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 								extraWord = 1
 								if len(results) == 1 {
 									results = append(results, []Word{simpleWord(allWords[i+j+1])})
-									for _, b := range dictHash[allWords[i+j+1]] {
+									a := strings.ReplaceAll(allWords[i+j+1], "ù", "u")
+									for _, b := range dictHash[a] {
 										results[1] = AppendToFront(results[1], b)
 									}
 								}
