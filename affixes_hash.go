@@ -606,271 +606,269 @@ func deconjugate(input string) []ConjugationCandidate {
 func TestDeconjugations(searchNaviWord string) (results []Word) {
 	conjugations := deconjugate(searchNaviWord)
 	for _, candidate := range conjugations {
-		for _, c := range dictHash[candidate.word] {
-			if _, ok := dictHash[candidate.word]; ok {
+		a := strings.ReplaceAll(candidate.word, "ù", "u")
+		for _, c := range dictHash[a] {
 
-				// Find gerunds (tì-v<us>erb, treated like a noun)
-				gerund := false
-				infixBan := false
-				doubleBan := false
-				participle := false
+			// Find gerunds (tì-v<us>erb, treated like a noun)
+			gerund := false
+			infixBan := false
+			doubleBan := false
+			participle := false
 
-				// Find gerunds (tì-v<us>erb, the act of [verb]ing)
-				if len(candidate.infixes) == 1 && candidate.infixes[0] == "us" {
-					// Reverse search is more likely to find it immediately
-					for i := len(candidate.prefixes) - 1; i >= 0; i-- {
-						if candidate.prefixes[i] == "tì" {
-							gerund = true
-							break
-						}
-					}
-					if !gerund {
-						participle = true
-					}
-				} else if len(candidate.infixes) > 0 {
-					// Now reverse search is just gratuitous
-					for i := len(candidate.infixes) - 1; i >= 0; i-- {
-						if candidate.infixes[i] == "us" || candidate.infixes[i] == "awn" {
-							participle = true
-							break
-						}
+			// Find gerunds (tì-v<us>erb, the act of [verb]ing)
+			if len(candidate.infixes) == 1 && candidate.infixes[0] == "us" {
+				// Reverse search is more likely to find it immediately
+				for i := len(candidate.prefixes) - 1; i >= 0; i-- {
+					if candidate.prefixes[i] == "tì" {
+						gerund = true
+						break
 					}
 				}
+				if !gerund {
+					participle = true
+				}
+			} else if len(candidate.infixes) > 0 {
+				// Now reverse search is just gratuitous
+				for i := len(candidate.infixes) - 1; i >= 0; i-- {
+					if candidate.infixes[i] == "us" || candidate.infixes[i] == "awn" {
+						participle = true
+						break
+					}
+				}
+			}
 
-				// If the insistPOS and found word agree they are nouns
-				if len(candidate.suffixes) == 1 && candidate.suffixes[0] == "tswo" {
-					siVerb := false
-					if len(candidate.prefixes) == 0 && len(candidate.infixes) == 0 {
-						if _, ok := multiword_words[candidate.word]; ok {
-							for _, b := range multiword_words[candidate.word] {
-								if b[0] == "si" {
-									siVerb = true
-									a := c
-									a.Navi = candidate.word + " si"
-									a.Affixes.Lenition = candidate.lenition
-									a.Affixes.Prefix = candidate.prefixes
-									a.Affixes.Infix = candidate.infixes
-									a.Affixes.Suffix = candidate.suffixes
-									results = append(results, a)
-									break
-								}
+			// If the insistPOS and found word agree they are nouns
+			if len(candidate.suffixes) == 1 && candidate.suffixes[0] == "tswo" {
+				siVerb := false
+				if len(candidate.prefixes) == 0 && len(candidate.infixes) == 0 {
+					if _, ok := multiword_words[candidate.word]; ok {
+						for _, b := range multiword_words[candidate.word] {
+							if b[0] == "si" {
+								siVerb = true
+								a := c
+								a.Navi = candidate.word + " si"
+								a.Affixes.Lenition = candidate.lenition
+								a.Affixes.Prefix = candidate.prefixes
+								a.Affixes.Infix = candidate.infixes
+								a.Affixes.Suffix = candidate.suffixes
+								results = append(results, a)
+								break
 							}
 						}
-						if !siVerb {
-							a := c
-							a.Navi = candidate.word
-							a.Affixes.Lenition = candidate.lenition
-							a.Affixes.Prefix = candidate.prefixes
-							a.Affixes.Infix = candidate.infixes
-							a.Affixes.Suffix = candidate.suffixes
-							results = append(results, a)
-						}
 					}
-				} else if gerund {
-					if strings.HasPrefix(c.PartOfSpeech, "v") {
-						// Make sure the <us> is in the correct place
-						rebuiltVerb := strings.ReplaceAll(c.InfixLocations, "<0>", "")
-						rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<1>", "us")
-						rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<2>", "")
-
-						// Does the noun actually contain the verb?
-						if strings.Contains(searchNaviWord, rebuiltVerb) {
-							a := c
-							a.Affixes.Lenition = candidate.lenition
-							a.Affixes.Prefix = candidate.prefixes
-							a.Affixes.Infix = candidate.infixes
-							a.Affixes.Suffix = candidate.suffixes
-							results = append(results, a)
-						} else {
-							results = append(results, infixError(searchNaviWord, "Did you mean **tì"+rebuiltVerb+"**?", c.IPA))
-						}
-					}
-				} else if candidate.insistPOS == "n." {
-					// n., pn. and Prop.n. (but not vin.)
-					if len(candidate.infixes) == 0 && c.PartOfSpeech[0] != 'v' && strings.HasSuffix(c.PartOfSpeech, "n.") {
+					if !siVerb {
 						a := c
+						a.Navi = candidate.word
 						a.Affixes.Lenition = candidate.lenition
 						a.Affixes.Prefix = candidate.prefixes
-						a.Affixes.Suffix = candidate.suffixes
-						results = append(results, a)
-					}
-				} else if candidate.insistPOS == "pn." {
-					// pn.
-					if len(candidate.infixes) == 0 && strings.HasSuffix(c.PartOfSpeech, "pn.") {
-						a := c
-						a.Affixes.Lenition = candidate.lenition
-						a.Affixes.Prefix = candidate.prefixes
-						a.Affixes.Suffix = candidate.suffixes
-						results = append(results, a)
-					}
-				} else if candidate.insistPOS == "adj." {
-					posNoun := c.PartOfSpeech
-					if len(candidate.infixes) == 0 && (posNoun == "adj." || posNoun == "num.") {
-						a := c
-						a.Affixes.Lenition = candidate.lenition
-						a.Affixes.Prefix = candidate.prefixes
-						a.Affixes.Suffix = candidate.suffixes
-						results = append(results, a)
-					}
-				} else if candidate.insistPOS == "v." {
-					posNoun := c.PartOfSpeech
-					if strings.HasPrefix(posNoun, "v") {
-						// Verbs with -tswo or -yu cannot have infixes
-						if len(candidate.suffixes) > 0 {
-							// Reverse search is more likely to find it immediately
-							for i := len(candidate.suffixes) - 1; i >= 0; i-- {
-								for _, j := range verbSuffixes {
-									if candidate.suffixes[i] == j {
-										infixBan = true
-										break
-									}
-								}
-								if infixBan {
-									break
-								}
-							}
-						}
-
-						if len(candidate.prefixes) > 0 {
-							// Reverse search is more likely to find it immediately
-							for i := len(candidate.prefixes) - 1; i >= 0; i-- {
-								for _, j := range verbPrefixes {
-									if candidate.prefixes[i] == j {
-										if infixBan {
-											doubleBan = true
-											break
-										}
-										infixBan = true
-										break
-									}
-								}
-								if infixBan || doubleBan {
-									break
-								}
-							}
-						}
-
-						// Take action on tsuk-verb-yus
-						if doubleBan {
-							continue
-						}
-
-						a := c
-						a.Affixes.Lenition = candidate.lenition
-						a.Affixes.Prefix = candidate.prefixes
-						a.Affixes.Suffix = candidate.suffixes
 						a.Affixes.Infix = candidate.infixes
-
-						if infixBan {
-							if len(candidate.infixes) > 0 {
-								continue // No nonsense here
-							} else {
-								results = append(results, a)
-							}
-						}
-
-						// Make it verify the infixes are in the correct place
-						ol := false
-						er := false
-
-						// pre-first position infixes
-						rebuiltVerb := c.InfixLocations
-						firstInfixes := ""
-						found := false
-
-						for _, infix := range prefirst {
-							for _, newInfix := range candidate.infixes {
-								if newInfix == infix {
-									firstInfixes += infix
-									found = true
-								}
-							}
-						}
-						rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<0>", firstInfixes)
-
-						// first position infixes
-						found = false
-						firstInfixes = ""
-						for _, infix := range first {
-							for _, newInfix := range candidate.infixes {
-								if newInfix == infix {
-									rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<1>", infix)
-									firstInfixes = infix
-									found = true
-									if infix == "ol" {
-										ol = true
-									} else if infix == "er" {
-										er = true
-									}
-									break
-								}
-							}
-							if found {
-								break
-							}
-						}
-						rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<1>", "")
-
-						// second position infixes
-						found = false
-						for _, infix := range second {
-							for _, newInfix := range candidate.infixes {
-								if newInfix == infix {
-									rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<2>", infix)
-									found = true
-									break
-								}
-							}
-							if found {
-								break
-							}
-						}
-						rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<2>", "")
-
-						rebuiltVerb = strings.TrimSpace(rebuiltVerb)
-
-						if ol && strings.Contains(rebuiltVerb, "olll") {
-							rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "olll", "ol")
-						}
-						if er && strings.Contains(rebuiltVerb, "errr") {
-							rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "errr", "er")
-						}
-
-						if identicalRunes(rebuiltVerb, strings.ReplaceAll(searchNaviWord, "-", " ")) {
-							results = append(results, a)
-						} else if participle {
-							// In case we have a [word]-susi
-							rebuiltHyphen := strings.ReplaceAll(searchNaviWord, "-", " ")
-							if identicalRunes("a"+rebuiltVerb, rebuiltHyphen) {
-								// a-v<us>erb and a-v<awn>erb
-								results = append(results, a)
-							} else if identicalRunes(rebuiltVerb+"a", rebuiltHyphen) {
-								// v<us>erb-a and v<awn>erb-a
-								results = append(results, a)
-							} else if firstInfixes == "us" {
-								results = append(results, infixError(searchNaviWord, "Did you mean **"+rebuiltVerb+"**?", c.IPA))
-							}
-						} else if gerund { // ti is needed to weed out non-productive tì-verbs
-							results = append(results, infixError(searchNaviWord, "Did you mean **"+rebuiltVerb+"**?", c.IPA))
-						}
-					}
-				} else if candidate.insistPOS == "nì." {
-					posNoun := c.PartOfSpeech
-					if len(candidate.infixes) == 0 && (posNoun == "adj." || posNoun == "pn.") {
-						a := c
-						a.Affixes.Lenition = candidate.lenition
-						a.Affixes.Prefix = candidate.prefixes
 						a.Affixes.Suffix = candidate.suffixes
 						results = append(results, a)
 					}
-				} else if len(candidate.infixes) == 0 {
+				}
+			} else if gerund {
+				if strings.HasPrefix(c.PartOfSpeech, "v") {
+					// Make sure the <us> is in the correct place
+					rebuiltVerb := strings.ReplaceAll(c.InfixLocations, "<0>", "")
+					rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<1>", "us")
+					rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<2>", "")
+
+					// Does the noun actually contain the verb?
+					if strings.Contains(searchNaviWord, rebuiltVerb) {
+						a := c
+						a.Affixes.Lenition = candidate.lenition
+						a.Affixes.Prefix = candidate.prefixes
+						a.Affixes.Infix = candidate.infixes
+						a.Affixes.Suffix = candidate.suffixes
+						results = append(results, a)
+					} else {
+						results = append(results, infixError(searchNaviWord, "Did you mean **tì"+rebuiltVerb+"**?", c.IPA))
+					}
+				}
+			} else if candidate.insistPOS == "n." {
+				// n., pn. and Prop.n. (but not vin.)
+				if len(candidate.infixes) == 0 && c.PartOfSpeech[0] != 'v' && strings.HasSuffix(c.PartOfSpeech, "n.") {
 					a := c
 					a.Affixes.Lenition = candidate.lenition
 					a.Affixes.Prefix = candidate.prefixes
 					a.Affixes.Suffix = candidate.suffixes
 					results = append(results, a)
 				}
+			} else if candidate.insistPOS == "pn." {
+				// pn.
+				if len(candidate.infixes) == 0 && strings.HasSuffix(c.PartOfSpeech, "pn.") {
+					a := c
+					a.Affixes.Lenition = candidate.lenition
+					a.Affixes.Prefix = candidate.prefixes
+					a.Affixes.Suffix = candidate.suffixes
+					results = append(results, a)
+				}
+			} else if candidate.insistPOS == "adj." {
+				posNoun := c.PartOfSpeech
+				if len(candidate.infixes) == 0 && (posNoun == "adj." || posNoun == "num.") {
+					a := c
+					a.Affixes.Lenition = candidate.lenition
+					a.Affixes.Prefix = candidate.prefixes
+					a.Affixes.Suffix = candidate.suffixes
+					results = append(results, a)
+				}
+			} else if candidate.insistPOS == "v." {
+				posNoun := c.PartOfSpeech
+				if strings.HasPrefix(posNoun, "v") {
+					// Verbs with -tswo or -yu cannot have infixes
+					if len(candidate.suffixes) > 0 {
+						// Reverse search is more likely to find it immediately
+						for i := len(candidate.suffixes) - 1; i >= 0; i-- {
+							for _, j := range verbSuffixes {
+								if candidate.suffixes[i] == j {
+									infixBan = true
+									break
+								}
+							}
+							if infixBan {
+								break
+							}
+						}
+					}
 
+					if len(candidate.prefixes) > 0 {
+						// Reverse search is more likely to find it immediately
+						for i := len(candidate.prefixes) - 1; i >= 0; i-- {
+							for _, j := range verbPrefixes {
+								if candidate.prefixes[i] == j {
+									if infixBan {
+										doubleBan = true
+										break
+									}
+									infixBan = true
+									break
+								}
+							}
+							if infixBan || doubleBan {
+								break
+							}
+						}
+					}
+
+					// Take action on tsuk-verb-yus
+					if doubleBan {
+						continue
+					}
+
+					a := c
+					a.Affixes.Lenition = candidate.lenition
+					a.Affixes.Prefix = candidate.prefixes
+					a.Affixes.Suffix = candidate.suffixes
+					a.Affixes.Infix = candidate.infixes
+
+					if infixBan {
+						if len(candidate.infixes) > 0 {
+							continue // No nonsense here
+						} else {
+							results = append(results, a)
+						}
+					}
+
+					// Make it verify the infixes are in the correct place
+					ol := false
+					er := false
+
+					// pre-first position infixes
+					rebuiltVerb := c.InfixLocations
+					firstInfixes := ""
+					found := false
+
+					for _, infix := range prefirst {
+						for _, newInfix := range candidate.infixes {
+							if newInfix == infix {
+								firstInfixes += infix
+								found = true
+							}
+						}
+					}
+					rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<0>", firstInfixes)
+
+					// first position infixes
+					found = false
+					firstInfixes = ""
+					for _, infix := range first {
+						for _, newInfix := range candidate.infixes {
+							if newInfix == infix {
+								rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<1>", infix)
+								firstInfixes = infix
+								found = true
+								if infix == "ol" {
+									ol = true
+								} else if infix == "er" {
+									er = true
+								}
+								break
+							}
+						}
+						if found {
+							break
+						}
+					}
+					rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<1>", "")
+
+					// second position infixes
+					found = false
+					for _, infix := range second {
+						for _, newInfix := range candidate.infixes {
+							if newInfix == infix {
+								rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<2>", infix)
+								found = true
+								break
+							}
+						}
+						if found {
+							break
+						}
+					}
+					rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<2>", "")
+
+					rebuiltVerb = strings.TrimSpace(rebuiltVerb)
+
+					if ol && strings.Contains(rebuiltVerb, "olll") {
+						rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "olll", "ol")
+					}
+					if er && strings.Contains(rebuiltVerb, "errr") {
+						rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "errr", "er")
+					}
+
+					if identicalRunes(rebuiltVerb, strings.ReplaceAll(searchNaviWord, "-", " ")) {
+						results = append(results, a)
+					} else if participle {
+						// In case we have a [word]-susi
+						rebuiltHyphen := strings.ReplaceAll(searchNaviWord, "-", " ")
+						if identicalRunes("a"+rebuiltVerb, rebuiltHyphen) {
+							// a-v<us>erb and a-v<awn>erb
+							results = append(results, a)
+						} else if identicalRunes(rebuiltVerb+"a", rebuiltHyphen) {
+							// v<us>erb-a and v<awn>erb-a
+							results = append(results, a)
+						} else if firstInfixes == "us" {
+							results = append(results, infixError(searchNaviWord, "Did you mean **"+rebuiltVerb+"**?", c.IPA))
+						}
+					} else if gerund { // ti is needed to weed out non-productive tì-verbs
+						results = append(results, infixError(searchNaviWord, "Did you mean **"+rebuiltVerb+"**?", c.IPA))
+					}
+				}
+			} else if candidate.insistPOS == "nì." {
+				posNoun := c.PartOfSpeech
+				if len(candidate.infixes) == 0 && (posNoun == "adj." || posNoun == "pn.") {
+					a := c
+					a.Affixes.Lenition = candidate.lenition
+					a.Affixes.Prefix = candidate.prefixes
+					a.Affixes.Suffix = candidate.suffixes
+					results = append(results, a)
+				}
+			} else if len(candidate.infixes) == 0 {
+				a := c
+				a.Affixes.Lenition = candidate.lenition
+				a.Affixes.Prefix = candidate.prefixes
+				a.Affixes.Suffix = candidate.suffixes
+				results = append(results, a)
 			}
 		}
 	}

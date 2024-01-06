@@ -127,9 +127,6 @@ func clean(searchNaviWords string) (words string) {
 	// find everything lowercase
 	searchNaviWords = strings.ToLower(searchNaviWords)
 
-	// normalize ù
-	searchNaviWords = strings.ReplaceAll(searchNaviWords, "ù", "u")
-
 	// No Results if empty string after removing sketch chars
 	if len(searchNaviWords) == 0 {
 		return
@@ -221,10 +218,11 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 
 	bareNaviWord := false
 	// Find the word
-	if _, ok := dictHash[searchNaviWord]; ok {
+	a := strings.ReplaceAll(searchNaviWord, "ù", "u")
+	if _, ok := dictHash[a]; ok {
 		bareNaviWord = true
 
-		for _, b := range dictHash[searchNaviWord] {
+		for _, b := range dictHash[a] {
 			results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], b)
 		}
 	}
@@ -295,8 +293,9 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 					}
 
 					results[0] = []Word{results[0][0]}
+					a := strings.ReplaceAll(fullWord, "ù", "u")
 
-					for _, definition := range dictHash[fullWord] {
+					for _, definition := range dictHash[a] {
 						// Replace the word
 						if len(results) > 0 && len(results[0]) > 1 && (results[0][1].Navi == "ke" || results[0][1].Navi == "rä'ä") {
 							// Get the query it's looking for
@@ -397,8 +396,9 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 						}
 
 						results[0] = []Word{results[0][0]}
+						a := strings.ReplaceAll(fullWord, "ù", "u")
 
-						for _, definition := range dictHash[fullWord] {
+						for _, definition := range dictHash[a] {
 							// Replace the word
 							if len(results) > 0 && len(results[0]) > 1 && (results[0][1].Navi == "ke" || results[0][1].Navi == "rä'ä") {
 								// Get the query it's looking for
