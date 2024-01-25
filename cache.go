@@ -252,7 +252,6 @@ func CacheDictHash() error {
 
 // Helper function for CacheDictHash2
 func AssignWord(wordmap map[string][]string, natlangWords string, naviWord string) (result map[string][]string) {
-	/* English */
 	standardizedWord := natlangWords
 	badChars := `~@#$%^&*()[]{}<>_/.,;:!?|+\"`
 
@@ -271,6 +270,7 @@ func AssignWord(wordmap map[string][]string, natlangWords string, naviWord strin
 			tempString += string(c)
 		}
 	}
+	standardizedWord = tempString
 
 	// remove all the sketchy chars from arguments
 	for _, c := range badChars {
