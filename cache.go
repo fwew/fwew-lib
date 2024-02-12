@@ -182,7 +182,7 @@ func CacheDictHash() error {
 
 	err := runOnFile(func(word Word) error {
 		standardizedWord := word.Navi
-		badChars := `~@#$%^&*()[]{}<>_/.,;:!?|+\`
+		badChars := `~@#$%^&*()[]{}<>_/.,;:!?|+\"`
 
 		// remove all the sketchy chars from arguments
 		for _, c := range badChars {
@@ -252,9 +252,25 @@ func CacheDictHash() error {
 
 // Helper function for CacheDictHash2
 func AssignWord(wordmap map[string][]string, natlangWords string, naviWord string) (result map[string][]string) {
-	/* English */
 	standardizedWord := natlangWords
-	badChars := `~@#$%^&*()[]{}<>_/.,;:!?|+\`
+	badChars := `~@#$%^&*()[]{}<>_/.,;:!?|+\"`
+
+	// remove anything in parenthesis to avoid clogging search results
+	tempString := ""
+	parenthesis := false
+	for _, c := range []rune(natlangWords) {
+		if c == '(' {
+			parenthesis = true
+		} else if c == ')' {
+			parenthesis = false
+			continue
+		}
+
+		if !parenthesis {
+			tempString += string(c)
+		}
+	}
+	standardizedWord = tempString
 
 	// remove all the sketchy chars from arguments
 	for _, c := range badChars {
@@ -304,23 +320,18 @@ func CacheDictHash2() error {
 	// Set up the whole thing
 
 	err := runOnFile(func(word Word) error {
-		standardizedWord := word.Navi
-		badChars := `~@#$%^&*()[]{}<>_/.,;:!?|+\`
+		standardizedWord := strings.ToLower(word.Navi)
 
-		// remove all the sketchy chars from arguments
-		for _, c := range badChars {
-			standardizedWord = strings.ReplaceAll(standardizedWord, string(c), "")
-		}
-		dictHash2.EN = AssignWord(dictHash2.EN, word.EN, strings.ToLower(standardizedWord))
-		dictHash2.DE = AssignWord(dictHash2.DE, word.DE, strings.ToLower(standardizedWord))
-		dictHash2.ET = AssignWord(dictHash2.ET, word.ET, strings.ToLower(standardizedWord))
-		dictHash2.FR = AssignWord(dictHash2.FR, word.FR, strings.ToLower(standardizedWord))
-		dictHash2.HU = AssignWord(dictHash2.HU, word.HU, strings.ToLower(standardizedWord))
-		dictHash2.NL = AssignWord(dictHash2.NL, word.NL, strings.ToLower(standardizedWord))
-		dictHash2.PL = AssignWord(dictHash2.PL, word.PL, strings.ToLower(standardizedWord))
-		dictHash2.RU = AssignWord(dictHash2.RU, word.RU, strings.ToLower(standardizedWord))
-		dictHash2.SV = AssignWord(dictHash2.SV, word.SV, strings.ToLower(standardizedWord))
-		dictHash2.TR = AssignWord(dictHash2.TR, word.TR, strings.ToLower(standardizedWord))
+		dictHash2.EN = AssignWord(dictHash2.EN, word.EN, standardizedWord)
+		dictHash2.DE = AssignWord(dictHash2.DE, word.DE, standardizedWord)
+		dictHash2.ET = AssignWord(dictHash2.ET, word.ET, standardizedWord)
+		dictHash2.FR = AssignWord(dictHash2.FR, word.FR, standardizedWord)
+		dictHash2.HU = AssignWord(dictHash2.HU, word.HU, standardizedWord)
+		dictHash2.NL = AssignWord(dictHash2.NL, word.NL, standardizedWord)
+		dictHash2.PL = AssignWord(dictHash2.PL, word.PL, standardizedWord)
+		dictHash2.RU = AssignWord(dictHash2.RU, word.RU, standardizedWord)
+		dictHash2.SV = AssignWord(dictHash2.SV, word.SV, standardizedWord)
+		dictHash2.TR = AssignWord(dictHash2.TR, word.TR, standardizedWord)
 		return nil
 	})
 	if err != nil {
