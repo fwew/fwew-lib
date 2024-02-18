@@ -514,7 +514,7 @@ func TestList(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotResults, err := List(tt.args.args)
+			gotResults, err := List(tt.args.args, 1)
 			if !errors.Is(err, tt.wantErr) {
 				t.Errorf("List() error = %v, wantErr %v", err, tt.wantErr)
 				return

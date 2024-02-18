@@ -797,7 +797,7 @@ var englishWords = []struct {
 func TestTranslateFromNavi(t *testing.T) {
 	for _, tt := range naviWords {
 		t.Run(tt.name, func(t *testing.T) {
-			if got, err := TranslateFromNaviHash(tt.args.searchNaviText, true); err != nil || !wordSimpleEqual(got, tt.want) {
+			if got, err := TranslateFromNaviHash(tt.args.searchNaviText, true); err != nil || !wordSimpleEqual(got[1], tt.want) {
 				t.Errorf("TranslateFromNavi() = %v, want %v", got, tt.want)
 			}
 		})
@@ -854,7 +854,7 @@ func BenchmarkTranslateFromNaviBigCached(b *testing.B) {
 func TestTranslateToNavi(t *testing.T) {
 	for _, tt := range englishWords {
 		t.Run(tt.name, func(t *testing.T) {
-			if gotResults := TranslateToNaviHash(tt.args.searchNaviText, tt.args.languageCode); !wordSimpleEqual(gotResults, tt.want) {
+			if gotResults := TranslateToNaviHash(tt.args.searchNaviText, tt.args.languageCode); !wordSimpleEqual(gotResults[1], tt.want) {
 				t.Errorf("TranslateToNavi() = %v, want %v", gotResults, tt.want)
 			}
 		})
@@ -945,7 +945,7 @@ func TestRandom(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if gotResults, _ := Random(tt.args.amount, nil, true); !(len(gotResults) == tt.args.amount) {
+			if gotResults, _ := Random(tt.args.amount, nil, 1); !(len(gotResults) == tt.args.amount) {
 				t.Errorf("Random() = %v, want %v", len(gotResults), tt.args.amount)
 			}
 		})
