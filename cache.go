@@ -26,6 +26,7 @@ type MetaDict struct {
 	HU map[string][]string
 	NL map[string][]string
 	PL map[string][]string
+	PT map[string][]string
 	RU map[string][]string
 	SV map[string][]string
 	TR map[string][]string
@@ -110,7 +111,7 @@ func AppendAndAlphabetize(words []Word, word Word) []Word {
 	case 0:
 		return []Word{word}
 	case 1:
-		newWords := []Word{}
+		var newWords = []Word{}
 		if word.ID == words[0].ID {
 			return words
 		}
@@ -121,7 +122,7 @@ func AppendAndAlphabetize(words []Word, word Word) []Word {
 		}
 		return newWords
 	case 2:
-		newWords := []Word{}
+		var newWords = []Word{}
 		if word.ID == words[0].ID {
 			return words
 		}
@@ -152,17 +153,13 @@ func AppendAndAlphabetize(words []Word, word Word) []Word {
 		newWords = AppendAndAlphabetize(newWords, word)
 
 		// Join them
-		for _, a := range oldWords {
-			newWords = append(newWords, a)
-		}
+		newWords = append(newWords, oldWords...)
 	} else {
 		// Copy the second half
 		oldWords = AppendAndAlphabetize(oldWords, word)
 
 		// Join them
-		for _, a := range oldWords {
-			newWords = append(newWords, a)
-		}
+		newWords = append(newWords, oldWords...)
 	}
 
 	return newWords
@@ -258,7 +255,7 @@ func AssignWord(wordmap map[string][]string, natlangWords string, naviWord strin
 	// remove anything in parenthesis to avoid clogging search results
 	tempString := ""
 	parenthesis := false
-	for _, c := range []rune(natlangWords) {
+	for _, c := range natlangWords {
 		if c == '(' {
 			parenthesis = true
 		} else if c == ')' {
@@ -312,6 +309,7 @@ func CacheDictHash2() error {
 		dictHash2.HU = make(map[string][]string)
 		dictHash2.NL = make(map[string][]string)
 		dictHash2.PL = make(map[string][]string)
+		dictHash2.PT = make(map[string][]string)
 		dictHash2.RU = make(map[string][]string)
 		dictHash2.SV = make(map[string][]string)
 		dictHash2.TR = make(map[string][]string)
@@ -329,6 +327,7 @@ func CacheDictHash2() error {
 		dictHash2.HU = AssignWord(dictHash2.HU, word.HU, standardizedWord)
 		dictHash2.NL = AssignWord(dictHash2.NL, word.NL, standardizedWord)
 		dictHash2.PL = AssignWord(dictHash2.PL, word.PL, standardizedWord)
+		dictHash2.PT = AssignWord(dictHash2.PT, word.PT, standardizedWord)
 		dictHash2.RU = AssignWord(dictHash2.RU, word.RU, standardizedWord)
 		dictHash2.SV = AssignWord(dictHash2.SV, word.SV, standardizedWord)
 		dictHash2.TR = AssignWord(dictHash2.TR, word.TR, standardizedWord)
@@ -360,6 +359,7 @@ func UncacheHashDict2() {
 	dictHash2.HU = nil
 	dictHash2.NL = nil
 	dictHash2.PL = nil
+	dictHash2.PT = nil
 	dictHash2.RU = nil
 	dictHash2.SV = nil
 	dictHash2.TR = nil

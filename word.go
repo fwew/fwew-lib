@@ -40,6 +40,7 @@ type Word struct {
 	HU             string
 	NL             string
 	PL             string
+	PT             string
 	RU             string
 	SV             string
 	TR             string
@@ -56,21 +57,11 @@ type affix struct {
 }
 
 func addAffixes(a affix, z affix) (w affix) {
-	for _, b := range a.Prefix {
-		z.Prefix = append(z.Prefix, b)
-	}
-	for _, b := range a.Infix {
-		z.Infix = append(z.Infix, b)
-	}
-	for _, b := range a.Suffix {
-		z.Suffix = append(z.Suffix, b)
-	}
-	for _, b := range a.Lenition {
-		z.Lenition = append(z.Lenition, b)
-	}
-	for _, b := range a.Comment {
-		z.Comment = append(z.Comment, b)
-	}
+	z.Prefix = append(z.Prefix, a.Prefix...)
+	z.Infix = append(z.Infix, a.Infix...)
+	z.Suffix = append(z.Suffix, a.Suffix...)
+	z.Lenition = append(z.Lenition, a.Lenition...)
+	z.Comment = append(z.Comment, a.Comment...)
 	return z
 }
 
@@ -93,6 +84,7 @@ func (w Word) String() string {
 		"HU: %s\n"+
 		"NL: %s\n"+
 		"PL: %s\n"+
+		"PT: %s\n"+
 		"RU: %s\n"+
 		"SV: %s\n"+
 		"TR: %s\n"+
@@ -113,6 +105,7 @@ func (w Word) String() string {
 		w.HU,
 		w.NL,
 		w.PL,
+		w.PT,
 		w.RU,
 		w.SV,
 		w.TR,
@@ -146,6 +139,7 @@ func newWord(dataFields []string, order dictPos) Word {
 	word.HU = dataFields[order.huField]
 	word.NL = dataFields[order.nlField]
 	word.PL = dataFields[order.plField]
+	word.PT = dataFields[order.ptField]
 	word.RU = dataFields[order.ruField]
 	word.SV = dataFields[order.svField]
 	word.TR = dataFields[order.trField]
@@ -185,6 +179,7 @@ func (w *Word) Equals(other Word) bool {
 		w.HU == other.HU &&
 		w.NL == other.NL &&
 		w.PL == other.PL &&
+		w.PT == other.PT &&
 		w.RU == other.RU &&
 		w.SV == other.SV &&
 		w.TR == other.TR &&
@@ -270,6 +265,8 @@ func (w *Word) ToOutputLine(i string, withMarkdown, showIPA, showInfixes, showDa
 		output += w.NL
 	case "pl":
 		output += w.PL
+	case "pt":
+		output += w.PT
 	case "ru":
 		output += w.RU
 	case "sv":
@@ -361,6 +358,7 @@ type dictPos struct {
 	huField  int // Hungarian definition
 	nlField  int // Dutch definition
 	plField  int // Polish definition
+	ptField  int // Portuguese definition
 	ruField  int // Russian definition
 	svField  int // Swedish definition
 	trField  int // Turkish definition
@@ -403,6 +401,8 @@ func readDictPos(headerFields []string) dictPos {
 			pos.nlField = i
 		case "pl":
 			pos.plField = i
+		case "pt":
+			pos.ptField = i
 		case "ru":
 			pos.ruField = i
 		case "sv":

@@ -15,6 +15,7 @@
 package fwew_lib
 
 import (
+	"fmt"
 	"log"
 	"math/rand"
 	"strings"
@@ -161,9 +162,7 @@ func TranslateFromNaviHash(searchNaviWords string, checkFixes bool) (results [][
 			for _, newWord := range newWords {
 				// Set up receptacle for words
 				results = append(results, []Word{})
-				for _, newResult := range newWord {
-					results[len(results)-1] = append(results[len(results)-1], newResult)
-				}
+				results[len(results)-1] = append(results[len(results)-1], newWord...)
 			}
 		}
 		i += j
@@ -472,9 +471,7 @@ func TranslateToNaviHash(searchWord string, langCode string) (results [][]Word) 
 		}
 		// Append the query to the front of the list
 		tempResults := []Word{simpleWord(word)}
-		for _, b := range results[len(results)-1] {
-			tempResults = append(tempResults, b)
-		}
+		tempResults = append(tempResults, results[len(results)-1]...)
 		results[len(results)-1] = tempResults
 	}
 
@@ -510,6 +507,10 @@ func TranslateToNaviHashHelper(searchWord string, langCode string) (results []Wo
 		}
 	case "pl":
 		for _, a := range SearchNatlangWord(dictHash2.PL, searchWord) {
+			results = AppendAndAlphabetize(results, a)
+		}
+	case "pt":
+		for _, a := range SearchNatlangWord(dictHash2.PT, searchWord) {
 			results = AppendAndAlphabetize(results, a)
 		}
 	case "ru":
@@ -559,9 +560,7 @@ func BidirectionalSearch(searchNaviWords string, checkFixes bool, langCode strin
 			for _, newWord := range newWords {
 				// Set up receptacle for words
 				results = append(results, []Word{})
-				for _, newResult := range newWord {
-					results[len(results)-1] = append(results[len(results)-1], newResult)
-				}
+				results[len(results)-1] = append(results[len(results)-1], newWord...)
 			}
 		}
 
@@ -572,10 +571,8 @@ func BidirectionalSearch(searchNaviWords string, checkFixes bool, langCode strin
 			natlangWords = AppendAndAlphabetize(natlangWords, a)
 		}
 
-		for _, a := range natlangWords {
-			// ...but not with the Na'vi words
-			results[len(results)-1] = append(results[len(results)-1], a)
-		}
+		// ...but not with the Na'vi words
+		results[len(results)-1] = append(results[len(results)-1], natlangWords...)
 
 		i += j
 
@@ -635,7 +632,7 @@ func EjectiveSoftener(ipa string, oldLetter string, newLetter string) (newIpa st
 	ipa = "." + ipa
 
 	for i, k := range []string{"t͡s", "s", "f"} {
-		ipa = strings.ReplaceAll(ipa, k+oldLetter, string(i))
+		ipa = strings.ReplaceAll(ipa, k+oldLetter, fmt.Sprint(i))
 	}
 
 	ipa = strings.ReplaceAll(ipa, "."+oldLetter, "."+newLetter)
