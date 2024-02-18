@@ -35,6 +35,7 @@ type Word struct {
 	InfixDots      string
 	DE             string
 	EN             string
+	ES             string
 	ET             string
 	FR             string
 	HU             string
@@ -79,6 +80,7 @@ func (w Word) String() string {
 		"InfixDots: %s\n"+
 		"DE: %s\n"+
 		"EN: %s\n"+
+		"ES: %s\n"+
 		"ET: %s\n"+
 		"FR: %s\n"+
 		"HU: %s\n"+
@@ -100,6 +102,7 @@ func (w Word) String() string {
 		w.InfixDots,
 		w.DE,
 		w.EN,
+		w.ES,
 		w.ET,
 		w.FR,
 		w.HU,
@@ -134,6 +137,7 @@ func newWord(dataFields []string, order dictPos) Word {
 	word.InfixDots = dataFields[order.ifdField]
 	word.DE = dataFields[order.deField]
 	word.EN = dataFields[order.enField]
+	word.ES = dataFields[order.esField]
 	word.ET = dataFields[order.etField]
 	word.FR = dataFields[order.frField]
 	word.HU = dataFields[order.huField]
@@ -174,6 +178,7 @@ func (w *Word) Equals(other Word) bool {
 		w.InfixDots == other.InfixDots &&
 		w.DE == other.DE &&
 		w.EN == other.EN &&
+		w.ES == other.ES &&
 		w.ET == other.ET &&
 		w.FR == other.FR &&
 		w.HU == other.HU &&
@@ -257,6 +262,8 @@ func (w *Word) ToOutputLine(i string, withMarkdown, showIPA, showInfixes, showDa
 		output += w.EN
 	case "et":
 		output += w.ET
+	case "es":
+		output += w.ES
 	case "fr":
 		output += w.FR
 	case "hu":
@@ -353,6 +360,7 @@ type dictPos struct {
 	ifdField int // dot-style infix data
 	deField  int // German definition
 	enField  int // English definition
+	esField  int // Spanish definition
 	etField  int // Estonian definition
 	frField  int // French definition
 	huField  int // Hungarian definition
@@ -391,6 +399,8 @@ func readDictPos(headerFields []string) dictPos {
 			pos.deField = i
 		case "en":
 			pos.enField = i
+		case "es":
+			pos.esField = i
 		case "et":
 			pos.etField = i
 		case "fr":

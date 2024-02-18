@@ -21,6 +21,7 @@ var homonyms string
 type MetaDict struct {
 	EN map[string][]string
 	DE map[string][]string
+	ES map[string][]string
 	ET map[string][]string
 	FR map[string][]string
 	HU map[string][]string
@@ -304,6 +305,7 @@ func CacheDictHash2() error {
 	} else {
 		dictHash2.EN = make(map[string][]string)
 		dictHash2.DE = make(map[string][]string)
+		dictHash2.ES = make(map[string][]string)
 		dictHash2.ET = make(map[string][]string)
 		dictHash2.FR = make(map[string][]string)
 		dictHash2.HU = make(map[string][]string)
@@ -322,6 +324,7 @@ func CacheDictHash2() error {
 
 		dictHash2.EN = AssignWord(dictHash2.EN, word.EN, standardizedWord)
 		dictHash2.DE = AssignWord(dictHash2.DE, word.DE, standardizedWord)
+		dictHash2.ES = AssignWord(dictHash2.ES, word.ES, standardizedWord)
 		dictHash2.ET = AssignWord(dictHash2.ET, word.ET, standardizedWord)
 		dictHash2.FR = AssignWord(dictHash2.FR, word.FR, standardizedWord)
 		dictHash2.HU = AssignWord(dictHash2.HU, word.HU, standardizedWord)
@@ -354,6 +357,7 @@ func UncacheHashDict2() {
 	dictHash2Cached = false
 	dictHash2.EN = nil
 	dictHash2.DE = nil
+	dictHash2.ES = nil
 	dictHash2.ET = nil
 	dictHash2.FR = nil
 	dictHash2.HU = nil

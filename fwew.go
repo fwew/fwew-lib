@@ -489,6 +489,10 @@ func TranslateToNaviHashHelper(searchWord string, langCode string) (results []Wo
 		for _, a := range SearchNatlangWord(dictHash2.EN, searchWord) {
 			results = AppendAndAlphabetize(results, a)
 		}
+	case "es":
+		for _, a := range SearchNatlangWord(dictHash2.ES, searchWord) {
+			results = AppendAndAlphabetize(results, a)
+		}
 	case "et":
 		for _, a := range SearchNatlangWord(dictHash2.ET, searchWord) {
 			results = AppendAndAlphabetize(results, a)
