@@ -666,10 +666,24 @@ func is_vowel_ipa(letter string) (found bool) {
 
 func ReefMe(ipa string, inter bool) []string {
 	if ipa == "ʒɛjk'.ˈsu:.li" {
-		return []string{"jake-sùl-ly", "ʒɛjk'.ˈsʊ:.li"}
+		return []string{"jake-__sùl__-ly", "ʒɛjk'.ˈsʊ:.li"}
 	} else if ipa == "ˈz·ɛŋ.kɛ" {
-		return []string{"zen-ke", "ˈz·ɛŋ.kɛ"}
+		return []string{"__zen__-ke", "ˈz·ɛŋ.kɛ"}
 	}
+
+	// Unstressed ä becomes e
+	ipa_syllables := strings.Split(ipa, ".")
+	new_ipa := ""
+	for _, a := range ipa_syllables {
+		new_ipa += "."
+		if !strings.Contains(a, "ˈ") {
+			new_ipa += strings.ReplaceAll(a, "æ", "ɛ")
+		} else {
+			new_ipa += a
+		}
+	}
+	new_ipa = strings.TrimPrefix(new_ipa, ".")
+	ipa = new_ipa
 
 	breakdown := ""
 
@@ -686,6 +700,7 @@ func ReefMe(ipa string, inter bool) []string {
 		temp := ""
 		runes := []rune(ipaReef)
 
+		// Glottal stops between two vowels are removed
 		for i, a := range runes {
 			if i != 0 && i != len(runes)-1 && a == 'ʔ' {
 				if runes[i-1] == '.' {
