@@ -145,11 +145,13 @@ func infixError(query string, didYouMean string, ipa string) Word {
 	d.Navi = query
 	d.EN = didYouMean
 	d.DE = didYouMean
+	d.ES = didYouMean
 	d.ET = didYouMean
 	d.FR = didYouMean
 	d.NL = didYouMean
 	d.HU = didYouMean
 	d.PL = didYouMean
+	d.PT = didYouMean
 	d.RU = didYouMean
 	d.SV = didYouMean
 	d.TR = didYouMean

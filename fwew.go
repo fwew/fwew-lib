@@ -492,6 +492,10 @@ func TranslateToNaviHashHelper(searchWord string, langCode string) (results []Wo
 		for _, a := range SearchNatlangWord(dictHash2.EN, searchWord) {
 			results = AppendAndAlphabetize(results, a)
 		}
+	case "es":
+		for _, a := range SearchNatlangWord(dictHash2.ES, searchWord) {
+			results = AppendAndAlphabetize(results, a)
+		}
 	case "et":
 		for _, a := range SearchNatlangWord(dictHash2.ET, searchWord) {
 			results = AppendAndAlphabetize(results, a)
@@ -510,6 +514,10 @@ func TranslateToNaviHashHelper(searchWord string, langCode string) (results []Wo
 		}
 	case "pl":
 		for _, a := range SearchNatlangWord(dictHash2.PL, searchWord) {
+			results = AppendAndAlphabetize(results, a)
+		}
+	case "pt":
+		for _, a := range SearchNatlangWord(dictHash2.PT, searchWord) {
 			results = AppendAndAlphabetize(results, a)
 		}
 	case "ru":

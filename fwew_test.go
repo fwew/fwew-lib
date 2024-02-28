@@ -49,11 +49,13 @@ func wordSimpleEqual(w1a, w2a []Word) bool {
 		if w1.ID != w2.ID ||
 			//w1.DE != w2.DE ||
 			//w1.EN != w2.EN ||
+			//w1.ES != w2.ES ||
 			//w1.ET != w2.ET ||
 			//w1.FR != w2.FR ||
 			//w1.HU != w2.HU ||
 			//w1.NL != w2.NL ||
 			//w1.PL != w2.PL ||
+			//w1.PT != w2.PT ||
 			//w1.RU != w2.RU ||
 			//w1.SV != w2.SV ||
 			w1.Navi != w2.Navi ||
