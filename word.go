@@ -264,8 +264,6 @@ func (w *Word) ToOutputLine(i string, withMarkdown, showIPA, showInfixes, showDa
 		output += w.ES
 	case "et":
 		output += w.ET
-	case "es":
-		output += w.ES
 	case "fr":
 		output += w.FR
 	case "hu":
