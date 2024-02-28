@@ -112,7 +112,7 @@ func AppendAndAlphabetize(words []Word, word Word) []Word {
 	case 0:
 		return []Word{word}
 	case 1:
-		newWords := []Word{}
+		var newWords = []Word{}
 		if word.ID == words[0].ID {
 			return words
 		}
@@ -123,7 +123,7 @@ func AppendAndAlphabetize(words []Word, word Word) []Word {
 		}
 		return newWords
 	case 2:
-		newWords := []Word{}
+		var newWords = []Word{}
 		if word.ID == words[0].ID {
 			return words
 		}
@@ -154,17 +154,13 @@ func AppendAndAlphabetize(words []Word, word Word) []Word {
 		newWords = AppendAndAlphabetize(newWords, word)
 
 		// Join them
-		for _, a := range oldWords {
-			newWords = append(newWords, a)
-		}
+		newWords = append(newWords, oldWords...)
 	} else {
 		// Copy the second half
 		oldWords = AppendAndAlphabetize(oldWords, word)
 
 		// Join them
-		for _, a := range oldWords {
-			newWords = append(newWords, a)
-		}
+		newWords = append(newWords, oldWords...)
 	}
 
 	return newWords
@@ -260,7 +256,7 @@ func AssignWord(wordmap map[string][]string, natlangWords string, naviWord strin
 	// remove anything in parenthesis to avoid clogging search results
 	tempString := ""
 	parenthesis := false
-	for _, c := range []rune(natlangWords) {
+	for _, c := range natlangWords {
 		if c == '(' {
 			parenthesis = true
 		} else if c == ')' {

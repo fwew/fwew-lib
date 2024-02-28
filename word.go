@@ -58,21 +58,11 @@ type affix struct {
 }
 
 func addAffixes(a affix, z affix) (w affix) {
-	for _, b := range a.Prefix {
-		z.Prefix = append(z.Prefix, b)
-	}
-	for _, b := range a.Infix {
-		z.Infix = append(z.Infix, b)
-	}
-	for _, b := range a.Suffix {
-		z.Suffix = append(z.Suffix, b)
-	}
-	for _, b := range a.Lenition {
-		z.Lenition = append(z.Lenition, b)
-	}
-	for _, b := range a.Comment {
-		z.Comment = append(z.Comment, b)
-	}
+	z.Prefix = append(z.Prefix, a.Prefix...)
+	z.Infix = append(z.Infix, a.Infix...)
+	z.Suffix = append(z.Suffix, a.Suffix...)
+	z.Lenition = append(z.Lenition, a.Lenition...)
+	z.Comment = append(z.Comment, a.Comment...)
 	return z
 }
 
@@ -274,6 +264,8 @@ func (w *Word) ToOutputLine(i string, withMarkdown, showIPA, showInfixes, showDa
 		output += w.ES
 	case "et":
 		output += w.ET
+	case "es":
+		output += w.ES
 	case "fr":
 		output += w.FR
 	case "hu":
