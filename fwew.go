@@ -643,7 +643,7 @@ func EjectiveSoftener(ipa string, oldLetter string, newLetter string) (newIpa st
 	ipa = strings.ReplaceAll(ipa, ".ˈ"+oldLetter, ".ˈ"+newLetter)
 
 	for i, k := range []string{"t͡s", "s", "f"} {
-		ipa = strings.ReplaceAll(ipa, string(i), k+oldLetter)
+		ipa = strings.ReplaceAll(ipa, fmt.Sprint(i), k+oldLetter)
 	}
 
 	ipa = strings.TrimPrefix(ipa, ".")
