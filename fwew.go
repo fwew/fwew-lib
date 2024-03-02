@@ -690,9 +690,12 @@ func ReefMe(ipa string, inter bool) []string {
 	// Reefify the IPA first
 	ipaReef := strings.ReplaceAll(ipa, "·", "")
 	if !inter {
+		// Replace the spaces so ejectives after spaces become voiced plosives, too
+		ipaReef = strings.ReplaceAll(ipaReef, " ", "*.")
 		ipaReef = EjectiveSoftener(ipaReef, "p'", "b")
 		ipaReef = EjectiveSoftener(ipaReef, "t'", "d")
 		ipaReef = EjectiveSoftener(ipaReef, "k'", "g")
+		ipaReef = strings.ReplaceAll(ipaReef, "*.", " ")
 
 		ipaReef = strings.ReplaceAll(ipaReef, "t͡sj", "tʃ")
 		ipaReef = strings.ReplaceAll(ipaReef, "sj", "ʃ")

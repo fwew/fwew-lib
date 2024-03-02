@@ -589,7 +589,7 @@ func PhonemeDistros() {
 	}
 
 	// Look through all the words
-	for i := 0; i < len(words); i++ {
+	for i := len(words) - 1; i > 0; i-- { // reverse so tìpengayt wrrzeykärìp is searchable
 		word := strings.Split(words[i].IPA, " ")
 
 		// Piggybacking off of the frequency script to get all words with spaces
