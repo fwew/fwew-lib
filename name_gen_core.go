@@ -552,18 +552,6 @@ func SortedWords() (nouns []Word, adjectives []Word, verbs []Word, transitiveVer
 	return
 }
 
-func EqualSlice(a, b []string) bool {
-	if len(a) != len(b) {
-		return false
-	}
-	for i, v := range a {
-		if v != b[i] {
-			return false
-		}
-	}
-	return true
-}
-
 // Called on startup to feed and compile dictionary information into the name generator
 func PhonemeDistros() {
 	// get the dict
