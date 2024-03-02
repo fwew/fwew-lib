@@ -552,6 +552,18 @@ func SortedWords() (nouns []Word, adjectives []Word, verbs []Word, transitiveVer
 	return
 }
 
+func EqualSlice(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i, v := range a {
+		if v != b[i] {
+			return false
+		}
+	}
+	return true
+}
+
 // Called on startup to feed and compile dictionary information into the name generator
 func PhonemeDistros() {
 	// get the dict
@@ -589,14 +601,30 @@ func PhonemeDistros() {
 	}
 
 	// Look through all the words
-	for i := len(words) - 1; i > 0; i-- { // reverse so tìpengayt wrrzeykärìp is searchable
+	for i := 0; i < len(words); i++ { // reverse so tìpengayt wrrzeykärìp is searchable
 		word := strings.Split(words[i].IPA, " ")
 
 		// Piggybacking off of the frequency script to get all words with spaces
 		all_words := strings.Split(strings.ToLower(words[i].Navi), " ")
 		if len(all_words) > 1 {
 			if _, ok := multiword_words[all_words[0]]; ok {
-				multiword_words[all_words[0]] = append(multiword_words[all_words[0]], all_words[1:])
+				// Ensure no duplicates
+				appended := false
+
+				// Append in a way that makes the longer words first
+				temp := [][]string{}
+				for _, j := range multiword_words[all_words[0]] {
+					if !appended && len([]rune(all_words[1])) > len([]rune(j[0])) {
+						temp = append(temp, all_words[1:])
+						appended = true
+					}
+					temp = append(temp, j)
+				}
+				if len(temp) <= len(multiword_words[all_words[0]]) {
+					temp = append(temp, all_words[1:])
+				}
+
+				multiword_words[all_words[0]] = temp
 			} else {
 				multiword_words[all_words[0]] = [][]string{all_words[1:]}
 			}
