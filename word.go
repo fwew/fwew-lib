@@ -260,10 +260,10 @@ func (w *Word) ToOutputLine(i string, withMarkdown, showIPA, showInfixes, showDa
 		output += w.DE
 	case "en":
 		output += w.EN
-	case "et":
-		output += w.ET
 	case "es":
 		output += w.ES
+	case "et":
+		output += w.ET
 	case "fr":
 		output += w.FR
 	case "hu":

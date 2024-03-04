@@ -149,11 +149,13 @@ func init() {
 	texts["cDesc"] = texts["/configDesc"]
 	texts["l=deDesc"] = "Deutsch"
 	texts["l=engDesc"] = "English"
+	texts["l=esDesc"] = "Español"
 	texts["l=estDesc"] = "Eesti"
 	texts["l=frDesc"] = "Français"
 	texts["l=huDesc"] = "Magyar"
 	texts["l=nlDesc"] = "Nederlands"
 	texts["l=plDesc"] = "Polski"
+	texts["l=ptDesc"] = "Português"
 	texts["l=ruDesc"] = "Русский"
 	texts["l=svDesc"] = "Svenska"
 	texts["l=trDesc"] = "Türkçe"
@@ -231,7 +233,7 @@ func init() {
 	texts["tip"] = "type \"/help\" or \"/commands\" for more info"
 	texts["author"] = "Tirea Aean"
 	texts["header"] = fmt.Sprintf("%s\n%s\n", Version, texts["tip"])
-	texts["languages"] = "de, en, et, fr, hu, nl, pl, ru, sv, tr"
+	texts["languages"] = "de, en, es, et, fr, hu, nl, pl, pt, ru, sv, tr"
 	texts["POSFilters"] = "allvtr.n.num.pn.adv.adj.vin.v.inter.part.svin.adp.adv., n.vtrm.vim.conj.pn., sbd.n., intj.intj."
 	texts["POSFilters"] += "vtrm., vtr.part., intj.vin., svin.prop.n.affixvin., intj.dem.dem., n.sbd.n., adv."
 	texts["POSFilters"] += "adj., n.adj., adv.adj., intj.dem., pn.vtr., vin.adv., intj.pn., adv.ph.vin., vtr.adj.,  conj."

@@ -180,7 +180,7 @@ func CacheDictHash() error {
 
 	err := runOnFile(func(word Word) error {
 		standardizedWord := word.Navi
-		badChars := `~@#$%^&*()[]{}<>_/.,;:!?|+\"`
+		badChars := `~@#$%^&*()[]{}<>_/.,;:!?|+\"«»`
 
 		// remove all the sketchy chars from arguments
 		for _, c := range badChars {
@@ -251,7 +251,7 @@ func CacheDictHash() error {
 // Helper function for CacheDictHash2
 func AssignWord(wordmap map[string][]string, natlangWords string, naviWord string) (result map[string][]string) {
 	standardizedWord := natlangWords
-	badChars := `~@#$%^&*()[]{}<>_/.,;:!?|+\"`
+	badChars := `~@#$%^&*()[]{}<>_/.,;:!?|+\"«»`
 
 	// remove anything in parenthesis to avoid clogging search results
 	tempString := ""
@@ -321,6 +321,7 @@ func CacheDictHash2() error {
 
 	err := runOnFile(func(word Word) error {
 		standardizedWord := strings.ToLower(word.Navi)
+		standardizedWord = strings.ReplaceAll(word.Navi, "+", "")
 
 		dictHash2.EN = AssignWord(dictHash2.EN, word.EN, standardizedWord)
 		dictHash2.DE = AssignWord(dictHash2.DE, word.DE, standardizedWord)

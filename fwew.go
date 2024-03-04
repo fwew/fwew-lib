@@ -114,7 +114,7 @@ func identicalRunes(first string, second string) bool {
 }
 
 func clean(searchNaviWords string) (words string) {
-	badChars := `~@#$%^&*()[]{}<>_/.,;:!?|+\`
+	badChars := `~@#$%^&*()[]{}<>_/.,;:!?|+\"«»`
 
 	// remove all the sketchy chars from arguments
 	for _, c := range badChars {
@@ -643,7 +643,7 @@ func EjectiveSoftener(ipa string, oldLetter string, newLetter string) (newIpa st
 	ipa = strings.ReplaceAll(ipa, ".ˈ"+oldLetter, ".ˈ"+newLetter)
 
 	for i, k := range []string{"t͡s", "s", "f"} {
-		ipa = strings.ReplaceAll(ipa, string(i), k+oldLetter)
+		ipa = strings.ReplaceAll(ipa, fmt.Sprint(i), k+oldLetter)
 	}
 
 	ipa = strings.TrimPrefix(ipa, ".")
@@ -666,19 +666,36 @@ func is_vowel_ipa(letter string) (found bool) {
 
 func ReefMe(ipa string, inter bool) []string {
 	if ipa == "ʒɛjk'.ˈsu:.li" {
-		return []string{"jake-sùl-ly", "ʒɛjk'.ˈsʊ:.li"}
+		return []string{"jake-__sùl__-ly", "ʒɛjk'.ˈsʊ:.li"}
 	} else if ipa == "ˈz·ɛŋ.kɛ" {
-		return []string{"zen-ke", "ˈz·ɛŋ.kɛ"}
+		return []string{"__zen__-ke", "ˈz·ɛŋ.kɛ"}
 	}
+
+	// Unstressed ä becomes e
+	ipa_syllables := strings.Split(ipa, ".")
+	new_ipa := ""
+	for _, a := range ipa_syllables {
+		new_ipa += "."
+		if !strings.Contains(a, "ˈ") {
+			new_ipa += strings.ReplaceAll(a, "æ", "ɛ")
+		} else {
+			new_ipa += a
+		}
+	}
+	new_ipa = strings.TrimPrefix(new_ipa, ".")
+	ipa = new_ipa
 
 	breakdown := ""
 
 	// Reefify the IPA first
 	ipaReef := strings.ReplaceAll(ipa, "·", "")
 	if !inter {
+		// Replace the spaces so ejectives after spaces become voiced plosives, too
+		ipaReef = strings.ReplaceAll(ipaReef, " ", "*.")
 		ipaReef = EjectiveSoftener(ipaReef, "p'", "b")
 		ipaReef = EjectiveSoftener(ipaReef, "t'", "d")
 		ipaReef = EjectiveSoftener(ipaReef, "k'", "g")
+		ipaReef = strings.ReplaceAll(ipaReef, "*.", " ")
 
 		ipaReef = strings.ReplaceAll(ipaReef, "t͡sj", "tʃ")
 		ipaReef = strings.ReplaceAll(ipaReef, "sj", "ʃ")
@@ -686,6 +703,7 @@ func ReefMe(ipa string, inter bool) []string {
 		temp := ""
 		runes := []rune(ipaReef)
 
+		// Glottal stops between two vowels are removed
 		for i, a := range runes {
 			if i != 0 && i != len(runes)-1 && a == 'ʔ' {
 				if runes[i-1] == '.' {
