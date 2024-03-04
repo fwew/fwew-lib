@@ -671,8 +671,10 @@ func ReefMe(ipa string, inter bool) []string {
 		return []string{"__zen__-ke", "ˈz·ɛŋ.kɛ"}
 	}
 
-	// Unstressed ä becomes e
+	// Replace the spaces so as not to confuse strings.Split()
 	ipa = strings.ReplaceAll(ipa, " ", "*.")
+
+	// Unstressed ä becomes e
 	ipa_syllables := strings.Split(ipa, ".")
 	new_ipa := ""
 	for _, a := range ipa_syllables {
@@ -691,7 +693,6 @@ func ReefMe(ipa string, inter bool) []string {
 	// Reefify the IPA first
 	ipaReef := strings.ReplaceAll(ipa, "·", "")
 	if !inter {
-		// Replace the spaces so ejectives after spaces become voiced plosives, too
 		ipaReef = EjectiveSoftener(ipaReef, "p'", "b")
 		ipaReef = EjectiveSoftener(ipaReef, "t'", "d")
 		ipaReef = EjectiveSoftener(ipaReef, "k'", "g")
