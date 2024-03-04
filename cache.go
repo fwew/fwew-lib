@@ -321,6 +321,7 @@ func CacheDictHash2() error {
 
 	err := runOnFile(func(word Word) error {
 		standardizedWord := strings.ToLower(word.Navi)
+		standardizedWord = strings.ReplaceAll(word.Navi, "+", "")
 
 		dictHash2.EN = AssignWord(dictHash2.EN, word.EN, standardizedWord)
 		dictHash2.DE = AssignWord(dictHash2.DE, word.DE, standardizedWord)
