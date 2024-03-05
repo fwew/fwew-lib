@@ -114,7 +114,7 @@ func identicalRunes(first string, second string) bool {
 }
 
 func clean(searchNaviWords string) (words string) {
-	badChars := `~@#$%^&*()[]{}<>_/.,;:!?|+\"«»`
+	badChars := `~@#$%^&*()[]{}<>_/.,;:!?|+\"„“”«»`
 
 	// remove all the sketchy chars from arguments
 	for _, c := range badChars {
