@@ -45,6 +45,7 @@ type Word struct {
 	RU             string
 	SV             string
 	TR             string
+	UK             string
 	Affixes        affix
 }
 
@@ -90,6 +91,7 @@ func (w Word) String() string {
 		"RU: %s\n"+
 		"SV: %s\n"+
 		"TR: %s\n"+
+		"UK: %\n"+
 		"Affixes: %v\n",
 		w.ID,
 		w.Navi,
@@ -112,6 +114,7 @@ func (w Word) String() string {
 		w.RU,
 		w.SV,
 		w.TR,
+		w.UK,
 		w.Affixes,
 	)
 }
@@ -147,6 +150,7 @@ func newWord(dataFields []string, order dictPos) Word {
 	word.RU = dataFields[order.ruField]
 	word.SV = dataFields[order.svField]
 	word.TR = dataFields[order.trField]
+	word.UK = dataFields[order.ukField]
 	return word
 }
 
@@ -188,6 +192,7 @@ func (w *Word) Equals(other Word) bool {
 		w.RU == other.RU &&
 		w.SV == other.SV &&
 		w.TR == other.TR &&
+		w.UK == other.UK &&
 		reflect.DeepEqual(w.Affixes, other.Affixes)
 }
 
@@ -280,6 +285,8 @@ func (w *Word) ToOutputLine(i string, withMarkdown, showIPA, showInfixes, showDa
 		output += w.SV
 	case "tr":
 		output += w.TR
+	case "uk":
+		output += w.UK
 	default:
 		output += w.EN
 	}
@@ -370,6 +377,7 @@ type dictPos struct {
 	ruField  int // Russian definition
 	svField  int // Swedish definition
 	trField  int // Turkish definition
+	ukField  int // Ukrainian definition
 }
 
 func readDictPos(headerFields []string) dictPos {
@@ -419,6 +427,8 @@ func readDictPos(headerFields []string) dictPos {
 			pos.svField = i
 		case "tr":
 			pos.trField = i
+		case "uk":
+			pos.ukField = i
 		}
 	}
 
