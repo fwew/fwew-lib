@@ -12,7 +12,7 @@
 //	You should have received a copy of the GNU General Public License
 //	along with Fwew.  If not, see http://gnu.org/licenses/
 
-// Package main contains all the things. word.go is home to the Word struct.
+// Package fwew_lib contains all the things. word.go is home to the Word struct.
 package fwew_lib
 
 import (
@@ -91,7 +91,7 @@ func (w Word) String() string {
 		"RU: %s\n"+
 		"SV: %s\n"+
 		"TR: %s\n"+
-		"UK: %\n"+
+		"UK: %s\n"+
 		"Affixes: %v\n",
 		w.ID,
 		w.Navi,
@@ -155,7 +155,8 @@ func newWord(dataFields []string, order dictPos) Word {
 }
 
 // CloneWordStruct is basically a copy constructor for Word struct
-// Basically not needed, cause go copies things by itself. Only string arrays in Affixes are pointers and therefore need manual copy.
+// Basically not needed, cause go copies things by itself.
+// Only string arrays in Affixes are pointers and therefore need manual copy.
 func (w *Word) CloneWordStruct() Word {
 	// Copy struct to new instance
 	nw := *w
@@ -213,7 +214,11 @@ const (
 	valNull  = "NULL"
 )
 
-func (w *Word) ToOutputLine(i string, withMarkdown, showIPA, showInfixes, showDashed, showInfDots, showSource bool, langCode string) (output string, err error) {
+func (w *Word) ToOutputLine(
+	i string,
+	withMarkdown, showIPA, showInfixes, showDashed, showInfDots, showSource bool,
+	langCode string,
+) (output string, err error) {
 	num := fmt.Sprintf("[%s]", i)
 	nav := w.Navi
 	ipa := fmt.Sprintf("[%s]", w.IPA)
