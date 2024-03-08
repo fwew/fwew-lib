@@ -1,0 +1,352 @@
+package fwew_lib
+
+import (
+	"fmt"
+	"math/rand"
+	"strconv"
+	"strings"
+)
+
+/*
+ * Name generators
+ */
+func SingleNames(name_count int, dialect int, syllable_count int) (output string) {
+	// Make sure the numbers are good
+	if name_count > 50 || name_count <= 0 || syllable_count > 4 || syllable_count < 0 {
+		return "Max name count is 50, max syllable count is 4"
+	}
+
+	// Charts and variables used for formatting
+	output = ""
+
+	// Fill the chart with names
+	for i := 0; i < name_count; i++ {
+		output += glottal_caps(string(single_name_gen(rand_if_zero(syllable_count), dialect))) + "\n"
+	}
+
+	return output
+}
+
+func FullNames(ending string, name_count int, dialect int, syllable_count [3]int, two_thousand_limit bool) (output string) {
+	// Make sure the numbers are good
+	if name_count > 50 || name_count <= 0 {
+		return "Max name count is 50, max syllable count is 4"
+	}
+
+	for i := 0; i < 3; i++ {
+		if syllable_count[i] > 4 || syllable_count[i] < 0 {
+			return "Max name count is 50, max syllable count is 4"
+		}
+	}
+
+	// Charts and variables used for formatting
+	output = ""
+
+	endings := map[string]string{
+		"'itu":  "descendent",
+		"'itan": "son",
+		"'ite":  "daughter",
+	}
+
+	randomize := true
+
+	if _, ok := endings[ending]; ok {
+		randomize = false
+	}
+
+	// Fill the chart with names
+	for i := 0; i < name_count; i++ {
+		// Fill it with three names
+		output += glottal_caps(string(single_name_gen(rand_if_zero(syllable_count[0]), dialect)))
+		output += " te "
+		output += glottal_caps(string(single_name_gen(rand_if_zero(syllable_count[1]), dialect)))
+		output += " "
+		output += glottal_caps(string(single_name_gen(rand_if_zero(syllable_count[2]), dialect)))
+
+		ending2 := ending
+		if randomize {
+			pick := rand.Intn(3)
+			switch pick {
+			case 0:
+				ending2 = "'itan"
+			case 1:
+				ending2 = "'ite"
+			case 2:
+				ending2 = "'itu"
+			}
+		}
+
+		// we don't want Neytiri''itan
+		if output[len(output)-1] == '\'' {
+			output = output[:len(output)-1]
+		}
+
+		// In reef dialect, glottal stops between nonidentical vowels are dropped
+		if dialect == 2 && has("aäeìouù", get_last_rune(output, 1)) {
+			ending2 = ending2[1:]
+		}
+
+		// Add the ending
+		output += ending2 + "\n"
+		if two_thousand_limit && len([]rune(output)) > 1914 {
+			output += "(stopped at " + strconv.Itoa(i+1) + ". 2000 Character limit)"
+			break
+		}
+
+		// We want to know what the message that exceeded 2000 characters looked like
+		if len([]rune(output)) > 2000 {
+			fmt.Println(output)
+			fmt.Println("Made a name message with " + strconv.Itoa(i+1) + " names.")
+		}
+	}
+
+	return output
+}
+
+func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj_mode int) (output string) {
+	// Make sure the numbers are good
+	if name_count > 50 || name_count <= 0 || syllable_count > 4 || syllable_count < 0 {
+		return "Max name count is 50, max syllable count is 4"
+	}
+
+	// A single function that allows all these to be acquired with only one dictionary search
+	allNouns, allAdjectives, allVerbs, allTransitiveVerbs := SortedWords()
+
+	output = ""
+
+	for i := 0; i < name_count; i++ {
+		output += glottal_caps(string(single_name_gen(rand_if_zero(syllable_count), dialect)))
+
+		/* Noun */
+		nmode := 0
+		if noun_mode != 1 && noun_mode != 2 {
+			nmode = rand.Intn(5) // 80% chance of normal noun
+			if nmode == 4 {
+				nmode = 2
+			} else {
+				nmode = 1
+			}
+		} else {
+			nmode = noun_mode
+		}
+
+		two_word_noun := false
+
+		noun := ""
+		switch nmode {
+		case 1:
+			noun_word := fast_random(allNouns)
+			noun += strings.ReplaceAll(convertDialect(noun_word, dialect), "-", "")
+		case 2:
+			verb := fast_random(allVerbs)
+			a := strings.Split(convertDialect(verb, dialect), " ")
+			for k := 0; k < len(a); k++ {
+				noun += a[k]
+			}
+			noun = strings.ReplaceAll(noun, "-", "")
+			noun += "yu"
+		default:
+			return "Error: unknown noun type"
+		}
+
+		output += " alu"
+
+		if len(strings.Split(noun, " ")) > 1 {
+			two_word_noun = true
+		} else {
+			output += " " + glottal_caps(noun)
+		}
+
+		if adj_mode != 1 {
+			// Adjective
+			amode := 0
+			if adj_mode == 0 {
+				// "something" mode
+				amode = rand.Intn(8) - 1
+				if amode <= 2 {
+					// 50% chance of normal adjective
+					amode = 2
+				} else if amode >= 5 {
+					// Verb participles get two sides of the die
+					amode = 5
+				}
+			} else if adj_mode == -1 {
+				// "any" mode
+				amode = rand.Intn(5) + 1
+			} else {
+				amode = adj_mode
+			}
+
+			adj := ""
+			switch amode {
+			// no case 1 (no adjective)
+			case 2: //nomal adjective
+				adj_word := fast_random(allAdjectives)
+				adj = convertDialect(adj_word, dialect)
+				adj = strings.ReplaceAll(adj, "-", "")
+
+				// If the adj starts with a in forest, we don't need another a
+				if !two_word_noun && (strings.ToLower(string(adj[0])) != "a" || dialect != 1) {
+					if (adj[:2] == "le" && adj != "ler" && adj != "leyr" && adj != "lewnga'") || adj == "lafyon" {
+						adj = glottal_caps(adj) // le-adjectives
+					} else {
+						adj = "a" + glottal_caps(adj)
+					}
+				} else if two_word_noun && (adj[len(adj)-1] != 'a' || dialect != 1) {
+					adj = glottal_caps(adj) + "a"
+				} else {
+					adj = glottal_caps(adj) // forest dialect a-adjectives like axpa or alaksi
+				}
+			case 3: //genitive noun
+				adj_word := fast_random(allNouns)
+
+				adj = strings.ToLower(adj_word.Navi)
+				if adj == "tsko swizaw" {
+					adj = "Tsko Swizawyä"
+				} else if adj == "toruk makto" || adj == "torùk makto" {
+					if dialect == 0 || dialect == 2 {
+						adj = "Torùkä Maktoyuä"
+					} else {
+						adj = "Torukä Maktoyuä"
+					}
+				} else if adj == "mo a fngä'" {
+					adj = "Moä a Fgnä'"
+				} else {
+					adj = convertDialect(adj_word, dialect)
+					adjSplit := strings.Split(adj, " ")
+					adj_rune := []rune(adjSplit[0])
+					if has("aeìiä", string(adj_rune[len(adj_rune)-1])) {
+						adjSplit[0] = adjSplit[0] + "yä"
+					} else {
+						adjSplit[0] = adjSplit[0] + "ä"
+					}
+					adj = ""
+					for _, a := range adjSplit {
+						adj += glottal_caps(a) + " "
+					}
+					adj = strings.TrimSuffix(adj, " ")
+				}
+
+				adj = strings.ReplaceAll(adj, "-", "")
+			case 4: //origin noun
+				adj_word := fast_random(allNouns)
+				adj = strings.ToLower(adj_word.Navi)
+				if adj == "tsko swizaw" {
+					adj = "ta Tsko Swizaw"
+				} else if adj == "toruk makto" || adj == "torùk makto" {
+					if dialect == 0 || dialect == 2 {
+						adj = "ta Torùkä Maktoyu"
+					} else {
+						adj = "ta Torukä Maktoyu"
+					}
+				} else if adj == "mo a fngä'" {
+					adj = "ta Mo a Fgnä'"
+				} else {
+					adj = convertDialect(adj_word, dialect)
+					if two_word_noun {
+						adj = glottal_caps(adj) + "ta"
+					} else {
+						adj = "ta " + glottal_caps(adj)
+					}
+				}
+
+				adj = strings.ReplaceAll(adj, "-", "")
+			case 5: //participle verb
+				infix := "us"
+				find_verb := one_word_verb(allVerbs)
+				// If it's transitive, 50% chance of <awn>
+				if find_verb.PartOfSpeech[2] == 'r' && rand.Intn(2) == 0 {
+					infix = "awn"
+				}
+				adj = find_verb.InfixDots
+				switch dialect {
+				case 2: // reef
+					adj = quickReef(adj)
+					fallthrough
+				case 0: // interdialect
+					adj = specialU(adj, find_verb.IPA)
+				}
+
+				adj = insert_infix(strings.Split(adj, " "), infix, dialect)
+				// If the adj starts with a in forest, we don't need another a
+				if !two_word_noun && (adj[0] != 'a' || dialect != 1) {
+					adj = "a" + glottal_caps(adj)
+				} else if two_word_noun && (adj[len(adj)-1] != 'a' || dialect != 1) {
+					adj = glottal_caps(adj) + "a"
+				} else {
+					adj = glottal_caps(adj)
+				}
+			case 6: //active participle verb
+				find_verb := one_word_verb(allVerbs)
+				adj = find_verb.InfixDots
+				switch dialect {
+				case 2: // reef
+					adj = quickReef(adj)
+					fallthrough
+				case 0: // interdialect
+					adj = specialU(adj, find_verb.IPA)
+				}
+
+				adj = insert_infix(strings.Split(adj, " "), "us", dialect)
+
+				// If the adj starts with a in forest, we don't need another a
+				if !two_word_noun && (adj[0] != 'a' || dialect != 1) {
+					adj = "a" + glottal_caps(adj)
+				} else if two_word_noun && (adj[len(adj)-1] != 'a' || dialect != 1) {
+					adj = glottal_caps(adj) + "a"
+				} else {
+					adj = glottal_caps(adj)
+				}
+			case 7: //passive participle verb
+				find_verb := one_word_verb(allTransitiveVerbs)
+				adj = find_verb.InfixDots
+				switch dialect {
+				case 2: // reef
+					adj = quickReef(adj)
+					fallthrough
+				case 0: // interdialect
+					adj = specialU(adj, find_verb.IPA)
+				}
+
+				adj = insert_infix(strings.Split(adj, " "), "us", dialect)
+				// If the adj starts with a in forest, we don't need another a
+				if !two_word_noun && (adj[0] != 'a' || dialect != 1) {
+					adj = "a" + glottal_caps(adj)
+				} else if two_word_noun && (adj[len(adj)-1] != 'a' || dialect != 1) {
+					adj = glottal_caps(adj) + "a"
+				} else {
+					adj = glottal_caps(adj)
+				}
+			}
+
+			if len(adj) > 1 {
+				output += " " + adj
+			}
+		}
+
+		if two_word_noun {
+			output += " "
+			noun_words := strings.Split(noun, " ")
+			for _, a := range noun_words {
+				output += glottal_caps(a) + " "
+			}
+			output = output[:len(output)-1]
+		}
+
+		output += "\n"
+	}
+
+	return output
+}
+
+func GetPhonemeDistrosMap() (allDistros map[string]map[string]map[string]int) {
+	allDistros = map[string]map[string]map[string]int{
+		"Clusters": cluster_map,
+		"Others": {
+			"Onsets": onset_map,
+			"Nuclei": nucleus_map,
+			"Codas":  coda_map,
+		},
+	}
+	return
+}

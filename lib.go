@@ -269,6 +269,7 @@ func SHA1Hash(filename string) string {
 // inverse of `func decompress(compressed string) string`
 func compress(syllables string) string {
 	syll := strings.ToLower(syllables)
+
 	ct := make(map[string]string)
 	ct["kx"] = "q"
 	ct["px"] = "b"
@@ -284,5 +285,6 @@ func compress(syllables string) string {
 	for key := range ct {
 		syll = strings.Replace(syll, key, ct[key], -1)
 	}
+
 	return strings.Replace(syll, "-", "", -1)
 }

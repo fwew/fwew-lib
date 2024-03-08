@@ -35,11 +35,13 @@ type Word struct {
 	InfixDots      string
 	DE             string
 	EN             string
+	ES             string
 	ET             string
 	FR             string
 	HU             string
 	NL             string
 	PL             string
+	PT             string
 	RU             string
 	SV             string
 	TR             string
@@ -53,6 +55,15 @@ type affix struct {
 	Suffix   []string
 	Lenition []string
 	Comment  []string
+}
+
+func addAffixes(a affix, z affix) (w affix) {
+	z.Prefix = append(z.Prefix, a.Prefix...)
+	z.Infix = append(z.Infix, a.Infix...)
+	z.Suffix = append(z.Suffix, a.Suffix...)
+	z.Lenition = append(z.Lenition, a.Lenition...)
+	z.Comment = append(z.Comment, a.Comment...)
+	return z
 }
 
 func (w Word) String() string {
@@ -69,11 +80,13 @@ func (w Word) String() string {
 		"InfixDots: %s\n"+
 		"DE: %s\n"+
 		"EN: %s\n"+
+		"ES: %s\n"+
 		"ET: %s\n"+
 		"FR: %s\n"+
 		"HU: %s\n"+
 		"NL: %s\n"+
 		"PL: %s\n"+
+		"PT: %s\n"+
 		"RU: %s\n"+
 		"SV: %s\n"+
 		"TR: %s\n"+
@@ -89,16 +102,25 @@ func (w Word) String() string {
 		w.InfixDots,
 		w.DE,
 		w.EN,
+		w.ES,
 		w.ET,
 		w.FR,
 		w.HU,
 		w.NL,
 		w.PL,
+		w.PT,
 		w.RU,
 		w.SV,
 		w.TR,
 		w.Affixes,
 	)
+}
+
+// Make a simple word to show what query led to this word
+func simpleWord(name string) Word {
+	var word Word
+	word.Navi = name
+	return word
 }
 
 // Initialize Word with one row of the dictionary.
@@ -115,11 +137,13 @@ func newWord(dataFields []string, order dictPos) Word {
 	word.InfixDots = dataFields[order.ifdField]
 	word.DE = dataFields[order.deField]
 	word.EN = dataFields[order.enField]
+	word.ES = dataFields[order.esField]
 	word.ET = dataFields[order.etField]
 	word.FR = dataFields[order.frField]
 	word.HU = dataFields[order.huField]
 	word.NL = dataFields[order.nlField]
 	word.PL = dataFields[order.plField]
+	word.PT = dataFields[order.ptField]
 	word.RU = dataFields[order.ruField]
 	word.SV = dataFields[order.svField]
 	word.TR = dataFields[order.trField]
@@ -154,11 +178,13 @@ func (w *Word) Equals(other Word) bool {
 		w.InfixDots == other.InfixDots &&
 		w.DE == other.DE &&
 		w.EN == other.EN &&
+		w.ES == other.ES &&
 		w.ET == other.ET &&
 		w.FR == other.FR &&
 		w.HU == other.HU &&
 		w.NL == other.NL &&
 		w.PL == other.PL &&
+		w.PT == other.PT &&
 		w.RU == other.RU &&
 		w.SV == other.SV &&
 		w.TR == other.TR &&
@@ -182,8 +208,8 @@ const (
 	valNull  = "NULL"
 )
 
-func (w *Word) ToOutputLine(i int, withMarkdown, showIPA, showInfixes, showDashed, showInfDots, showSource bool, langCode string) (output string, err error) {
-	num := fmt.Sprintf("[%d]", i+1)
+func (w *Word) ToOutputLine(i string, withMarkdown, showIPA, showInfixes, showDashed, showInfDots, showSource bool, langCode string) (output string, err error) {
+	num := fmt.Sprintf("[%s]", i)
 	nav := w.Navi
 	ipa := fmt.Sprintf("[%s]", w.IPA)
 	pos := "" + w.PartOfSpeech
@@ -234,6 +260,8 @@ func (w *Word) ToOutputLine(i int, withMarkdown, showIPA, showInfixes, showDashe
 		output += w.DE
 	case "en":
 		output += w.EN
+	case "es":
+		output += w.ES
 	case "et":
 		output += w.ET
 	case "fr":
@@ -244,6 +272,8 @@ func (w *Word) ToOutputLine(i int, withMarkdown, showIPA, showInfixes, showDashe
 		output += w.NL
 	case "pl":
 		output += w.PL
+	case "pt":
+		output += w.PT
 	case "ru":
 		output += w.RU
 	case "sv":
@@ -330,11 +360,13 @@ type dictPos struct {
 	ifdField int // dot-style infix data
 	deField  int // German definition
 	enField  int // English definition
+	esField  int // Spanish definition
 	etField  int // Estonian definition
 	frField  int // French definition
 	huField  int // Hungarian definition
 	nlField  int // Dutch definition
 	plField  int // Polish definition
+	ptField  int // Portuguese definition
 	ruField  int // Russian definition
 	svField  int // Swedish definition
 	trField  int // Turkish definition
@@ -367,6 +399,8 @@ func readDictPos(headerFields []string) dictPos {
 			pos.deField = i
 		case "en":
 			pos.enField = i
+		case "es":
+			pos.esField = i
 		case "et":
 			pos.etField = i
 		case "fr":
@@ -377,6 +411,8 @@ func readDictPos(headerFields []string) dictPos {
 			pos.nlField = i
 		case "pl":
 			pos.plField = i
+		case "pt":
+			pos.ptField = i
 		case "ru":
 			pos.ruField = i
 		case "sv":

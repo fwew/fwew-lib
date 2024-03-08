@@ -485,11 +485,13 @@ func TestList(t *testing.T) {
 					InfixDots:      "NULL",
 					DE:             "eins",
 					EN:             "one",
+					ES:             "uno",
 					ET:             "üks",
 					FR:             "1 (un)",
 					HU:             "egy, 1",
 					NL:             "één",
 					PL:             "jeden",
+					PT:             "um",
 					RU:             "один",
 					SV:             "en, ett",
 					TR:             "bir",
@@ -514,7 +516,7 @@ func TestList(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotResults, err := List(tt.args.args)
+			gotResults, err := List(tt.args.args, 1)
 			if !errors.Is(err, tt.wantErr) {
 				t.Errorf("List() error = %v, wantErr %v", err, tt.wantErr)
 				return

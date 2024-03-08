@@ -12,8 +12,9 @@ import (
 // Filter the dictionary based on the args.
 // args can be empty, if so, the whole Dict will be returned (This also happens if < 3 args are given)
 // It will try to always get 3 args and an `and` in between. If less than 3 exist, than it will wil return the previous results.
-func List(args []string) (results []Word, err error) {
+func List(args []string, checkDigraphs uint8) (results []Word, err error) {
 	results, err = GetFullDict()
+
 	if err != nil {
 		return
 	}
@@ -22,7 +23,7 @@ func List(args []string) (results []Word, err error) {
 		// get 3 args and remove 4th
 		simpleArgs := args[0:3]
 
-		results, err = listWords(simpleArgs, results)
+		results, err = listWords(simpleArgs, results, checkDigraphs)
 		if err != nil {
 			return
 		}
@@ -40,7 +41,22 @@ func List(args []string) (results []Word, err error) {
 	return
 }
 
-func listWords(args []string, words []Word) (results []Word, err error) {
+func preventCompressBug(input string) string {
+	// Be sure nothing can contaminate the data to compress
+	removeChars := []string{"q", "b", "d", "c", "0", "1", "2", "3", "4", "5"}
+	for _, char := range removeChars {
+		input = strings.ReplaceAll(input, char, ";")
+	}
+
+	// We don't want to interrupt any g that's part of ng
+	input = strings.ReplaceAll(input, "ng", "[-]")
+	input = strings.ReplaceAll(input, "g", ";")
+	input = strings.ReplaceAll(input, "[-]", "ng")
+
+	return input
+}
+
+func listWords(args []string, words []Word, checkDigraphs uint8) (results []Word, err error) {
 	var (
 		what = strings.ToLower(args[0])
 		cond = strings.ToLower(args[1])
@@ -75,10 +91,17 @@ func listWords(args []string, words []Word) (results []Word, err error) {
 
 	wordsLen := len(words)
 
+	switch what {
+	case Text("w_word"):
+		spec = preventCompressBug(spec)
+	}
+
 	for i, word := range words {
 		switch what {
 		case Text("w_pos"):
-			pos := strings.ToLower(word.PartOfSpeech)
+			pos := strings.ReplaceAll(word.PartOfSpeech, ".", "")
+			pos = strings.ToLower(pos)
+			spec = strings.ReplaceAll(spec, ".", "")
 			switch cond {
 			case Text("c_starts"):
 				if strings.HasPrefix(pos, spec) {
@@ -210,11 +233,26 @@ func listWords(args []string, words []Word) (results []Word, err error) {
 				}
 			}
 		case Text("w_word"):
-			navi := strings.ToLower(word.Navi)
 			syll := word.Syllables
+			naviWord := word.Navi
+
+			switch checkDigraphs {
+			case 1: // 1: compress spec and syllables (consider all digraphs)
+				spec = compress(spec)
+				fallthrough
+			case 2: // 2: compress syllables, but not spec (find fake digraphs)
+				syll = compress(syll)
+				naviWord = compress(naviWord)
+			}
+
+			syll = strings.ReplaceAll(syll, "-", "")
+			plus := false
+			if spec[len(spec)-1] == '+' {
+				plus = true
+			}
 			switch cond {
 			case Text("c_starts"):
-				if strings.HasPrefix(navi, spec) {
+				if strings.HasPrefix(syll, spec) {
 					results = append(results, word)
 				}
 			case Text("c_starts-any"):
@@ -239,7 +277,9 @@ func listWords(args []string, words []Word) (results []Word, err error) {
 					results = append(results, word)
 				}
 			case Text("c_ends"):
-				if strings.HasSuffix(navi, spec) {
+				if plus && strings.HasSuffix(naviWord, spec) {
+					results = append(results, word)
+				} else if strings.HasSuffix(syll, spec) {
 					results = append(results, word)
 				}
 			case Text("c_ends-any"):
@@ -264,9 +304,9 @@ func listWords(args []string, words []Word) (results []Word, err error) {
 					results = append(results, word)
 				}
 			case Text("c_has"):
-				if spec == "+" && strings.Contains(navi, spec) {
+				if plus && strings.HasSuffix(naviWord, spec) {
 					results = append(results, word)
-				} else if strings.Contains(compress(syll), compress(spec)) {
+				} else if strings.Contains(syll, spec) {
 					results = append(results, word)
 				}
 			case Text("c_has-any"):
@@ -298,7 +338,7 @@ func listWords(args []string, words []Word) (results []Word, err error) {
 					results = append(results, word)
 				}
 			case Text("c_like"):
-				if Glob(spec, navi) {
+				if Glob(spec, syll) {
 					results = append(results, word)
 				}
 			case Text("c_like-any"):
@@ -323,21 +363,21 @@ func listWords(args []string, words []Word) (results []Word, err error) {
 					results = append(results, word)
 				}
 			case Text("c_not-starts"):
-				if !strings.HasPrefix(navi, spec) {
+				if !strings.HasPrefix(syll, spec) {
 					results = append(results, word)
 				}
 			case Text("c_not-ends"):
-				if !strings.HasSuffix(navi, spec) {
+				if !strings.HasSuffix(syll, spec) {
 					results = append(results, word)
 				}
 			case Text("c_not-has"):
-				if spec == "+" && !strings.Contains(navi, spec) {
+				if plus && !strings.HasSuffix(naviWord, spec) {
 					results = append(results, word)
-				} else if !strings.Contains(compress(syll), compress(spec)) {
+				} else if !strings.Contains(syll, spec) {
 					results = append(results, word)
 				}
 			case Text("c_not-like"):
-				if !Glob(spec, navi) {
+				if !Glob(spec, syll) {
 					results = append(results, word)
 				}
 			case Text("c_matches"):

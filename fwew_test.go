@@ -34,7 +34,7 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
-func wordSimpleEqual(w1a, w2a []Word, checkAffixes bool) bool {
+func wordSimpleEqual(w1a, w2a []Word) bool {
 	w1l := len(w1a)
 	w2l := len(w2a)
 
@@ -49,19 +49,20 @@ func wordSimpleEqual(w1a, w2a []Word, checkAffixes bool) bool {
 		if w1.ID != w2.ID ||
 			//w1.DE != w2.DE ||
 			//w1.EN != w2.EN ||
+			//w1.ES != w2.ES ||
 			//w1.ET != w2.ET ||
 			//w1.FR != w2.FR ||
 			//w1.HU != w2.HU ||
 			//w1.NL != w2.NL ||
 			//w1.PL != w2.PL ||
+			//w1.PT != w2.PT ||
 			//w1.RU != w2.RU ||
 			//w1.SV != w2.SV ||
 			w1.Navi != w2.Navi ||
-			(checkAffixes &&
-				(!reflect.DeepEqual(w1.Affixes.Prefix, w2.Affixes.Prefix) ||
-					!reflect.DeepEqual(w1.Affixes.Infix, w2.Affixes.Infix) ||
-					!reflect.DeepEqual(w1.Affixes.Suffix, w2.Affixes.Suffix) ||
-					!reflect.DeepEqual(w1.Affixes.Lenition, w2.Affixes.Lenition))) {
+			(!reflect.DeepEqual(w1.Affixes.Prefix, w2.Affixes.Prefix) ||
+				!reflect.DeepEqual(w1.Affixes.Infix, w2.Affixes.Infix) ||
+				!reflect.DeepEqual(w1.Affixes.Suffix, w2.Affixes.Suffix) ||
+				!reflect.DeepEqual(w1.Affixes.Lenition, w2.Affixes.Lenition)) {
 
 			return false
 		}
@@ -798,7 +799,7 @@ var englishWords = []struct {
 func TestTranslateFromNavi(t *testing.T) {
 	for _, tt := range naviWords {
 		t.Run(tt.name, func(t *testing.T) {
-			if got, err := TranslateFromNavi(tt.args.searchNaviText); err != nil || !wordSimpleEqual(got, tt.want, true) {
+			if got, err := TranslateFromNaviHash(tt.args.searchNaviText, true); err != nil || !wordSimpleEqual(got[1], tt.want) {
 				t.Errorf("TranslateFromNavi() = %v, want %v", got, tt.want)
 			}
 		})
@@ -806,25 +807,25 @@ func TestTranslateFromNavi(t *testing.T) {
 }
 
 func TestTranslateFromNaviCached(t *testing.T) {
-	CacheDict()
+	CacheDictHash()
 	TestTranslateFromNavi(t)
-	UncacheDict()
+	UncacheHashDict()
 }
 
 func BenchmarkTranslateFromNavi(b *testing.B) {
 	for _, bm := range naviWords {
 		b.Run(bm.name, func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				TranslateFromNavi(bm.args.searchNaviText)
+				TranslateFromNaviHash(bm.args.searchNaviText, true)
 			}
 		})
 	}
 }
 
 func BenchmarkTranslateFromNaviCached(b *testing.B) {
-	CacheDict()
+	CacheDictHash()
 	BenchmarkTranslateFromNavi(b)
-	UncacheDict()
+	UncacheHashDict()
 }
 
 func BenchmarkTranslateFromNaviBig(b *testing.B) {
@@ -840,22 +841,22 @@ func BenchmarkTranslateFromNaviBig(b *testing.B) {
 
 		b.Run(line, func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				TranslateFromNavi(line)
+				TranslateFromNaviHash(line, true)
 			}
 		})
 	}
 }
 
 func BenchmarkTranslateFromNaviBigCached(b *testing.B) {
-	CacheDict()
+	CacheDictHash()
 	BenchmarkTranslateFromNaviBig(b)
-	UncacheDict()
+	UncacheHashDict()
 }
 
 func TestTranslateToNavi(t *testing.T) {
 	for _, tt := range englishWords {
 		t.Run(tt.name, func(t *testing.T) {
-			if gotResults := TranslateToNavi(tt.args.searchNaviText, tt.args.languageCode); !wordSimpleEqual(gotResults, tt.want, false) {
+			if gotResults := TranslateToNaviHash(tt.args.searchNaviText, tt.args.languageCode); !wordSimpleEqual(gotResults[1], tt.want) {
 				t.Errorf("TranslateToNavi() = %v, want %v", gotResults, tt.want)
 			}
 		})
@@ -863,9 +864,9 @@ func TestTranslateToNavi(t *testing.T) {
 }
 
 func TestTranslateToNaviCached(t *testing.T) {
-	CacheDict()
+	CacheDictHash2()
 	TestTranslateToNavi(t)
-	UncacheDict()
+	UncacheHashDict2()
 }
 
 func BenchmarkTranslateToNaviBig(b *testing.B) {
@@ -881,16 +882,16 @@ func BenchmarkTranslateToNaviBig(b *testing.B) {
 
 		b.Run(line, func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				TranslateToNavi(line, "en")
+				TranslateToNaviHash(line, "en")
 			}
 		})
 	}
 }
 
 func BenchmarkTranslateToNaviBigCached(b *testing.B) {
-	CacheDict()
+	CacheDictHash2()
 	BenchmarkTranslateToNaviBig(b)
-	UncacheDict()
+	UncacheHashDict2()
 }
 
 func TestRandom(t *testing.T) {
@@ -946,7 +947,7 @@ func TestRandom(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if gotResults, _ := Random(tt.args.amount, nil); !(len(gotResults) == tt.args.amount) {
+			if gotResults, _ := Random(tt.args.amount, nil, 1); !(len(gotResults) == tt.args.amount) {
 				t.Errorf("Random() = %v, want %v", len(gotResults), tt.args.amount)
 			}
 		})
@@ -954,7 +955,7 @@ func TestRandom(t *testing.T) {
 }
 
 func TestRandomCached(t *testing.T) {
-	CacheDict()
+	CacheDictHash()
 	TestRandom(t)
-	UncacheDict()
+	UncacheHashDict()
 }

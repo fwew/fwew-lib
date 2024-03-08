@@ -620,11 +620,45 @@ func (w *Word) infix(target string) string {
 		corTarget       = target
 	)
 
-	//detect verb-yu
+	//trying to detect verb-yu
+	yrootDiscriminate := 0
+	ytargetDiscriminate := 0
 	ycompareWord := w.Navi
 	ycompareTarget := target
+	flagYu := 0
 	arrTarget := []string{target}
-	if strings.Contains(target, "yu") && !(Contains(arrTarget, []string{"ei", "äng", "ats", "eng", "eiy"})) {
+	infixesToExclude := []string{"ei", "äng", "ats", "eng", "eiy"}
+	ayuToExclude := []string{"ayu", "ìyu", "aryu", "alyu", "ìlyu", "ìryu", "asyu", "ìsyu"}
+	// <uy> is special for verb-yu, check it more
+	if strings.HasSuffix(target, "yu") && !(Contains(arrTarget, infixesToExclude)) {
+		for {
+			//checking if root word (w.Navi) -yu- by itself
+			if strings.Contains(ycompareWord, "yu") {
+				yrootDiscriminate = yrootDiscriminate + 1
+				ycompareWord = strings.Replace(ycompareWord, "yu", "", 1)
+			} else {
+				break
+			}
+		}
+		//checking if target word (previousAttempt) has -yu- by itself
+		for {
+			if strings.Contains(ycompareTarget, "yu") {
+				ytargetDiscriminate = ytargetDiscriminate + 1
+				ycompareTarget = strings.Replace(ycompareTarget, "yu", "", 1)
+			} else {
+				break
+			}
+		}
+		if ytargetDiscriminate > yrootDiscriminate {
+			flagYu = 1
+		} else {
+			flagYu = 2
+		}
+		if !Contains(arrTarget, ayuToExclude) {
+			flagYu = 0
+		}
+	}
+	if flagYu == 1 {
 		ycompareTarget = strings.Replace(ycompareTarget, ycompareWord, "", 1)
 		ycompareTarget = strings.Replace(ycompareTarget, "yu", "", 1)
 		if ycompareTarget != "" {
@@ -723,7 +757,7 @@ func (w *Word) infix(target string) string {
 		"ìrm", "ìry", "ìsy", "alm", "aly", "arm", "ary", "asy", "ìm", "imv", "ilv", "irv", "ìy",
 		"am", "ay", "er", "iv", "ol", "us", "awn", "äp", "eyk"}
 	toComment := ""
-	if Contains(matchInfixes, []string{"uy"}) && strings.Contains(target, "uyu") && !Contains(matchInfixes, allElseInfixes) {
+	if Contains(matchInfixes, []string{"uy"}) && strings.HasSuffix(target, "uyu") && !Contains(matchInfixes, allElseInfixes) {
 		toComment = "flagUYU"
 		w.Affixes.Comment = []string{toComment}
 	}
