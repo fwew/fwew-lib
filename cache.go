@@ -31,6 +31,7 @@ type MetaDict struct {
 	RU map[string][]string
 	SV map[string][]string
 	TR map[string][]string
+	UK map[string][]string
 }
 
 var letterMap = map[rune]int{
@@ -315,6 +316,7 @@ func CacheDictHash2() error {
 		dictHash2.RU = make(map[string][]string)
 		dictHash2.SV = make(map[string][]string)
 		dictHash2.TR = make(map[string][]string)
+		dictHash2.UK = make(map[string][]string)
 	}
 
 	// Set up the whole thing
@@ -335,6 +337,7 @@ func CacheDictHash2() error {
 		dictHash2.RU = AssignWord(dictHash2.RU, word.RU, standardizedWord)
 		dictHash2.SV = AssignWord(dictHash2.SV, word.SV, standardizedWord)
 		dictHash2.TR = AssignWord(dictHash2.TR, word.TR, standardizedWord)
+		dictHash2.UK = AssignWord(dictHash2.UK, word.UK, standardizedWord)
 		return nil
 	})
 	if err != nil {
@@ -368,6 +371,7 @@ func UncacheHashDict2() {
 	dictHash2.RU = nil
 	dictHash2.SV = nil
 	dictHash2.TR = nil
+	dictHash2.UK = nil
 }
 
 // This will run the function `f` inside the cache or the file directly.

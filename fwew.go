@@ -529,6 +529,10 @@ func TranslateToNaviHashHelper(searchWord string, langCode string) (results []Wo
 		for _, a := range SearchNatlangWord(dictHash2.TR, searchWord) {
 			results = AppendAndAlphabetize(results, a)
 		}
+	case "uk":
+		for _, a := range SearchNatlangWord(dictHash2.UK, searchWord) {
+			results = AppendAndAlphabetize(results, a)
+		}
 	default:
 		// If we get an odd language code, return English
 		for _, a := range SearchNatlangWord(dictHash2.EN, searchWord) {
