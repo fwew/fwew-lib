@@ -159,6 +159,7 @@ func init() {
 	texts["l=ruDesc"] = "Русский"
 	texts["l=svDesc"] = "Svenska"
 	texts["l=trDesc"] = "Türkçe"
+	texts["l=ukDesc"] = "Українська"
 	texts["posDesc"] = "part of speech"
 	texts["wordDesc"] = texts["w_word"]
 	texts["wordsDesc"] = texts["w_words"]
