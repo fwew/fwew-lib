@@ -2,16 +2,17 @@ package main
 
 import (
 	"fmt"
-	"gonum.org/v1/plot"
-	"gonum.org/v1/plot/plotter"
-	"gonum.org/v1/plot/plotutil"
-	"gonum.org/v1/plot/vg"
 	"io/ioutil"
 	"math"
 	"math/rand"
 	"regexp"
 	"sort"
 	"strconv"
+
+	"gonum.org/v1/plot"
+	"gonum.org/v1/plot/plotter"
+	"gonum.org/v1/plot/plotutil"
+	"gonum.org/v1/plot/vg"
 )
 
 var langs = []string{
@@ -24,6 +25,8 @@ var langs = []string{
 	"pl",
 	"ru",
 	"sv",
+	"tr",
+	"uk",
 }
 
 func randomLangCode() string {

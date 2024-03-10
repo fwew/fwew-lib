@@ -58,6 +58,8 @@ func wordSimpleEqual(w1a, w2a []Word) bool {
 			//w1.PT != w2.PT ||
 			//w1.RU != w2.RU ||
 			//w1.SV != w2.SV ||
+			//w1.TR != w2.TR ||
+			//w1.UK != w2.UK ||
 			w1.Navi != w2.Navi ||
 			(!reflect.DeepEqual(w1.Affixes.Prefix, w2.Affixes.Prefix) ||
 				!reflect.DeepEqual(w1.Affixes.Infix, w2.Affixes.Infix) ||

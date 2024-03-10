@@ -114,7 +114,7 @@ func identicalRunes(first string, second string) bool {
 }
 
 func clean(searchNaviWords string) (words string) {
-	badChars := `~@#$%^&*()[]{}<>_/.,;:!?|+\"«»`
+	badChars := `~@#$%^&*()[]{}<>_/.,;:!?|+\"„“”«»`
 
 	// remove all the sketchy chars from arguments
 	for _, c := range badChars {
@@ -675,6 +675,9 @@ func ReefMe(ipa string, inter bool) []string {
 		return []string{"__zen__-ke", "ˈz·ɛŋ.kɛ"}
 	}
 
+	// Replace the spaces so as not to confuse strings.Split()
+	ipa = strings.ReplaceAll(ipa, " ", "*.")
+
 	// Unstressed ä becomes e
 	ipa_syllables := strings.Split(ipa, ".")
 	new_ipa := ""
@@ -694,12 +697,9 @@ func ReefMe(ipa string, inter bool) []string {
 	// Reefify the IPA first
 	ipaReef := strings.ReplaceAll(ipa, "·", "")
 	if !inter {
-		// Replace the spaces so ejectives after spaces become voiced plosives, too
-		ipaReef = strings.ReplaceAll(ipaReef, " ", "*.")
 		ipaReef = EjectiveSoftener(ipaReef, "p'", "b")
 		ipaReef = EjectiveSoftener(ipaReef, "t'", "d")
 		ipaReef = EjectiveSoftener(ipaReef, "k'", "g")
-		ipaReef = strings.ReplaceAll(ipaReef, "*.", " ")
 
 		ipaReef = strings.ReplaceAll(ipaReef, "t͡sj", "tʃ")
 		ipaReef = strings.ReplaceAll(ipaReef, "sj", "ʃ")
@@ -735,6 +735,8 @@ func ReefMe(ipa string, inter bool) []string {
 
 		ipaReef = temp
 	}
+
+	ipaReef = strings.ReplaceAll(ipaReef, "*.", " ")
 
 	// now Romanize the reef IPA
 	word := strings.Split(ipaReef, " ")

@@ -155,6 +155,7 @@ func infixError(query string, didYouMean string, ipa string) Word {
 	d.RU = didYouMean
 	d.SV = didYouMean
 	d.TR = didYouMean
+	d.UK = didYouMean
 	d.IPA = ipa
 	d.PartOfSpeech = "err."
 	return d

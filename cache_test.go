@@ -28,6 +28,7 @@ func Test_cacheDict(t *testing.T) {
 		PT:             "tocar",
 		RU:             "трогать",
 		SV:             "beröra",
+		UK:             "дотик",
 		TR:             "dokunmak",
 	}
 

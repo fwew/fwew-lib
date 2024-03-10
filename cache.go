@@ -167,7 +167,77 @@ func AppendAndAlphabetize(words []Word, word Word) []Word {
 	return newWords
 }
 
-// This will cache the whole dictionary.
+// If a definition is not available in a certain language, default to English
+func EnglishIfNull(word Word) Word {
+	// English
+	if word.EN == "NULL" {
+		word.EN = "(no definition)"
+	}
+
+	// German (Deutsch)
+	if word.DE == "NULL" {
+		word.DE = word.EN
+	}
+
+	// Spanish (Español)
+	if word.ES == "NULL" {
+		word.ES = word.EN
+	}
+
+	// Estonian (Eesti)
+	if word.ET == "NULL" {
+		word.ET = word.EN
+	}
+
+	// French (Français)
+	if word.FR == "NULL" {
+		word.FR = word.EN
+	}
+
+	// Hungarian (Magyar)
+	if word.HU == "NULL" {
+		word.HU = word.EN
+	}
+
+	// Dutch (Nederlands)
+	if word.NL == "NULL" {
+		word.NL = word.EN
+	}
+
+	// Polish (Polski)
+	if word.PL == "NULL" {
+		word.PL = word.EN
+	}
+
+	// Portuguese (Português)
+	if word.PT == "NULL" {
+		word.PT = word.EN
+	}
+
+	// Russian (Русский)
+	if word.RU == "NULL" {
+		word.RU = word.EN
+	}
+
+	// Swedish (Svenska)
+	if word.SV == "NULL" {
+		word.SV = word.EN
+	}
+
+	// Turkish (Türkçe)
+	if word.TR == "NULL" {
+		word.TR = word.EN
+	}
+
+	// Ukrainian (Magyar)
+	if word.UK == "NULL" {
+		word.UK = word.EN
+	}
+
+	return word
+}
+
+// This will cache the whole dictionary (Na'vi to natural language).
 // Please call this, if you want to translate multiple words or running infinitely (e.g. CLI-go-prompt, discord-bot)
 func CacheDictHash() error {
 	// dont run if already is cached
@@ -181,7 +251,7 @@ func CacheDictHash() error {
 
 	err := runOnFile(func(word Word) error {
 		standardizedWord := word.Navi
-		badChars := `~@#$%^&*()[]{}<>_/.,;:!?|+\"«»`
+		badChars := `~@#$%^&*()[]{}<>_/.,;:!?|+\"„“”«»`
 
 		// remove all the sketchy chars from arguments
 		for _, c := range badChars {
@@ -223,6 +293,7 @@ func CacheDictHash() error {
 			}
 		}
 
+		word = EnglishIfNull(word)
 		dictHash[standardizedWord] = append(dictHash[standardizedWord], word)
 		return nil
 	})
@@ -252,7 +323,7 @@ func CacheDictHash() error {
 // Helper function for CacheDictHash2
 func AssignWord(wordmap map[string][]string, natlangWords string, naviWord string) (result map[string][]string) {
 	standardizedWord := natlangWords
-	badChars := `~@#$%^&*()[]{}<>_/.,;:!?|+\"«»`
+	badChars := `~@#$%^&*()[]{}<>_/.,;:!?|+\"„“”«»`
 
 	// remove anything in parenthesis to avoid clogging search results
 	tempString := ""
@@ -299,6 +370,7 @@ func AssignWord(wordmap map[string][]string, natlangWords string, naviWord strin
 	return wordmap
 }
 
+// Natural languages to Na'vi
 func CacheDictHash2() error {
 	// dont run if already is cached
 	if len(dictHash2.EN) != 0 {
@@ -323,21 +395,72 @@ func CacheDictHash2() error {
 
 	err := runOnFile(func(word Word) error {
 		standardizedWord := strings.ToLower(word.Navi)
-		standardizedWord = strings.ReplaceAll(word.Navi, "+", "")
+		standardizedWord = strings.ReplaceAll(standardizedWord, "+", "")
 
-		dictHash2.EN = AssignWord(dictHash2.EN, word.EN, standardizedWord)
-		dictHash2.DE = AssignWord(dictHash2.DE, word.DE, standardizedWord)
-		dictHash2.ES = AssignWord(dictHash2.ES, word.ES, standardizedWord)
-		dictHash2.ET = AssignWord(dictHash2.ET, word.ET, standardizedWord)
-		dictHash2.FR = AssignWord(dictHash2.FR, word.FR, standardizedWord)
-		dictHash2.HU = AssignWord(dictHash2.HU, word.HU, standardizedWord)
-		dictHash2.NL = AssignWord(dictHash2.NL, word.NL, standardizedWord)
-		dictHash2.PL = AssignWord(dictHash2.PL, word.PL, standardizedWord)
-		dictHash2.PT = AssignWord(dictHash2.PT, word.PT, standardizedWord)
-		dictHash2.RU = AssignWord(dictHash2.RU, word.RU, standardizedWord)
-		dictHash2.SV = AssignWord(dictHash2.SV, word.SV, standardizedWord)
-		dictHash2.TR = AssignWord(dictHash2.TR, word.TR, standardizedWord)
-		dictHash2.UK = AssignWord(dictHash2.UK, word.UK, standardizedWord)
+		// English
+		if word.EN != "NULL" {
+			dictHash2.EN = AssignWord(dictHash2.EN, word.EN, standardizedWord)
+		}
+
+		// German (Deutsch)
+		if word.DE != "NULL" {
+			dictHash2.DE = AssignWord(dictHash2.DE, word.DE, standardizedWord)
+		}
+
+		// Spanish (Español)
+		if word.ES != "NULL" {
+			dictHash2.ES = AssignWord(dictHash2.ES, word.ES, standardizedWord)
+		}
+
+		// Estonian (Eesti)
+		if word.ET != "NULL" {
+			dictHash2.ET = AssignWord(dictHash2.ET, word.ET, standardizedWord)
+		}
+
+		// French (Français)
+		if word.FR != "NULL" {
+			dictHash2.FR = AssignWord(dictHash2.FR, word.FR, standardizedWord)
+		}
+
+		// Hungarian (Magyar)
+		if word.HU != "NULL" {
+			dictHash2.HU = AssignWord(dictHash2.HU, word.HU, standardizedWord)
+		}
+
+		// Dutch (Nederlands)
+		if word.NL != "NULL" {
+			dictHash2.NL = AssignWord(dictHash2.NL, word.NL, standardizedWord)
+		}
+
+		// Polish (Polski)
+		if word.PL != "NULL" {
+			dictHash2.PL = AssignWord(dictHash2.PL, word.PL, standardizedWord)
+		}
+
+		// Portuguese (Português)
+		if word.PT != "NULL" {
+			dictHash2.PT = AssignWord(dictHash2.PT, word.PT, standardizedWord)
+		}
+
+		// Russian (Русский)
+		if word.RU != "NULL" {
+			dictHash2.RU = AssignWord(dictHash2.RU, word.RU, standardizedWord)
+		}
+
+		// Swedish (Svenska)
+		if word.SV != "NULL" {
+			dictHash2.SV = AssignWord(dictHash2.SV, word.SV, standardizedWord)
+		}
+
+		// Turkish (Türkçe)
+		if word.TR != "NULL" {
+			dictHash2.TR = AssignWord(dictHash2.TR, word.TR, standardizedWord)
+		}
+
+		// Ukrainian (Magyar)
+		if word.UK != "NULL" {
+			dictHash2.UK = AssignWord(dictHash2.UK, word.UK, standardizedWord)
+		}
 		return nil
 	})
 	if err != nil {
