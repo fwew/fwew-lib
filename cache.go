@@ -229,7 +229,7 @@ func EnglishIfNull(word Word) Word {
 		word.TR = word.EN
 	}
 
-	// Ukrainian (Magyar)
+	// Ukrainian (Українська)
 	if word.UK == "NULL" {
 		word.UK = word.EN
 	}
@@ -457,7 +457,7 @@ func CacheDictHash2() error {
 			dictHash2.TR = AssignWord(dictHash2.TR, word.TR, standardizedWord)
 		}
 
-		// Ukrainian (Magyar)
+		// Ukrainian (Українська)
 		if word.UK != "NULL" {
 			dictHash2.UK = AssignWord(dictHash2.UK, word.UK, standardizedWord)
 		}
