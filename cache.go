@@ -320,15 +320,14 @@ func CacheDictHash() error {
 	return nil
 }
 
-// Helper function for CacheDictHash2
-func AssignWord(wordmap map[string][]string, natlangWords string, naviWord string) (result map[string][]string) {
-	standardizedWord := natlangWords
+// Turn a definition into its searchable terms
+func SearchTerms(input string) []string {
 	badChars := `~@#$%^&*()[]{}<>_/.,;:!?|+\"„“”«»`
 
 	// remove anything in parenthesis to avoid clogging search results
 	tempString := ""
 	parenthesis := false
-	for _, c := range natlangWords {
+	for _, c := range input {
 		if c == '(' {
 			parenthesis = true
 		} else if c == ')' {
@@ -340,20 +339,25 @@ func AssignWord(wordmap map[string][]string, natlangWords string, naviWord strin
 			tempString += string(c)
 		}
 	}
-	standardizedWord = tempString
+	input = tempString
 
 	// remove all the sketchy chars from arguments
 	for _, c := range badChars {
-		standardizedWord = strings.ReplaceAll(standardizedWord, string(c), "")
+		input = strings.ReplaceAll(input, string(c), "")
 	}
 
 	// normalize tìftang character
-	standardizedWord = strings.ReplaceAll(standardizedWord, "’", "'")
-	standardizedWord = strings.ReplaceAll(standardizedWord, "‘", "'")
+	input = strings.ReplaceAll(input, "’", "'")
+	input = strings.ReplaceAll(input, "‘", "'")
 
 	// find everything lowercase
-	standardizedWord = strings.ToLower(standardizedWord)
-	newWords := strings.Split(standardizedWord, " ")
+	input = strings.ToLower(input)
+	return strings.Split(input, " ")
+}
+
+// Helper function for CacheDictHash2
+func AssignWord(wordmap map[string][]string, natlangWords string, naviWord string) (result map[string][]string) {
+	newWords := SearchTerms(natlangWords)
 
 	for i := 0; i < len(newWords); i++ {
 		duplicate := false

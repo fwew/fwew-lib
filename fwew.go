@@ -481,62 +481,216 @@ func TranslateToNaviHash(searchWord string, langCode string) (results [][]Word) 
 func TranslateToNaviHashHelper(searchWord string, langCode string) (results []Word) {
 	results = []Word{}
 	switch langCode {
-	case "de":
+	case "de": // German
 		for _, a := range SearchNatlangWord(dictHash2.DE, searchWord) {
-			results = AppendAndAlphabetize(results, a)
+			// Verify the search query is actually in the definition
+			searchWords := SearchTerms(a.DE)
+			found := false
+			for _, d := range searchWords {
+				if d == searchWord {
+					found = true
+					break
+				}
+			}
+			if found {
+				results = AppendAndAlphabetize(results, a)
+			}
 		}
-	case "en":
+	case "en": // English
 		for _, a := range SearchNatlangWord(dictHash2.EN, searchWord) {
-			results = AppendAndAlphabetize(results, a)
+			// Verify the search query is actually in the definition
+			searchWords := SearchTerms(a.EN)
+			found := false
+			for _, d := range searchWords {
+				if d == searchWord {
+					found = true
+					break
+				}
+			}
+			if found {
+				results = AppendAndAlphabetize(results, a)
+			}
 		}
-	case "es":
+	case "es": // Spanish
 		for _, a := range SearchNatlangWord(dictHash2.ES, searchWord) {
-			results = AppendAndAlphabetize(results, a)
+			// Verify the search query is actually in the definition
+			searchWords := SearchTerms(a.ES)
+			found := false
+			for _, d := range searchWords {
+				if d == searchWord {
+					found = true
+					break
+				}
+			}
+			if found {
+				results = AppendAndAlphabetize(results, a)
+			}
 		}
-	case "et":
+	case "et": // Estonian
 		for _, a := range SearchNatlangWord(dictHash2.ET, searchWord) {
-			results = AppendAndAlphabetize(results, a)
+			// Verify the search query is actually in the definition
+			searchWords := SearchTerms(a.ET)
+			found := false
+			for _, d := range searchWords {
+				if d == searchWord {
+					found = true
+					break
+				}
+			}
+			if found {
+				results = AppendAndAlphabetize(results, a)
+			}
 		}
-	case "fr":
+	case "fr": // French
 		for _, a := range SearchNatlangWord(dictHash2.FR, searchWord) {
-			results = AppendAndAlphabetize(results, a)
+			// Verify the search query is actually in the definition
+			searchWords := SearchTerms(a.FR)
+			found := false
+			for _, d := range searchWords {
+				if d == searchWord {
+					found = true
+					break
+				}
+			}
+			if found {
+				results = AppendAndAlphabetize(results, a)
+			}
 		}
-	case "hu":
+	case "hu": // Hungarian
 		for _, a := range SearchNatlangWord(dictHash2.HU, searchWord) {
-			results = AppendAndAlphabetize(results, a)
+			// Verify the search query is actually in the definition
+			searchWords := SearchTerms(a.HU)
+			found := false
+			for _, d := range searchWords {
+				if d == searchWord {
+					found = true
+					break
+				}
+			}
+			if found {
+				results = AppendAndAlphabetize(results, a)
+			}
 		}
-	case "nl":
+	case "nl": // Dutch
 		for _, a := range SearchNatlangWord(dictHash2.NL, searchWord) {
-			results = AppendAndAlphabetize(results, a)
+			// Verify the search query is actually in the definition
+			searchWords := SearchTerms(a.NL)
+			found := false
+			for _, d := range searchWords {
+				if d == searchWord {
+					found = true
+					break
+				}
+			}
+			if found {
+				results = AppendAndAlphabetize(results, a)
+			}
 		}
-	case "pl":
+	case "pl": // Polish
 		for _, a := range SearchNatlangWord(dictHash2.PL, searchWord) {
-			results = AppendAndAlphabetize(results, a)
+			// Verify the search query is actually in the definition
+			searchWords := SearchTerms(a.PL)
+			found := false
+			for _, d := range searchWords {
+				if d == searchWord {
+					found = true
+					break
+				}
+			}
+			if found {
+				results = AppendAndAlphabetize(results, a)
+			}
 		}
-	case "pt":
+	case "pt": // Portuguese
 		for _, a := range SearchNatlangWord(dictHash2.PT, searchWord) {
-			results = AppendAndAlphabetize(results, a)
+			// Verify the search query is actually in the definition
+			searchWords := SearchTerms(a.PT)
+			found := false
+			for _, d := range searchWords {
+				if d == searchWord {
+					found = true
+					break
+				}
+			}
+			if found {
+				results = AppendAndAlphabetize(results, a)
+			}
 		}
-	case "ru":
+	case "ru": // Russian
 		for _, a := range SearchNatlangWord(dictHash2.RU, searchWord) {
-			results = AppendAndAlphabetize(results, a)
+			// Verify the search query is actually in the definition
+			searchWords := SearchTerms(a.RU)
+			found := false
+			for _, d := range searchWords {
+				if d == searchWord {
+					found = true
+					break
+				}
+			}
+			if found {
+				results = AppendAndAlphabetize(results, a)
+			}
 		}
-	case "sv":
+	case "sv": // Swedish
 		for _, a := range SearchNatlangWord(dictHash2.SV, searchWord) {
-			results = AppendAndAlphabetize(results, a)
+			// Verify the search query is actually in the definition
+			searchWords := SearchTerms(a.SV)
+			found := false
+			for _, d := range searchWords {
+				if d == searchWord {
+					found = true
+					break
+				}
+			}
+			if found {
+				results = AppendAndAlphabetize(results, a)
+			}
 		}
-	case "tr":
+	case "tr": // Turkish
 		for _, a := range SearchNatlangWord(dictHash2.TR, searchWord) {
-			results = AppendAndAlphabetize(results, a)
+			// Verify the search query is actually in the definition
+			searchWords := SearchTerms(a.TR)
+			found := false
+			for _, d := range searchWords {
+				if d == searchWord {
+					found = true
+					break
+				}
+			}
+			if found {
+				results = AppendAndAlphabetize(results, a)
+			}
 		}
-	case "uk":
+	case "uk": // Ukrainian
 		for _, a := range SearchNatlangWord(dictHash2.UK, searchWord) {
-			results = AppendAndAlphabetize(results, a)
+			// Verify the search query is actually in the definition
+			searchWords := SearchTerms(a.UK)
+			found := false
+			for _, d := range searchWords {
+				if d == searchWord {
+					found = true
+					break
+				}
+			}
+			if found {
+				results = AppendAndAlphabetize(results, a)
+			}
 		}
 	default:
 		// If we get an odd language code, return English
 		for _, a := range SearchNatlangWord(dictHash2.EN, searchWord) {
-			results = AppendAndAlphabetize(results, a)
+			// Verify the search query is actually in the definition
+			searchWords := SearchTerms(a.EN)
+			found := false
+			for _, d := range searchWords {
+				if d == searchWord {
+					found = true
+					break
+				}
+			}
+			if found {
+				results = AppendAndAlphabetize(results, a)
+			}
 		}
 	}
 
