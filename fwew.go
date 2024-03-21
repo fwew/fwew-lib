@@ -121,6 +121,9 @@ func clean(searchNaviWords string) (words string) {
 		searchNaviWords = strings.ReplaceAll(searchNaviWords, string(c), "")
 	}
 
+	// Recognize line breaks and turn them into spaces
+	searchNaviWords = strings.ReplaceAll(searchNaviWords, "\n", " ")
+
 	// normalize tìftang character
 	searchNaviWords = strings.ReplaceAll(searchNaviWords, "’", "'")
 	searchNaviWords = strings.ReplaceAll(searchNaviWords, "‘", "'")
