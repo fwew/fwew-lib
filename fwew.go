@@ -118,7 +118,7 @@ func clean(searchNaviWords string) (words string) {
 
 	// remove all the sketchy chars from arguments
 	for _, c := range badChars {
-		searchNaviWords = strings.ReplaceAll(searchNaviWords, string(c), "")
+		searchNaviWords = strings.ReplaceAll(searchNaviWords, string(c), " ")
 	}
 
 	// Recognize line breaks and turn them into spaces
@@ -130,6 +130,11 @@ func clean(searchNaviWords string) (words string) {
 
 	// find everything lowercase
 	searchNaviWords = strings.ToLower(searchNaviWords)
+
+	// Get rid of all double spaces
+	for strings.Contains(searchNaviWords, "  ") {
+		searchNaviWords = strings.ReplaceAll(searchNaviWords, "  ", " ")
+	}
 
 	// No Results if empty string after removing sketch chars
 	if len(searchNaviWords) == 0 {
@@ -159,7 +164,11 @@ func TranslateFromNaviHash(searchNaviWords string, checkFixes bool) (results [][
 	results = [][]Word{}
 
 	for i < len(allWords) {
-
+		// Skip empty words
+		if len(allWords[i]) == 0 {
+			i++
+			continue
+		}
 		j, newWords, error2 := TranslateFromNaviHashHelper(i, allWords, checkFixes)
 		if error2 == nil {
 			for _, newWord := range newWords {
@@ -460,14 +469,13 @@ func SearchNatlangWord(wordmap map[string][]string, searchWord string) (results 
 func TranslateToNaviHash(searchWord string, langCode string) (results [][]Word) {
 	searchWord = clean(searchWord)
 
-	// No Results if empty string after removing sketch chars
-	if len(searchWord) == 0 {
-		return
-	}
-
 	results = [][]Word{}
 
 	for _, word := range strings.Split(searchWord, " ") {
+		// Skip empty words
+		if len(word) == 0 {
+			continue
+		}
 		results = append(results, []Word{})
 		for _, a := range TranslateToNaviHashHelper(word, langCode) {
 			results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], a)
@@ -718,7 +726,6 @@ func BidirectionalSearch(searchNaviWords string, checkFixes bool, langCode strin
 
 	results = [][]Word{}
 	for i < len(allWords) {
-
 		// Search for Na'vi words
 		j, newWords, error2 := TranslateFromNaviHashHelper(i, allWords, checkFixes)
 		if error2 == nil {
