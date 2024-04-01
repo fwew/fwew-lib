@@ -449,7 +449,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 							newCandidate.word = strings.TrimSuffix(newString, "e") + "o"
 							deconjugateHelper(newCandidate, newPrefixCheck, 3, unlenite, false)
 						} else if vowel, ok := vowelSuffixes[oldSuffix]; ok {
-							// Make sure zekwä-äo and fya'o-o are recognized
+							// Make sure zekwä-äo is recognized
 							if strings.HasSuffix(newString, vowel+"-") {
 								newString = strings.TrimSuffix(newString, "-")
 								newCandidate.word = newString
@@ -501,7 +501,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 
 					// Make sure fya'o-o is recognized
 					if vowel, ok := vowelSuffixes[oldSuffix]; ok {
-						// Make sure zekwä-äo and fya'o-o are recognized
+						// Make sure fya'o-o is recognized
 						if strings.HasSuffix(newString, vowel+"-") {
 							newString = strings.TrimSuffix(newString, "-")
 							newCandidate.word = newString
