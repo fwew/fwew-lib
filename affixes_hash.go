@@ -103,6 +103,7 @@ var adposuffixes = []string{
 	"vay", "kay",
 }
 var determinerSuffixes = []string{"pe", "o"}
+var vowelSuffixes = map[string]string{"äo": "ä", "eo": "e", "io": "i", "uo": "u", "ìlä": "ì", "o": "o"}
 var stemSuffixes = []string{"tsyìp", "fkeyk"}
 var verbSuffixes = []string{"tswo", "yu"}
 
@@ -447,6 +448,13 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 							// sneyä -> sno
 							newCandidate.word = strings.TrimSuffix(newString, "e") + "o"
 							deconjugateHelper(newCandidate, newPrefixCheck, 3, unlenite, false)
+						} else if vowel, ok := vowelSuffixes[oldSuffix]; ok {
+							// Make sure zekwä-äo is recognized
+							if strings.HasSuffix(newString, vowel+"-") {
+								newString = strings.TrimSuffix(newString, "-")
+								newCandidate.word = newString
+								deconjugateHelper(newCandidate, newPrefixCheck, 3, unlenite, false)
+							}
 						}
 					}
 				}
@@ -490,6 +498,16 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 					newCandidate.insistPOS = "n."
 					newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, oldSuffix)
 					deconjugateHelper(newCandidate, newPrefixCheck, 3, unlenite, false)
+
+					// Make sure fya'o-o is recognized
+					if vowel, ok := vowelSuffixes[oldSuffix]; ok {
+						// Make sure fya'o-o is recognized
+						if strings.HasSuffix(newString, vowel+"-") {
+							newString = strings.TrimSuffix(newString, "-")
+							newCandidate.word = newString
+							deconjugateHelper(newCandidate, newPrefixCheck, 3, unlenite, false)
+						}
+					}
 				}
 			}
 			fallthrough
