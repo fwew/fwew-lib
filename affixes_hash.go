@@ -174,12 +174,16 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 			// Canonized in:
 			// https://naviteri.org/2011/08/new-vocabulary-clothing/comment-page-1/#comment-912
 			input.word = "tsaw"
-			candidates = append(candidates, input)
+			if !isDuplicate(input) {
+				candidates = append(candidates, input)
+			}
 			return candidates
 		} else if input.word == "oenga" {
 			// The a re-appears when case endings are added (it uses a instead of ì)
 			input.word = "oeng"
-			candidates = append(candidates, input)
+			if !isDuplicate(input) {
+				candidates = append(candidates, input)
+			}
 			return candidates
 		}
 	}
@@ -236,7 +240,9 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 			if aPosition == 1 {
 				newCandidate.suffixes = append(newCandidate.suffixes, "a")
 			}
-			candidates = append(candidates, newCandidate)
+			if !isDuplicate(input) {
+				candidates = append(candidates, newCandidate)
+			}
 		}
 		return candidates
 	}
@@ -612,7 +618,6 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 				}
 			}
 		}
-
 		return candidates
 	}
 	return nil
