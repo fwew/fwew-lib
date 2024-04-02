@@ -130,7 +130,6 @@ func isDuplicate(input ConjugationCandidate) bool {
 					return true
 				}
 			}
-
 		}
 	}
 	return false
