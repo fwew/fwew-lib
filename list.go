@@ -3,6 +3,7 @@ package fwew_lib
 import (
 	"fmt"
 	"log"
+	"regexp"
 	"strconv"
 	"strings"
 	"unicode/utf8"
@@ -27,8 +28,6 @@ func List(args []string, checkDigraphs uint8) (results []Word, err error) {
 		if err != nil {
 			return
 		}
-
-		// TODO: check if args[3] is something different than "and" (only if other things will be supported)
 
 		// remove first 4 elements
 		if len(args) > 4 {
@@ -114,14 +113,27 @@ func filterWord(results []Word, word Word, args []string, checkDigraphs uint8) [
 	plus := spec[len(spec)-1] == '+'
 
 	condMap := map[string]bool{
-		Text("c_starts"):     strings.HasPrefix(syllables, spec),
-		Text("c_ends"):       plus && strings.HasSuffix(navi, spec) || strings.HasSuffix(syllables, spec),
-		Text("c_has"):        plus && strings.Contains(navi, spec) || strings.Contains(syllables, spec),
-		Text("c_like"):       Glob(spec, syllables),
-		Text("c_not-starts"): !strings.HasPrefix(syllables, spec),
-		Text("c_not-ends"):   !strings.HasSuffix(syllables, spec),
-		Text("c_not-has"):    plus && !strings.Contains(navi, spec) || !strings.HasSuffix(syllables, spec),
-		Text("c_not-like"):   !Glob(spec, syllables),
+		Text("c_starts"):      strings.HasPrefix(syllables, spec),
+		Text("c_starts-any"):  satisfiesAny(word, cond, spec),
+		Text("c_starts-all"):  satisfiesAll(word, cond, spec),
+		Text("c_starts-none"): satisfiesNone(word, cond, spec),
+		Text("c_ends"):        plus && strings.HasSuffix(navi, spec) || strings.HasSuffix(syllables, spec),
+		Text("c_ends-any"):    satisfiesAny(word, cond, spec),
+		Text("c_ends-all"):    satisfiesAll(word, cond, spec),
+		Text("c_ends-none"):   satisfiesNone(word, cond, spec),
+		Text("c_has"):         plus && strings.Contains(navi, spec) || strings.Contains(syllables, spec),
+		Text("c_has-any"):     satisfiesAny(word, cond, spec),
+		Text("c_has-all"):     satisfiesAll(word, cond, spec),
+		Text("c_has-none"):    satisfiesNone(word, cond, spec),
+		Text("c_like"):        Glob(spec, syllables),
+		Text("c_like-any"):    satisfiesAny(word, cond, spec),
+		Text("c_like-all"):    satisfiesAll(word, cond, spec),
+		Text("c_like-none"):   satisfiesNone(word, cond, spec),
+		Text("c_not-starts"):  !strings.HasPrefix(syllables, spec),
+		Text("c_not-ends"):    !strings.HasSuffix(syllables, spec),
+		Text("c_not-has"):     plus && !strings.Contains(navi, spec) || !strings.HasSuffix(syllables, spec),
+		Text("c_not-like"):    !Glob(spec, syllables),
+		Text("c_matches"):     regexp.MustCompile(spec).MatchString(navi),
 	}
 
 	if condMap[cond] {
@@ -216,4 +228,118 @@ func preventCompressBug(input string) string {
 	input = strings.ReplaceAll(input, "[-]", "ng")
 
 	return input
+}
+
+func satisfiesAny(word Word, cond, spec string) bool {
+	var (
+		syllables = word.Syllables
+		navi      = word.Navi
+		specs     = strings.Split(spec, ",")
+		plus      = spec[len(spec)-1] == '+'
+	)
+
+	switch cond {
+	case Text("c_starts-any"):
+		for _, s := range specs {
+			if strings.HasPrefix(syllables, s) {
+				return true
+			}
+		}
+	case Text("c_ends-any"):
+		for _, s := range specs {
+			if plus && strings.HasSuffix(navi, s) || strings.HasSuffix(syllables, s) {
+				return true
+			}
+		}
+	case Text("c_has-any"):
+		for _, s := range specs {
+			if plus && strings.Contains(navi, s) || strings.Contains(syllables, s) {
+				return true
+			}
+		}
+	case Text("c_like-any"):
+		for _, s := range specs {
+			if Glob(s, syllables) {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+func satisfiesAll(word Word, cond, spec string) bool {
+	var (
+		syllables = word.Syllables
+		navi      = word.Navi
+		specs     = strings.Split(spec, ",")
+		plus      = spec[len(spec)-1] == '+'
+	)
+
+	switch cond {
+	case Text("c_starts-all"):
+		for _, s := range specs {
+			if !strings.HasPrefix(syllables, s) {
+				return false
+			}
+		}
+	case Text("c_ends-all"):
+		for _, s := range specs {
+			if !(plus && strings.HasSuffix(navi, s) || strings.HasSuffix(syllables, s)) {
+				return false
+			}
+		}
+	case Text("c_has-all"):
+		for _, s := range specs {
+			if !(plus && strings.Contains(navi, s) || strings.Contains(syllables, s)) {
+				return false
+			}
+		}
+	case Text("c_like-all"):
+		for _, s := range specs {
+			if !Glob(s, syllables) {
+				return false
+			}
+		}
+	}
+
+	return true
+}
+
+func satisfiesNone(word Word, cond, spec string) bool {
+	var (
+		syllables = word.Syllables
+		navi      = word.Navi
+		specs     = strings.Split(spec, ",")
+		plus      = spec[len(spec)-1] == '+'
+	)
+
+	switch cond {
+	case Text("c_starts-none"):
+		for _, s := range specs {
+			if strings.HasPrefix(syllables, s) {
+				return false
+			}
+		}
+	case Text("c_ends-none"):
+		for _, s := range specs {
+			if plus && strings.HasSuffix(navi, s) || strings.HasSuffix(syllables, s) {
+				return false
+			}
+		}
+	case Text("c_has-none"):
+		for _, s := range specs {
+			if plus && strings.Contains(navi, s) || strings.Contains(syllables, s) {
+				return false
+			}
+		}
+	case Text("c_like-none"):
+		for _, s := range specs {
+			if Glob(s, syllables) {
+				return false
+			}
+		}
+	}
+
+	return true
 }
