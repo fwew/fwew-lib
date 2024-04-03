@@ -8,9 +8,10 @@ import (
 	"unicode/utf8"
 )
 
-// Filter the dictionary based on the args.
+// List filters the dictionary based on the args.
 // args can be empty, if so, the whole Dict will be returned (This also happens if < 3 args are given)
-// It will try to always get 3 args and an `and` in between. If less than 3 exist, than it will wil return the previous results.
+// It will try to always get 3 args and an `and` in between. If less than 3 exist, than it will wil return the previous
+// results.
 func List(args []string, checkDigraphs uint8) (results []Word, err error) {
 	results, err = GetFullDict()
 
@@ -40,6 +41,168 @@ func List(args []string, checkDigraphs uint8) (results []Word, err error) {
 	return
 }
 
+func listWords(args []string, words []Word, checkDigraphs uint8) (results []Word, err error) {
+	what := strings.ToLower(args[0])
+	wordsLen := len(words)
+
+	for i, word := range words {
+		switch what {
+		case Text("w_pos"):
+			results = filterPos(results, word, args)
+		case Text("w_word"):
+			results = filterWord(results, word, args, checkDigraphs)
+		case Text("w_words"):
+			results, err = filterWords(results, word, args, wordsLen, i)
+		case Text("w_syllables"):
+			results, err = filterNumeric(results, word, args)
+		case Text("w_stress"):
+			results, err = filterNumeric(results, word, args)
+		case Text("w_length"):
+			results, err = filterNumeric(results, word, args)
+		}
+	}
+
+	return
+}
+
+func filterPos(results []Word, word Word, args []string) []Word {
+	var (
+		cond = strings.ToLower(args[1])
+		spec = strings.ReplaceAll(strings.ToLower(args[2]), ".", "")
+		pos  = strings.ReplaceAll(strings.ToLower(word.PartOfSpeech), ".", "")
+	)
+
+	condMap := map[string]bool{
+		Text("c_starts"):     strings.HasPrefix(pos, spec),
+		Text("c_ends"):       strings.HasSuffix(pos, spec),
+		Text("c_is"):         pos == spec,
+		Text("c_has"):        strings.Contains(pos, spec),
+		Text("c_like"):       Glob(spec, pos),
+		Text("c_not-starts"): !strings.HasPrefix(pos, spec),
+		Text("c_not-ends"):   !strings.HasSuffix(pos, spec),
+		Text("c_not-is"):     pos != spec,
+		Text("c_not-has"):    !strings.Contains(pos, spec),
+		Text("c_not-like"):   !Glob(spec, pos),
+	}
+
+	if condMap[cond] {
+		return append(results, word)
+	}
+
+	return results
+}
+
+func filterWord(results []Word, word Word, args []string, checkDigraphs uint8) []Word {
+	var (
+		cond = strings.ToLower(args[1])
+		spec = preventCompressBug(strings.ToLower(args[2]))
+	)
+
+	syllables := word.Syllables
+	navi := word.Navi
+
+	switch checkDigraphs {
+	case 1: // 1: compress spec and syllables (consider all digraphs)
+		spec = compress(spec)
+		fallthrough
+	case 2: // 2: compress syllables, but not spec (find fake digraphs)
+		syllables = compress(syllables)
+		navi = compress(navi)
+	}
+
+	syllables = strings.ReplaceAll(syllables, "-", "")
+	plus := spec[len(spec)-1] == '+'
+
+	condMap := map[string]bool{
+		Text("c_starts"):     strings.HasPrefix(syllables, spec),
+		Text("c_ends"):       plus && strings.HasSuffix(navi, spec) || strings.HasSuffix(syllables, spec),
+		Text("c_has"):        plus && strings.Contains(navi, spec) || strings.Contains(syllables, spec),
+		Text("c_like"):       Glob(spec, syllables),
+		Text("c_not-starts"): !strings.HasPrefix(syllables, spec),
+		Text("c_not-ends"):   !strings.HasSuffix(syllables, spec),
+		Text("c_not-has"):    plus && !strings.Contains(navi, spec) || !strings.HasSuffix(syllables, spec),
+		Text("c_not-like"):   !Glob(spec, syllables),
+	}
+
+	if condMap[cond] {
+		return append(results, word)
+	}
+
+	return results
+}
+
+func filterWords(results []Word, word Word, args []string, wordsLen, index int) (filtered []Word, err error) {
+	var (
+		cond = args[1]
+		spec = args[2]
+	)
+
+	specNumber, err1 := strconv.Atoi(spec)
+	if err1 != nil {
+		log.Printf("%s (%s)\n", Text("invalidNumericError"), spec)
+		err = InvalidNumber.wrap(err1)
+		return
+	}
+
+	condMap := map[string]bool{
+		Text("c_first"): index < specNumber,
+		Text("c_last"):  index >= wordsLen-specNumber && index <= wordsLen,
+	}
+
+	if condMap[cond] {
+		filtered = append(results, word)
+		return
+	}
+
+	filtered = results
+	return
+}
+
+func filterNumeric(results []Word, word Word, args []string) (filtered []Word, err error) {
+	var (
+		what = args[0]
+		cond = args[1]
+		spec = args[2]
+	)
+
+	ispec, err1 := strconv.Atoi(spec)
+	if err1 != nil {
+		fmt.Println(Text("invalidDecimalError"))
+		err = InvalidNumber.wrap(err1)
+		return
+	}
+
+	istress, err2 := strconv.Atoi(word.Stressed)
+	if err2 != nil {
+		fmt.Println(Text("invalidDecimalError"))
+		err = InvalidNumber.wrap(err2)
+		return
+	}
+
+	whatMap := map[string]int{
+		Text("w_syllables"): word.SyllableCount(),
+		Text("w_stress"):    istress,
+		Text("w_length"):    utf8.RuneCountInString(compress(word.Syllables)),
+	}
+
+	condMap := map[string]bool{
+		"<":  whatMap[what] < ispec,
+		"<=": whatMap[what] <= ispec,
+		"=":  whatMap[what] == ispec,
+		">=": whatMap[what] >= ispec,
+		">":  whatMap[what] > ispec,
+		"!=": whatMap[what] != ispec,
+	}
+
+	if condMap[cond] {
+		filtered = append(results, word)
+		return
+	}
+
+	filtered = results
+	return
+}
+
 func preventCompressBug(input string) string {
 	// Be sure nothing can contaminate the data to compress
 	removeChars := []string{"q", "b", "d", "c", "0", "1", "2", "3", "4", "5"}
@@ -53,295 +216,4 @@ func preventCompressBug(input string) string {
 	input = strings.ReplaceAll(input, "[-]", "ng")
 
 	return input
-}
-
-func listWords(args []string, words []Word, checkDigraphs uint8) (results []Word, err error) {
-	var (
-		what = strings.ToLower(args[0])
-		cond = strings.ToLower(args[1])
-		spec = strings.ToLower(args[2])
-	)
-
-	// /list what cond spec
-	// /list pos starts v
-	// /list pos ends m.
-	// /list pos has svin.
-	// /list pos is v.
-	// /list pos like *
-	// /list pos not-starts v
-	// /list pos not-ends m.
-	// /list pos not-has svin.
-	// /list pos not-is v.
-	// /list pos not-like *
-	// /list word starts ft
-	// /list word ends ang
-	// /list word has ts
-	// /list word like *
-	// /list word not-starts ft
-	// /list word not-ends ang
-	// /list word not-has ts
-	// /list word not-like *
-	// /list words first 20
-	// /list words last 30
-	// /list syllables > 1
-	// /list syllables = 2
-	// /list syllables <= 3
-	// /list stress = 1
-
-	wordsLen := len(words)
-
-	switch what {
-	case Text("w_word"):
-		spec = preventCompressBug(spec)
-	}
-
-	for i, word := range words {
-		switch what {
-		case Text("w_pos"):
-			pos := strings.ReplaceAll(word.PartOfSpeech, ".", "")
-			pos = strings.ToLower(pos)
-			spec = strings.ReplaceAll(spec, ".", "")
-			switch cond {
-			case Text("c_starts"):
-				if strings.HasPrefix(pos, spec) {
-					results = append(results, word)
-				}
-			case Text("c_ends"):
-				if strings.HasSuffix(pos, spec) {
-					results = append(results, word)
-				}
-			case Text("c_is"):
-				if pos == spec {
-					results = append(results, word)
-				}
-			case Text("c_has"):
-				if strings.Contains(pos, spec) {
-					results = append(results, word)
-				}
-			case Text("c_like"):
-				if Glob(spec, pos) {
-					results = append(results, word)
-				}
-			case Text("c_not-starts"):
-				if !strings.HasPrefix(pos, spec) {
-					results = append(results, word)
-				}
-			case Text("c_not-ends"):
-				if !strings.HasSuffix(pos, spec) {
-					results = append(results, word)
-				}
-			case Text("c_not-is"):
-				if pos != spec {
-					results = append(results, word)
-				}
-			case Text("c_not-has"):
-				if !strings.Contains(pos, spec) {
-					results = append(results, word)
-				}
-			case Text("c_not-like"):
-				if !Glob(spec, pos) {
-					results = append(results, word)
-				}
-			}
-		case Text("w_word"):
-			syll := word.Syllables
-			naviWord := word.Navi
-
-			switch checkDigraphs {
-			case 1: // 1: compress spec and syllables (consider all digraphs)
-				spec = compress(spec)
-				fallthrough
-			case 2: // 2: compress syllables, but not spec (find fake digraphs)
-				syll = compress(syll)
-				naviWord = compress(naviWord)
-			}
-
-			syll = strings.ReplaceAll(syll, "-", "")
-			plus := false
-			if spec[len(spec)-1] == '+' {
-				plus = true
-			}
-			switch cond {
-			case Text("c_starts"):
-				if strings.HasPrefix(syll, spec) {
-					results = append(results, word)
-				}
-			case Text("c_ends"):
-				if plus && strings.HasSuffix(naviWord, spec) {
-					results = append(results, word)
-				} else if strings.HasSuffix(syll, spec) {
-					results = append(results, word)
-				}
-			case Text("c_has"):
-				if plus && strings.HasSuffix(naviWord, spec) {
-					results = append(results, word)
-				} else if strings.Contains(syll, spec) {
-					results = append(results, word)
-				}
-			case Text("c_like"):
-				if Glob(spec, syll) {
-					results = append(results, word)
-				}
-			case Text("c_not-starts"):
-				if !strings.HasPrefix(syll, spec) {
-					results = append(results, word)
-				}
-			case Text("c_not-ends"):
-				if !strings.HasSuffix(syll, spec) {
-					results = append(results, word)
-				}
-			case Text("c_not-has"):
-				if plus && !strings.HasSuffix(naviWord, spec) {
-					results = append(results, word)
-				} else if !strings.Contains(syll, spec) {
-					results = append(results, word)
-				}
-			case Text("c_not-like"):
-				if !Glob(spec, syll) {
-					results = append(results, word)
-				}
-			}
-		case Text("w_words"):
-			specNumber, err1 := strconv.Atoi(spec)
-			if err1 != nil {
-				log.Printf("%s (%s)\n", Text("invalidNumericError"), spec)
-				err = InvalidNumber.wrap(err1)
-				return
-			}
-			switch cond {
-			case Text("c_first"):
-				if i < specNumber {
-					results = append(results, word)
-				}
-			case Text("c_last"):
-				if i >= wordsLen-specNumber && i <= wordsLen {
-					results = append(results, word)
-				}
-			}
-		case Text("w_syllables"):
-			ispec, err1 := strconv.Atoi(spec)
-			if err1 != nil {
-				fmt.Println(Text("invalidDecimalError"))
-				err = InvalidNumber.wrap(err1)
-				return
-			}
-			switch cond {
-			case "<":
-				if word.SyllableCount() < ispec {
-					results = append(results, word)
-				}
-			case "<=":
-				if word.SyllableCount() <= ispec {
-					results = append(results, word)
-				}
-			case "=":
-				if word.SyllableCount() == ispec {
-					results = append(results, word)
-				}
-			case ">=":
-				if word.SyllableCount() >= ispec {
-					results = append(results, word)
-				}
-			case ">":
-				if word.SyllableCount() > ispec {
-					results = append(results, word)
-				}
-			case "!=":
-				if word.SyllableCount() != ispec {
-					results = append(results, word)
-				}
-			}
-		case Text("w_stress"):
-			ispec, err1 := strconv.Atoi(spec)
-			if err1 != nil {
-				fmt.Println(Text("invalidDecimalError"))
-				err = InvalidNumber.wrap(err1)
-				return
-			}
-			istress, err1 := strconv.Atoi(word.Stressed)
-			if err1 != nil {
-				fmt.Println(Text("invalidDecimalError"))
-				err = InvalidNumber.wrap(err1)
-				return
-			}
-			switch cond {
-			case "<":
-				if istress < ispec {
-					results = append(results, word)
-				}
-			case "<=":
-				if istress <= ispec {
-					results = append(results, word)
-				}
-			case "=":
-				if ispec < 0 {
-					if word.SyllableCount()+ispec+1 == istress {
-						results = append(results, word)
-					}
-				} else if istress == ispec {
-					results = append(results, word)
-				}
-			case ">=":
-				if istress >= ispec {
-					results = append(results, word)
-				}
-			case ">":
-				if istress > ispec {
-					results = append(results, word)
-				}
-			case "!=":
-				if ispec < 0 {
-					if word.SyllableCount()+ispec+1 != istress {
-						results = append(results, word)
-					}
-				} else if istress != ispec {
-					results = append(results, word)
-				}
-			}
-		case Text("w_length"):
-			ispec, err1 := strconv.Atoi(spec)
-			if err1 != nil {
-				fmt.Println(Text("invalidDecimalError"))
-				err = InvalidNumber.wrap(err1)
-				return
-			}
-			ilength := utf8.RuneCountInString(compress(word.Syllables))
-			switch cond {
-			case "<":
-				if ilength < ispec {
-					results = append(results, word)
-				}
-			case "<=":
-				if ilength <= ispec {
-					results = append(results, word)
-				}
-			case "=":
-				if ispec < 0 {
-					if word.SyllableCount()+ispec+1 == ilength {
-						results = append(results, word)
-					}
-				} else if ilength == ispec {
-					results = append(results, word)
-				}
-			case ">=":
-				if ilength >= ispec {
-					results = append(results, word)
-				}
-			case ">":
-				if ilength > ispec {
-					results = append(results, word)
-				}
-			case "!=":
-				if ispec < 0 {
-					if word.SyllableCount()+ispec+1 != ilength {
-						results = append(results, word)
-					}
-				} else if ilength != ispec {
-					results = append(results, word)
-				}
-			}
-		}
-	}
-
-	return
 }
