@@ -800,6 +800,11 @@ func GetHomonyms() (results [][]Word, err error) {
 	return TranslateFromNaviHash(homonyms, false)
 }
 
+// Get all words with multiple definitions
+func GetMultiIPA() (results [][]Word, err error) {
+	return TranslateFromNaviHash(multiIPA, false)
+}
+
 func EjectiveSoftener(ipa string, oldLetter string, newLetter string) (newIpa string) {
 	ipa = "." + ipa
 
