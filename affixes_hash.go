@@ -101,6 +101,7 @@ var adposuffixes = []string{
 	"ftu", "hu",
 	"pximaw", "maw", "pxaw", "few",
 	"vay", "kay",
+	"ken",
 }
 var determinerSuffixes = []string{"pe", "o"}
 var vowelSuffixes = map[string]string{"äo": "ä", "eo": "e", "io": "i", "uo": "u", "ìlä": "ì", "o": "o"}
