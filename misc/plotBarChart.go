@@ -30,7 +30,7 @@ var langs = []string{
 }
 
 func randomLangCode() string {
-	num := rand.Intn(6)
+	num := rand.Intn(len(langs))
 	return langs[num]
 }
 
@@ -195,10 +195,7 @@ func readBenchResultFiles(cachedFile, uncachedFile string) []*dataStruct {
 
 func printHistogram(values plotter.Values, filename string) {
 	// create third plot
-	p3, err := plot.New()
-	if err != nil {
-		panic(err)
-	}
+	p3 := plot.New()
 	p3.Title.Text = "Overall Performance (Cached)"
 	p3.X.Label.Text = "ms"
 
@@ -215,10 +212,7 @@ func printHistogram(values plotter.Values, filename string) {
 }
 
 func printBar(cached, uncached plotter.Values, xNames []string, filename string) {
-	p, err := plot.New()
-	if err != nil {
-		panic(err)
-	}
+	p := plot.New()
 	p.Title.Text = "Performance (sort by highest diff)"
 	p.Y.Label.Text = "Duration (ms)"
 
