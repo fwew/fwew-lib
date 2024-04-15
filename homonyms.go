@@ -396,3 +396,10 @@ func StageThree() (err error) {
 
 	return
 }
+
+// Do everything
+func homonymSearch() {
+	StageOne()
+	StageTwo()
+	StageThree()
+}
