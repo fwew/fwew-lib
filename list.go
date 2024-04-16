@@ -133,7 +133,7 @@ func filterWord(results []Word, word Word, args []string, checkDigraphs uint8) [
 		Text("c_not-ends"):    !strings.HasSuffix(syllables, spec),
 		Text("c_not-has"):     plus && !strings.Contains(navi, spec) || !strings.HasSuffix(syllables, spec),
 		Text("c_not-like"):    !Glob(spec, syllables),
-		Text("c_matches"):     regexp.MustCompile(spec).MatchString(navi),
+		Text("c_matches"):     spec != "+" && regexp.MustCompile(spec).MatchString(navi),
 	}
 
 	if condMap[cond] {
