@@ -30,7 +30,7 @@ var Version = version{
 	5, 11, 10,
 	"dev",
 	"Maweya Mawup",
-	"15.7",
+	"15.8",
 	"",
 }
 
