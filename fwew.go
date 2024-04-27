@@ -1054,4 +1054,5 @@ func StartEverything() {
 	CacheDictHash()
 	CacheDictHash2()
 	PhonemeDistros()
+	homonymSearch()
 }

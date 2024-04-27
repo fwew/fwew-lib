@@ -125,10 +125,38 @@ func StageTwo() error {
 					allNaviWords += a.Navi + " "
 				}
 			}
+
 			homoMap[allNaviWords] = 1
-			/*fmt.Println(allNaviWords)
-			fmt.Println(len(results[0]))
-			fmt.Println(standardizedWord)*/
+			fmt.Println(strconv.Itoa(len(results[0])) + " " + allNaviWords + " " + standardizedWord)
+		}
+
+		//Lenited forms, too
+		found := false
+		for _, a := range lenitors {
+			if strings.HasPrefix(word.Navi, a) {
+				//fmt.Println(word.Navi)
+				word.Navi = strings.TrimPrefix(word.Navi, a)
+				word.Navi = lenitionMap[a] + word.Navi
+				found = true
+				break
+			}
+		}
+		if found {
+			//fmt.Println(word.Navi)
+			// If the word can conjugate into something else, record it
+			results, err := TranslateFromNaviHash(word.Navi, true)
+			if err == nil && len(results[0]) > 2 {
+				allNaviWords := ""
+				for i, a := range results[0] {
+					if i != 0 { //&& i < 3 {
+						tempHoms = append(tempHoms, a.Navi)
+						allNaviWords += a.Navi + " "
+					}
+				}
+
+				homoMap[allNaviWords] = 1
+				fmt.Println(strconv.Itoa(len(results[0])) + " " + allNaviWords + " " + word.Navi)
+			}
 		}
 
 		return nil
