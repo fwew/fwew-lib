@@ -79,7 +79,7 @@ var prefixes1lenition = []string{"pe", "fay",
 var stemPrefixes = []string{"fne", "sna", "munsna"}
 var verbPrefixes = []string{"tsuk", "ketsuk"}
 
-var lastSuffixes = []string{"sì", "to"}
+var lastSuffixes = []string{"sì"}
 var adposuffixes = []string{
 	"pe", // because "what"
 	// adpositions that can be mistaken for case endings
@@ -103,6 +103,7 @@ var adposuffixes = []string{
 	"pximaw", "maw", "pxaw", "few",
 	"vay", "kay",
 	"ken",
+	"to",
 }
 
 var vowelSuffixes = map[string]string{"äo": "ä", "eo": "e", "io": "i", "uo": "u", "ìlä": "ì", "o": "o"}
