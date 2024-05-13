@@ -1050,9 +1050,9 @@ func ReefMe(ipa string, inter bool) []string {
 }
 
 func StartEverything() {
-	//AssureDict()
-	//CacheDictHash()
-	//CacheDictHash2()
-	//PhonemeDistros()
+	AssureDict()
+	CacheDictHash()
+	CacheDictHash2()
+	PhonemeDistros()
 	homonymSearch()
 }

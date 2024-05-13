@@ -430,7 +430,10 @@ func StageThree() (err error) {
 
 // Do everything
 func homonymSearch() {
+	fmt.Println("Stage 1:")
 	StageOne()
+	fmt.Println("Stage 2:")
 	StageTwo()
+	fmt.Println("Stage 3:")
 	StageThree()
 }
