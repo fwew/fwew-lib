@@ -521,36 +521,40 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 			fallthrough
 		case 4:
 			// If it has one of them,
-			for _, oldSuffix := range verbSuffixes {
-				// If it has one of them,
-				if strings.HasSuffix(input.word, oldSuffix) {
-					newString = strings.TrimSuffix(input.word, oldSuffix)
+			if input.insistPOS == "any" || input.insistPOS == "v." {
+				for _, oldSuffix := range verbSuffixes {
+					// If it has one of them,
+					if strings.HasSuffix(input.word, oldSuffix) {
+						newString = strings.TrimSuffix(input.word, oldSuffix)
 
-					newCandidate := candidateDupe(input)
-					newCandidate.word = newString
-					newCandidate.insistPOS = "v."
-					newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, oldSuffix)
-					deconjugateHelper(newCandidate, newPrefixCheck, 4, unlenite, false)
+						newCandidate := candidateDupe(input)
+						newCandidate.word = newString
+						newCandidate.insistPOS = "v."
+						newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, oldSuffix)
+						deconjugateHelper(newCandidate, newPrefixCheck, 4, unlenite, false)
 
-					if oldSuffix == "yu" && strings.HasSuffix(newString, "si") {
-						newCandidate.word = strings.TrimSuffix(newString, "si") + " si"
-						deconjugateHelper(newCandidate, 10, 10, unlenite, false) // don't allow any other prefixes or suffixes
+						if oldSuffix == "yu" && strings.HasSuffix(newString, "si") {
+							newCandidate.word = strings.TrimSuffix(newString, "si") + " si"
+							deconjugateHelper(newCandidate, 10, 10, unlenite, false) // don't allow any other prefixes or suffixes
+						}
 					}
 				}
 			}
 			fallthrough
 		case 5:
-			for _, oldSuffix := range stemSuffixes {
-				// If it has one of them,
-				if strings.HasSuffix(input.word, oldSuffix) {
-					newString = strings.TrimSuffix(input.word, oldSuffix)
+			if input.insistPOS == "any" || input.insistPOS == "n." {
+				for _, oldSuffix := range stemSuffixes {
+					// If it has one of them,
+					if strings.HasSuffix(input.word, oldSuffix) {
+						newString = strings.TrimSuffix(input.word, oldSuffix)
 
-					//candidates = append(candidates, newString)
-					newCandidate := candidateDupe(input)
-					newCandidate.word = newString
-					newCandidate.insistPOS = "n."
-					newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, oldSuffix)
-					deconjugateHelper(newCandidate, newPrefixCheck, 6, unlenite, false)
+						//candidates = append(candidates, newString)
+						newCandidate := candidateDupe(input)
+						newCandidate.word = newString
+						newCandidate.insistPOS = "n."
+						newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, oldSuffix)
+						deconjugateHelper(newCandidate, newPrefixCheck, 6, unlenite, false)
+					}
 				}
 			}
 		}
