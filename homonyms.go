@@ -217,14 +217,17 @@ func reconjugateNouns(input Word, inputNavi string, prefixCheck int, suffixCheck
 	}
 
 	switch suffixCheck {
-	case 0: // adpositions, sì, o, case endings
+	case 0: // -o "some"
+		newWord := inputNavi + "o"
+		candidates2 = append(candidates2, newWord)
+		reconjugateNouns(input, newWord, prefixCheck, 3, -1)
+		fallthrough
+	case 1: // adpositions, sì, o, case endings
 		for _, element := range adposuffixes {
 			newWord := inputNavi + element
 			candidates2 = append(candidates2, newWord)
 			reconjugateNouns(input, newWord, prefixCheck, 3, -1)
 		}
-		fallthrough
-	case 1:
 		fallthrough
 	case 2:
 		for _, element := range determinerSuffixes {
