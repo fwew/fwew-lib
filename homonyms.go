@@ -230,11 +230,6 @@ func reconjugateNouns(input Word, inputNavi string, prefixCheck int, suffixCheck
 		}
 		fallthrough
 	case 2:
-		for _, element := range determinerSuffixes {
-			newWord := inputNavi + element
-			candidates2 = append(candidates2, newWord)
-			reconjugateNouns(input, newWord, prefixCheck, 3, -1)
-		}
 		fallthrough
 	case 3:
 		fallthrough
