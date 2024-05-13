@@ -521,17 +521,19 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 			fallthrough
 		case 4:
 			// If it has one of them,
-			if input.insistPOS == "any" || input.insistPOS == "v." {
+			if input.insistPOS == "any" || input.insistPOS == "n." {
+				// verb suffixes change things from verbs to nouns, that's why we check for noun status
 				for _, oldSuffix := range verbSuffixes {
 					// If it has one of them,
 					if strings.HasSuffix(input.word, oldSuffix) {
 						newString = strings.TrimSuffix(input.word, oldSuffix)
-
 						newCandidate := candidateDupe(input)
 						newCandidate.word = newString
 						newCandidate.insistPOS = "v."
+
 						newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, oldSuffix)
-						deconjugateHelper(newCandidate, newPrefixCheck, 4, unlenite, false)
+						deconjugateHelper(newCandidate, 10, 10, unlenite, false) // Don't allow any other prefixes
+						// They may turn the insistPOS back into a noun
 
 						if oldSuffix == "yu" && strings.HasSuffix(newString, "si") {
 							newCandidate.word = strings.TrimSuffix(newString, "si") + " si"
@@ -672,35 +674,37 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 
 			// If the insistPOS and found word agree they are nouns
 			if len(candidate.suffixes) == 1 && candidate.suffixes[0] == "tswo" {
-				siVerb := false
-				if len(candidate.infixes) == 0 {
-					if _, ok := multiword_words[candidate.word]; ok {
-						for _, b := range multiword_words[candidate.word] {
-							if b[0] == "si" {
-								siVerb = true
-								a := c
-								a.Navi = candidate.word + " si"
-								a.Affixes.Lenition = candidate.lenition
-								a.Affixes.Prefix = candidate.prefixes
-								a.Affixes.Infix = candidate.infixes
-								a.Affixes.Suffix = candidate.suffixes
-								results = append(results, a)
-								break
+				if c.PartOfSpeech[0] == 'v' {
+					siVerb := false
+					if len(candidate.infixes) == 0 {
+						if _, ok := multiword_words[candidate.word]; ok {
+							for _, b := range multiword_words[candidate.word] {
+								if b[0] == "si" {
+									siVerb = true
+									a := c
+									a.Navi = candidate.word + " si"
+									a.Affixes.Lenition = candidate.lenition
+									a.Affixes.Prefix = candidate.prefixes
+									a.Affixes.Infix = candidate.infixes
+									a.Affixes.Suffix = candidate.suffixes
+									results = append(results, a)
+									break
+								}
 							}
 						}
-					}
-					if !siVerb {
-						a := c
-						a.Navi = candidate.word
-						a.Affixes.Lenition = candidate.lenition
-						a.Affixes.Prefix = candidate.prefixes
-						a.Affixes.Infix = candidate.infixes
-						a.Affixes.Suffix = candidate.suffixes
-						results = append(results, a)
+						if !siVerb {
+							a := c
+							a.Navi = candidate.word
+							a.Affixes.Lenition = candidate.lenition
+							a.Affixes.Prefix = candidate.prefixes
+							a.Affixes.Infix = candidate.infixes
+							a.Affixes.Suffix = candidate.suffixes
+							results = append(results, a)
+						}
 					}
 				}
 			} else if gerund {
-				if strings.HasPrefix(c.PartOfSpeech, "v") {
+				if c.PartOfSpeech[0] == 'v' {
 					// Make sure the <us> is in the correct place
 					rebuiltVerb := strings.ReplaceAll(c.InfixLocations, "<0>", "")
 					rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<1>", "us")
