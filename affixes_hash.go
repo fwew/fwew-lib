@@ -317,49 +317,51 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 			}
 			fallthrough
 		case 3:
-			// This one will demand this makes it use lenition
-			for _, element := range prefixes1lenition {
-				// If it has a lenition-causing prefix
-				if strings.HasPrefix(input.word, element) {
-					lenited := false
-					newString = strings.TrimPrefix(input.word, element)
+			if input.insistPOS == "any" || input.insistPOS == "n." {
+				// This one will demand this makes it use lenition
+				for _, element := range prefixes1lenition {
+					// If it has a lenition-causing prefix
+					if strings.HasPrefix(input.word, element) {
+						lenited := false
+						newString = strings.TrimPrefix(input.word, element)
 
-					newCandidate := candidateDupe(input)
-					newCandidate.word = newString
-					newCandidate.prefixes = isDuplicateFix(newCandidate.prefixes, element)
-					newCandidate.insistPOS = "n."
-
-					// Could it be pekoyu (pe + 'ekoyu, not pe + kxoyu)
-					if has("aäeiìou", get_last_rune(element, 1)) {
-						// check "pxeyktan", "yktan" and "eyktan"
-						newCandidate.word = get_last_rune(element, 1) + newString
-						deconjugateHelper(newCandidate, 4, suffixCheck, -1, false)
-
-						// check "pxeylan", "ylan" and "'eylan"
-						newCandidate.word = "'" + newCandidate.word
-						deconjugateHelper(newCandidate, 4, suffixCheck, -1, false)
-					}
-
-					// find out the possible unlenited forms
-					for _, oldPrefix := range unlenitionLetters {
-						// If it has a letter that could have changed for lenition,
-						if strings.HasPrefix(newString, oldPrefix) {
-							// put all possibilities in the candidates
-							lenited = true
-
-							for _, newPrefix := range unlenition[oldPrefix] {
-								newCandidate.word = newPrefix + strings.TrimPrefix(newString, oldPrefix)
-								if oldPrefix != newPrefix {
-									newCandidate.lenition = []string{newPrefix + "→" + oldPrefix}
-								}
-								deconjugateHelper(newCandidate, 4, suffixCheck, -1, false)
-							}
-							break // We don't want the "ts" to become "txs"
-						}
-					}
-					if !lenited {
+						newCandidate := candidateDupe(input)
 						newCandidate.word = newString
-						deconjugateHelper(newCandidate, 3, suffixCheck, -1, false)
+						newCandidate.prefixes = isDuplicateFix(newCandidate.prefixes, element)
+						newCandidate.insistPOS = "n."
+
+						// Could it be pekoyu (pe + 'ekoyu, not pe + kxoyu)
+						if has("aäeiìou", get_last_rune(element, 1)) {
+							// check "pxeyktan", "yktan" and "eyktan"
+							newCandidate.word = get_last_rune(element, 1) + newString
+							deconjugateHelper(newCandidate, 4, suffixCheck, -1, false)
+
+							// check "pxeylan", "ylan" and "'eylan"
+							newCandidate.word = "'" + newCandidate.word
+							deconjugateHelper(newCandidate, 4, suffixCheck, -1, false)
+						}
+
+						// find out the possible unlenited forms
+						for _, oldPrefix := range unlenitionLetters {
+							// If it has a letter that could have changed for lenition,
+							if strings.HasPrefix(newString, oldPrefix) {
+								// put all possibilities in the candidates
+								lenited = true
+
+								for _, newPrefix := range unlenition[oldPrefix] {
+									newCandidate.word = newPrefix + strings.TrimPrefix(newString, oldPrefix)
+									if oldPrefix != newPrefix {
+										newCandidate.lenition = []string{newPrefix + "→" + oldPrefix}
+									}
+									deconjugateHelper(newCandidate, 4, suffixCheck, -1, false)
+								}
+								break // We don't want the "ts" to become "txs"
+							}
+						}
+						if !lenited {
+							newCandidate.word = newString
+							deconjugateHelper(newCandidate, 3, suffixCheck, -1, false)
+						}
 					}
 				}
 			}
@@ -491,6 +493,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 					deconjugateHelper(newCandidate, newPrefixCheck, 3, unlenite, true)
 				}
 			}
+
 			fallthrough
 		case 3: // -o suffix "some"
 			if input.insistPOS == "any" || input.insistPOS == "n." {
