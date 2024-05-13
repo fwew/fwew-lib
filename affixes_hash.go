@@ -81,6 +81,7 @@ var verbPrefixes = []string{"tsuk", "ketsuk"}
 
 var lastSuffixes = []string{"sì", "to"}
 var adposuffixes = []string{
+	"pe", // because "what"
 	// adpositions that can be mistaken for case endings
 	"pxel",                //"agentive"
 	"mungwrr",             //"dative"
@@ -103,7 +104,7 @@ var adposuffixes = []string{
 	"vay", "kay",
 	"ken",
 }
-var determinerSuffixes = []string{"pe"}
+
 var vowelSuffixes = map[string]string{"äo": "ä", "eo": "e", "io": "i", "uo": "u", "ìlä": "ì", "o": "o"}
 var stemSuffixes = []string{"tsyìp", "fkeyk"}
 var verbSuffixes = []string{"tswo", "yu"}
@@ -274,18 +275,6 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 				newCandidate.insistPOS = "nì."
 				// No other affixes allowed
 				deconjugateHelper(newCandidate, 10, 10, -1, false) // No other fixes
-			} else if strings.HasPrefix(input.word, "ke") {
-				// remove it
-				newString = strings.TrimPrefix(input.word, "ke")
-
-				newCandidate := candidateDupe(input)
-				newCandidate.word = newString
-				newCandidate.insistPOS = "any"
-				newCandidate.prefixes = isDuplicateFix(newCandidate.prefixes, "ke")
-				deconjugateHelper(newCandidate, 10, 10, -1, false)
-
-				newCandidate.word = "e" + newString
-				deconjugateHelper(newCandidate, 10, 10, -1, false)
 			}
 			fallthrough
 		case 1:
@@ -307,21 +296,23 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 			fallthrough
 		case 2:
 			// Non-lenition prefixes for nouns only
-			for _, element := range prefixes1Nouns {
-				// If it has a prefix
-				if strings.HasPrefix(input.word, element) {
-					// remove it
-					newString = strings.TrimPrefix(input.word, element)
+			if input.insistPOS == "any" || input.insistPOS == "n." {
+				for _, element := range prefixes1Nouns {
+					// If it has a prefix
+					if strings.HasPrefix(input.word, element) {
+						// remove it
+						newString = strings.TrimPrefix(input.word, element)
 
-					newCandidate := candidateDupe(input)
-					newCandidate.word = newString
-					newCandidate.insistPOS = "n."
-					newCandidate.prefixes = isDuplicateFix(newCandidate.prefixes, element)
-					deconjugateHelper(newCandidate, 3, suffixCheck, -1, false)
+						newCandidate := candidateDupe(input)
+						newCandidate.word = newString
+						newCandidate.insistPOS = "n."
+						newCandidate.prefixes = isDuplicateFix(newCandidate.prefixes, element)
+						deconjugateHelper(newCandidate, 3, suffixCheck, -1, false)
 
-					// check "tsatan", "tan" and "atan"
-					newCandidate.word = get_last_rune(element, 1) + newString
-					deconjugateHelper(newCandidate, 3, suffixCheck, -1, false)
+						// check "tsatan", "tan" and "atan"
+						newCandidate.word = get_last_rune(element, 1) + newString
+						deconjugateHelper(newCandidate, 3, suffixCheck, -1, false)
+					}
 				}
 			}
 			fallthrough
@@ -407,39 +398,27 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 
 		switch suffixCheck {
 		case 0:
-			for _, oldSuffix := range determinerSuffixes {
-				// If it has one of them,
-				if strings.HasSuffix(input.word, oldSuffix) {
-					newString = strings.TrimSuffix(input.word, oldSuffix)
-
-					//candidates = append(candidates, newString)
-					newCandidate := candidateDupe(input)
-					newCandidate.word = newString
-					newCandidate.insistPOS = "n."
-					newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, oldSuffix)
-					deconjugateHelper(newCandidate, newPrefixCheck, 1, unlenite, false)
-				}
-			}
+			// Reserved in case "pe" after a case ending is grammatical
 			fallthrough
 		case 1: // adpositions, sì, o, case endings
 			// special case: short genitives of pronouns like "oey" and "ngey"
-			if strings.HasSuffix(input.word, "y") {
-				// oey to oe
-				newCandidate := candidateDupe(input)
-				newCandidate.word = strings.TrimSuffix(input.word, "y")
-				newCandidate.insistPOS = "pn."
-				newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, "y")
-				deconjugateHelper(newCandidate, newPrefixCheck, 10, unlenite, false)
-
-				// ngey to nga
-				if strings.HasSuffix(newCandidate.word, "e") {
-					newCandidate.word = strings.TrimSuffix(newCandidate.word, "e") + "a"
-					newCandidate.insistPOS = "pn."
-					deconjugateHelper(newCandidate, newPrefixCheck, 10, unlenite, false)
-				}
-			}
-
 			if input.insistPOS == "any" || input.insistPOS == "n." {
+				if strings.HasSuffix(input.word, "y") {
+					// oey to oe
+					newCandidate := candidateDupe(input)
+					newCandidate.word = strings.TrimSuffix(input.word, "y")
+					newCandidate.insistPOS = "pn."
+					newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, "y")
+					deconjugateHelper(newCandidate, newPrefixCheck, 10, unlenite, false)
+
+					// ngey to nga
+					if strings.HasSuffix(newCandidate.word, "e") {
+						newCandidate.word = strings.TrimSuffix(newCandidate.word, "e") + "a"
+						newCandidate.insistPOS = "pn."
+						deconjugateHelper(newCandidate, newPrefixCheck, 10, unlenite, false)
+					}
+				}
+
 				for _, oldSuffix := range adposuffixes {
 					// If it has one of them,
 					if strings.HasSuffix(input.word, oldSuffix) {
@@ -513,22 +492,24 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 			}
 			fallthrough
 		case 3: // -o suffix "some"
-			if strings.HasSuffix(input.word, "o") {
-				newString = strings.TrimSuffix(input.word, "o")
+			if input.insistPOS == "any" || input.insistPOS == "n." {
+				if strings.HasSuffix(input.word, "o") {
+					newString = strings.TrimSuffix(input.word, "o")
 
-				newCandidate := candidateDupe(input)
-				newCandidate.word = newString
-				newCandidate.insistPOS = "n."
-				newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, "o")
-				deconjugateHelper(newCandidate, newPrefixCheck, 4, unlenite, false)
+					newCandidate := candidateDupe(input)
+					newCandidate.word = newString
+					newCandidate.insistPOS = "n."
+					newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, "o")
+					deconjugateHelper(newCandidate, newPrefixCheck, 4, unlenite, false)
 
-				// Make sure fya'o-o is recognized
-				if vowel, ok := vowelSuffixes["o"]; ok {
 					// Make sure fya'o-o is recognized
-					if strings.HasSuffix(newString, vowel+"-") {
-						newString = strings.TrimSuffix(newString, "-")
-						newCandidate.word = newString
-						deconjugateHelper(newCandidate, newPrefixCheck, 1, unlenite, false)
+					if vowel, ok := vowelSuffixes["o"]; ok {
+						// Make sure fya'o-o is recognized
+						if strings.HasSuffix(newString, vowel+"-") {
+							newString = strings.TrimSuffix(newString, "-")
+							newCandidate.word = newString
+							deconjugateHelper(newCandidate, newPrefixCheck, 1, unlenite, false)
+						}
 					}
 				}
 			}
