@@ -325,6 +325,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 					newString = strings.TrimPrefix(input.word, element)
 
 					newCandidate := candidateDupe(input)
+					newCandidate.word = newString
 					newCandidate.prefixes = isDuplicateFix(newCandidate.prefixes, element)
 					newCandidate.insistPOS = "n."
 
@@ -636,6 +637,7 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 			gerund := false
 			infixBan := false
 			doubleBan := false
+			attributed := false
 			participle := false
 
 			// Find gerunds (tì-v<us>erb, the act of [verb]ing)
@@ -663,7 +665,7 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 			// If the insistPOS and found word agree they are nouns
 			if len(candidate.suffixes) == 1 && candidate.suffixes[0] == "tswo" {
 				siVerb := false
-				if len(candidate.prefixes) == 0 && len(candidate.infixes) == 0 {
+				if len(candidate.infixes) == 0 {
 					if _, ok := multiword_words[candidate.word]; ok {
 						for _, b := range multiword_words[candidate.word] {
 							if b[0] == "si" {
@@ -740,7 +742,12 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 				if strings.HasPrefix(posNoun, "v") {
 					// Verbs with -tswo or -yu cannot have infixes
 					if len(candidate.suffixes) > 0 {
-						// Reverse search is more likely to find it immediately
+						for i := len(candidate.suffixes) - 1; i >= 0; i-- {
+							if candidate.suffixes[i] == "a" {
+								attributed = true
+							}
+						}
+						// Forward search fixs the "a" before "yu" and "tswo"
 						for i := len(candidate.suffixes) - 1; i >= 0; i-- {
 							for _, j := range verbSuffixes {
 								if candidate.suffixes[i] == j {
@@ -748,6 +755,7 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 									break
 								}
 							}
+
 							if infixBan {
 								break
 							}
@@ -757,24 +765,29 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 					if len(candidate.prefixes) > 0 {
 						// Reverse search is more likely to find it immediately
 						for i := len(candidate.prefixes) - 1; i >= 0; i-- {
-							for _, j := range verbPrefixes {
-								if candidate.prefixes[i] == j {
-									if infixBan {
-										doubleBan = true
+							if candidate.prefixes[i] == "a" && infixBan {
+								attributed = true
+							} else {
+								for _, j := range verbPrefixes {
+									if candidate.prefixes[i] == j {
+										if infixBan {
+											doubleBan = true
+											break
+										}
+										infixBan = true
 										break
 									}
-									infixBan = true
-									break
 								}
 							}
+
 							if infixBan || doubleBan {
 								break
 							}
 						}
 					}
 
-					// Take action on tsuk-verb-yus
-					if doubleBan {
+					// Take action on tsuk-verb-yus and a-verb-tswos
+					if doubleBan || (attributed && infixBan) {
 						continue
 					}
 
