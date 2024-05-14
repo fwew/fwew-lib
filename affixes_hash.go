@@ -261,7 +261,8 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 
 		switch prefixCheck {
 		case 0:
-			if strings.HasPrefix(input.word, "a") {
+			if strings.HasPrefix(input.word, "a") && input.insistPOS != "n." && !strings.HasPrefix(input.insistPOS, "ad") {
+				// No nouns, adpositions or adverbs
 				newCandidate := candidateDupe(input)
 				newCandidate.word = input.word[1:]
 				newCandidate.prefixes = isDuplicateFix(newCandidate.prefixes, "a")
@@ -471,7 +472,8 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 			fallthrough
 		case 2:
 			// If it has one of them,
-			if strings.HasSuffix(input.word, "a") {
+			if strings.HasSuffix(input.word, "a") && input.insistPOS != "n." && !strings.HasPrefix(input.insistPOS, "ad") {
+				// No nouns, adpositions or adverbs
 				newString = strings.TrimSuffix(input.word, "a")
 
 				newCandidate := candidateDupe(input)
