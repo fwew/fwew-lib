@@ -369,19 +369,21 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 			}
 			fallthrough
 		case 4:
-			for _, element := range stemPrefixes {
-				// If it has a prefix
-				if strings.HasPrefix(input.word, element) {
-					// remove it
-					newCandidate := candidateDupe(input)
-					newCandidate.word = strings.TrimPrefix(input.word, element)
-					newCandidate.insistPOS = "n."
-					newCandidate.prefixes = isDuplicateFix(newCandidate.prefixes, element)
-					deconjugateHelper(newCandidate, 5, suffixCheck, -1, false)
+			if input.insistPOS == "any" || input.insistPOS == "n." {
+				for _, element := range stemPrefixes {
+					// If it has a prefix
+					if strings.HasPrefix(input.word, element) {
+						// remove it
+						newCandidate := candidateDupe(input)
+						newCandidate.word = strings.TrimPrefix(input.word, element)
+						newCandidate.insistPOS = "n."
+						newCandidate.prefixes = isDuplicateFix(newCandidate.prefixes, element)
+						deconjugateHelper(newCandidate, 5, suffixCheck, -1, false)
 
-					// check "tsatan", "tan" and "atan"
-					newCandidate.word = get_last_rune(element, 1) + newCandidate.word
-					deconjugateHelper(newCandidate, 5, suffixCheck, -1, false)
+						// check "tsatan", "tan" and "atan"
+						newCandidate.word = get_last_rune(element, 1) + newCandidate.word
+						deconjugateHelper(newCandidate, 5, suffixCheck, -1, false)
+					}
 				}
 			}
 			fallthrough
