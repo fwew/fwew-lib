@@ -115,6 +115,8 @@ func StageTwo() error {
 
 	err := runOnFile(func(word Word) error {
 		standardizedWord := word.Navi
+
+		homList := []string{}
 		// If the word can conjugate into something else, record it
 		results, err := TranslateFromNaviHash(standardizedWord, true)
 		if err == nil && len(results[0]) > 2 {
@@ -122,8 +124,12 @@ func StageTwo() error {
 			for i, a := range results[0] {
 				if i != 0 { //&& i < 3 {
 					tempHoms = append(tempHoms, a.Navi)
-					allNaviWords += a.Navi + " "
+					homList = AppendStringAlphabetically(homList, a.Navi)
 				}
+			}
+
+			for _, a := range homList {
+				allNaviWords += a + " "
 			}
 
 			homoMap[allNaviWords] = 1
@@ -154,8 +160,10 @@ func StageTwo() error {
 					}
 				}
 
-				homoMap[allNaviWords] = 1
-				fmt.Println(strconv.Itoa(len(results[0])) + " " + allNaviWords + " " + word.Navi)
+				if _, ok := homoMap[allNaviWords]; !ok {
+					homoMap[allNaviWords] = 1
+					fmt.Println(strconv.Itoa(len(results[0])) + " " + allNaviWords + " " + word.Navi)
+				}
 			}
 		}
 
@@ -329,6 +337,24 @@ func reconjugate(word Word, allowPrefixes bool) {
 	}
 }
 
+// Make alphabetized lists of strings
+// For this specific use case, consistency is more important than accuracy
+func AppendStringAlphabetically(array []string, addition string) []string {
+	newArray := []string{}
+	appended := false
+	for _, a := range array {
+		if !appended && a > addition {
+			newArray = append(newArray, addition)
+			appended = true
+		}
+		newArray = append(newArray, a)
+	}
+	if !appended {
+		newArray = append(newArray, addition)
+	}
+	return newArray
+}
+
 func StageThree() (err error) {
 	start := time.Now()
 
@@ -389,9 +415,12 @@ func StageThree() (err error) {
 							}
 						}
 						if !dupe { //&& i < 3 {
-							noDupes = append(noDupes, b.Navi)
-							allNaviWords += b.Navi + " "
+							noDupes = AppendStringAlphabetically(noDupes, b.Navi)
 						}
+					}
+
+					for _, b := range noDupes {
+						allNaviWords += b + " "
 					}
 
 					// No duplicates
