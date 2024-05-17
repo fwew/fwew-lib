@@ -404,7 +404,6 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 
 		switch suffixCheck {
 		case 0:
-			// Reserved in case "pe" after a case ending is grammatical
 			// special case: short genitives of pronouns like "oey" and "ngey"
 			if input.insistPOS == "any" || input.insistPOS == "n." {
 				if strings.HasSuffix(input.word, "y") {

@@ -226,23 +226,27 @@ func reconjugateNouns(input Word, inputNavi string, prefixCheck int, suffixCheck
 
 	switch suffixCheck {
 	case 0: // -o "some"
+
+		fallthrough
+	case 1:
+		for _, element := range stemSuffixes {
+			newWord := inputNavi + element
+			candidates2 = append(candidates2, newWord)
+			reconjugateNouns(input, newWord, prefixCheck, 2, -1)
+		}
+		fallthrough
+	case 2:
 		newWord := inputNavi + "o"
 		candidates2 = append(candidates2, newWord)
 		reconjugateNouns(input, newWord, prefixCheck, 3, -1)
 		fallthrough
-	case 1: // adpositions, sì, o, case endings
-		for _, element := range adposuffixes {
-			newWord := inputNavi + element
-			candidates2 = append(candidates2, newWord)
-			reconjugateNouns(input, newWord, prefixCheck, 3, -1)
-		}
-		fallthrough
-	case 2:
-		fallthrough
 	case 3:
+		newWord := inputNavi + "pe"
+		candidates2 = append(candidates2, newWord)
+		reconjugateNouns(input, newWord, prefixCheck, 4, -1)
 		fallthrough
 	case 4:
-		for _, element := range stemSuffixes {
+		for _, element := range adposuffixes {
 			newWord := inputNavi + element
 			candidates2 = append(candidates2, newWord)
 			reconjugateNouns(input, newWord, prefixCheck, 5, -1)
