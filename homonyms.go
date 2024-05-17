@@ -279,6 +279,7 @@ func removeBrackets(input string) string {
 // Helper for StageThree, based on reconstruct from affixes.go
 func reconjugateVerbs(inputNavi string, prefirstUsed bool, firstUsed bool, secondUsed bool) error {
 	candidates2 = append(candidates2, removeBrackets(inputNavi))
+	candidates2Map[inputNavi] = 1
 	if !prefirstUsed {
 		for _, a := range prefirst {
 			reconjugateVerbs(strings.ReplaceAll(inputNavi, "<0>", a), true, firstUsed, secondUsed)
@@ -346,9 +347,12 @@ func reconjugate(word Word, allowPrefixes bool) {
 
 	} else if word.PartOfSpeech == "adj." {
 		candidates2 = append(candidates2, word.Navi+"a")
+		candidates2Map[word.Navi+"a"] = 1
 		if allowPrefixes {
 			candidates2 = append(candidates2, "a"+word.Navi)
+			candidates2Map["a"+word.Navi] = 1
 			candidates2 = append(candidates2, "nì"+word.Navi)
+			candidates2Map["nì"+word.Navi] = 1
 		}
 	}
 }
@@ -476,4 +480,5 @@ func homonymSearch() {
 	StageTwo()
 	fmt.Println("Stage 3:")
 	StageThree()
+	fmt.Println("Checked " + strconv.Itoa(len(candidates2Map)) + " total conjugations")
 }
