@@ -11,6 +11,7 @@ import (
 
 var homonymsArray = []string{"", "", ""}
 var candidates2 []string
+var candidates2Map = map[string]int{}
 var homoMap = map[string]int{}
 var lenitors = []string{"px", "p", "ts", "tx", "t", "kx", "k", "'"}
 var lenitionMap = map[string]string{
@@ -192,65 +193,74 @@ func StageTwo() error {
 
 // Helper for StageThree, based on reconstruct from affixes.go
 func reconjugateNouns(input Word, inputNavi string, prefixCheck int, suffixCheck int, unlenite int8) error {
-	switch prefixCheck {
-	case 0:
-		for _, element := range stemPrefixes {
-			// If it has a lenition-causing prefix
-			newWord := element + inputNavi
-			candidates2 = append(candidates2, newWord)
-			reconjugateNouns(input, newWord, 1, suffixCheck, -1)
+	if _, ok := candidates2Map[inputNavi]; !ok {
+		switch prefixCheck {
+		case 0:
+			for _, element := range stemPrefixes {
+				// If it has a lenition-causing prefix
+				newWord := element + inputNavi
+				candidates2 = append(candidates2, newWord)
+				candidates2Map[inputNavi] = 1
+				reconjugateNouns(input, newWord, 1, suffixCheck, -1)
+			}
+			fallthrough
+		case 1:
+			fallthrough
+		case 2:
+			// Non-lenition prefixes for nouns only
+			for _, element := range prefixes1Nouns {
+				newWord := element + inputNavi
+				candidates2 = append(candidates2, newWord)
+				candidates2Map[inputNavi] = 1
+				reconjugateNouns(input, newWord, 4, suffixCheck, -1)
+			}
+			fallthrough
+		case 3:
+			// This one will demand this makes it use lenition
+			for _, element := range append(prefixes1lenition, "tsay") {
+				// If it has a lenition-causing prefix
+				newWord := element + inputNavi
+				candidates2 = append(candidates2, newWord)
+				candidates2Map[inputNavi] = 1
+				reconjugateNouns(input, newWord, 4, suffixCheck, -1)
+			}
+			fallthrough
+		case 4:
+			//fallthrough
 		}
-		fallthrough
-	case 1:
-		fallthrough
-	case 2:
-		// Non-lenition prefixes for nouns only
-		for _, element := range prefixes1Nouns {
-			newWord := element + inputNavi
-			candidates2 = append(candidates2, newWord)
-			reconjugateNouns(input, newWord, 4, suffixCheck, -1)
-		}
-		fallthrough
-	case 3:
-		// This one will demand this makes it use lenition
-		for _, element := range prefixes1lenition {
-			// If it has a lenition-causing prefix
-			newWord := element + inputNavi
-			candidates2 = append(candidates2, newWord)
-			reconjugateNouns(input, newWord, 4, suffixCheck, -1)
-		}
-		fallthrough
-	case 4:
-		//fallthrough
-	}
 
-	switch suffixCheck {
-	case 0: // -o "some"
+		switch suffixCheck {
+		case 0: // -o "some"
 
-		fallthrough
-	case 1:
-		for _, element := range stemSuffixes {
-			newWord := inputNavi + element
+			fallthrough
+		case 1:
+			for _, element := range stemSuffixes {
+				newWord := inputNavi + element
+				candidates2 = append(candidates2, newWord)
+				candidates2Map[inputNavi] = 1
+				reconjugateNouns(input, newWord, prefixCheck, 2, -1)
+			}
+			fallthrough
+		case 2:
+			newWord := inputNavi + "o"
 			candidates2 = append(candidates2, newWord)
-			reconjugateNouns(input, newWord, prefixCheck, 2, -1)
-		}
-		fallthrough
-	case 2:
-		newWord := inputNavi + "o"
-		candidates2 = append(candidates2, newWord)
-		reconjugateNouns(input, newWord, prefixCheck, 3, -1)
-		fallthrough
-	case 3:
-		for _, element := range adposuffixes {
-			newWord := inputNavi + element
+			candidates2Map[inputNavi] = 1
+			reconjugateNouns(input, newWord, prefixCheck, 3, -1)
+			fallthrough
+		case 3:
+			for _, element := range adposuffixes {
+				newWord := inputNavi + element
+				candidates2 = append(candidates2, newWord)
+				candidates2Map[inputNavi] = 1
+				reconjugateNouns(input, newWord, prefixCheck, 4, -1)
+			}
+			fallthrough
+		case 4:
+			newWord := inputNavi + "pe"
 			candidates2 = append(candidates2, newWord)
-			reconjugateNouns(input, newWord, prefixCheck, 4, -1)
+			candidates2Map[inputNavi] = 1
+			reconjugateNouns(input, newWord, prefixCheck, 5, -1)
 		}
-		fallthrough
-	case 4:
-		newWord := inputNavi + "pe"
-		candidates2 = append(candidates2, newWord)
-		reconjugateNouns(input, newWord, prefixCheck, 5, -1)
 	}
 
 	return nil
