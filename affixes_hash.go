@@ -81,7 +81,6 @@ var verbPrefixes = []string{"tsuk", "ketsuk"}
 
 var lastSuffixes = []string{"sì"}
 var adposuffixes = []string{
-	"pe", // because "what"
 	// adpositions that can be mistaken for case endings
 	"pxel",                //"agentive"
 	"mungwrr",             //"dative"
@@ -406,8 +405,6 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 		switch suffixCheck {
 		case 0:
 			// Reserved in case "pe" after a case ending is grammatical
-			fallthrough
-		case 1: // adpositions, sì, o, case endings
 			// special case: short genitives of pronouns like "oey" and "ngey"
 			if input.insistPOS == "any" || input.insistPOS == "n." {
 				if strings.HasSuffix(input.word, "y") {
@@ -469,6 +466,19 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 							}
 						}
 					}
+				}
+			}
+			fallthrough
+		case 1: // adpositions, sì, o, case endings
+			if input.insistPOS == "any" || input.insistPOS == "n." {
+				if strings.HasSuffix(input.word, "pe") {
+					newString = strings.TrimSuffix(input.word, "pe")
+
+					newCandidate := candidateDupe(input)
+					newCandidate.word = newString
+					newCandidate.insistPOS = "n."
+					newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, "pe")
+					deconjugateHelper(newCandidate, newPrefixCheck, 3, unlenite, false)
 				}
 			}
 			fallthrough
@@ -727,13 +737,15 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 					}
 				}
 			} else if candidate.insistPOS == "n." {
-				// n., pn. and Prop.n. (but not vin.)
-				if len(candidate.infixes) == 0 && c.PartOfSpeech[0] != 'v' && strings.HasSuffix(c.PartOfSpeech, "n.") {
-					a := c
-					a.Affixes.Lenition = candidate.lenition
-					a.Affixes.Prefix = candidate.prefixes
-					a.Affixes.Suffix = candidate.suffixes
-					results = append(results, a)
+				// n., pn., Prop.n. and inter. (but not vin.)
+				if len(candidate.infixes) == 0 {
+					if (c.PartOfSpeech[0] != 'v' && strings.HasSuffix(c.PartOfSpeech, "n.")) || c.PartOfSpeech == "inter." {
+						a := c
+						a.Affixes.Lenition = candidate.lenition
+						a.Affixes.Prefix = candidate.prefixes
+						a.Affixes.Suffix = candidate.suffixes
+						results = append(results, a)
+					}
 				}
 			} else if candidate.insistPOS == "pn." {
 				// pn.
