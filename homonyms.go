@@ -291,7 +291,7 @@ func reconjugate(word Word, allowPrefixes bool) {
 		candidates2 = append(candidates2, "nì"+word.Navi)
 	}
 
-	if word.PartOfSpeech == "n." || word.PartOfSpeech == "pn." || word.PartOfSpeech == "Prop.n." {
+	if word.PartOfSpeech == "n." || word.PartOfSpeech == "pn." || word.PartOfSpeech == "Prop.n." || word.PartOfSpeech == "inter." {
 		reconjugateNouns(word, word.Navi, 0, 0, 0)
 		//Lenited forms, too
 		found := false
