@@ -194,6 +194,12 @@ func StageTwo() error {
 func reconjugateNouns(input Word, inputNavi string, prefixCheck int, suffixCheck int, unlenite int8) error {
 	switch prefixCheck {
 	case 0:
+		for _, element := range stemPrefixes {
+			// If it has a lenition-causing prefix
+			newWord := element + inputNavi
+			candidates2 = append(candidates2, newWord)
+			reconjugateNouns(input, newWord, 1, suffixCheck, -1)
+		}
 		fallthrough
 	case 1:
 		fallthrough
@@ -215,12 +221,6 @@ func reconjugateNouns(input Word, inputNavi string, prefixCheck int, suffixCheck
 		}
 		fallthrough
 	case 4:
-		for _, element := range stemPrefixes {
-			// If it has a lenition-causing prefix
-			newWord := element + inputNavi
-			candidates2 = append(candidates2, newWord)
-			reconjugateNouns(input, newWord, 5, suffixCheck, -1)
-		}
 		//fallthrough
 	}
 
@@ -241,16 +241,16 @@ func reconjugateNouns(input Word, inputNavi string, prefixCheck int, suffixCheck
 		reconjugateNouns(input, newWord, prefixCheck, 3, -1)
 		fallthrough
 	case 3:
-		newWord := inputNavi + "pe"
-		candidates2 = append(candidates2, newWord)
-		reconjugateNouns(input, newWord, prefixCheck, 4, -1)
-		fallthrough
-	case 4:
 		for _, element := range adposuffixes {
 			newWord := inputNavi + element
 			candidates2 = append(candidates2, newWord)
-			reconjugateNouns(input, newWord, prefixCheck, 5, -1)
+			reconjugateNouns(input, newWord, prefixCheck, 4, -1)
 		}
+		fallthrough
+	case 4:
+		newWord := inputNavi + "pe"
+		candidates2 = append(candidates2, newWord)
+		reconjugateNouns(input, newWord, prefixCheck, 5, -1)
 	}
 
 	return nil
