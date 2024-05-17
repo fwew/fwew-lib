@@ -117,6 +117,8 @@ func StageTwo() error {
 	err := runOnFile(func(word Word) error {
 		standardizedWord := word.Navi
 
+		candidates2Map[word.Navi] = 1
+
 		homList := []string{}
 		// If the word can conjugate into something else, record it
 		results, err := TranslateFromNaviHash(standardizedWord, true)
