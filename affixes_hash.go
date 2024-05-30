@@ -88,21 +88,19 @@ var adposuffixes = []string{
 	"teri", //"topical"
 	// Case endings
 	"ìl", "l", "it", "ti", "t", "ur", "ru", "r", "yä", "ä", "ìri", "ri",
-	// Alphabetized the reverse of these things with exceptions for mistaken ones
-	"nemfa", "rofa", "ka", "fa", "na", "ta",
-	"lisre", "pxisre", "sre", "luke", "ne",
-	"fpi",
-	"mì",
-	"lok",
-	"mìkam", "kam",
-	"sìn",
-	"äo", "eo", "io", "uo", "ro",
-	"tafkip", "takip", "fkip", "kip",
-	"ftu", "hu",
-	"pximaw", "maw", "pxaw", "few",
-	"vay", "kay",
-	"ken",
-	"to",
+	// Sorted alphabetically by their reverse forms
+	"nemfa", "rofa", "ka", "fa", "na", "ta", "ya", //-a
+	"lisre", "pxisre", "sre", "luke", "ne", //-e
+	"fpi", //-i
+	"mì", //-ì
+	"lok", //-k
+	"mìkam", "kam", //-m
+	"ken", "sìn", //-n
+	"äo", "eo", "io", "uo", "ro", "to", //-o
+	"tafkip", "takip", "fkip", "kip", //-p
+	"ftu", "hu", //-u
+	"pximaw", "maw", "pxaw", "few", //-w
+	"vay", "kay", //-y
 }
 
 var vowelSuffixes = map[string]string{"äo": "ä", "eo": "e", "io": "i", "uo": "u", "ìlä": "ì", "o": "o"}
