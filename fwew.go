@@ -1046,16 +1046,6 @@ func ReefMe(ipa string, inter bool) []string {
 }
 
 func StartEverything() {
-	fmt.Println(IsValidNavi("atxkxrrnga"))
-	fmt.Println(IsValidNavi("tobeygwey"))
-	fmt.Println(IsValidNavi("prrkxentrrkrr"))
-	fmt.Println(IsValidNavi("prrt"))
-	fmt.Println(IsValidNavi("lat"))
-	fmt.Println(IsValidNavi("ngtskxey"))
-	fmt.Println(IsValidNavi("nìkt'syey"))
-	fmt.Println(IsValidNavi("yoy"))
-	fmt.Println(IsValidNavi("'ah"))
-	fmt.Println(IsValidNavi("ngtskx"))
 	AssureDict()
 	CacheDictHash()
 	CacheDictHash2()
