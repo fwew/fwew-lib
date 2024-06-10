@@ -19,6 +19,8 @@ func IsValidNaviHelper(word string) string {
 	word = strings.ReplaceAll(word, "í", "i")
 	word = strings.ReplaceAll(word, "ó", "o")
 	word = strings.ReplaceAll(word, "ú", "u")
+	word = strings.ReplaceAll(word, "ch", "tsy")
+	word = strings.ReplaceAll(word, "sh", "sy")
 
 	// Make sure it doesn't have any invalid letters
 	// It used unicode values to ensure it has nothing invalid
@@ -226,7 +228,17 @@ func IsValidNaviHelper(word string) string {
 		return oldWord + " Psuedovowels must have onsets: " + decompress(strings.ToLower(syllable_breakdown))
 	}
 
-	return oldWord + " Valid: " + decompress(strings.ToLower(syllable_breakdown))
+	// If you reach here, the word is valid
+	syllable_breakdown = strings.ToLower(decompress(syllable_breakdown))
+
+	isReef := ""
+	if strings.ContainsAny(syllable_breakdown, "bdg") || strings.Contains(oldWord, "ch") || strings.Contains(oldWord, "sh") {
+		syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "tsy", "ch")
+		syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "sy", "sh")
+		isReef = " (in reef dialect)"
+	}
+
+	return oldWord + " Valid: " + syllable_breakdown + isReef
 }
 
 func IsValidNavi(word string) string {
