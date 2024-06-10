@@ -220,7 +220,7 @@ func IsValidNaviHelper(word string) string {
 	}
 
 	if strings.Contains(syllable_breakdown, "-0-") || strings.Contains(syllable_breakdown, "-1-") ||
-		strings.HasPrefix(syllable_breakdown, "0-") || strings.HasPrefix(syllable_breakdown, "1-") ||
+		strings.HasPrefix(syllable_breakdown, "0") || strings.HasPrefix(syllable_breakdown, "1") ||
 		strings.HasSuffix(syllable_breakdown, "-0") || strings.HasSuffix(syllable_breakdown, "-1") {
 		return oldWord + " Psuedovowels must have onsets: " + decompress(syllable_breakdown)
 	}
