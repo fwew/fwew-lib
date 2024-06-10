@@ -239,7 +239,7 @@ syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "ng", "0")
 		syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "sy", "sh")
 		isReef = " (in reef dialect)"
 	}
-	syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "ng", "0")
+	syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "0", "ng")
 
 	return oldWord + " Valid: " + syllable_breakdown + isReef
 }
