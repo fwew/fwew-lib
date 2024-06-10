@@ -46,44 +46,50 @@ func IsValidNaviHelper(word string) string {
 
 	// Phase 1: don't confuse the digraph compression things
 	firstCheckLetters := map[rune]bool{
-		'q': true, // kx
-		'b': true, // px
-		'd': true, // tx
-		'g': true, // ng
-		'c': true, // ts
-		'0': true, // rr
-		'1': true, // ll
-		'2': true, // aw
-		'3': true, // ay
-		'4': true, // ew
-		'5': true, // ey
+		'q': false, // kx
+		'b': true,  // px
+		'd': true,  // tx
+		'g': true,  // ng
+		'c': false, // ts
+		'0': false, // rr
+		'1': false, // ll
+		'2': false, // aw
+		'3': false, // ay
+		'4': false, // ew
+		'5': false, // ey
 	}
 
 	badLetters := ""
-	for i, a := range []rune(word) {
-		// G is allowed as part of "ng"
-		if a == 'g' {
-			if !(i > 0 && []rune(word)[i-1] == 'n') {
+	tempWord := ""
+	for _, a := range []rune(word) {
+		found := false
+		if voiced_plosive, ok := firstCheckLetters[a]; ok {
+			if voiced_plosive {
+				found = true
+				tempWord += strings.ToUpper(string(a))
+			} else {
 				badLetters = badLetters + string(a)
 			}
-			continue
 		}
-		if _, ok := firstCheckLetters[a]; ok {
-			badLetters = badLetters + string(a)
+
+		if !found {
+			tempWord += string(a)
 		}
 	}
+
+	// G is allowed as part of "ng"
+	tempWord = strings.ReplaceAll(tempWord, "nG", "ng")
 
 	if badLetters != "" {
 		return oldWord + " Invalid letters: " + badLetters
 	}
 
 	// Phase 2: Compress digraphs and divide into syllable boundaries
-	compressed := compress(word)
+	compressed := compress(tempWord)
 	nuclei := []rune{
 		'a', 'ä', 'e', 'i', 'ì', 'o', 'u', 'ù', // vowels
 		'0', '1', '2', '3', '4', '5', // diphthongs and psuedovowels
 	}
-	psuedovowels := []bool{}
 
 	syllable_boundaries := ""
 	word_nuclei := []rune{}
@@ -92,11 +98,6 @@ func IsValidNaviHelper(word string) string {
 		for _, b := range nuclei {
 			if a == b {
 				found = true
-				if a == '0' || a == '1' {
-					psuedovowels = append(psuedovowels, true)
-				} else {
-					psuedovowels = append(psuedovowels, false)
-				}
 				word_nuclei = append(word_nuclei, a)
 				break
 			}
@@ -118,7 +119,7 @@ func IsValidNaviHelper(word string) string {
 		"b", "t", "d", "r", "w", "y"}
 	letters_start := []string{"", "p", "t", "k", "b", "d", "q", "'",
 		"m", "n", "g", "r", "l", "w", "y",
-		"f", "v", "s", "z", "c", "h"}
+		"f", "v", "s", "z", "c", "h", "B", "D", "G"}
 	letters_end := []string{"", "p", "t", "k", "b", "d", "q", "'",
 		"m", "n", "l", "r", "g"}
 
@@ -147,7 +148,7 @@ func IsValidNaviHelper(word string) string {
 		if b, ok := letters_map[a]; ok {
 			syllable_breakdown = syllable_breakdown + b
 		} else {
-			return oldWord + " Invalid consonants: \"" + decompress(a) + "\""
+			return oldWord + " Invalid consonants: \"" + strings.ToLower(decompress(a)) + "\""
 		}
 		if i < len(word_nuclei) {
 			syllable_breakdown = syllable_breakdown + string(word_nuclei[i])
@@ -171,7 +172,7 @@ func IsValidNaviHelper(word string) string {
 	}
 
 	if !contains[0] {
-		return oldWord + " Incomplete syllables: \"" + decompress(syllable_breakdown) + "\""
+		return oldWord + " Incomplete syllables: \"" + strings.ToLower(decompress(syllable_breakdown)) + "\""
 	}
 
 	if !contains[1] {
@@ -184,7 +185,7 @@ func IsValidNaviHelper(word string) string {
 		}
 
 		if !can_end_a_word {
-			return oldWord + " Incomplete syllables: \"" + decompress(syllable_breakdown) + "\""
+			return oldWord + " Incomplete syllables: \"" + strings.ToLower(decompress(syllable_breakdown)) + "\""
 		}
 
 		can_coda := false
@@ -197,7 +198,7 @@ func IsValidNaviHelper(word string) string {
 		}
 
 		if !can_coda {
-			return oldWord + " Incomplete syllables: \"" + decompress(syllable_breakdown) + "\""
+			return oldWord + " Incomplete syllables: \"" + strings.ToLower(decompress(syllable_breakdown)) + "\""
 		}
 
 		syllable_breakdown_temp := ""
@@ -215,17 +216,17 @@ func IsValidNaviHelper(word string) string {
 	// Finally, psuedovowels cannot accept codas
 	for _, a := range letters_end {
 		if a != "" && (strings.Contains(syllable_breakdown, "0"+a) || strings.Contains(syllable_breakdown, "1"+a)) {
-			return oldWord + " Psuedovowels can't accept codas: " + decompress(syllable_breakdown)
+			return oldWord + " Psuedovowels can't accept codas: " + decompress(strings.ToLower(syllable_breakdown))
 		}
 	}
 
 	if strings.Contains(syllable_breakdown, "-0-") || strings.Contains(syllable_breakdown, "-1-") ||
 		strings.HasPrefix(syllable_breakdown, "0") || strings.HasPrefix(syllable_breakdown, "1") ||
 		strings.HasSuffix(syllable_breakdown, "-0") || strings.HasSuffix(syllable_breakdown, "-1") {
-		return oldWord + " Psuedovowels must have onsets: " + decompress(syllable_breakdown)
+		return oldWord + " Psuedovowels must have onsets: " + decompress(strings.ToLower(syllable_breakdown))
 	}
 
-	return oldWord + " Valid: " + decompress(syllable_breakdown)
+	return oldWord + " Valid: " + decompress(strings.ToLower(syllable_breakdown))
 }
 
 func IsValidNavi(word string) string {

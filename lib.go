@@ -268,7 +268,7 @@ func SHA1Hash(filename string) string {
 // compress compresses or normalizes each digraph of the given string to a unique single character
 // inverse of `func decompress(compressed string) string`
 func compress(syllables string) string {
-	syll := strings.ToLower(syllables)
+	syll := syllables
 
 	ct := make(map[string]string)
 	ct["kx"] = "q"
@@ -290,7 +290,7 @@ func compress(syllables string) string {
 }
 
 func decompress(syllables string) string {
-	syll := strings.ToLower(syllables)
+	syll := syllables
 
 	ct := make(map[string]string)
 	ct["q"] = "kx"
