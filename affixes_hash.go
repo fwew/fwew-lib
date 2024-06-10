@@ -91,9 +91,9 @@ var adposuffixes = []string{
 	// Sorted alphabetically by their reverse forms
 	"nemfa", "rofa", "ka", "fa", "na", "ta", "ya", //-a
 	"lisre", "pxisre", "sre", "luke", "ne", //-e
-	"fpi", //-i
-	"mì", //-ì
-	"lok", //-k
+	"fpi",          //-i
+	"mì",           //-ì
+	"lok",          //-k
 	"mìkam", "kam", //-m
 	"ken", "sìn", //-n
 	"äo", "eo", "io", "uo", "ro", "to", //-o
@@ -699,7 +699,7 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 									a.Affixes.Prefix = candidate.prefixes
 									a.Affixes.Infix = candidate.infixes
 									a.Affixes.Suffix = candidate.suffixes
-									results = append(results, a)
+									results = AppendAndAlphabetize(results, a)
 									break
 								}
 							}
@@ -711,7 +711,7 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 							a.Affixes.Prefix = candidate.prefixes
 							a.Affixes.Infix = candidate.infixes
 							a.Affixes.Suffix = candidate.suffixes
-							results = append(results, a)
+							results = AppendAndAlphabetize(results, a)
 						}
 					}
 				}
@@ -729,9 +729,9 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 						a.Affixes.Prefix = candidate.prefixes
 						a.Affixes.Infix = candidate.infixes
 						a.Affixes.Suffix = candidate.suffixes
-						results = append(results, a)
+						results = AppendAndAlphabetize(results, a)
 					} else {
-						results = append(results, infixError(searchNaviWord, "Did you mean **tì"+rebuiltVerb+"**?", c.IPA))
+						results = AppendAndAlphabetize(results, infixError(searchNaviWord, "Did you mean **tì"+rebuiltVerb+"**?", c.IPA))
 					}
 				}
 			} else if candidate.insistPOS == "n." {
@@ -742,7 +742,7 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 						a.Affixes.Lenition = candidate.lenition
 						a.Affixes.Prefix = candidate.prefixes
 						a.Affixes.Suffix = candidate.suffixes
-						results = append(results, a)
+						results = AppendAndAlphabetize(results, a)
 					}
 				}
 			} else if candidate.insistPOS == "pn." {
@@ -752,7 +752,7 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 					a.Affixes.Lenition = candidate.lenition
 					a.Affixes.Prefix = candidate.prefixes
 					a.Affixes.Suffix = candidate.suffixes
-					results = append(results, a)
+					results = AppendAndAlphabetize(results, a)
 				}
 			} else if candidate.insistPOS == "adj." {
 				posNoun := c.PartOfSpeech
@@ -761,7 +761,7 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 					a.Affixes.Lenition = candidate.lenition
 					a.Affixes.Prefix = candidate.prefixes
 					a.Affixes.Suffix = candidate.suffixes
-					results = append(results, a)
+					results = AppendAndAlphabetize(results, a)
 				}
 			} else if candidate.insistPOS == "v." {
 				posNoun := c.PartOfSpeech
@@ -827,7 +827,7 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 						if len(candidate.infixes) > 0 {
 							continue // No nonsense here
 						} else {
-							results = append(results, a)
+							results = AppendAndAlphabetize(results, a)
 						}
 					}
 
@@ -899,21 +899,21 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 					}
 
 					if identicalRunes(rebuiltVerb, strings.ReplaceAll(searchNaviWord, "-", " ")) {
-						results = append(results, a)
+						results = AppendAndAlphabetize(results, a)
 					} else if participle {
 						// In case we have a [word]-susi
 						rebuiltHyphen := strings.ReplaceAll(searchNaviWord, "-", " ")
 						if identicalRunes("a"+rebuiltVerb, rebuiltHyphen) {
 							// a-v<us>erb and a-v<awn>erb
-							results = append(results, a)
+							results = AppendAndAlphabetize(results, a)
 						} else if identicalRunes(rebuiltVerb+"a", rebuiltHyphen) {
 							// v<us>erb-a and v<awn>erb-a
-							results = append(results, a)
+							results = AppendAndAlphabetize(results, a)
 						} else if firstInfixes == "us" {
-							results = append(results, infixError(searchNaviWord, "Did you mean **"+rebuiltVerb+"**?", c.IPA))
+							results = AppendAndAlphabetize(results, infixError(searchNaviWord, "Did you mean **"+rebuiltVerb+"**?", c.IPA))
 						}
 					} else if gerund { // ti is needed to weed out non-productive tì-verbs
-						results = append(results, infixError(searchNaviWord, "Did you mean **"+rebuiltVerb+"**?", c.IPA))
+						results = AppendAndAlphabetize(results, infixError(searchNaviWord, "Did you mean **"+rebuiltVerb+"**?", c.IPA))
 					}
 				}
 			} else if candidate.insistPOS == "nì." {
@@ -923,14 +923,14 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 					a.Affixes.Lenition = candidate.lenition
 					a.Affixes.Prefix = candidate.prefixes
 					a.Affixes.Suffix = candidate.suffixes
-					results = append(results, a)
+					results = AppendAndAlphabetize(results, a)
 				}
 			} else if len(candidate.infixes) == 0 {
 				a := c
 				a.Affixes.Lenition = candidate.lenition
 				a.Affixes.Prefix = candidate.prefixes
 				a.Affixes.Suffix = candidate.suffixes
-				results = append(results, a)
+				results = AppendAndAlphabetize(results, a)
 			}
 		}
 	}

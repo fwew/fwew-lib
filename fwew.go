@@ -329,15 +329,11 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 		if len(results) > 0 && len(results[0]) > 0 {
 			if !(strings.ToLower(results[len(results)-1][0].Navi) != searchNaviWord && strings.HasPrefix(strings.ToLower(results[len(results)-1][0].Navi), searchNaviWord)) {
 				// Find all possible unconjugated versions of the word
-				for _, a := range TestDeconjugations(searchNaviWord) {
-					results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], a)
-				}
+				results[len(results)-1] = append(results[len(results)-1], TestDeconjugations(searchNaviWord)...)
 			}
 		} else {
 			// Find all possible unconjugated versions of the word
-			for _, a := range TestDeconjugations(searchNaviWord) {
-				results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], a)
-			}
+			results[len(results)-1] = append(results[len(results)-1], TestDeconjugations(searchNaviWord)...)
 		}
 
 		// Check if the word could have more than one word
@@ -1050,6 +1046,16 @@ func ReefMe(ipa string, inter bool) []string {
 }
 
 func StartEverything() {
+	fmt.Println(IsValidNavi("atxkxrrnga"))
+	fmt.Println(IsValidNavi("tobeygwey"))
+	fmt.Println(IsValidNavi("prrkxentrrkrr"))
+	fmt.Println(IsValidNavi("prrt"))
+	fmt.Println(IsValidNavi("lat"))
+	fmt.Println(IsValidNavi("ngtskxey"))
+	fmt.Println(IsValidNavi("nìkt'syey"))
+	fmt.Println(IsValidNavi("yoy"))
+	fmt.Println(IsValidNavi("'ah"))
+	fmt.Println(IsValidNavi("ngtskx"))
 	AssureDict()
 	CacheDictHash()
 	CacheDictHash2()

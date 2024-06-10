@@ -288,3 +288,25 @@ func compress(syllables string) string {
 
 	return strings.Replace(syll, "-", "", -1)
 }
+
+func decompress(syllables string) string {
+	syll := strings.ToLower(syllables)
+
+	ct := make(map[string]string)
+	ct["q"] = "kx"
+	ct["b"] = "px"
+	ct["d"] = "tx"
+	ct["g"] = "ng"
+	ct["c"] = "ts"
+	ct["0"] = "rr"
+	ct["1"] = "ll"
+	ct["2"] = "aw"
+	ct["3"] = "ay"
+	ct["4"] = "ew"
+	ct["5"] = "ey"
+	for key := range ct {
+		syll = strings.Replace(syll, key, ct[key], -1)
+	}
+
+	return syll
+}
