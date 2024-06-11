@@ -236,7 +236,7 @@ func IsValidNaviHelper(word string) string {
 	// If you reach here, the word is valid
 	syllable_breakdown = strings.ToLower(decompress(syllable_breakdown))
 
-syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "ng", "0")
+	syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "ng", "0")
 
 	isReef := ""
 	if strings.ContainsAny(syllable_breakdown, "bdg") || strings.Contains(oldWord, "ch") || strings.Contains(oldWord, "sh") {
