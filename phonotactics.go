@@ -1,6 +1,7 @@
 package fwew_lib
 
 import (
+	"strconv"
 	"strings"
 )
 
@@ -43,7 +44,7 @@ func IsValidNaviHelper(word string) string {
 	}
 
 	if len(nonNaviLetters) > 0 {
-		return oldWord + " Has letters not in Na'vi: " + nonNaviLetters
+		return "**" + oldWord + "** Has letters not in Na'vi: " + nonNaviLetters
 	}
 
 	// Phase 1: don't confuse the digraph compression things
@@ -83,7 +84,7 @@ func IsValidNaviHelper(word string) string {
 	tempWord = strings.ReplaceAll(tempWord, "nG", "ng")
 
 	if badLetters != "" {
-		return oldWord + " Invalid letters: " + badLetters
+		return "**" + oldWord + "** Invalid letters: `" + badLetters + "`"
 	}
 
 	// Phase 2: Compress digraphs and divide into syllable boundaries
@@ -112,7 +113,7 @@ func IsValidNaviHelper(word string) string {
 	}
 
 	if len(word_nuclei) == 0 {
-		return "Error: could not find any syllable nuclei in " + oldWord
+		return "**" + oldWord + "** Error: could not find any syllable nuclei"
 	}
 
 	// Phase 2.1: Go through syllable boundaries
@@ -150,7 +151,7 @@ func IsValidNaviHelper(word string) string {
 		if b, ok := letters_map[a]; ok {
 			syllable_breakdown = syllable_breakdown + b
 		} else {
-			return oldWord + " Invalid consonants: \"" + strings.ToLower(decompress(a)) + "\""
+			return "**" + oldWord + "** Invalid consonant combination: `" + strings.ToLower(decompress(a)) + "`"
 		}
 		if i < len(word_nuclei) {
 			syllable_breakdown = syllable_breakdown + string(word_nuclei[i])
@@ -174,7 +175,7 @@ func IsValidNaviHelper(word string) string {
 	}
 
 	if !contains[0] {
-		return oldWord + " Incomplete syllables: \"" + strings.ToLower(decompress(syllable_breakdown)) + "\""
+		return "**" + oldWord + "** Incomplete syllables: `" + strings.ToLower(decompress(syllable_breakdown)) + "`"
 	}
 
 	if !contains[1] {
@@ -187,7 +188,7 @@ func IsValidNaviHelper(word string) string {
 		}
 
 		if !can_end_a_word {
-			return oldWord + " Incomplete syllables: \"" + strings.ToLower(decompress(syllable_breakdown)) + "\""
+			return "**" + oldWord + "** Incomplete syllables: `" + strings.ToLower(decompress(syllable_breakdown)) + "`"
 		}
 
 		can_coda := false
@@ -200,7 +201,7 @@ func IsValidNaviHelper(word string) string {
 		}
 
 		if !can_coda {
-			return oldWord + " Incomplete syllables: \"" + strings.ToLower(decompress(syllable_breakdown)) + "\""
+			return "**" + oldWord + "** Incomplete syllables: `" + strings.ToLower(decompress(syllable_breakdown)) + "`"
 		}
 
 		syllable_breakdown_temp := ""
@@ -218,14 +219,18 @@ func IsValidNaviHelper(word string) string {
 	// Finally, psuedovowels cannot accept codas
 	for _, a := range letters_end {
 		if a != "" && (strings.Contains(syllable_breakdown, "0"+a) || strings.Contains(syllable_breakdown, "1"+a)) {
-			return oldWord + " Psuedovowels can't accept codas: " + decompress(strings.ToLower(syllable_breakdown))
+			return "**" + oldWord + "** Psuedovowels can't accept codas: `" + decompress(strings.ToLower(syllable_breakdown)) + "`"
 		}
 	}
 
 	if strings.Contains(syllable_breakdown, "-0-") || strings.Contains(syllable_breakdown, "-1-") ||
 		strings.HasPrefix(syllable_breakdown, "0") || strings.HasPrefix(syllable_breakdown, "1") ||
 		strings.HasSuffix(syllable_breakdown, "-0") || strings.HasSuffix(syllable_breakdown, "-1") {
-		return oldWord + " Psuedovowels must have onsets: " + decompress(strings.ToLower(syllable_breakdown))
+		return "**" + oldWord + "** Psuedovowels must have onsets: `" + decompress(strings.ToLower(syllable_breakdown)) + "`"
+	}
+
+	if strings.Contains(syllable_breakdown, "0-r") || strings.Contains(syllable_breakdown, "1-l") {
+		return "**" + oldWord + "** Triple Rs or Ls aren't allowed: `" + decompress(strings.ToLower(syllable_breakdown)) + "`"
 	}
 
 	// If you reach here, the word is valid
@@ -241,7 +246,12 @@ syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "ng", "0")
 	}
 	syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "0", "ng")
 
-	return oldWord + " Valid: " + syllable_breakdown + isReef
+	syllable_word := " syllables"
+	syllable_count := len(strings.Split(syllable_breakdown, "-"))
+	if syllable_count == 1 {
+		syllable_word = " syllable"
+	}
+	return "**" + oldWord + "** Valid: `" + syllable_breakdown + "` with " + strconv.Itoa(syllable_count) + syllable_word + isReef
 }
 
 func IsValidNavi(word string) string {
