@@ -798,8 +798,7 @@ func GetHomonyms() (results [][]Word, err error) {
 
 // Get all words with non-standard phonotactics
 func GetOddballs() (results [][]Word, err error) {
-	fmt.Println(oddballs)
-	return TranslateFromNaviHash(oddballs, false)
+	return TranslateFromNaviHash(oddballs, true)
 }
 
 // Get all words with multiple definitions
