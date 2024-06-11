@@ -17,6 +17,7 @@ var dictHashCached bool
 var dictHash2 MetaDict
 var dictHash2Cached bool
 var homonyms string
+var oddballs string
 var multiIPA string
 
 type MetaDict struct {
@@ -448,6 +449,11 @@ func CacheDictHash() error {
 			if secondTerm != standardizedWord {
 				dictHash[secondTerm] = append(dictHash[secondTerm], word)
 			}
+		}
+
+		// See whether or not it violates normal phonotactic rules like Jakesully or Oìsss
+		if !strings.Contains(IsValidNavi(standardizedWord), "Valid:") {
+			oddballs += standardizedWord + " "
 		}
 
 		return nil

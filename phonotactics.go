@@ -223,6 +223,16 @@ func IsValidNaviHelper(word string) string {
 		}
 	}
 
+	// Ensure no diphthong confuses the checker (as in "ewll" becoming "ew-ll" and not "e-wll")
+	syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "2-0", "a-w0")
+	syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "2-1", "a-w1")
+	syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "3-0", "a-y0")
+	syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "3-1", "a-y1")
+	syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "4-0", "e-w0")
+	syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "4-1", "e-w1")
+	syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "5-0", "e-y0")
+	syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "5-1", "e-y1")
+
 	if strings.Contains(syllable_breakdown, "-0-") || strings.Contains(syllable_breakdown, "-1-") ||
 		strings.HasPrefix(syllable_breakdown, "0") || strings.HasPrefix(syllable_breakdown, "1") ||
 		strings.HasSuffix(syllable_breakdown, "-0") || strings.HasSuffix(syllable_breakdown, "-1") {
@@ -245,6 +255,13 @@ func IsValidNaviHelper(word string) string {
 		isReef = " (in reef dialect)"
 	}
 	syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "0", "ng")
+
+	// Double diphthongs are usually not genuine in Na'vi
+	// For example, mawey is ma-wey (not maw-ey) and kxeyey is kxe-yey (not kxey-ey)
+	for _, a := range []rune{'a', 'ä', 'e', 'i', 'ì', 'o', 'u', 'ù'} {
+		syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "w-"+string(a), "-w"+string(a))
+		syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "y-"+string(a), "-y"+string(a))
+	}
 
 	syllable_word := " syllables"
 	syllable_count := len(strings.Split(syllable_breakdown, "-"))
