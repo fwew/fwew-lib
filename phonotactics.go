@@ -5,6 +5,17 @@ import (
 	"strings"
 )
 
+var cluster_1 = []string{"f", "s", "c"}
+var cluster_2 = []string{"k", "q", "l", "m", "n", "g", "p",
+	"b", "t", "d", "r", "w", "y"}
+var letters_start = []string{"", "p", "t", "k", "b", "d", "q", "'",
+	"m", "n", "g", "r", "l", "w", "y",
+	"f", "v", "s", "z", "c", "h", "B", "D", "G"}
+var letters_end = []string{"", "p", "t", "k", "b", "d", "q", "'",
+	"m", "n", "l", "r", "g"}
+
+var letters_map = map[string]string{}
+
 // See if a word is phonotactically valid in Na'vi
 func IsValidNaviHelper(word string) string {
 	oldWord := word
@@ -117,33 +128,6 @@ func IsValidNaviHelper(word string) string {
 	}
 
 	// Phase 2.1: Go through syllable boundaries
-	cluster_1 := []string{"f", "s", "c"}
-	cluster_2 := []string{"k", "q", "l", "m", "n", "g", "p",
-		"b", "t", "d", "r", "w", "y"}
-	letters_start := []string{"", "p", "t", "k", "b", "d", "q", "'",
-		"m", "n", "g", "r", "l", "w", "y",
-		"f", "v", "s", "z", "c", "h", "B", "D", "G"}
-	letters_end := []string{"", "p", "t", "k", "b", "d", "q", "'",
-		"m", "n", "l", "r", "g"}
-
-	letters_map := map[string]string{}
-	for _, a := range letters_end {
-		for _, b := range letters_start {
-			// Do not assume a thing comes at the end of a word if it doesn't have to
-			if !(a != "" && b == "") {
-				letters_map[a+b] = a + "-" + b
-			}
-		}
-		for _, b := range cluster_1 {
-			for _, c := range cluster_2 {
-				// Do not assume a thing comes at the end of a word if it doesn't have to
-				if !(a != "" && b == "") {
-					letters_map[a+b+c] = a + "-" + b + c
-				}
-			}
-		}
-	}
-
 	syllable_breakdown := ""
 
 	for i, a := range strings.Split(syllable_boundaries, ".") {
@@ -272,6 +256,25 @@ func IsValidNaviHelper(word string) string {
 }
 
 func IsValidNavi(word string) string {
+	// Let it know of valid syllable boundaries
+	if len(letters_map) == 0 {
+		for _, a := range letters_end {
+			for _, b := range letters_start {
+				// Do not assume a thing comes at the end of a word if it doesn't have to
+				if !(a != "" && b == "") {
+					letters_map[a+b] = a + "-" + b
+				}
+			}
+			for _, b := range cluster_1 {
+				for _, c := range cluster_2 {
+					// Do not assume a thing comes at the end of a word if it doesn't have to
+					if !(a != "" && b == "") {
+						letters_map[a+b+c] = a + "-" + b + c
+					}
+				}
+			}
+		}
+	}
 	results := ""
 	for i, a := range strings.Split(word, " ") {
 		newLine := IsValidNaviHelper(a) + "\n"
