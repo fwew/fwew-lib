@@ -102,11 +102,11 @@ func filterWord(results []Word, word Word, args []string, checkDigraphs uint8) [
 
 	switch checkDigraphs {
 	case 1: // 1: compress spec and syllables (consider all digraphs)
-		spec = compress(spec)
+		spec = compress(strings.ToLower(spec))
 		fallthrough
 	case 2: // 2: compress syllables, but not spec (find fake digraphs)
-		syllables = compress(syllables)
-		navi = compress(navi)
+		syllables = compress(strings.ToLower(syllables))
+		navi = compress(strings.ToLower(navi))
 	}
 
 	syllables = strings.ReplaceAll(syllables, "-", "")
@@ -194,7 +194,7 @@ func filterNumeric(results []Word, word Word, args []string) (filtered []Word, e
 	whatMap := map[string]int{
 		Text("w_syllables"): word.SyllableCount(),
 		Text("w_stress"):    istress,
-		Text("w_length"):    utf8.RuneCountInString(compress(word.Syllables)),
+		Text("w_length"):    utf8.RuneCountInString(compress(strings.ToLower(word.Syllables))),
 	}
 
 	condMap := map[string]bool{
