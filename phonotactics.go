@@ -278,8 +278,8 @@ func IsValidNavi(word string) string {
 		}
 
 		// Reef dialect can make words like "adge" and "egdu"
-		for _, a := range []string{"b", "d", "g"} {
-			for _, b := range []string{"b", "d", "g"} {
+		for _, a := range []string{"B", "D", "G"} {
+			for _, b := range []string{"B", "D", "G"} {
 				if a != b {
 					letters_map[a+b] = a + "-" + b
 				}
