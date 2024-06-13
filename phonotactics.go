@@ -33,6 +33,8 @@ func IsValidNaviHelper(word string) string {
 	word = strings.ReplaceAll(word, "ú", "u")
 	word = strings.ReplaceAll(word, "ch", "tsy")
 	word = strings.ReplaceAll(word, "sh", "sy")
+	word = strings.ReplaceAll(word, "-", "")
+	word = strings.TrimSuffix(word, "+")
 
 	// Make sure it doesn't have any invalid letters
 	// It used unicode values to ensure it has nothing invalid
@@ -271,6 +273,15 @@ func IsValidNavi(word string) string {
 					if !(a != "" && b == "") {
 						letters_map[a+b+c] = a + "-" + b + c
 					}
+				}
+			}
+		}
+
+		// Reef dialect can make words like "adge" and "egdu"
+		for _, a := range []string{"b", "d", "g"} {
+			for _, b := range []string{"b", "d", "g"} {
+				if a != b {
+					letters_map[a+b] = a + "-" + b
 				}
 			}
 		}
