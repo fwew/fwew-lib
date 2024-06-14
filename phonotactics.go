@@ -33,7 +33,10 @@ func IsValidNaviHelper(word string) string {
 	word = strings.ReplaceAll(word, "ú", "u")
 	word = strings.ReplaceAll(word, "ch", "tsy")
 	word = strings.ReplaceAll(word, "sh", "sy")
+	// Non-letters which are acceptable in certain contexts
 	word = strings.ReplaceAll(word, "-", "")
+	word = strings.ReplaceAll(word, "•", "")
+	word = strings.ReplaceAll(word, "·", "")
 	word = strings.TrimSuffix(word, "+")
 
 	// Make sure it doesn't have any invalid letters
