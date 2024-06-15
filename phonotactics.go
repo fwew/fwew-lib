@@ -34,6 +34,9 @@ func IsValidNaviHelper(word string) string {
 	word = strings.ReplaceAll(word, "ch", "tsy")
 	word = strings.ReplaceAll(word, "sh", "sy")
 	// Non-letters which are acceptable in certain contexts
+	word = strings.ReplaceAll(word, "-g", ">G")
+	word = strings.ReplaceAll(word, "•g", ">G")
+	word = strings.ReplaceAll(word, "·g", ">G")
 	word = strings.ReplaceAll(word, "-", "")
 	word = strings.ReplaceAll(word, "•", "")
 	word = strings.ReplaceAll(word, "·", "")
@@ -98,6 +101,8 @@ func IsValidNaviHelper(word string) string {
 
 	// G is allowed as part of "ng"
 	tempWord = strings.ReplaceAll(tempWord, "nG", "ng")
+	// But the user can say otherwise
+	tempWord = strings.ReplaceAll(tempWord, ">G", "G")
 
 	if badLetters != "" {
 		return "❌ **" + oldWord + "** Invalid letters: `" + badLetters + "`"
