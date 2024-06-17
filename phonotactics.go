@@ -255,6 +255,23 @@ func IsValidNaviHelper(word string) string {
 	}
 	syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "0", "ng")
 
+	// Identical adjacent vowels mean reef Na'vi
+	if len(isReef) == 0 {
+		for _, a := range []string{"a", "ä", "e", "i", "ì", "o", "u", "ù"} {
+			if strings.Contains(syllable_breakdown, a+"-"+a) {
+				isReef = " (in reef dialect)"
+				break
+			}
+		}
+	}
+
+	// So does ù
+	if len(isReef) == 0 {
+		if strings.Contains(syllable_breakdown, "ù") {
+			isReef = " (in reef dialect)"
+		}
+	}
+
 	// Double diphthongs are usually not genuine in Na'vi
 	// For example, mawey is ma-wey (not maw-ey) and kxeyey is kxe-yey (not kxey-ey)
 	for _, a := range []rune{'a', 'ä', 'e', 'i', 'ì', 'o', 'u', 'ù'} {
