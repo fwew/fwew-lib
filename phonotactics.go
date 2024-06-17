@@ -55,7 +55,9 @@ func IsValidNaviHelper(word string) string {
 			nonNaviLetters += string(a)
 		} else if int(a) < int(rune('ä')) && int(a) > int(rune('z')) {
 			nonNaviLetters += string(a)
-		} else if int(a) < int(rune('a')) && int(a) > int(rune('\'')) {
+		} else if int(a) < int(rune('a')) && int(a) > int(rune('>')) {
+			nonNaviLetters += string(a)
+		} else if int(a) < int(rune('>')) && int(a) > int(rune('\'')) {
 			nonNaviLetters += string(a)
 		} else if int(a) < int(rune('\'')) {
 			nonNaviLetters += string(a)
