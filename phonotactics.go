@@ -35,6 +35,7 @@ func IsValidNaviHelper(word string) string {
 	word = strings.ReplaceAll(word, "sh", "sy")
 	// Non-letters which are acceptable in certain contexts
 	word = strings.ReplaceAll(word, "-g", ">G")
+	word = strings.ReplaceAll(word, "●g", ">G")
 	word = strings.ReplaceAll(word, "•g", ">G")
 	word = strings.ReplaceAll(word, "·g", ">G")
 	word = strings.ReplaceAll(word, "-", "")
@@ -55,7 +56,9 @@ func IsValidNaviHelper(word string) string {
 			nonNaviLetters += string(a)
 		} else if int(a) < int(rune('ä')) && int(a) > int(rune('z')) {
 			nonNaviLetters += string(a)
-		} else if int(a) < int(rune('a')) && int(a) > int(rune('>')) {
+		} else if int(a) < int(rune('a')) && int(a) > int(rune('G')) {
+			nonNaviLetters += string(a)
+		} else if int(a) < int(rune('G')) && int(a) > int(rune('>')) {
 			nonNaviLetters += string(a)
 		} else if int(a) < int(rune('>')) && int(a) > int(rune('\'')) {
 			nonNaviLetters += string(a)
