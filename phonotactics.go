@@ -251,7 +251,7 @@ func IsValidNaviHelper(word string) string {
 	if strings.ContainsAny(syllable_breakdown, "bdg") || strings.Contains(oldWord, "ch") || strings.Contains(oldWord, "sh") {
 		syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "tsy", "ch")
 		syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "sy", "sh")
-		isReef = " (in reef dialect)"
+		isReef = " (in reef dialect"
 	}
 	syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "0", "ng")
 
@@ -259,7 +259,7 @@ func IsValidNaviHelper(word string) string {
 	if len(isReef) == 0 {
 		for _, a := range []string{"a", "ä", "e", "i", "ì", "o", "u", "ù"} {
 			if strings.Contains(syllable_breakdown, a+"-"+a) {
-				isReef = " (in reef dialect)"
+				isReef = " (in reef dialect"
 				break
 			}
 		}
@@ -268,7 +268,7 @@ func IsValidNaviHelper(word string) string {
 	// So does ù
 	if len(isReef) == 0 {
 		if strings.Contains(syllable_breakdown, "ù") {
-			isReef = " (in reef dialect)"
+			isReef = " (in reef dialect"
 		}
 	}
 
@@ -284,7 +284,24 @@ func IsValidNaviHelper(word string) string {
 	if syllable_count == 1 {
 		syllable_word = " syllable"
 	}
-	return "✅ **" + oldWord + "** Valid: `" + syllable_breakdown + "` with " + strconv.Itoa(syllable_count) + syllable_word + isReef
+
+	// If reef dialect is present, show what forest looks like
+	syllable_forest := ""
+	if len(isReef) > 0 {
+		syllable_forest = strings.ReplaceAll(syllable_breakdown, "sh", "sy")
+		syllable_forest = strings.ReplaceAll(syllable_forest, "ng", "0")
+		syllable_forest = strings.ReplaceAll(syllable_forest, "ch", "tsy")
+		syllable_forest = strings.ReplaceAll(syllable_forest, "b", "px")
+		syllable_forest = strings.ReplaceAll(syllable_forest, "d", "tx")
+		syllable_forest = strings.ReplaceAll(syllable_forest, "g", "kx")
+		for _, a := range []string{"a", "ä", "e", "i", "ì", "o", "u", "ù"} {
+			syllable_forest = strings.ReplaceAll(syllable_forest, a+"-"+a, a+"-y"+a)
+		}
+		syllable_forest = strings.ReplaceAll(syllable_forest, "0", "ng")
+		syllable_forest = ", forest dialect `" + syllable_forest + "`)"
+	}
+
+	return "✅ **" + oldWord + "** Valid: `" + syllable_breakdown + "` with " + strconv.Itoa(syllable_count) + syllable_word + isReef + syllable_forest
 }
 
 func IsValidNavi(word string) string {
