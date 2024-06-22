@@ -33,6 +33,15 @@ func IsValidNaviHelper(word string) string {
 	word = strings.ReplaceAll(word, "ú", "u")
 	word = strings.ReplaceAll(word, "ch", "tsy")
 	word = strings.ReplaceAll(word, "sh", "sy")
+	// Non-letters which are acceptable in certain contexts
+	word = strings.ReplaceAll(word, "-g", ">G")
+	word = strings.ReplaceAll(word, "●g", ">G")
+	word = strings.ReplaceAll(word, "•g", ">G")
+	word = strings.ReplaceAll(word, "·g", ">G")
+	word = strings.ReplaceAll(word, "-", "")
+	word = strings.ReplaceAll(word, "•", "")
+	word = strings.ReplaceAll(word, "·", "")
+	word = strings.TrimSuffix(word, "+")
 
 	// Make sure it doesn't have any invalid letters
 	// It used unicode values to ensure it has nothing invalid
@@ -47,7 +56,11 @@ func IsValidNaviHelper(word string) string {
 			nonNaviLetters += string(a)
 		} else if int(a) < int(rune('ä')) && int(a) > int(rune('z')) {
 			nonNaviLetters += string(a)
-		} else if int(a) < int(rune('a')) && int(a) > int(rune('\'')) {
+		} else if int(a) < int(rune('a')) && int(a) > int(rune('G')) {
+			nonNaviLetters += string(a)
+		} else if int(a) < int(rune('G')) && int(a) > int(rune('>')) {
+			nonNaviLetters += string(a)
+		} else if int(a) < int(rune('>')) && int(a) > int(rune('\'')) {
 			nonNaviLetters += string(a)
 		} else if int(a) < int(rune('\'')) {
 			nonNaviLetters += string(a)
@@ -93,6 +106,8 @@ func IsValidNaviHelper(word string) string {
 
 	// G is allowed as part of "ng"
 	tempWord = strings.ReplaceAll(tempWord, "nG", "ng")
+	// But the user can say otherwise
+	tempWord = strings.ReplaceAll(tempWord, ">G", "G")
 
 	if badLetters != "" {
 		return "❌ **" + oldWord + "** Invalid letters: `" + badLetters + "`"
@@ -236,9 +251,34 @@ func IsValidNaviHelper(word string) string {
 	if strings.ContainsAny(syllable_breakdown, "bdg") || strings.Contains(oldWord, "ch") || strings.Contains(oldWord, "sh") {
 		syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "tsy", "ch")
 		syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "sy", "sh")
-		isReef = " (in reef dialect)"
+		isReef = " (in reef dialect"
 	}
 	syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "0", "ng")
+
+	// Identical adjacent vowels mean reef Na'vi
+	if len(isReef) == 0 {
+		found := false
+		for _, a := range []string{"a", "ä", "e", "i", "ì", "o", "u", "ù"} {
+			if strings.Contains(syllable_breakdown, a+"-"+a) {
+				isReef = " (in reef dialect"
+				found = true
+				break
+			}
+		}
+		if !found {
+			if strings.Contains(syllable_breakdown, "a-ä") || strings.Contains(syllable_breakdown, "ä-a") ||
+				strings.Contains(syllable_breakdown, "i-ì") || strings.Contains(syllable_breakdown, "ì-i") {
+				isReef = " (in reef dialect"
+			}
+		}
+	}
+
+	// So does ù
+	if len(isReef) == 0 {
+		if strings.Contains(syllable_breakdown, "ù") {
+			isReef = " (in reef dialect"
+		}
+	}
 
 	// Double diphthongs are usually not genuine in Na'vi
 	// For example, mawey is ma-wey (not maw-ey) and kxeyey is kxe-yey (not kxey-ey)
@@ -252,7 +292,24 @@ func IsValidNaviHelper(word string) string {
 	if syllable_count == 1 {
 		syllable_word = " syllable"
 	}
-	return "✅ **" + oldWord + "** Valid: `" + syllable_breakdown + "` with " + strconv.Itoa(syllable_count) + syllable_word + isReef
+
+	// If reef dialect is present, show what forest looks like
+	syllable_forest := ""
+	if len(isReef) > 0 {
+		syllable_forest = strings.ReplaceAll(syllable_breakdown, "sh", "sy")
+		syllable_forest = strings.ReplaceAll(syllable_forest, "ng", "0")
+		syllable_forest = strings.ReplaceAll(syllable_forest, "ch", "tsy")
+		syllable_forest = strings.ReplaceAll(syllable_forest, "b", "px")
+		syllable_forest = strings.ReplaceAll(syllable_forest, "d", "tx")
+		syllable_forest = strings.ReplaceAll(syllable_forest, "g", "kx")
+		for _, a := range []string{"a", "ä", "e", "i", "ì", "o", "u", "ù"} {
+			syllable_forest = strings.ReplaceAll(syllable_forest, a+"-"+a, a+"-y"+a)
+		}
+		syllable_forest = strings.ReplaceAll(syllable_forest, "0", "ng")
+		syllable_forest = ", forest dialect `" + syllable_forest + "`)"
+	}
+
+	return "✅ **" + oldWord + "** Valid: `" + syllable_breakdown + "` with " + strconv.Itoa(syllable_count) + syllable_word + isReef + syllable_forest
 }
 
 func IsValidNavi(word string) string {
@@ -271,6 +328,15 @@ func IsValidNavi(word string) string {
 					if !(a != "" && b == "") {
 						letters_map[a+b+c] = a + "-" + b + c
 					}
+				}
+			}
+		}
+
+		// Reef dialect can make words like "adge" and "egdu"
+		for _, a := range []string{"B", "D", "G"} {
+			for _, b := range []string{"B", "D", "G"} {
+				if a != b {
+					letters_map[a+b] = a + "-" + b
 				}
 			}
 		}

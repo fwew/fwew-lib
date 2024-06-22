@@ -455,7 +455,7 @@ func CacheDictHash() error {
 		valid := true
 		for _, a := range strings.Split(IsValidNavi(standardizedWord), "\n") {
 			// Check every word.  If one of them isn't good, write down the word
-			if len(a) > 0 && !strings.Contains(a, "Valid:") {
+			if len(a) > 0 && (!strings.Contains(a, "Valid:") || strings.Contains(a, "reef")) {
 				valid = false
 				break
 			}
