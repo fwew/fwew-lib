@@ -266,8 +266,7 @@ func IsValidNaviHelper(word string) string {
 			}
 		}
 		if !found {
-			if strings.Contains(syllable_breakdown, "a-ä") || strings.Contains(syllable_breakdown, "ä-a") ||
-				strings.Contains(syllable_breakdown, "i-ì") || strings.Contains(syllable_breakdown, "ì-i") {
+			if strings.Contains(syllable_breakdown, "i-ì") || strings.Contains(syllable_breakdown, "ì-i") {
 				isReef = " (in reef dialect"
 			}
 		}
@@ -305,6 +304,8 @@ func IsValidNaviHelper(word string) string {
 		for _, a := range []string{"a", "ä", "e", "i", "ì", "o", "u", "ù"} {
 			syllable_forest = strings.ReplaceAll(syllable_forest, a+"-"+a, a+"-y"+a)
 		}
+		syllable_forest = strings.ReplaceAll(syllable_forest, "i-ì", "i-yì")
+		syllable_forest = strings.ReplaceAll(syllable_forest, "ì-i", "ì-yi")
 		syllable_forest = strings.ReplaceAll(syllable_forest, "0", "ng")
 		syllable_forest = ", forest dialect `" + syllable_forest + "`)"
 	}
