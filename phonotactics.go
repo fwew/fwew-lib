@@ -257,10 +257,18 @@ func IsValidNaviHelper(word string) string {
 
 	// Identical adjacent vowels mean reef Na'vi
 	if len(isReef) == 0 {
+		found := false
 		for _, a := range []string{"a", "ä", "e", "i", "ì", "o", "u", "ù"} {
 			if strings.Contains(syllable_breakdown, a+"-"+a) {
 				isReef = " (in reef dialect"
+				found = true
 				break
+			}
+		}
+		if !found {
+			if strings.Contains(syllable_breakdown, "a-ä") || strings.Contains(syllable_breakdown, "ä-a") ||
+				strings.Contains(syllable_breakdown, "i-ì") || strings.Contains(syllable_breakdown, "ì-i") {
+				isReef = " (in reef dialect"
 			}
 		}
 	}
