@@ -9,7 +9,9 @@ package fwew_lib
  */
 
 import (
+	"fmt"
 	"math/rand"
+	"sort"
 	"strings"
 	"unicode"
 	"unicode/utf8"
@@ -588,6 +590,8 @@ func PhonemeDistros() {
 		coda_map[coda_letters[i]] = 0
 	}
 
+	syllable_map := map[string]int{}
+
 	// Look through all the words
 	for i := 0; i < len(words); i++ {
 		word := strings.Split(words[i].IPA, " ")
@@ -636,6 +640,8 @@ func PhonemeDistros() {
 
 				onset_if_cluster := [2]string{"", ""}
 
+				roman_syllable := ""
+
 				// ts
 				if len(syllable) >= 4 && syllable[0:4] == "t͡s" {
 					onset_if_cluster[0] = "ts"
@@ -645,21 +651,25 @@ func PhonemeDistros() {
 							// ts + ejective onset
 							cluster_map["ts"][romanization[syllable[4:6]]] = cluster_map["ts"][romanization[syllable[4:6]]] + 1
 							onset_if_cluster[1] = romanization[syllable[4:6]]
+							roman_syllable += "ts" + romanization[syllable[4:6]]
 							syllable = syllable[6:]
 						} else {
 							// ts + unvoiced plosive
 							cluster_map["ts"][romanization[string(syllable[4])]] = cluster_map["ts"][romanization[string(syllable[4])]] + 1
 							onset_if_cluster[1] = romanization[string(syllable[4])]
+							roman_syllable += "ts" + romanization[string(syllable[4])]
 							syllable = syllable[5:]
 						}
 					} else if has("lɾmnŋwj", nth_rune(syllable, 3)) {
 						// ts + other consonent
 						cluster_map["ts"][romanization[nth_rune(syllable, 3)]] = cluster_map["ts"][romanization[nth_rune(syllable, 3)]] + 1
 						onset_if_cluster[1] = romanization[nth_rune(syllable, 3)]
+						roman_syllable += "ts" + romanization[nth_rune(syllable, 3)]
 						syllable = syllable[4+len(nth_rune(syllable, 3)):]
 					} else {
 						// ts without a cluster
 						onset_map["ts"] = onset_map["ts"] + 1
+						roman_syllable += "ts"
 						syllable = syllable[4:]
 					}
 				} else if has("fs", nth_rune(syllable, 0)) {
@@ -670,43 +680,52 @@ func PhonemeDistros() {
 							// f/s + ejective onset
 							cluster_map[string(syllable[0])][romanization[syllable[1:3]]] = cluster_map[string(syllable[0])][romanization[syllable[1:3]]] + 1
 							onset_if_cluster[1] = romanization[syllable[1:3]]
+							roman_syllable += string(syllable[0]) + romanization[syllable[1:3]]
 							syllable = syllable[3:]
 						} else {
 							// f/s + unvoiced plosive
 							cluster_map[string(syllable[0])][romanization[string(syllable[1])]] = cluster_map[string(syllable[0])][romanization[string(syllable[1])]] + 1
 							onset_if_cluster[1] = romanization[string(syllable[1])]
+							roman_syllable += string(syllable[0]) + romanization[string(syllable[1])]
 							syllable = syllable[2:]
 						}
 					} else if has("lɾmnŋwj", nth_rune(syllable, 1)) {
 						// f/s + other consonent
 						cluster_map[string(syllable[0])][romanization[nth_rune(syllable, 1)]] = cluster_map[string(syllable[0])][romanization[nth_rune(syllable, 1)]] + 1
 						onset_if_cluster[1] = romanization[nth_rune(syllable, 1)]
+						roman_syllable += string(syllable[0]) + romanization[nth_rune(syllable, 1)]
 						syllable = syllable[1+len(nth_rune(syllable, 1)):]
 					} else {
 						// f/s without a cluster
 						onset_map[string(syllable[0])] = onset_map[string(syllable[0])] + 1
+						roman_syllable += string(syllable[0])
 						syllable = syllable[1:]
 					}
 				} else if has("ptk", nth_rune(syllable, 0)) {
 					if nth_rune(syllable, 1) == "'" {
 						// ejective
 						onset_map[romanization[syllable[0:2]]] = onset_map[romanization[syllable[0:2]]] + 1
+						roman_syllable += romanization[syllable[0:2]]
 						syllable = syllable[2:]
 					} else {
 						// unvoiced plosive
 						onset_map[romanization[string(syllable[0])]] = onset_map[romanization[string(syllable[0])]] + 1
+						roman_syllable += romanization[string(syllable[0])]
 						syllable = syllable[1:]
 					}
 				} else if has("ʔlɾhmnŋvwjzbdg", nth_rune(syllable, 0)) {
 					// other normal onset
 					onset_map[romanization[nth_rune(syllable, 0)]] = onset_map[romanization[nth_rune(syllable, 0)]] + 1
+					roman_syllable += romanization[nth_rune(syllable, 0)]
 					syllable = syllable[len(nth_rune(syllable, 0)):]
 				} else if has("ʃʒ", nth_rune(syllable, 0)) {
 					// one sound representd as a cluster
 					if nth_rune(syllable, 0) == "ʃ" {
 						cluster_map["s"]["y"] = cluster_map["s"]["y"] + 1
+						roman_syllable += "sy"
 					} else if nth_rune(syllable, 0) == "ʒ" {
 						cluster_map["ts"]["y"] = cluster_map["ts"]["y"] + 1
+						roman_syllable += "tsy"
 					}
 					syllable = syllable[len(nth_rune(syllable, 0)):]
 				} else {
@@ -739,13 +758,16 @@ func PhonemeDistros() {
 				if len(syllable) > 1 && has("jw", nth_rune(syllable, 1)) {
 					//diphthong
 					nucleus_map[romanization[syllable[0:len(nth_rune(syllable, 0))+1]]] = nucleus_map[romanization[syllable[0:len(nth_rune(syllable, 0))+1]]] + 1
+					roman_syllable += romanization[syllable[0:len(nth_rune(syllable, 0))+1]]
 					syllable = string([]rune(syllable)[2:])
 				} else if len(syllable) > 1 && has("lr", nth_rune(syllable, 0)) {
 					nucleus_map[romanization[syllable[0:3]]] = nucleus_map[romanization[syllable[0:3]]] + 1
+					roman_syllable += romanization[syllable[0:3]]
 					continue
 				} else {
 					//vowel
 					nucleus_map[romanization[nth_rune(syllable, 0)]] = nucleus_map[romanization[nth_rune(syllable, 0)]] + 1
+					roman_syllable += romanization[nth_rune(syllable, 0)]
 					syllable = string([]rune(syllable)[1:])
 				}
 
@@ -759,13 +781,13 @@ func PhonemeDistros() {
 				} else {
 					if syllable == "k̚" {
 						coda_map["k"] = coda_map["k"] + 1
-						coda = "kx"
+						coda = "k"
 					} else if syllable == "p̚" {
 						coda_map["p"] = coda_map["p"] + 1
-						coda = "px"
+						coda = "p"
 					} else if syllable == "t̚" {
 						coda_map["t"] = coda_map["t"] + 1
-						coda = "tx"
+						coda = "t"
 					} else if syllable == "ʔ̚" {
 						coda_map["'"] = coda_map["'"] + 1
 						coda = "'"
@@ -779,8 +801,27 @@ func PhonemeDistros() {
 						}
 					}
 				}
+				roman_syllable += coda
+
+				// Finally see if there is a good syllable frequency here
+				if _, ok := syllable_map[roman_syllable]; !ok {
+					syllable_map[roman_syllable] = 1
+				} else {
+					syllable_map[roman_syllable] = syllable_map[roman_syllable] + 1
+				}
 			}
 		}
+	}
+
+	// Show the phoneme map sorted
+	syllable_tuples := []PhonemeTuple{}
+	for key, val := range syllable_map {
+		syllable_tuples = append(syllable_tuples, PhonemeTuple{val, key})
+	}
+	sort.Sort(Tuples(syllable_tuples))
+
+	for _, a := range syllable_tuples {
+		fmt.Println(a)
 	}
 
 	max_non_cluster = 0

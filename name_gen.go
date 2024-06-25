@@ -25,6 +25,9 @@ func (s Tuples) Swap(i, j int) {
 
 func (s Tuples) Less(i, j int) bool {
 	// bigger values first here
+	if s[i].value == s[j].value {
+		return AlphabetizeHelper(s[i].letter, s[j].letter)
+	}
 	return s[i].value > s[j].value
 }
 
