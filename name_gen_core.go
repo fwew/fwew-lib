@@ -588,7 +588,7 @@ func PhonemeDistros() {
 		coda_map[coda_letters[i]] = 0
 	}
 
-	syllable_map := map[string]int{}
+	//syllable_map := map[string]int{}
 
 	// Look through all the words
 	for i := 0; i < len(words); i++ {
@@ -802,11 +802,11 @@ func PhonemeDistros() {
 				roman_syllable += coda
 
 				// Finally see if there is a good syllable frequency here
-				if _, ok := syllable_map[roman_syllable]; !ok {
+				/*if _, ok := syllable_map[roman_syllable]; !ok {
 					syllable_map[roman_syllable] = 1
 				} else {
 					syllable_map[roman_syllable] = syllable_map[roman_syllable] + 1
-				}
+				}*/
 			}
 		}
 	}
