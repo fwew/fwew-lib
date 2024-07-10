@@ -9,6 +9,7 @@ package fwew_lib
  */
 
 import (
+	"fmt"
 	"math/rand"
 	"strings"
 	"unicode"
@@ -766,7 +767,11 @@ func PhonemeDistros() {
 					//vowel
 					nucleus_map[romanization[nth_rune(syllable, 0)]] = nucleus_map[romanization[nth_rune(syllable, 0)]] + 1
 					//roman_syllable += romanization[nth_rune(syllable, 0)]
-					syllable = string([]rune(syllable)[1:])
+					if len(syllable) == 0 {
+						fmt.Println("Invalid word: " + words[i].ID + " - " + words[i].Navi + " - " + words[i].IPA)
+					} else {
+						syllable = string([]rune(syllable)[1:])
+					}
 				}
 
 				/*
