@@ -672,6 +672,25 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 	for _, candidate := range conjugations {
 		a := strings.ReplaceAll(candidate.word, "ù", "u")
 		for _, c := range dictHash[a] {
+			// An inter. can act like a noun or an adjective, so it gets special treatment
+			if c.PartOfSpeech == "inter." && len(c.Affixes.Infix) == 0 {
+				dupe := false
+				for _, b := range results {
+					if b.Navi == c.Navi {
+						dupe = true
+						break
+					}
+				}
+				if !dupe {
+					a := c
+					a.Affixes.Lenition = candidate.lenition
+					a.Affixes.Prefix = candidate.prefixes
+					a.Affixes.Infix = candidate.infixes
+					a.Affixes.Suffix = candidate.suffixes
+					results = AppendAndAlphabetize(results, a)
+					continue
+				}
+			}
 
 			// Find gerunds (tì-v<us>erb, treated like a noun)
 			gerund := false
