@@ -188,31 +188,34 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 		}
 	}
 
-	// For lrrtok-susi and others
-	if (input.insistPOS == "adj." || input.insistPOS == "any") && (strings.HasSuffix(input.word, "-susi") || strings.HasSuffix(input.word, "-susia")) {
-		found := false
-		trimmedWord := strings.TrimSuffix(input.word, "-susi")
-		aPosition := 0
-		if strings.HasSuffix(input.word, "-susia") {
-			trimmedWord = strings.TrimSuffix(input.word, "-susia")
-			aPosition = 1
+	if input.insistPOS == "adj." || input.insistPOS == "any" {
+		// For [word] si becoming [word]tswo
+		if strings.HasSuffix(input.word, "tswo") {
+			newCandidate := candidateDupe(input)
+			newCandidate.word = strings.TrimSuffix(input.word, "tswo") + " si"
+			newCandidate.insistPOS = "v."
+			newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, "tswo")
+			candidates = append(candidates, newCandidate)
+		} else if strings.HasSuffix(input.word, "tswoa") {
+			newCandidate := candidateDupe(input)
+			newCandidate.word = strings.TrimSuffix(input.word, "tswoa") + " si"
+			newCandidate.insistPOS = "v."
+			newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, "tswo")
+			newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, "a")
+			candidates = append(candidates, newCandidate)
 		}
 
-		for _, pairWordSet := range multiword_words[trimmedWord] {
-			for _, pairWord := range pairWordSet {
-				if pairWord == "si" {
-					found = true
-					break
-				}
+		// For lrrtok-susi and others
+		if strings.HasSuffix(input.word, "-susi") || strings.HasSuffix(input.word, "-susia") {
+			found := false
+			trimmedWord := strings.TrimSuffix(input.word, "-susi")
+			aPosition := 0
+			if strings.HasSuffix(input.word, "-susia") {
+				trimmedWord = strings.TrimSuffix(input.word, "-susia")
+				aPosition = 1
 			}
-			if found {
-				break
-			}
-		}
 
-		if !found && aPosition == 0 && strings.HasPrefix(trimmedWord, "a") {
-			noA := strings.TrimPrefix(trimmedWord, "a")
-			for _, pairWordSet := range multiword_words[noA] {
+			for _, pairWordSet := range multiword_words[trimmedWord] {
 				for _, pairWord := range pairWordSet {
 					if pairWord == "si" {
 						found = true
@@ -220,31 +223,46 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 					}
 				}
 				if found {
-					aPosition = -1
 					break
 				}
 			}
-		}
 
-		candidates = append(candidates, input) // to bump the real candidate into recognition
+			if !found && aPosition == 0 && strings.HasPrefix(trimmedWord, "a") {
+				noA := strings.TrimPrefix(trimmedWord, "a")
+				for _, pairWordSet := range multiword_words[noA] {
+					for _, pairWord := range pairWordSet {
+						if pairWord == "si" {
+							found = true
+							break
+						}
+					}
+					if found {
+						aPosition = -1
+						break
+					}
+				}
+			}
 
-		if found {
-			newCandidate := candidateDupe(input)
-			newCandidate.word = trimmedWord + " si"
-			if aPosition == -1 {
-				newCandidate.word = strings.TrimPrefix(trimmedWord, "a") + " si"
-				newCandidate.prefixes = append(newCandidate.prefixes, "a")
+			candidates = append(candidates, input) // to bump the real candidate into recognition
+
+			if found {
+				newCandidate := candidateDupe(input)
+				newCandidate.word = trimmedWord + " si"
+				if aPosition == -1 {
+					newCandidate.word = strings.TrimPrefix(trimmedWord, "a") + " si"
+					newCandidate.prefixes = append(newCandidate.prefixes, "a")
+				}
+				newCandidate.infixes = []string{"us"}
+				newCandidate.insistPOS = "v."
+				if aPosition == 1 {
+					newCandidate.suffixes = append(newCandidate.suffixes, "a")
+				}
+				if !isDuplicate(input) {
+					candidates = append(candidates, newCandidate)
+				}
 			}
-			newCandidate.infixes = []string{"us"}
-			newCandidate.insistPOS = "v."
-			if aPosition == 1 {
-				newCandidate.suffixes = append(newCandidate.suffixes, "a")
-			}
-			if !isDuplicate(input) {
-				candidates = append(candidates, newCandidate)
-			}
+			return candidates
 		}
-		return candidates
 	}
 	if !isDuplicate(input) {
 		candidates = append(candidates, input)
@@ -685,7 +703,7 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 			}
 
 			// If the insistPOS and found word agree they are nouns
-			if len(candidate.suffixes) == 1 && candidate.suffixes[0] == "tswo" {
+			if len(candidate.suffixes) < 3 && len(candidate.suffixes) > 0 && candidate.suffixes[0] == "tswo" {
 				if c.PartOfSpeech[0] == 'v' {
 					siVerb := false
 					if len(candidate.infixes) == 0 {
