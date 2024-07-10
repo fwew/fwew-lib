@@ -116,9 +116,6 @@ func AppendAndAlphabetize(words []Word, word Word) []Word {
 		return []Word{word}
 	case 1:
 		var newWords = []Word{}
-		if word.ID == words[0].ID {
-			return words
-		}
 		if AlphabetizeHelper(words[0].Syllables, word.Syllables) {
 			newWords = []Word{words[0], word}
 		} else {

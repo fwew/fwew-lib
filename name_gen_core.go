@@ -9,9 +9,7 @@ package fwew_lib
  */
 
 import (
-	"fmt"
 	"math/rand"
-	"sort"
 	"strings"
 	"unicode"
 	"unicode/utf8"
@@ -814,7 +812,7 @@ func PhonemeDistros() {
 	}
 
 	// Show the phoneme map sorted
-	syllable_tuples := []PhonemeTuple{}
+	/*syllable_tuples := []PhonemeTuple{}
 	for key, val := range syllable_map {
 		syllable_tuples = append(syllable_tuples, PhonemeTuple{val, key})
 	}
@@ -822,7 +820,7 @@ func PhonemeDistros() {
 
 	for _, a := range syllable_tuples {
 		fmt.Println(a)
-	}
+	}*/
 
 	max_non_cluster = 0
 	max_onset = 0
