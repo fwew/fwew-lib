@@ -186,6 +186,15 @@ func TranslateFromNaviHash(searchNaviWords string, checkFixes bool) (results [][
 
 // Helper for TranslateFromNaviHashHelper
 func AppendToFront(words []Word, input Word) []Word {
+	// Ensure it's not a duplicate
+	for i, a := range words {
+		if i != 0 && input.ID == a.ID {
+			if len(input.Affixes.Prefix) == len(a.Affixes.Prefix) && len(input.Affixes.Suffix) == len(a.Affixes.Suffix) &&
+				len(input.Affixes.Lenition) == len(a.Affixes.Lenition) && len(input.Affixes.Infix) == len(a.Affixes.Infix) {
+				return words
+			}
+		}
+	}
 	// Get the query it's looking for
 	dummyWord := []Word{words[0]}
 	// Append it to the front of the list
@@ -238,6 +247,8 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 		}
 	}
 
+	foundAlready := false
+
 	// Bunch of duplicate code for the edge case of eltur tìtxen si and others like it
 	if !bareNaviWord {
 		found := false
@@ -245,6 +256,10 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 		if _, ok := multiword_words[searchNaviWord]; ok {
 			// If so, loop through it
 			for _, pairWordSet := range multiword_words[searchNaviWord] {
+				if foundAlready {
+					break
+				}
+
 				keepAffixes := *new(affix)
 
 				extraWord := 0
@@ -265,6 +280,7 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 								}
 							}
 							found = true
+							foundAlready = true
 							j += 1
 						}
 						// Find all words the second word can represent
@@ -273,6 +289,7 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 						// First by itself
 						if pairWord == allWords[i+j+1] {
 							found = true
+							foundAlready = true
 							results[0][0].Navi += " " + allWords[i+j+1]
 							continue
 						}
@@ -287,6 +304,7 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 							if b.Navi == pairWord {
 								results[0][0].Navi += " " + allWords[i+j+1]
 								found = true
+								foundAlready = true
 								keepAffixes = addAffixes(keepAffixes, b.Affixes)
 							}
 						}
@@ -341,11 +359,16 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 		// Check if the word could have more than one word
 		found := false
 		// Find the results words
+
 		for _, a := range results[len(results)-1] {
+			if foundAlready {
+				break
+			}
 			// See if it is in the list known to start multiword words
 			if _, ok := multiword_words[a.Navi]; ok {
 				// If so, loop through it
 				for _, pairWordSet := range multiword_words[a.Navi] {
+
 					keepAffixes := *new(affix)
 					keepAffixes = addAffixes(keepAffixes, a.Affixes)
 
@@ -357,7 +380,7 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 						if i+j+1 >= len(allWords) {
 							break
 						} else {
-							if (allWords[i+j+1] == "ke" || allWords[i+j+1] == "rä'ä") && IsVerb(allWords[i+j+2]) {
+							if len(allWords) > i+j+2 && (allWords[i+j+1] == "ke" || allWords[i+j+1] == "rä'ä") && IsVerb(allWords[i+j+2]) {
 								extraWord = 1
 								if len(results) == 1 {
 									results = append(results, []Word{simpleWord(allWords[i+j+1])})
@@ -374,6 +397,7 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 							// First by itself
 							if pairWord == allWords[i+j+1] {
 								found = true
+								foundAlready = true
 								results[0][0].Navi += " " + allWords[i+j+1]
 								continue
 							}
@@ -388,6 +412,7 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 							for _, b := range secondWords {
 								if b.Navi == pairWord {
 									found = true
+									foundAlready = true
 									results[0][0].Navi += " " + allWords[i+j+1]
 									keepAffixes = addAffixes(keepAffixes, b.Affixes)
 								}
@@ -418,14 +443,16 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 							} else {
 								// Get the query it's looking for
 								results[0] = AppendToFront(results[0], definition)
-								results[0][1].Affixes = keepAffixes
+								//results[0][1].Affixes = keepAffixes
 							}
 						}
 						i += len(pairWordSet) + extraWord
 					}
 				}
 			}
+
 		}
+
 	}
 
 	// If we found nothing, at least return the query
