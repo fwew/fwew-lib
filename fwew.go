@@ -236,11 +236,11 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 	searchNaviWord := allWords[i]
 	results = [][]Word{{simpleWord(searchNaviWord)}}
 
-	bareNaviWord := false
+	//bareNaviWord := false
 	// Find the word
 	a := strings.ReplaceAll(searchNaviWord, "ù", "u")
 	if _, ok := dictHash[a]; ok {
-		bareNaviWord = true
+		//bareNaviWord = true
 
 		for _, b := range dictHash[a] {
 			results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], b)
@@ -250,109 +250,113 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 	foundAlready := false
 
 	// Bunch of duplicate code for the edge case of eltur tìtxen si and others like it
-	if !bareNaviWord {
-		found := false
-		// See if it is in the list known to start multiword words
-		if _, ok := multiword_words[searchNaviWord]; ok {
-			// If so, loop through it
-			for _, pairWordSet := range multiword_words[searchNaviWord] {
-				if foundAlready {
+	//if !bareNaviWord {
+	found := false
+	// See if it is in the list known to start multiword words
+	if _, ok := multiword_words[searchNaviWord]; ok {
+		// If so, loop through it
+		for _, pairWordSet := range multiword_words[searchNaviWord] {
+			if foundAlready {
+				break
+			}
+
+			keepAffixes := *new(affix)
+
+			extraWord := 0
+			// There could be more than one pair (win säpi and win si for example)
+			for j, pairWord := range pairWordSet {
+				found = false
+				// Don't cause an index out of range error
+				if i+j+1 >= len(allWords) {
 					break
-				}
-				keepAffixes := *new(affix)
-
-				extraWord := 0
-				// There could be more than one pair (win säpi and win si for example)
-				for j, pairWord := range pairWordSet {
-					found = false
-					// Don't cause an index out of range error
-					if i+j+1 >= len(allWords) {
-						break
-					} else {
-						// For "[word] ke si and [word] rä'ä si"
-						if (allWords[i+j+1] == "ke" || allWords[i+j+1] == "rä'ä") && IsVerb(allWords[i+j+2]) {
-							extraWord = 1
-							if len(results) == 1 {
-								results = append(results, []Word{simpleWord(allWords[i+j+1])})
-								for _, b := range dictHash[allWords[i+j+1]] {
-									results[1] = AppendToFront(results[1], b)
-								}
+				} else {
+					// For "[word] ke si and [word] rä'ä si"
+					if (allWords[i+j+1] == "ke" || allWords[i+j+1] == "rä'ä") && IsVerb(allWords[i+j+2]) {
+						extraWord = 1
+						if len(results) == 1 {
+							results = append(results, []Word{simpleWord(allWords[i+j+1])})
+							for _, b := range dictHash[allWords[i+j+1]] {
+								fmt.Println(results)
+								results[1] = AppendToFront(results[1], b)
 							}
-							found = true
-							foundAlready = true
-							j += 1
 						}
-						// Find all words the second word can represent
-						secondWords := []Word{}
+						found = true
+						foundAlready = true
+						j += 1
+					}
+					// Find all words the second word can represent
+					secondWords := []Word{}
 
-						// First by itself
-						if pairWord == allWords[i+j+1] {
-							found = true
-							foundAlready = true
+					// First by itself
+					if pairWord == allWords[i+j+1] {
+						found = true
+						foundAlready = true
+						results[0][0].Navi += " " + allWords[i+j+1]
+						continue
+					}
+
+					// And then by its possible conjugations
+					for _, b := range TestDeconjugations(allWords[i+j+1]) {
+						secondWords = AppendAndAlphabetize(secondWords, b)
+					}
+
+					// Do any of the conjugations work?
+					for _, b := range secondWords {
+						if b.Navi == pairWord {
 							results[0][0].Navi += " " + allWords[i+j+1]
-							continue
+							found = true
+							foundAlready = true
+							keepAffixes = addAffixes(keepAffixes, b.Affixes)
 						}
+					}
 
-						// And then by its possible conjugations
-						for _, b := range TestDeconjugations(allWords[i+j+1]) {
-							secondWords = AppendAndAlphabetize(secondWords, b)
-						}
-
-						// Do any of the conjugations work?
-						for _, b := range secondWords {
-							if b.Navi == pairWord {
-								results[0][0].Navi += " " + allWords[i+j+1]
-								found = true
-								foundAlready = true
-								keepAffixes = addAffixes(keepAffixes, b.Affixes)
-							}
-						}
-
-						// Chain is broken.  Exit.
-						if !found {
-							break
-						}
+					// Chain is broken.  Exit.
+					if !found {
+						break
 					}
 				}
-				if found {
-					fullWord := searchNaviWord
-					for _, pairWord := range pairWordSet {
-						fullWord += " " + pairWord
-					}
-
-					results[0] = []Word{results[0][0]}
-					a := strings.ReplaceAll(fullWord, "ù", "u")
-
-					for _, definition := range dictHash[a] {
-						// Replace the word
-						if len(results) > 0 && len(results[0]) > 1 && (results[0][1].Navi == "ke" || results[0][1].Navi == "rä'ä") {
-							// Get the query it's looking for
-							results[0][len(results[0])-1].Navi = results[0][1].Navi
-							results[1] = AppendToFront(results[1], definition)
-							results[1][1].Affixes = keepAffixes
-						} else {
-							// Get the query it's looking for
-							results[0] = AppendToFront(results[0], definition)
-							results[0][1].Affixes = keepAffixes
-						}
-					}
-					i += len(pairWordSet) + extraWord
+			}
+			if found {
+				fullWord := searchNaviWord
+				for _, pairWord := range pairWordSet {
+					fullWord += " " + pairWord
 				}
+
+				results[0] = []Word{results[0][0]}
+				a := strings.ReplaceAll(fullWord, "ù", "u")
+
+				for _, definition := range dictHash[a] {
+					// Replace the word
+					if len(results) > 0 && len(results[0]) > 1 && (results[0][1].Navi == "ke" || results[0][1].Navi == "rä'ä") {
+						// Get the query it's looking for
+						results[0][len(results[0])-1].Navi = results[0][1].Navi
+						results[1] = AppendToFront(results[1], definition)
+						results[1][1].Affixes = keepAffixes
+					} else {
+						// Get the query it's looking for
+						results[0] = AppendToFront(results[0], definition)
+						results[0][1].Affixes = keepAffixes
+					}
+				}
+				i += len(pairWordSet) + extraWord
 			}
 		}
 	}
+	//}
 
 	if checkFixes {
-		if len(results) > 0 && len(results[0]) > 0 {
-			if !(strings.ToLower(results[len(results)-1][0].Navi) != searchNaviWord && strings.HasPrefix(strings.ToLower(results[len(results)-1][0].Navi), searchNaviWord)) {
+		if !foundAlready {
+			if len(results) > 0 && len(results[0]) > 0 {
+				if !(strings.ToLower(results[len(results)-1][0].Navi) != searchNaviWord && strings.HasPrefix(strings.ToLower(results[len(results)-1][0].Navi), searchNaviWord)) {
+					// Find all possible unconjugated versions of the word
+					newResults := TestDeconjugations(searchNaviWord)
+					results[len(results)-1] = append(results[len(results)-1], newResults...)
+				}
+			} else {
 				// Find all possible unconjugated versions of the word
 				newResults := TestDeconjugations(searchNaviWord)
 				results[len(results)-1] = append(results[len(results)-1], newResults...)
 			}
-		} else {
-			// Find all possible unconjugated versions of the word
-			newResults := TestDeconjugations(searchNaviWord)
-			results[len(results)-1] = append(results[len(results)-1], newResults...)
 		}
 
 		// Check if the word could have more than one word
