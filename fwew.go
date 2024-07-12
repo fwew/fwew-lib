@@ -259,7 +259,6 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 				if foundAlready {
 					break
 				}
-
 				keepAffixes := *new(affix)
 
 				extraWord := 0
@@ -450,9 +449,7 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 					}
 				}
 			}
-
 		}
-
 	}
 
 	// If we found nothing, at least return the query
