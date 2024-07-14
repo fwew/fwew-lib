@@ -197,7 +197,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 	}
 	newString := ""
 
-	if input.insistPOS == "adj." || input.insistPOS == "any" {
+	if input.insistPOS == "n." || input.insistPOS == "any" {
 		// For [word] si becoming [word]tswo
 		if strings.HasSuffix(input.word, "tswo") {
 			newCandidate := candidateDupe(input)
@@ -207,17 +207,10 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 			if !isDuplicate(newCandidate) {
 				candidates = append(candidates, newCandidate)
 			}
-		} else if strings.HasSuffix(input.word, "tswoa") {
-			newCandidate := candidateDupe(input)
-			newCandidate.word = strings.TrimSuffix(input.word, "tswoa") + " si"
-			newCandidate.insistPOS = "v."
-			newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, "tswo")
-			newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, "a")
-			if !isDuplicate(newCandidate) {
-				candidates = append(candidates, newCandidate)
-			}
 		}
+	}
 
+	if input.insistPOS == "adj." || input.insistPOS == "any" {
 		// For lrrtok-susi and others
 		if strings.HasSuffix(input.word, "-susi") || strings.HasSuffix(input.word, "-susia") {
 			found := false
