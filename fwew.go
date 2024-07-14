@@ -321,6 +321,41 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 							results[0][0].Navi += " " + allWords[i+j+2]
 							keepAffixes = itsAffixes.Affixes
 							j += 1
+							continue
+						}
+					}
+
+					// Verbs don't just come after ke or rä'ä
+					validVerb, itsAffixes := IsVerb(allWords[i+j+1], pairWord)
+					if validVerb {
+						found = true
+						foundAlready = true
+						results[0][0].Navi += " " + allWords[i+j+1]
+						keepAffixes = itsAffixes.Affixes
+						continue
+					}
+
+					// Find all words the second word can represent
+					secondWords := []Word{}
+
+					// First by itself
+					if pairWord == allWords[i+j+1] {
+						found = true
+						results[0][0].Navi += " " + allWords[i+j+1]
+						continue
+					}
+
+					// And then by its possible conjugations
+					for _, b := range TestDeconjugations(allWords[i+j+1]) {
+						secondWords = AppendAndAlphabetize(secondWords, b)
+					}
+
+					// Do any of the conjugations work?
+					for _, b := range secondWords {
+						if b.Navi == pairWord {
+							results[0][0].Navi += " " + b.Navi
+							found = true
+							keepAffixes = addAffixes(keepAffixes, b.Affixes)
 						}
 					}
 
@@ -386,6 +421,8 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 						break
 					}
 
+					newSearch := a.Navi
+
 					keepAffixes := *new(affix)
 					keepAffixes = addAffixes(keepAffixes, a.Affixes)
 
@@ -413,6 +450,32 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 									results[0][0].Navi += " " + allWords[i+j+2]
 									keepAffixes = itsAffixes.Affixes
 									j += 1
+
+									continue
+								}
+							}
+
+							// Find all words the second word can represent
+							secondWords := []Word{}
+
+							// First by itself
+							if pairWord == allWords[i+j+1] {
+								found = true
+								results[0][0].Navi += " " + allWords[i+j+1]
+								continue
+							}
+
+							// And then by its possible conjugations
+							for _, b := range TestDeconjugations(allWords[i+j+1]) {
+								secondWords = AppendAndAlphabetize(secondWords, b)
+							}
+
+							// Do any of the conjugations work?
+							for _, b := range secondWords {
+								if b.Navi == pairWord {
+									results[0][0].Navi += " " + b.Navi
+									found = true
+									keepAffixes = addAffixes(keepAffixes, b.Affixes)
 								}
 							}
 
@@ -423,7 +486,7 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 						}
 					}
 					if found {
-						fullWord := searchNaviWord
+						fullWord := newSearch
 						for _, pairWord := range pairWordSet {
 							fullWord += " " + pairWord
 						}
