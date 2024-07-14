@@ -209,13 +209,22 @@ func AppendToFront(words []Word, input Word) []Word {
 }
 
 // Helper for TranslateFromNaviHashHelper
-func IsVerb(input string) (result bool) {
+func IsVerb(input string, comparator string) (result bool) {
 	_, possibilities, err := TranslateFromNaviHashHelper(0, []string{input}, true)
-	if err != nil {
+	_, possibilities2, err2 := TranslateFromNaviHashHelper(0, []string{comparator}, true)
+	if err != nil || err2 != nil {
 		return false
 	}
+	fmt.Println(possibilities)
+	fmt.Println(possibilities2)
+	isRealVerb := false
+	pairFound := false
 	for _, a := range possibilities {
-		for _, b := range a {
+		for i, b := range a {
+			if i == 0 {
+				continue
+			}
+			// Make sure it's a verb
 			if len(b.PartOfSpeech) > 0 && b.PartOfSpeech[0] == 'v' {
 				for _, c := range b.Affixes.Infix {
 					// <us> and <awn> are participles, so they become adjectives
@@ -223,11 +232,22 @@ func IsVerb(input string) (result bool) {
 						return false
 					}
 				}
-				return true
+				isRealVerb = true
+			}
+			// Make sure it's also found in the multiword word set
+			for _, c := range possibilities2 {
+				for j, d := range c {
+					if j == 0 {
+						continue
+					}
+					if d.ID == b.ID {
+						pairFound = true
+					}
+				}
 			}
 		}
 	}
-	return false
+	return isRealVerb && pairFound
 }
 
 func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) (steps int, results [][]Word, err error) {
@@ -271,7 +291,7 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 					break
 				} else {
 					// For "[word] ke si and [word] rä'ä si"
-					if (allWords[i+j+1] == "ke" || allWords[i+j+1] == "rä'ä") && IsVerb(allWords[i+j+2]) {
+					if i+j+2 < len(allWords) && (allWords[i+j+1] == "ke" || allWords[i+j+1] == "rä'ä") && IsVerb(allWords[i+j+2], pairWord) {
 						extraWord = 1
 						if len(results) == 1 {
 							results = append(results, []Word{simpleWord(allWords[i+j+1])})
@@ -379,11 +399,11 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 					for j, pairWord := range pairWordSet {
 						found = false
 						// Don't cause an index out of range error
-						if i+j+1 >= len(allWords) {
+						if i+j+1 < len(allWords) {
 							break
 						} else {
 							// For "[word] ke si and [word] rä'ä si"
-							if (allWords[i+j+1] == "ke" || allWords[i+j+1] == "rä'ä") && IsVerb(allWords[i+j+2]) {
+							if i+j+2 < len(allWords) && (allWords[i+j+1] == "ke" || allWords[i+j+1] == "rä'ä") && IsVerb(allWords[i+j+2], pairWord) {
 								extraWord = 1
 								if len(results) == 1 {
 									results = append(results, []Word{simpleWord(allWords[i+j+1])})
