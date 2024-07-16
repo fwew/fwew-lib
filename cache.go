@@ -110,15 +110,21 @@ func AlphabetizeHelper(a string, b string) bool {
 }
 
 func AppendAndAlphabetize(words []Word, word Word) []Word {
+	// Ensure it's not a duplicate
+	for _, a := range words {
+		if word.ID == a.ID {
+			if len(word.Affixes.Prefix) == len(a.Affixes.Prefix) && len(word.Affixes.Suffix) == len(a.Affixes.Suffix) &&
+				len(word.Affixes.Lenition) == len(a.Affixes.Lenition) && len(word.Affixes.Infix) == len(a.Affixes.Infix) {
+				return words
+			}
+		}
+	}
 	// new array
 	switch len(words) {
 	case 0:
 		return []Word{word}
 	case 1:
 		var newWords = []Word{}
-		if word.ID == words[0].ID {
-			return words
-		}
 		if AlphabetizeHelper(words[0].Syllables, word.Syllables) {
 			newWords = []Word{words[0], word}
 		} else {
@@ -127,9 +133,6 @@ func AppendAndAlphabetize(words []Word, word Word) []Word {
 		return newWords
 	case 2:
 		var newWords = []Word{}
-		if word.ID == words[0].ID {
-			return words
-		}
 		if AlphabetizeHelper(word.Syllables, words[0].Syllables) {
 			newWords = []Word{word, words[0], words[1]}
 		} else if AlphabetizeHelper(words[1].Syllables, word.Syllables) {
