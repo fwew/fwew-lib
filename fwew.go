@@ -1152,4 +1152,5 @@ func StartEverything() {
 		}
 	}
 	PhonemeDistros()
+	homonymSearch()
 }
