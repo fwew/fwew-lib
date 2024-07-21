@@ -675,7 +675,7 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 		a := strings.ReplaceAll(candidate.word, "ù", "u")
 		for _, c := range dictHash[a] {
 			// An inter. can act like a noun or an adjective, so it gets special treatment
-			if c.PartOfSpeech == "inter." && len(c.Affixes.Infix) == 0 {
+			if c.PartOfSpeech == "inter." && candidate.insistPOS[0] != 'v' && len(c.Affixes.Infix) == 0 {
 				dupe := false
 				for _, b := range results {
 					if b.Navi == c.Navi {
