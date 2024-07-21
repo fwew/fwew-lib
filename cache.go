@@ -4,11 +4,12 @@ import (
 	"bufio"
 	"database/sql"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 const dictFileName = "dictionary-v2.txt"
@@ -734,6 +735,8 @@ func CacheDictHash2Orig(mysql bool) error {
 func UncacheHashDict() {
 	dictHashCached = false
 	dictHash = nil
+	homonyms = ""
+	oddballs = ""
 }
 
 func UncacheHashDict2() {
