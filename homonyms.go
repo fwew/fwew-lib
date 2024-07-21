@@ -331,7 +331,9 @@ func reconjugate(word Word, allowPrefixes bool) {
 		//None of these can productively combine with infixes
 		if allowPrefixes {
 			// Gerunds
-			candidates2 = append(candidates2, removeBrackets("tì"+strings.ReplaceAll(word.InfixLocations, "<1>", "us")))
+			gerund := removeBrackets("tì" + strings.ReplaceAll(word.InfixLocations, "<1>", "us"))
+			candidates2 = append(candidates2, gerund)
+			reconjugateNouns(word, gerund, 0, 0, 0)
 			//candidates2 = append(candidates2, removeBrackets("nì"+strings.ReplaceAll(word.InfixLocations, "<1>", "awn")))
 			// [verb]-able
 			candidates2 = append(candidates2, "tsuk"+word.Navi)
@@ -454,7 +456,11 @@ func StageThree() (err error) {
 					}
 				}
 			}
-
+		} else if strings.HasSuffix(word.Navi, " si") {
+			// "[word] si" can take the form "[word]tswo"
+			siTswo := strings.TrimSuffix(word.Navi, " si")
+			siTswo = siTswo + "tswo"
+			reconjugateNouns(word, siTswo, 0, 0, 0)
 		}
 
 		return nil
