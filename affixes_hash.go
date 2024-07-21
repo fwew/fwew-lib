@@ -406,6 +406,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 				}
 			}
 		}
+		fallthrough
 	case 5:
 		if strings.HasPrefix(input.word, "tì") {
 			if input.insistPOS == "any" || input.insistPOS == "n." {
