@@ -3,9 +3,33 @@ package fwew_lib
 import (
 	"fmt"
 	"math/rand"
+	"sort"
 	"strconv"
 	"strings"
 )
+
+type PhonemeTuple struct {
+	value  int
+	letter string
+}
+
+type Tuples []PhonemeTuple
+
+func (s Tuples) Len() int {
+	return len(s)
+}
+
+func (s Tuples) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+
+func (s Tuples) Less(i, j int) bool {
+	// bigger values first here
+	if s[i].value == s[j].value {
+		return AlphabetizeHelper(s[i].letter, s[j].letter)
+	}
+	return s[i].value > s[j].value
+}
 
 /*
  * Name generators
@@ -339,14 +363,78 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 	return output
 }
 
-func GetPhonemeDistrosMap() (allDistros map[string]map[string]map[string]int) {
-	allDistros = map[string]map[string]map[string]int{
-		"Clusters": cluster_map,
-		"Others": {
-			"Onsets": onset_map,
-			"Nuclei": nucleus_map,
-			"Codas":  coda_map,
-		},
+func GetPhonemeDistrosMap() (allDistros [][][]string) {
+	allDistros = [][][]string{
+		{{"Onset", "Nucleus", "Coda"}},
+		{{"", "f", "s", "ts"}},
 	}
+
+	// Convert them to tuples for sorting
+	onset_tuples := []PhonemeTuple{}
+	for key, val := range onset_map {
+		onset_tuples = append(onset_tuples, PhonemeTuple{val, key})
+	}
+	sort.Sort(Tuples(onset_tuples))
+
+	nucleus_tuples := []PhonemeTuple{}
+	for key, val := range nucleus_map {
+		nucleus_tuples = append(nucleus_tuples, PhonemeTuple{val, key})
+	}
+	sort.Sort(Tuples(nucleus_tuples))
+
+	coda_tuples := []PhonemeTuple{}
+	for key, val := range coda_map {
+		coda_tuples = append(coda_tuples, PhonemeTuple{val, key})
+	}
+	sort.Sort(Tuples(coda_tuples))
+
+	// Probably not needed but just in case any other number exceeds it
+	max_len := len(onset_tuples)
+	if len(nucleus_tuples) > max_len {
+		max_len = len(nucleus_tuples)
+	}
+	if len(coda_tuples) > max_len {
+		max_len = len(coda_tuples)
+	}
+
+	// Put them into a 2d string array
+	i := 0
+	for i < max_len {
+		allDistros[0] = append(allDistros[0], []string{})
+		c := len(allDistros[0]) - 1
+
+		if i < len(onset_tuples) {
+			allDistros[0][c] = append(allDistros[0][c], onset_tuples[i].letter+" "+strconv.Itoa(onset_tuples[i].value))
+		} else {
+			allDistros[0][c] = append(allDistros[0][c], "")
+		}
+
+		if i < len(nucleus_tuples) {
+			allDistros[0][c] = append(allDistros[0][c], nucleus_tuples[i].letter+" "+strconv.Itoa(nucleus_tuples[i].value))
+		} else {
+			allDistros[0][c] = append(allDistros[0][c], "")
+		}
+
+		if i < len(coda_tuples) {
+			allDistros[0][c] = append(allDistros[0][c], coda_tuples[i].letter+" "+strconv.Itoa(coda_tuples[i].value))
+		} else {
+			allDistros[0][c] = append(allDistros[0][c], "")
+		}
+		i += 1
+	}
+
+	// Cluster time
+	cluster_1 := []string{"f", "s", "ts"}
+	cluster_2 := []string{"k", "kx", "l", "m", "n", "ng", "p",
+		"px", "t", "tx", "r", "w", "y"}
+
+	for _, a := range cluster_2 {
+		allDistros[1] = append(allDistros[1], []string{a})
+		c := len(allDistros[1]) - 1
+		for _, b := range cluster_1 {
+			allDistros[1][c] = append(allDistros[1][c], strconv.Itoa(cluster_map[b][a]))
+		}
+	}
+
 	return
 }

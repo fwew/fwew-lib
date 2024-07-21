@@ -2,6 +2,9 @@ package fwew_lib
 
 import (
 	"bufio"
+	"database/sql"
+	"fmt"
+	_ "github.com/go-sql-driver/mysql"
 	"log"
 	"os"
 	"path/filepath"
@@ -17,6 +20,7 @@ var dictHashCached bool
 var dictHash2 MetaDict
 var dictHash2Cached bool
 var homonyms string
+var oddballs string
 var multiIPA string
 
 type MetaDict struct {
@@ -85,7 +89,7 @@ func FindDictionaryFile() string {
 }
 
 func AlphabetizeHelper(a string, b string) bool {
-	aCompacted := []rune(strings.ReplaceAll((strings.ToLower(a)), "-", ""))
+	aCompacted := []rune(strings.ReplaceAll(strings.ToLower(a), "-", ""))
 
 	// Start in the middle
 	bCompacted := []rune(strings.ReplaceAll(compress(strings.ToLower(b)), "-", ""))
@@ -109,15 +113,23 @@ func AlphabetizeHelper(a string, b string) bool {
 }
 
 func AppendAndAlphabetize(words []Word, word Word) []Word {
+	// Ensure it's not a duplicate
+	for _, a := range words {
+		if word.ID == a.ID {
+			if len(word.Affixes.Prefix) == len(a.Affixes.Prefix) &&
+				len(word.Affixes.Suffix) == len(a.Affixes.Suffix) &&
+				len(word.Affixes.Lenition) == len(a.Affixes.Lenition) &&
+				len(word.Affixes.Infix) == len(a.Affixes.Infix) {
+				return words
+			}
+		}
+	}
 	// new array
 	switch len(words) {
 	case 0:
 		return []Word{word}
 	case 1:
 		var newWords = []Word{}
-		if word.ID == words[0].ID {
-			return words
-		}
 		if AlphabetizeHelper(words[0].Syllables, word.Syllables) {
 			newWords = []Word{words[0], word}
 		} else {
@@ -126,9 +138,6 @@ func AppendAndAlphabetize(words []Word, word Word) []Word {
 		return newWords
 	case 2:
 		var newWords = []Word{}
-		if word.ID == words[0].ID {
-			return words
-		}
 		if AlphabetizeHelper(word.Syllables, words[0].Syllables) {
 			newWords = []Word{word, words[0], words[1]}
 		} else if AlphabetizeHelper(words[1].Syllables, word.Syllables) {
@@ -379,9 +388,54 @@ func RomanizeSecondIPA(IPA string) string {
 	return strings.TrimSuffix(breakdown, " ")
 }
 
+func UncacheDict() {
+	dictionaryCached = false
+	dictionary = []Word{}
+}
+
+func CacheDict() error {
+	var err error
+
+	UncacheDict()
+	err = runOnDB(func(word Word) error {
+		dictionary = append(dictionary, word)
+		return nil
+	})
+
+	if err == nil {
+		fmt.Println("cache 0 loaded (SQL)")
+	} else {
+		UncacheDict()
+		err = runOnFile(func(word Word) error {
+			dictionary = append(dictionary, word)
+			return nil
+		})
+		//fmt.Println("cache 0 loaded (File)")
+	}
+
+	if err != nil {
+		UncacheDict()
+		return err
+	}
+
+	dictionaryCached = true
+	return nil
+}
+
+func CacheDictHash() error {
+	err := CacheDictHashOrig(true)
+	if err == nil {
+		fmt.Println("cache 1 loaded (SQL)")
+	} else {
+		err = CacheDictHashOrig(false)
+		//fmt.Println("cache 1 loaded (File)")
+	}
+	return err
+}
+
 // This will cache the whole dictionary (Na'vi to natural language).
 // Please call this, if you want to translate multiple words or running infinitely (e.g. CLI-go-prompt, discord-bot)
-func CacheDictHash() error {
+func CacheDictHashOrig(mysql bool) error {
 	// dont run if already is cached
 	if len(dictHash) != 0 {
 		return nil
@@ -394,7 +448,7 @@ func CacheDictHash() error {
 	//Clear to avoid duplicates
 	multiIPA = ""
 
-	err := runOnFile(func(word Word) error {
+	var f = func(word Word) error {
 		standardizedWord := word.Navi
 		badChars := `~@#$%^&*()[]{}<>_/.,;:!?|+\"„“”«»`
 
@@ -450,8 +504,37 @@ func CacheDictHash() error {
 			}
 		}
 
+		// See whether or not it violates normal phonotactic rules like Jakesully or Oìsss
+		valid := true
+		for _, a := range strings.Split(IsValidNavi(standardizedWord), "\n") {
+			// Check every word.  If one of them isn't good, write down the word
+			if len(a) > 0 && (!strings.Contains(a, "Valid:") || strings.Contains(a, "reef")) {
+				valid = false
+				break
+			}
+		}
+		if !valid {
+			oddballs += standardizedWord + " "
+		}
+
 		return nil
-	})
+	}
+
+	var err error
+	if mysql {
+		err = runOnDB(f)
+		if err != nil {
+			UncacheHashDict()
+			return err
+		}
+	} else {
+		err = runOnFile(f)
+		if err != nil {
+			log.Printf("Error caching dictionary: %s", err)
+			UncacheHashDict()
+			return err
+		}
+	}
 
 	// Reverse the order to make accidental and new homonyms easier to see
 	// Also make it a string for easier searching
@@ -462,13 +545,6 @@ func CacheDictHash() error {
 	}
 
 	homonyms = strings.TrimSuffix(homonyms, " ")
-
-	if err != nil {
-		log.Printf("Error caching dictionary: %s", err)
-		// uncache dict, to be save
-		UncacheHashDict()
-		return err
-	}
 
 	dictHashCached = true
 
@@ -531,6 +607,17 @@ func AssignWord(wordmap map[string][]string, natlangWords string, naviWord strin
 
 // Natural languages to Na'vi
 func CacheDictHash2() error {
+	err := CacheDictHash2Orig(true)
+	if err == nil {
+		fmt.Println("cache 2 loaded (SQL)")
+	} else {
+		err = CacheDictHash2Orig(false)
+		//fmt.Println("cache 2 loaded (File)")
+	}
+	return err
+}
+
+func CacheDictHash2Orig(mysql bool) error {
 	// dont run if already is cached
 	if len(dictHash2.EN) != 0 {
 		return nil
@@ -552,7 +639,7 @@ func CacheDictHash2() error {
 
 	// Set up the whole thing
 
-	err := runOnFile(func(word Word) error {
+	var setUpTheWholeThing = func(word Word) error {
 		standardizedWord := strings.ToLower(word.Navi)
 		standardizedWord = strings.ReplaceAll(standardizedWord, "+", "")
 
@@ -621,12 +708,22 @@ func CacheDictHash2() error {
 			dictHash2.UK = AssignWord(dictHash2.UK, word.UK, standardizedWord)
 		}
 		return nil
-	})
-	if err != nil {
-		log.Printf("Error caching dictionary: %s", err)
-		// uncache dict, to be save
-		UncacheHashDict2()
-		return err
+	}
+
+	var err error
+	if mysql {
+		err = runOnDB(setUpTheWholeThing)
+		if err != nil {
+			UncacheHashDict2()
+			return err
+		}
+	} else {
+		err = runOnFile(setUpTheWholeThing)
+		if err != nil {
+			log.Printf("Error caching dictionary: %s", err)
+			UncacheHashDict2()
+			return err
+		}
 	}
 
 	dictHash2Cached = true
@@ -678,6 +775,76 @@ func RunOnDict(f func(word Word) error) (err error) {
 	}
 
 	return
+}
+
+func runOnDB(f func(word Word) error) error {
+	user := os.Getenv("FW_USER")
+	pass := os.Getenv("FW_PASS")
+	host := os.Getenv("FW_HOST")
+	name := os.Getenv("FW_DB")
+	dataSourceName := fmt.Sprintf("%s:%s@tcp(%s)/%s", user, pass, host, name)
+	db, err := sql.Open("mysql", dataSourceName)
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	rows, err1 := db.Query("SELECT " +
+		"m.id, m.navi, m.ipa, m.infixes, m.partOfSpeech, s.source, b.stressed, b.syllables, b.infixDots, " +
+		"(SELECT localized FROM fwedit_localizedWords AS l WHERE l.id = m.id AND languageCode = 'de') AS de, " +
+		"(SELECT localized FROM fwedit_localizedWords AS l WHERE l.id = m.id AND languageCode = 'en') AS en, " +
+		"(SELECT localized FROM fwedit_localizedWords AS l WHERE l.id = m.id AND languageCode = 'es') AS es, " +
+		"(SELECT localized FROM fwedit_localizedWords AS l WHERE l.id = m.id AND languageCode = 'et') AS et, " +
+		"(SELECT localized FROM fwedit_localizedWords AS l WHERE l.id = m.id AND languageCode = 'fr') AS fr, " +
+		"(SELECT localized FROM fwedit_localizedWords AS l WHERE l.id = m.id AND languageCode = 'hu') AS hu, " +
+		"(SELECT localized FROM fwedit_localizedWords AS l WHERE l.id = m.id AND languageCode = 'nl') AS nl, " +
+		"(SELECT localized FROM fwedit_localizedWords AS l WHERE l.id = m.id AND languageCode = 'pl') AS pl, " +
+		"(SELECT localized FROM fwedit_localizedWords AS l WHERE l.id = m.id AND languageCode = 'pt') AS pt, " +
+		"(SELECT localized FROM fwedit_localizedWords AS l WHERE l.id = m.id AND languageCode = 'ru') AS ru, " +
+		"(SELECT localized FROM fwedit_localizedWords AS l WHERE l.id = m.id AND languageCode = 'sv') AS sv, " +
+		"(SELECT localized FROM fwedit_localizedWords AS l WHERE l.id = m.id AND languageCode = 'tr') AS tr, " +
+		"(SELECT localized FROM fwedit_localizedWords AS l WHERE l.id = m.id AND languageCode = 'uk') AS uk " +
+		"FROM fwedit_metaWords AS m " +
+		"INNER JOIN fwedit_sources AS s ON (m.id = s.id) " +
+		"INNER JOIN fwedit_breakdown AS b ON (s.id = b.id)")
+
+	if err1 != nil {
+		return err1
+	}
+
+	var w Word
+	var de, en, es, et, fr, hu, nl, pl, pt, ru, sv, tr, uk []byte
+
+	for rows.Next() {
+		err = rows.Scan(&w.ID, &w.Navi, &w.IPA, &w.InfixLocations, &w.PartOfSpeech, &w.Source, &w.Stressed,
+			&w.Syllables, &w.InfixDots, &de, &en, &es, &et, &fr, &hu, &nl, &pl, &pt, &ru, &sv, &tr, &uk)
+
+		if err != nil {
+			return err
+		}
+
+		w.DE = string(de)
+		w.EN = string(en)
+		w.ES = string(es)
+		w.ET = string(et)
+		w.FR = string(fr)
+		w.HU = string(hu)
+		w.NL = string(nl)
+		w.PL = string(pl)
+		w.PT = string(pt)
+		w.RU = string(ru)
+		w.SV = string(sv)
+		w.TR = string(tr)
+		w.UK = string(uk)
+
+		err = f(w)
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func runOnFile(f func(word Word) error) error {
@@ -754,13 +921,30 @@ func UpdateDict() error {
 		return err
 	}
 
-	if dictionaryCached {
+	err = CacheDict()
+	if err != nil {
+		log.Printf("Error caching dict after updatig ... Cache disabled")
+		return err
+	}
+
+	if dictHashCached {
 		UncacheHashDict()
-		err = CacheDictHash()
-		if err != nil {
-			log.Printf("Error caching dict after updating ... Cache disabled")
-			return err
-		}
+	}
+
+	err = CacheDictHash()
+	if err != nil {
+		log.Printf("Error caching dict after updating ... Cache disabled")
+		return err
+	}
+
+	if dictHash2Cached {
+		UncacheHashDict2()
+	}
+
+	err = CacheDictHash2()
+	if err != nil {
+		log.Printf("Error caching dict after updating ... Cache disabled")
+		return err
 	}
 
 	return nil
