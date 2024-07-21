@@ -1140,8 +1140,16 @@ func ReefMe(ipa string, inter bool) []string {
 }
 
 func StartEverything() {
-	AssureDict()
-	CacheDictHash()
-	CacheDictHash2()
+	var errors = []error{
+		AssureDict(),
+		CacheDict(),
+		CacheDictHash(),
+		CacheDictHash2(),
+	}
+	for _, err := range errors {
+		if err != nil {
+			log.Println(err)
+		}
+	}
 	PhonemeDistros()
 }
