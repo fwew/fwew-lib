@@ -332,7 +332,7 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 					adj = specialU(adj, find_verb.IPA)
 				}
 
-				adj = insert_infix(strings.Split(adj, " "), "us", dialect)
+				adj = insert_infix(strings.Split(adj, " "), "awn", dialect)
 				// If the adj starts with a in forest, we don't need another a
 				if !two_word_noun && (adj[0] != 'a' || dialect != 1) {
 					adj = "a" + glottal_caps(adj)
