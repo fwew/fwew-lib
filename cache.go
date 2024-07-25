@@ -31,6 +31,7 @@ type MetaDict struct {
 	ET map[string][]string
 	FR map[string][]string
 	HU map[string][]string
+	KO map[string][]string
 	NL map[string][]string
 	PL map[string][]string
 	PT map[string][]string
@@ -208,6 +209,11 @@ func EnglishIfNull(word Word) Word {
 	// Hungarian (Magyar)
 	if word.HU == "NULL" {
 		word.HU = word.EN
+	}
+
+	// Korean (한국어)
+	if word.KO == "NULL" {
+		word.KO = word.EN
 	}
 
 	// Dutch (Nederlands)
@@ -629,6 +635,7 @@ func CacheDictHash2Orig(mysql bool) error {
 		dictHash2.ET = make(map[string][]string)
 		dictHash2.FR = make(map[string][]string)
 		dictHash2.HU = make(map[string][]string)
+		dictHash2.KO = make(map[string][]string)
 		dictHash2.NL = make(map[string][]string)
 		dictHash2.PL = make(map[string][]string)
 		dictHash2.PT = make(map[string][]string)
@@ -672,6 +679,11 @@ func CacheDictHash2Orig(mysql bool) error {
 		// Hungarian (Magyar)
 		if word.HU != "NULL" {
 			dictHash2.HU = AssignWord(dictHash2.HU, word.HU, standardizedWord)
+		}
+
+		// Korean (한국어)
+		if word.KO != "NULL" {
+			dictHash2.KO = AssignWord(dictHash2.KO, word.KO, standardizedWord)
 		}
 
 		// Dutch (Nederlands)
@@ -747,6 +759,7 @@ func UncacheHashDict2() {
 	dictHash2.ET = nil
 	dictHash2.FR = nil
 	dictHash2.HU = nil
+	dictHash2.KO = nil
 	dictHash2.NL = nil
 	dictHash2.PL = nil
 	dictHash2.PT = nil
@@ -800,6 +813,7 @@ func runOnDB(f func(word Word) error) error {
 		"(SELECT localized FROM fwedit_localizedWords AS l WHERE l.id = m.id AND languageCode = 'et') AS et, " +
 		"(SELECT localized FROM fwedit_localizedWords AS l WHERE l.id = m.id AND languageCode = 'fr') AS fr, " +
 		"(SELECT localized FROM fwedit_localizedWords AS l WHERE l.id = m.id AND languageCode = 'hu') AS hu, " +
+		"(SELECT localized FROM fwedit_localizedWords AS l WHERE l.id = m.id AND languageCode = 'ko') AS ko, " +
 		"(SELECT localized FROM fwedit_localizedWords AS l WHERE l.id = m.id AND languageCode = 'nl') AS nl, " +
 		"(SELECT localized FROM fwedit_localizedWords AS l WHERE l.id = m.id AND languageCode = 'pl') AS pl, " +
 		"(SELECT localized FROM fwedit_localizedWords AS l WHERE l.id = m.id AND languageCode = 'pt') AS pt, " +
@@ -816,11 +830,11 @@ func runOnDB(f func(word Word) error) error {
 	}
 
 	var w Word
-	var de, en, es, et, fr, hu, nl, pl, pt, ru, sv, tr, uk []byte
+	var de, en, es, et, fr, hu, ko, nl, pl, pt, ru, sv, tr, uk []byte
 
 	for rows.Next() {
 		err = rows.Scan(&w.ID, &w.Navi, &w.IPA, &w.InfixLocations, &w.PartOfSpeech, &w.Source, &w.Stressed,
-			&w.Syllables, &w.InfixDots, &de, &en, &es, &et, &fr, &hu, &nl, &pl, &pt, &ru, &sv, &tr, &uk)
+			&w.Syllables, &w.InfixDots, &de, &en, &es, &et, &fr, &hu, &ko, &nl, &pl, &pt, &ru, &sv, &tr, &uk)
 
 		if err != nil {
 			return err
@@ -832,6 +846,7 @@ func runOnDB(f func(word Word) error) error {
 		w.ET = string(et)
 		w.FR = string(fr)
 		w.HU = string(hu)
+		w.KO = string(ko)
 		w.NL = string(nl)
 		w.PL = string(pl)
 		w.PT = string(pt)
