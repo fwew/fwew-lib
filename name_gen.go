@@ -363,9 +363,33 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 	return output
 }
 
-func GetPhonemeDistrosMap() (allDistros [][][]string) {
+func GetPhonemeDistrosMap(lang string) (allDistros [][][]string) {
+	headerRow := map[string][]string{
+		"en": {"Onset", "Nucleus", "Coda"},    // English
+		"de": {"Onset 🇩🇪", "Nucleus", "Coda"}, // German (Deutsch)
+		"es": {"Onset 🇪🇦", "Nucleus", "Coda"}, // Spanish (Español)
+		"et": {"Onset 🇪🇪", "Nucleus", "Coda"}, // Estonian (Eesti)
+		"fr": {"Onset 🇫🇷", "Nucleus", "Coda"}, // French (Français)
+		"hu": {"Onset 🇭🇺", "Nucleus", "Coda"}, // Hungarian (Magyar)
+		"ko": {"Onset 🇰🇷", "Nucleus", "Coda"}, // Korean (한국어)
+		"nl": {"Onset 🇳🇱", "Nucleus", "Coda"}, // Dutch (Nederlands)
+		"pl": {"Onset 🇵🇱", "Nucleus", "Coda"}, // Polish (Polski)
+		"pt": {"Onset 🇵🇹", "Nucleus", "Coda"}, // Portuguese (Português)
+		"ru": {"Onset 🇷🇺", "Nucleus", "Coda"}, // Russian (Русский)
+		"sv": {"Onset 🇸🇪", "Nucleus", "Coda"}, // Swedish (Svenska)
+		"tr": {"Onset 🇹🇷", "Nucleus", "Coda"}, // Turkish (Türkçe)
+		"uk": {"Onset 🇺🇦", "Nucleus", "Coda"}, // Ukrainian (Українська)
+	}
+
+	// Default to English
+	headerLang := []string{"Onset", "Nucleus", "Coda"}
+
+	if a, ok := headerRow[lang]; ok {
+		headerLang = a
+	}
+
 	allDistros = [][][]string{
-		{{"Onset", "Nucleus", "Coda"}},
+		{headerLang},
 		{{"", "f", "s", "ts"}},
 	}
 

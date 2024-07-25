@@ -955,12 +955,12 @@ func GetDictSize(lang string) (count string, err error) {
 	} else if lang == "pt" { // Portuguese (Português)
 		count = count + " 🇵🇹"
 	} else if lang == "ru" { // Russian (Русский)
-		count = count + " 🇵🇹"
+		count = count + " 🇷🇺"
 	} else if lang == "sv" { // Swedish (Svenska)
 		count = count + " 🇸🇪"
 	} else if lang == "tr" { // Turkish (Türkçe)
 		count = count + " 🇹🇷"
-	} else if lang == "uk" { // Ukrainian (Українська)
+	} else if lang == "uk" {
 		count = count + " 🇺🇦"
 	}
 
