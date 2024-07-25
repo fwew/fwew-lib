@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -918,7 +919,9 @@ func GetFullDict() (allWords []Word, err error) {
 	return
 }
 
-func GetDictSize() (amount int, err error) {
+func GetDictSize(lang string) (count string, err error) {
+	// Count words
+	amount := 0
 	if dictionaryCached {
 		amount = len(dictionary)
 	} else {
@@ -927,6 +930,40 @@ func GetDictSize() (amount int, err error) {
 			return nil
 		})
 	}
+
+	// Put the word count into a complete sentence
+	count = strconv.Itoa(amount)
+
+	if lang == "en" { // English
+		count = "There are " + count + " entries in the dictionary."
+	} else if lang == "de" { // German (Deutsch)
+		count = count + "🇩🇪"
+	} else if lang == "es" { // Spanish (Español)
+		count = count + "🇪🇦"
+	} else if lang == "et" { // Estonian (Eesti)
+		count = count + "🇪🇪"
+	} else if lang == "fr" { // French (Français)
+		count = count + "🇫🇷"
+	} else if lang == "hu" { // Hungarian (Magyar)
+		count = count + "🇭🇺"
+	} else if lang == "ko" { // Korean (한국어)
+		count = count + "🇰🇷"
+	} else if lang == "nl" { // Dutch (Nederlands)
+		count = count + "🇳🇱"
+	} else if lang == "pl" { // Polish (Polski)
+		count = count + "🇵🇱"
+	} else if lang == "pt" { // Portuguese (Português)
+		count = count + "🇵🇹"
+	} else if lang == "ru" { // Russian (Русский)
+		count = count + "🇵🇹"
+	} else if lang == "sv" { // Swedish (Svenska)
+		count = count + "🇸🇪"
+	} else if lang == "tr" { // Turkish (Türkçe)
+		count = count + "🇹🇷"
+	} else if lang == "uk" { // Ukrainian (Українська)
+		count = count + "🇺🇦"
+	}
+
 	return
 }
 
