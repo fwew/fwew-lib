@@ -364,21 +364,22 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 }
 
 func GetPhonemeDistrosMap(lang string) (allDistros [][][]string) {
+	// Non-English ones were pulled out of Google translate
 	header_row := map[string][]string{
-		"en": {"Onset", "Nucleus", "Coda"},    // English
-		"de": {"Onset 🇩🇪", "Nucleus", "Coda"}, // German (Deutsch)
-		"es": {"Onset 🇪🇦", "Nucleus", "Coda"}, // Spanish (Español)
-		"et": {"Onset 🇪🇪", "Nucleus", "Coda"}, // Estonian (Eesti)
-		"fr": {"Onset 🇫🇷", "Nucleus", "Coda"}, // French (Français)
-		"hu": {"Onset 🇭🇺", "Nucleus", "Coda"}, // Hungarian (Magyar)
-		"ko": {"Onset 🇰🇷", "Nucleus", "Coda"}, // Korean (한국어)
-		"nl": {"Onset 🇳🇱", "Nucleus", "Coda"}, // Dutch (Nederlands)
-		"pl": {"Onset 🇵🇱", "Nucleus", "Coda"}, // Polish (Polski)
-		"pt": {"Onset 🇵🇹", "Nucleus", "Coda"}, // Portuguese (Português)
-		"ru": {"Onset 🇷🇺", "Nucleus", "Coda"}, // Russian (Русский)
-		"sv": {"Onset 🇸🇪", "Nucleus", "Coda"}, // Swedish (Svenska)
-		"tr": {"Onset 🇹🇷", "Nucleus", "Coda"}, // Turkish (Türkçe)
-		"uk": {"Onset 🇺🇦", "Nucleus", "Coda"}, // Ukrainian (Українська)
+		"en": {"Onset", "Nucleus", "Coda"},          // English
+		"de": {"Beginn", "Kern", "Coda"},            // German (Deutsch)
+		"es": {"Inicio", "Núcleo", "Coda"},          // Spanish (Español)
+		"et": {"Algus", "tuum", "Coda"},             // Estonian (Eesti)
+		"fr": {"Début", "Noyau", "Coda"},            // French (Français)
+		"hu": {"Szótagkezdet", "Szótagmag", "Coda"}, // Hungarian (Magyar)
+		"ko": {"음절 시작", "음절핵", "코다"},                // Korean (한국어)
+		"nl": {"Begin", "Kern", "Coda"},             // Dutch (Nederlands)
+		"pl": {"Początek", "Jądro", "Kod"},          // Polish (Polski)
+		"pt": {"Início", "Núcleo", "Coda"},          // Portuguese (Português)
+		"ru": {"Начало", "Ядро", "Кода"},            // Russian (Русский)
+		"sv": {"Debut", "Nucleus", "Coda"},          // Swedish (Svenska)
+		"tr": {"Başlangıç", "çekirdek", "Kodası"},   // Turkish (Türkçe)
+		"uk": {"Початок", "Ядро", "Кода"},           // Ukrainian (Українська)
 	}
 
 	cluster_name := map[string]string{
