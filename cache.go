@@ -937,31 +937,31 @@ func GetDictSize(lang string) (count string, err error) {
 	if lang == "en" { // English
 		count = "There are " + count + " entries in the dictionary."
 	} else if lang == "de" { // German (Deutsch)
-		count = count + "🇩🇪"
+		count = count + " 🇩🇪"
 	} else if lang == "es" { // Spanish (Español)
-		count = count + "🇪🇦"
+		count = count + " 🇪🇦"
 	} else if lang == "et" { // Estonian (Eesti)
-		count = count + "🇪🇪"
+		count = count + " 🇪🇪"
 	} else if lang == "fr" { // French (Français)
-		count = count + "🇫🇷"
+		count = count + " 🇫🇷"
 	} else if lang == "hu" { // Hungarian (Magyar)
-		count = count + "🇭🇺"
+		count = count + " 🇭🇺"
 	} else if lang == "ko" { // Korean (한국어)
-		count = count + "🇰🇷"
+		count = count + " 🇰🇷"
 	} else if lang == "nl" { // Dutch (Nederlands)
-		count = count + "🇳🇱"
+		count = count + " 🇳🇱"
 	} else if lang == "pl" { // Polish (Polski)
-		count = count + "🇵🇱"
+		count = count + " 🇵🇱"
 	} else if lang == "pt" { // Portuguese (Português)
-		count = count + "🇵🇹"
+		count = count + " 🇵🇹"
 	} else if lang == "ru" { // Russian (Русский)
-		count = count + "🇵🇹"
+		count = count + " 🇵🇹"
 	} else if lang == "sv" { // Swedish (Svenska)
-		count = count + "🇸🇪"
+		count = count + " 🇸🇪"
 	} else if lang == "tr" { // Turkish (Türkçe)
-		count = count + "🇹🇷"
+		count = count + " 🇹🇷"
 	} else if lang == "uk" { // Ukrainian (Українська)
-		count = count + "🇺🇦"
+		count = count + " 🇺🇦"
 	}
 
 	return
