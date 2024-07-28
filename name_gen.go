@@ -384,7 +384,7 @@ func GetPhonemeDistrosMap(lang string) (allDistros [][][]string) {
 
 	cluster_name := map[string]string{
 		"en": "Consonant Clusters",        // English
-		"de": "Konsonantgrupoj",           // German (Deutsch)
+		"de": "Konsonantengruppen",           // German (Deutsch)
 		"es": "Grupos de consonantes",     // Spanish (Español)
 		"et": "Konsonantide klastrid",     // Estonian (Eesti)
 		"fr": "Groupes de consonnes",      // French (Français)
