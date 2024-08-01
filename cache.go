@@ -260,6 +260,7 @@ func EnglishIfNull(word Word) Word {
 func RomanizeSecondIPA(IPA string) string {
 	// now Romanize the IPA
 	IPA = strings.ReplaceAll(IPA, "ʊ", "u")
+	IPA = strings.ReplaceAll(IPA, "õ", "o") // vonvä' as võvä' only
 	word := strings.Split(IPA, " ")
 
 	breakdown := ""
