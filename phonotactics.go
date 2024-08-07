@@ -302,6 +302,9 @@ func IsValidNaviHelper(word string) string {
 		syllable_forest = strings.ReplaceAll(syllable_forest, "d", "tx")
 		syllable_forest = strings.ReplaceAll(syllable_forest, "g", "kx")
 		for _, a := range []string{"a", "ä", "e", "i", "ì", "o", "u", "ù"} {
+			// First pass: a-a-a-a-a-a is seen as [a-a]-[a-a]-[a-a] and becomes a-ya-a-ya-a-ya
+			syllable_forest = strings.ReplaceAll(syllable_forest, a+"-"+a, a+"-y"+a)
+			// Second pass: a-ya-a-ya is seen as a-y[a-a]-y[a-a]-ya and becomes a-ya-ya-ya-ya-ya
 			syllable_forest = strings.ReplaceAll(syllable_forest, a+"-"+a, a+"-y"+a)
 		}
 		syllable_forest = strings.ReplaceAll(syllable_forest, "i-ì", "i-yì")
