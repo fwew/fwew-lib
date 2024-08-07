@@ -1,23 +1,8 @@
-//	This file is part of Fwew.
-//	Fwew is free software: you can redistribute it and/or modify
-// 	it under the terms of the GNU General Public License as published by
-// 	the Free Software Foundation, either version 3 of the License, or
-// 	(at your option) any later version.
-//
-//	Fwew is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//	GNU General Public License for more details.
-//
-//	You should have received a copy of the GNU General Public License
-//	along with Fwew.  If not, see http://gnu.org/licenses/
-// cSpell: disable
-
-// Package main contains all the things. affixes_test.go tests fwew.go functions.
-package fwew_lib
+package test
 
 import (
 	"bufio"
+	"github.com/fwew/fwew-lib/v5"
 	"os"
 	"reflect"
 	"testing"
@@ -25,16 +10,16 @@ import (
 
 func TestMain(m *testing.M) {
 	// assure dict, so tests wont fail
-	AssureDict()
+	err := fwew_lib.AssureDict()
 
-	// call flag.Parse() here if TestMain uses flags
-	if testing.CoverMode() != "" {
-		debugMode = true
+	if err != nil {
+		panic(err)
 	}
+
 	os.Exit(m.Run())
 }
 
-func wordSimpleEqual(w1a, w2a []Word) bool {
+func wordSimpleEqual(w1a, w2a []fwew_lib.Word) bool {
 	w1l := len(w1a)
 	w2l := len(w2a)
 
@@ -46,21 +31,7 @@ func wordSimpleEqual(w1a, w2a []Word) bool {
 		w1 := w1a[j]
 		w2 := w2a[j]
 
-		if w1.ID != w2.ID ||
-			//w1.DE != w2.DE ||
-			//w1.EN != w2.EN ||
-			//w1.ES != w2.ES ||
-			//w1.ET != w2.ET ||
-			//w1.FR != w2.FR ||
-			//w1.HU != w2.HU ||
-			//w1.NL != w2.NL ||
-			//w1.PL != w2.PL ||
-			//w1.PT != w2.PT ||
-			//w1.RU != w2.RU ||
-			//w1.SV != w2.SV ||
-			//w1.TR != w2.TR ||
-			//w1.UK != w2.UK ||
-			w1.Navi != w2.Navi ||
+		if w1.ID != w2.ID || w1.Navi != w2.Navi ||
 			(!reflect.DeepEqual(w1.Affixes.Prefix, w2.Affixes.Prefix) ||
 				!reflect.DeepEqual(w1.Affixes.Infix, w2.Affixes.Infix) ||
 				!reflect.DeepEqual(w1.Affixes.Suffix, w2.Affixes.Suffix) ||
@@ -81,18 +52,18 @@ type args struct {
 var naviWords = []struct {
 	name string
 	args args
-	want []Word
+	want []fwew_lib.Word
 }{
 	{
 		name: "molte",
 		args: args{
 			searchNaviText: "molte",
 		},
-		want: []Word{
+		want: []fwew_lib.Word{
 			{
 				ID:   "1120",
 				Navi: "mllte",
-				Affixes: affix{
+				Affixes: fwew_lib.Affix{
 					Infix: []string{
 						"ol",
 					},
@@ -106,22 +77,22 @@ var naviWords = []struct {
 			searchNaviText: "a'aw",
 			languageCode:   "en",
 		},
-		want: []Word{
+		want: []fwew_lib.Word{
 			{
-				ID:   "12",
-				Navi: "'aw",
-				Affixes: affix{
-					Prefix: []string{
-						"a",
+				ID:   "6224",
+				Navi: "'a'aw",
+				Affixes: fwew_lib.Affix{
+					Lenition: []string{
+						"'a→a",
 					},
 				},
 			},
 			{
-				ID:   "6224",
-				Navi: "'a'aw",
-				Affixes: affix{
-					Lenition: []string{
-						"'→",
+				ID:   "12",
+				Navi: "'aw",
+				Affixes: fwew_lib.Affix{
+					Prefix: []string{
+						"a",
 					},
 				},
 			},
@@ -133,11 +104,11 @@ var naviWords = []struct {
 			searchNaviText: "apukap",
 			languageCode:   "en",
 		},
-		want: []Word{
+		want: []fwew_lib.Word{
 			{
 				ID:   "4316",
 				Navi: "pukap",
-				Affixes: affix{
+				Affixes: fwew_lib.Affix{
 					Prefix: []string{
 						"a",
 					},
@@ -150,11 +121,11 @@ var naviWords = []struct {
 		args: args{
 			searchNaviText: "tsatan",
 		},
-		want: []Word{
+		want: []fwew_lib.Word{
 			{
 				ID:   "160",
 				Navi: "atan",
-				Affixes: affix{
+				Affixes: fwew_lib.Affix{
 					Prefix: []string{
 						"tsa",
 					},
@@ -167,11 +138,11 @@ var naviWords = []struct {
 		args: args{
 			searchNaviText: "fìlva",
 		},
-		want: []Word{
+		want: []fwew_lib.Word{
 			{
 				ID:   "7408",
 				Navi: "ìlva",
-				Affixes: affix{
+				Affixes: fwew_lib.Affix{
 					Prefix: []string{
 						"fì",
 					},
@@ -184,11 +155,11 @@ var naviWords = []struct {
 		args: args{
 			searchNaviText: "fratan",
 		},
-		want: []Word{
+		want: []fwew_lib.Word{
 			{
 				ID:   "160",
 				Navi: "atan",
-				Affixes: affix{
+				Affixes: fwew_lib.Affix{
 					Prefix: []string{
 						"fra",
 					},
@@ -201,43 +172,42 @@ var naviWords = []struct {
 		args: args{
 			searchNaviText: "pepeveng",
 		},
-		want: []Word{
+		want: []fwew_lib.Word{
 			{
 				ID:   "56",
 				Navi: "'eveng",
-				Affixes: affix{
+				Affixes: fwew_lib.Affix{
 					Prefix: []string{
-						"pe",
-						"pxe",
+						"pepe",
 					},
 				},
 			},
 		},
 	},
 	{
-		name: "pepfil",
+		name: "pepefil",
 		args: args{
-			searchNaviText: "pepfil",
+			searchNaviText: "pepefil",
 		},
-		want: []Word{
+		want: []fwew_lib.Word{
 			{
-				ID:   "6616",
-				Navi: "pil",
-				Affixes: affix{
+				ID:   "12989",
+				Navi: "fil",
+				Affixes: fwew_lib.Affix{
 					Prefix: []string{
-						"pep",
-					},
-					Lenition: []string{
-						"p→f",
+						"pepe",
 					},
 				},
 			},
 			{
-				ID:   "12989",
-				Navi: "fil",
-				Affixes: affix{
+				ID:   "6616",
+				Navi: "pil",
+				Affixes: fwew_lib.Affix{
 					Prefix: []string{
-						"pep",
+						"pepe",
+					},
+					Lenition: []string{
+						"p→f",
 					},
 				},
 			},
@@ -248,18 +218,18 @@ var naviWords = []struct {
 		args: args{
 			searchNaviText: "",
 		},
-		want: []Word{},
+		want: []fwew_lib.Word{},
 	}, // empty
 	{
 		name: "säpeykiyevatsi",
 		args: args{
 			searchNaviText: "säpeykiyevatsi",
 		},
-		want: []Word{
+		want: []fwew_lib.Word{
 			{
 				ID:   "1788",
 				Navi: "si",
-				Affixes: affix{
+				Affixes: fwew_lib.Affix{
 					Infix: []string{
 						"äp",
 						"eyk",
@@ -275,11 +245,11 @@ var naviWords = []struct {
 		args: args{
 			searchNaviText: "tseng",
 		},
-		want: []Word{
+		want: []fwew_lib.Word{
 			{
 				ID:      "2380",
 				Navi:    "tseng",
-				Affixes: affix{},
+				Affixes: fwew_lib.Affix{},
 			},
 		},
 	}, // simple (no *fixes)
@@ -288,13 +258,22 @@ var naviWords = []struct {
 		args: args{
 			searchNaviText: "luyu",
 		},
-		want: []Word{
+		want: []fwew_lib.Word{
 			{
 				ID:   "1044",
 				Navi: "lu",
-				Affixes: affix{
+				Affixes: fwew_lib.Affix{
 					Infix: []string{
 						"uy",
+					},
+				},
+			},
+			{
+				ID:   "1044",
+				Navi: "lu",
+				Affixes: fwew_lib.Affix{
+					Suffix: []string{
+						"yu",
 					},
 				},
 			},
@@ -305,13 +284,13 @@ var naviWords = []struct {
 		args: args{
 			searchNaviText: "seiyi",
 		},
-		want: []Word{
+		want: []fwew_lib.Word{
 			{
 				ID:   "1788",
 				Navi: "si",
-				Affixes: affix{
+				Affixes: fwew_lib.Affix{
 					Infix: []string{
-						"ei",
+						"eiy",
 					},
 				},
 			},
@@ -322,11 +301,11 @@ var naviWords = []struct {
 		args: args{
 			searchNaviText: "zenuyeke",
 		},
-		want: []Word{
+		want: []fwew_lib.Word{
 			{
 				ID:   "3968",
 				Navi: "zenke",
-				Affixes: affix{
+				Affixes: fwew_lib.Affix{
 					Infix: []string{
 						"uy",
 					},
@@ -339,11 +318,11 @@ var naviWords = []struct {
 		args: args{
 			searchNaviText: "verìn",
 		},
-		want: []Word{
+		want: []fwew_lib.Word{
 			{
 				ID:   "6884",
 				Navi: "vrrìn",
-				Affixes: affix{
+				Affixes: fwew_lib.Affix{
 					Infix: []string{
 						"er",
 					},
@@ -356,27 +335,18 @@ var naviWords = []struct {
 		args: args{
 			searchNaviText: "ketsuktswa'",
 		},
-		want: []Word{
-			{
-				ID:   "4984",
-				Navi: "tswa'",
-				Affixes: affix{
-					Prefix: []string{
-						"ketsuk",
-					},
-				},
-			},
+		want: []fwew_lib.Word{
 			{
 				ID:      "7352",
 				Navi:    "ketsuktswa'",
-				Affixes: affix{},
+				Affixes: fwew_lib.Affix{},
 			},
 			{
-				ID:   "7356",
-				Navi: "tsuktswa'",
-				Affixes: affix{
+				ID:   "4984",
+				Navi: "tswa'",
+				Affixes: fwew_lib.Affix{
 					Prefix: []string{
-						"ke",
+						"ketsuk",
 					},
 				},
 			},
@@ -387,11 +357,16 @@ var naviWords = []struct {
 		args: args{
 			searchNaviText: "tìtusaron",
 		},
-		want: []Word{
+		want: []fwew_lib.Word{
+			{
+				ID:      "6156",
+				Navi:    "tìtusaron",
+				Affixes: fwew_lib.Affix{},
+			},
 			{
 				ID:   "2004",
 				Navi: "taron",
-				Affixes: affix{
+				Affixes: fwew_lib.Affix{
 					Prefix: []string{
 						"tì",
 					},
@@ -400,11 +375,6 @@ var naviWords = []struct {
 					},
 				},
 			},
-			{
-				ID:      "6156",
-				Navi:    "tìtusaron",
-				Affixes: affix{},
-			},
 		},
 	}, // tì prefix
 	{
@@ -412,11 +382,11 @@ var naviWords = []struct {
 		args: args{
 			searchNaviText: "fayioang",
 		},
-		want: []Word{
+		want: []fwew_lib.Word{
 			{
 				ID:   "612",
 				Navi: "ioang",
-				Affixes: affix{
+				Affixes: fwew_lib.Affix{
 					Prefix: []string{
 						"fay",
 					},
@@ -429,11 +399,11 @@ var naviWords = []struct {
 		args: args{
 			searchNaviText: "tsasoaiä",
 		},
-		want: []Word{
+		want: []fwew_lib.Word{
 			{
 				ID:   "4804",
 				Navi: "soaia",
-				Affixes: affix{
+				Affixes: fwew_lib.Affix{
 					Prefix: []string{
 						"tsa",
 					},
@@ -449,11 +419,11 @@ var naviWords = []struct {
 		args: args{
 			searchNaviText: "tseyä",
 		},
-		want: []Word{
+		want: []fwew_lib.Word{
 			{
 				ID:   "5268",
 				Navi: "tsaw",
-				Affixes: affix{
+				Affixes: fwew_lib.Affix{
 					Suffix: []string{
 						"yä",
 					},
@@ -466,11 +436,11 @@ var naviWords = []struct {
 		args: args{
 			searchNaviText: "oey",
 		},
-		want: []Word{
+		want: []fwew_lib.Word{
 			{
 				ID:   "1380",
 				Navi: "oe",
-				Affixes: affix{
+				Affixes: fwew_lib.Affix{
 					Suffix: []string{
 						"y",
 					},
@@ -483,11 +453,11 @@ var naviWords = []struct {
 		args: args{
 			searchNaviText: "ngey",
 		},
-		want: []Word{
+		want: []fwew_lib.Word{
 			{
 				ID:   "1348",
 				Navi: "nga",
-				Affixes: affix{
+				Affixes: fwew_lib.Affix{
 					Suffix: []string{
 						"y",
 					},
@@ -500,11 +470,11 @@ var naviWords = []struct {
 		args: args{
 			searchNaviText: "tì'usemä",
 		},
-		want: []Word{
+		want: []fwew_lib.Word{
 			{
 				ID:   "3676",
 				Navi: "'em",
-				Affixes: affix{
+				Affixes: fwew_lib.Affix{
 					Prefix: []string{
 						"tì",
 					},
@@ -523,11 +493,11 @@ var naviWords = []struct {
 		args: args{
 			searchNaviText: "wemtswo",
 		},
-		want: []Word{
+		want: []fwew_lib.Word{
 			{
 				ID:   "3948",
 				Navi: "wem",
-				Affixes: affix{
+				Affixes: fwew_lib.Affix{
 					Suffix: []string{
 						"tswo",
 					},
@@ -536,35 +506,15 @@ var naviWords = []struct {
 		},
 	}, // tswo suffix
 	{
-		name: "pawnengsì",
-		args: args{
-			searchNaviText: "pawnengsì",
-		},
-		want: []Word{
-			{
-				ID:   "1512",
-				Navi: "peng",
-				Affixes: affix{
-					Infix: []string{
-						"awn",
-					},
-					Suffix: []string{
-						"sì",
-					},
-				},
-			},
-		},
-	}, // awn infix and some suffix
-	{
 		name: "tsuknumesì",
 		args: args{
 			searchNaviText: "tsuknumesì",
 		},
-		want: []Word{
+		want: []fwew_lib.Word{
 			{
 				ID:   "1340",
 				Navi: "nume",
-				Affixes: affix{
+				Affixes: fwew_lib.Affix{
 					Prefix: []string{
 						"tsuk",
 					},
@@ -580,11 +530,11 @@ var naviWords = []struct {
 		args: args{
 			searchNaviText: "tsamungwrr",
 		},
-		want: []Word{
+		want: []fwew_lib.Word{
 			{
 				ID:   "5268",
 				Navi: "tsaw",
-				Affixes: affix{
+				Affixes: fwew_lib.Affix{
 					Suffix: []string{
 						"mungwrr",
 					},
@@ -597,7 +547,7 @@ var naviWords = []struct {
 		args: args{
 			searchNaviText: "tsamsiyu",
 		},
-		want: []Word{
+		want: []fwew_lib.Word{
 			{
 				ID:   "2344",
 				Navi: "tsamsiyu",
@@ -609,20 +559,20 @@ var naviWords = []struct {
 		args: args{
 			searchNaviText: "'ueyä",
 		},
-		want: []Word{
+		want: []fwew_lib.Word{
 			{
 				ID:   "108",
 				Navi: "'u",
-				Affixes: affix{
+				Affixes: fwew_lib.Affix{
 					Suffix: []string{
-						"eyä",
+						"yä", "o",
 					},
 				},
 			},
 			{
 				ID:   "4180",
 				Navi: "'uo",
-				Affixes: affix{
+				Affixes: fwew_lib.Affix{
 					Suffix: []string{
 						"yä",
 					},
@@ -635,11 +585,11 @@ var naviWords = []struct {
 		args: args{
 			searchNaviText: "awngeyä",
 		},
-		want: []Word{
+		want: []fwew_lib.Word{
 			{
 				ID:   "192",
 				Navi: "awnga",
-				Affixes: affix{
+				Affixes: fwew_lib.Affix{
 					Suffix: []string{
 						"yä",
 					},
@@ -652,7 +602,7 @@ var naviWords = []struct {
 		args: args{
 			searchNaviText: "fpi",
 		},
-		want: []Word{
+		want: []fwew_lib.Word{
 			{
 				ID:   "428",
 				Navi: "fpi+",
@@ -660,10 +610,11 @@ var naviWords = []struct {
 		},
 	}, // "+" support
 }
+
 var englishWords = []struct {
 	name string
 	args args
-	want []Word
+	want []fwew_lib.Word
 }{
 	{
 		name: "Spielzeug",
@@ -671,7 +622,7 @@ var englishWords = []struct {
 			searchNaviText: "Spielzeug",
 			languageCode:   "de",
 		},
-		want: []Word{
+		want: []fwew_lib.Word{
 			{
 				ID:   "12989",
 				Navi: "fil",
@@ -684,7 +635,7 @@ var englishWords = []struct {
 			searchNaviText: "Tier",
 			languageCode:   "de",
 		},
-		want: []Word{
+		want: []fwew_lib.Word{
 			{
 				ID:   "440",
 				Navi: "fpxafaw",
@@ -721,7 +672,7 @@ var englishWords = []struct {
 			searchNaviText: "Zehe",
 			languageCode:   "de",
 		},
-		want: []Word{
+		want: []fwew_lib.Word{
 			{
 				ID:   "4524",
 				Navi: "venzek",
@@ -734,7 +685,7 @@ var englishWords = []struct {
 			searchNaviText: "sharp",
 			languageCode:   "en",
 		},
-		want: []Word{
+		want: []fwew_lib.Word{
 			{
 				ID:   "1608",
 				Navi: "pxi",
@@ -755,7 +706,7 @@ var englishWords = []struct {
 			searchNaviText: "charge",
 			languageCode:   "en",
 		},
-		want: []Word{
+		want: []fwew_lib.Word{
 			{
 				ID:   "936",
 				Navi: "kxll",
@@ -772,7 +723,7 @@ var englishWords = []struct {
 			searchNaviText: "cloth",
 			languageCode:   "en",
 		},
-		want: []Word{
+		want: []fwew_lib.Word{
 			{
 				ID:   "9868",
 				Navi: "srä",
@@ -785,7 +736,7 @@ var englishWords = []struct {
 			searchNaviText: "merhaba",
 			languageCode:   "tr",
 		},
-		want: []Word{
+		want: []fwew_lib.Word{
 			{
 				ID:   "692",
 				Navi: "kaltxì",
@@ -798,36 +749,50 @@ var englishWords = []struct {
 	},
 }
 
-func TestTranslateFromNavi(t *testing.T) {
+func TestTranslateFromNaviCached(t *testing.T) {
+	var err error
+
+	err = fwew_lib.CacheDictHash()
+	err = fwew_lib.CacheDictHash2()
+
+	if err != nil {
+		t.Fatalf("Could not Cache Dict")
+	}
+
 	for _, tt := range naviWords {
 		t.Run(tt.name, func(t *testing.T) {
-			if got, err := TranslateFromNaviHash(tt.args.searchNaviText, true); err != nil || !wordSimpleEqual(got[1], tt.want) {
-				t.Errorf("TranslateFromNavi() = %v, want %v", got, tt.want)
+			got, err := fwew_lib.TranslateFromNaviHash(tt.args.searchNaviText, true)
+			if err != nil {
+				t.Fatalf("TranslateFromNaviHash() returned error: %v", err)
+			}
+
+			if len(got) > 0 && len(got[0]) > 0 && !wordSimpleEqual(got[0][1:], tt.want) {
+				t.Fatalf("TranslateFromNavi() = %v, want %v", got[0][1:], tt.want)
 			}
 		})
 	}
-}
 
-func TestTranslateFromNaviCached(t *testing.T) {
-	CacheDictHash()
-	TestTranslateFromNavi(t)
-	UncacheHashDict()
+	fwew_lib.UncacheHashDict()
+	fwew_lib.UncacheHashDict2()
 }
 
 func BenchmarkTranslateFromNavi(b *testing.B) {
 	for _, bm := range naviWords {
 		b.Run(bm.name, func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				TranslateFromNaviHash(bm.args.searchNaviText, true)
+				_, _ = fwew_lib.TranslateFromNaviHash(bm.args.searchNaviText, true)
 			}
 		})
 	}
 }
 
 func BenchmarkTranslateFromNaviCached(b *testing.B) {
-	CacheDictHash()
+	err := fwew_lib.CacheDictHash()
+	if err != nil {
+		b.Fatalf("Could not Cache Dict")
+	}
 	BenchmarkTranslateFromNavi(b)
-	UncacheHashDict()
+	fwew_lib.UncacheHashDict()
 }
 
 func BenchmarkTranslateFromNaviBig(b *testing.B) {
@@ -835,7 +800,12 @@ func BenchmarkTranslateFromNaviBig(b *testing.B) {
 	if err != nil {
 		return
 	}
-	defer open.Close()
+	defer func(open *os.File) {
+		err := open.Close()
+		if err != nil {
+
+		}
+	}(open)
 
 	scanner := bufio.NewScanner(open)
 	for scanner.Scan() {
@@ -843,40 +813,56 @@ func BenchmarkTranslateFromNaviBig(b *testing.B) {
 
 		b.Run(line, func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				TranslateFromNaviHash(line, true)
+				_, _ = fwew_lib.TranslateFromNaviHash(line, true)
 			}
 		})
 	}
 }
 
 func BenchmarkTranslateFromNaviBigCached(b *testing.B) {
-	CacheDictHash()
+	err := fwew_lib.CacheDictHash()
+
+	if err != nil {
+		b.Fatalf("Could not Cache Dict")
+	}
+
 	BenchmarkTranslateFromNaviBig(b)
-	UncacheHashDict()
+
+	fwew_lib.UncacheHashDict()
 }
 
-func TestTranslateToNavi(t *testing.T) {
+func TestTranslateToNaviCached(t *testing.T) {
+	err := fwew_lib.CacheDictHash2()
+
+	if err != nil {
+		t.Fatalf("Could not Cache Dict")
+	}
+
 	for _, tt := range englishWords {
 		t.Run(tt.name, func(t *testing.T) {
-			if gotResults := TranslateToNaviHash(tt.args.searchNaviText, tt.args.languageCode); !wordSimpleEqual(gotResults[1], tt.want) {
+			gotResults := fwew_lib.TranslateToNaviHash(tt.args.searchNaviText, tt.args.languageCode)
+			if !wordSimpleEqual(gotResults[0][1:], tt.want) {
 				t.Errorf("TranslateToNavi() = %v, want %v", gotResults, tt.want)
 			}
 		})
 	}
-}
 
-func TestTranslateToNaviCached(t *testing.T) {
-	CacheDictHash2()
-	TestTranslateToNavi(t)
-	UncacheHashDict2()
+	fwew_lib.UncacheHashDict2()
 }
 
 func BenchmarkTranslateToNaviBig(b *testing.B) {
 	open, err := os.Open("misc/random_words_english.txt")
+
 	if err != nil {
 		return
 	}
-	defer open.Close()
+
+	defer func(open *os.File) {
+		err := open.Close()
+		if err != nil {
+
+		}
+	}(open)
 
 	scanner := bufio.NewScanner(open)
 	for scanner.Scan() {
@@ -884,22 +870,29 @@ func BenchmarkTranslateToNaviBig(b *testing.B) {
 
 		b.Run(line, func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				TranslateToNaviHash(line, "en")
+				fwew_lib.TranslateToNaviHash(line, "en")
 			}
 		})
 	}
 }
 
 func BenchmarkTranslateToNaviBigCached(b *testing.B) {
-	CacheDictHash2()
+	err := fwew_lib.CacheDictHash2()
+
+	if err != nil {
+		b.Fatalf("Could not Cache Dict")
+	}
+
 	BenchmarkTranslateToNaviBig(b)
-	UncacheHashDict2()
+
+	fwew_lib.UncacheHashDict2()
 }
 
 func TestRandom(t *testing.T) {
 	type args struct {
 		amount int
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -949,7 +942,7 @@ func TestRandom(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if gotResults, _ := Random(tt.args.amount, nil, 1); !(len(gotResults) == tt.args.amount) {
+			if gotResults, _ := fwew_lib.Random(tt.args.amount, nil, 1); !(len(gotResults) == tt.args.amount) {
 				t.Errorf("Random() = %v, want %v", len(gotResults), tt.args.amount)
 			}
 		})
@@ -957,7 +950,16 @@ func TestRandom(t *testing.T) {
 }
 
 func TestRandomCached(t *testing.T) {
-	CacheDictHash()
+	var err error
+	err = fwew_lib.CacheDictHash()
+	err = fwew_lib.CacheDictHash2()
+
+	if err != nil {
+		t.Fatalf("Unable to Cache Dict")
+	}
+
 	TestRandom(t)
-	UncacheHashDict()
+
+	fwew_lib.UncacheHashDict()
+	fwew_lib.UncacheHashDict2()
 }

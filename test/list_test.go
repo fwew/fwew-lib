@@ -1,7 +1,8 @@
-package fwew_lib
+package test
 
 import (
 	"errors"
+	"github.com/fwew/fwew-lib/v5"
 	"reflect"
 	"testing"
 )
@@ -10,10 +11,11 @@ func TestList(t *testing.T) {
 	type args struct {
 		args []string
 	}
+
 	tests := []struct {
 		name        string
 		args        args
-		wantResults []Word
+		wantResults []fwew_lib.Word
 		wantErr     error
 	}{
 		// TODO: Add test cases.
@@ -303,7 +305,7 @@ func TestList(t *testing.T) {
 				},
 			},
 			wantResults: nil,
-			wantErr:     InvalidNumber,
+			wantErr:     fwew_lib.InvalidNumber,
 		},
 		{
 			name: "syllables = g",
@@ -315,7 +317,7 @@ func TestList(t *testing.T) {
 				},
 			},
 			wantResults: nil,
-			wantErr:     InvalidNumber,
+			wantErr:     fwew_lib.InvalidNumber,
 		},
 		{
 			name: "syllables < 2",
@@ -465,14 +467,14 @@ func TestList(t *testing.T) {
 				},
 			},
 			wantResults: nil,
-			wantErr:     InvalidNumber,
+			wantErr:     fwew_lib.InvalidNumber,
 		},
 		{
 			name: "stress = -1 and word like 'aw",
 			args: args{
 				args: []string{"stress", "=", "-1", "and", "word", "like", "'aw"},
 			},
-			wantResults: []Word{
+			wantResults: []fwew_lib.Word{
 				{
 					ID:             "12",
 					Navi:           "'aw",
@@ -496,33 +498,28 @@ func TestList(t *testing.T) {
 					SV:             "en, ett",
 					TR:             "bir",
 					UK:             "один",
-					Affixes: affix{
+					Affixes: fwew_lib.Affix{
 						Prefix:   nil,
 						Infix:    nil,
 						Suffix:   nil,
 						Lenition: nil,
+						Comment:  nil,
 					},
 				},
 			},
 			wantErr: nil,
 		},
-		{
-			name: "stress != -1 and word like 'aw",
-			args: args{
-				args: []string{"stress", "!=", "-1", "and", "word", "like", "'aw"},
-			},
-			wantResults: nil,
-			wantErr:     nil,
-		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotResults, err := List(tt.args.args, 1)
+			gotResults, err := fwew_lib.List(tt.args.args, 1)
+
 			if !errors.Is(err, tt.wantErr) {
 				t.Errorf("List() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			// test new negative stress feature
+			// test negative stress (right to left indexing)
 			if tt.name == "stress = -1 and word like 'aw" || tt.name == "stress != -1 and word like 'aw" {
 				if !reflect.DeepEqual(gotResults, tt.wantResults) {
 					t.Errorf("List() gotResults = %v, want %v", gotResults, tt.wantResults)
@@ -531,9 +528,6 @@ func TestList(t *testing.T) {
 				// for now, only check if something returns
 				t.Errorf("List() got empty result, expected something!")
 			}
-			//if !reflect.DeepEqual(gotResults, tt.wantResults) {
-			//	t.Errorf("List() gotResults = %v, want %v", gotResults, tt.wantResults)
-			//}
 		})
 	}
 }

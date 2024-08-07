@@ -47,11 +47,11 @@ type Word struct {
 	SV             string
 	TR             string
 	UK             string
-	Affixes        affix
+	Affixes        Affix
 }
 
-// affixes has its own type, so it is automatically copied :)
-type affix struct {
+// Affix has its own type, so it is automatically copied :)
+type Affix struct {
 	Prefix   []string
 	Infix    []string
 	Suffix   []string
@@ -59,7 +59,7 @@ type affix struct {
 	Comment  []string
 }
 
-func addAffixes(a affix, z affix) (w affix) {
+func addAffixes(a Affix, z Affix) (w Affix) {
 	z.Prefix = append(z.Prefix, a.Prefix...)
 	z.Infix = append(z.Infix, a.Infix...)
 	z.Suffix = append(z.Suffix, a.Suffix...)

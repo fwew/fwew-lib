@@ -295,7 +295,7 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 				break
 			}
 
-			keepAffixes := *new(affix)
+			keepAffixes := *new(Affix)
 
 			extraWord := 0
 			// There could be more than one pair (win säpi and win si for example)
@@ -423,7 +423,7 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 
 					newSearch := a.Navi
 
-					keepAffixes := *new(affix)
+					keepAffixes := *new(Affix)
 					keepAffixes = addAffixes(keepAffixes, a.Affixes)
 
 					extraWord := 0

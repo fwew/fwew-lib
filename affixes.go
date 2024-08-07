@@ -1032,7 +1032,7 @@ func (w *Word) reconstruct(target string) bool {
 	// try it another time, with different guess order!
 
 	// clean up word
-	w.Affixes = affix{}
+	w.Affixes = Affix{}
 
 	attempt = w.lenite(w.Navi)
 

@@ -1,24 +1,9 @@
-//	This file is part of Fwew.
-//	Fwew is free software: you can redistribute it and/or modify
-// 	it under the terms of the GNU General Public License as published by
-// 	the Free Software Foundation, either version 3 of the License, or
-// 	(at your option) any later version.
-//
-//	Fwew is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//	GNU General Public License for more details.
-//
-//	You should have received a copy of the GNU General Public License
-//	along with Fwew.  If not, see http://gnu.org/licenses/
-// cSpell: disable
-
-// Package fwew_lib contains all the things. numbers_test.go tests numbers.go functions.
-package fwew_lib
+package test
 
 import (
 	"errors"
 	"fmt"
+	"github.com/fwew/fwew-lib/v5"
 	"testing"
 )
 
@@ -236,15 +221,19 @@ var testCases = []struct {
 func Test_NaviToNumber(t *testing.T) {
 	for _, testCase := range testCases {
 		t.Run(fmt.Sprintf("Translate number %#o", testCase.number), func(t *testing.T) {
-			if number, err := NaviToNumber(testCase.word); err != nil || number != testCase.number {
-				t.Errorf("Translated number of \"%s\" was incorrect: expected \"%#o\", but got \"%#o\"", testCase.word, testCase.number, number)
+			if number, err := fwew_lib.NaviToNumber(testCase.word); err != nil || number != testCase.number {
+				t.Errorf(
+					"Translated number of \"%s\" was incorrect: expected \"%#o\", but got \"%#o\"",
+					testCase.word, testCase.number, number)
 			}
 		})
 	}
 	for _, testCase := range testCasesAffixed {
 		t.Run(fmt.Sprintf("Translate number %#o", testCase.number), func(t *testing.T) {
-			if number, err := NaviToNumber(testCase.word); err != nil || number != testCase.number {
-				t.Errorf("Translated number of \"%s\" was incorrect: expected \"%#o\", but got \"%#o\"", testCase.word, testCase.number, number)
+			if number, err := fwew_lib.NaviToNumber(testCase.word); err != nil || number != testCase.number {
+				t.Errorf(
+					"Translated number of \"%s\" was incorrect: expected \"%#o\", but got \"%#o\"",
+					testCase.word, testCase.number, number)
 			}
 		})
 	}
@@ -253,22 +242,24 @@ func Test_NaviToNumber(t *testing.T) {
 func Test_NumberToNavi(t *testing.T) {
 	for _, testCase := range testCases {
 		t.Run(fmt.Sprintf("Translate %#o", testCase.number), func(t *testing.T) {
-			if word, err := NumberToNavi(testCase.number); err != nil || word != testCase.word {
-				t.Errorf("Translated word of number \"%#o\" was incorrect: expected \"%s\", but got \"%s\"", testCase.number, testCase.word, word)
+			if word, err := fwew_lib.NumberToNavi(testCase.number); err != nil || word != testCase.word {
+				t.Errorf(
+					"Translated word of number \"%#o\" was incorrect: expected \"%s\", but got \"%s\"",
+					testCase.number, testCase.word, word)
 			}
 		})
 	}
 
 	// also test errors:
 	t.Run("Translate negative number", func(t *testing.T) {
-		if _, err := NumberToNavi(-0o50); !errors.Is(err, NegativeNumber) {
-			t.Errorf("Error that occured is not correct: expected \"%s\", but got \"%s\"", NegativeNumber, err)
+		if _, err := fwew_lib.NumberToNavi(-0o50); !errors.Is(err, fwew_lib.NegativeNumber) {
+			t.Errorf("Error that occured is not correct: expected \"%s\", but got \"%s\"", fwew_lib.NegativeNumber, err)
 		}
 	})
 
 	t.Run(fmt.Sprintln("Translate too big number"), func(t *testing.T) {
-		if _, err := NumberToNavi(0o100000); !errors.Is(err, NumberTooBig) {
-			t.Errorf("Error that occurred is not correct: expected \"%s\", but got \"%s\"", NumberTooBig, err)
+		if _, err := fwew_lib.NumberToNavi(0o100000); !errors.Is(err, fwew_lib.NumberTooBig) {
+			t.Errorf("Error that occurred is not correct: expected \"%s\", but got \"%s\"", fwew_lib.NumberTooBig, err)
 		}
 	})
 }
