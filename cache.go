@@ -961,7 +961,7 @@ func GetDictSize(lang string) (count string, err error) {
 		count = count + " 🇸🇪"
 	} else if lang == "tr" { // Turkish (Türkçe)
 		count = count + " 🇹🇷"
-	} else if lang == "uk" {
+	} else if lang == "uk" { // Ukrainian (Українська)
 		count = count + " 🇺🇦"
 	}
 
