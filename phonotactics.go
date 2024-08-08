@@ -356,7 +356,7 @@ func IsValidNaviHelper(word string, lang string) string {
 	syllable_count := len(strings.Split(syllable_breakdown, "-"))
 	message := valid_message(syllable_count, lang)
 	message = strings.ReplaceAll(message, "{oldWord}", oldWord)
-	message = strings.ReplaceAll(message, "{breakdown}", strings.ToLower(decompress(syllable_breakdown)))
+	message = strings.ReplaceAll(message, "{breakdown}", decompress(strings.ToLower(syllable_breakdown)))
 	message = strings.ReplaceAll(message, "{syllable_forest}", syllable_forest)
 
 	return "✅ " + message
