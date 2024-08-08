@@ -170,7 +170,7 @@ func valid_message(syllable_count int, lang string) string {
 }
 
 var message_too_big = map[string]string{
-	"en": "⛔ (stopped at {count}. 2000 Character limit) 🇩🇪", // English
+	"en": "⛔ (stopped at {count}. 2000 Character limit)",    // English
 	"de": "⛔ (stopped at {count}. 2000 Character limit) 🇩🇪", // German (Deutsch)
 	"es": "⛔ (stopped at {count}. 2000 Character limit) 🇪🇦", // Spanish (Español)
 	"et": "⛔ (stopped at {count}. 2000 Character limit) 🇪🇪", // Estonian (Eesti)
