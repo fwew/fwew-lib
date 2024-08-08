@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -259,6 +260,7 @@ func EnglishIfNull(word Word) Word {
 func RomanizeSecondIPA(IPA string) string {
 	// now Romanize the IPA
 	IPA = strings.ReplaceAll(IPA, "ʊ", "u")
+	IPA = strings.ReplaceAll(IPA, "õ", "o") // vonvä' as võvä' only
 	word := strings.Split(IPA, " ")
 
 	breakdown := ""
@@ -513,7 +515,7 @@ func CacheDictHashOrig(mysql bool) error {
 
 		// See whether or not it violates normal phonotactic rules like Jakesully or Oìsss
 		valid := true
-		for _, a := range strings.Split(IsValidNavi(standardizedWord), "\n") {
+		for _, a := range strings.Split(IsValidNavi(standardizedWord, "en"), "\n") {
 			// Check every word.  If one of them isn't good, write down the word
 			if len(a) > 0 && (!strings.Contains(a, "Valid:") || strings.Contains(a, "reef")) {
 				valid = false
@@ -918,7 +920,15 @@ func GetFullDict() (allWords []Word, err error) {
 	return
 }
 
-func GetDictSize() (amount int, err error) {
+// Just a number
+func GetDictSizeSimple() (count int) {
+	return len(dictionary)
+}
+
+// Return a complete sentence
+func GetDictSize(lang string) (count string, err error) {
+	// Count words
+	amount := 0
 	if dictionaryCached {
 		amount = len(dictionary)
 	} else {
@@ -927,6 +937,40 @@ func GetDictSize() (amount int, err error) {
 			return nil
 		})
 	}
+
+	// Put the word count into a complete sentence
+	count = strconv.Itoa(amount)
+
+	if lang == "en" { // English
+		count = "There are " + count + " entries in the dictionary."
+	} else if lang == "de" { // German (Deutsch)
+		count = count + " 🇩🇪"
+	} else if lang == "es" { // Spanish (Español)
+		count = count + " 🇪🇦"
+	} else if lang == "et" { // Estonian (Eesti)
+		count = count + " 🇪🇪"
+	} else if lang == "fr" { // French (Français)
+		count = count + " 🇫🇷"
+	} else if lang == "hu" { // Hungarian (Magyar)
+		count = count + " 🇭🇺"
+	} else if lang == "ko" { // Korean (한국어)
+		count = count + " 🇰🇷"
+	} else if lang == "nl" { // Dutch (Nederlands)
+		count = count + " 🇳🇱"
+	} else if lang == "pl" { // Polish (Polski)
+		count = count + " 🇵🇱"
+	} else if lang == "pt" { // Portuguese (Português)
+		count = count + " 🇵🇹"
+	} else if lang == "ru" { // Russian (Русский)
+		count = count + " 🇷🇺"
+	} else if lang == "sv" { // Swedish (Svenska)
+		count = count + " 🇸🇪"
+	} else if lang == "tr" { // Turkish (Türkçe)
+		count = count + " 🇹🇷"
+	} else if lang == "uk" { // Ukrainian (Українська)
+		count = count + " 🇺🇦"
+	}
+
 	return
 }
 

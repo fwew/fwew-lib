@@ -16,8 +16,38 @@ var letters_end = []string{"", "p", "t", "k", "b", "d", "q", "'",
 
 var letters_map = map[string]string{}
 
+func MakeSyllableBreakdown(syllables []string) string {
+	syllable_breakdown_temp := ""
+	for i, a := range syllables {
+		if i != len(syllables)-1 && i != 0 {
+			syllable_breakdown_temp += "-"
+		}
+		syllable_breakdown_temp += a
+	}
+	return syllable_breakdown_temp
+}
+
+// Turns things like maw-ey into ma-wey, so the checker knows
+// mawll is valid as ma-wll and not mistaken for maw-ll (invalid)
+func NoDoubleDiphthongs(syllable_breakdown string) string {
+	syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "2-0", "a-w0")
+	syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "2-1", "a-w1")
+	syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "3-0", "a-y0")
+	syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "3-1", "a-y1")
+	syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "4-0", "e-w0")
+	syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "4-1", "e-w1")
+	syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "5-0", "e-y0")
+	syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "5-1", "e-y1")
+	return syllable_breakdown
+}
+
 // See if a word is phonotactically valid in Na'vi
-func IsValidNaviHelper(word string) string {
+func IsValidNaviHelper(word string, lang string) string {
+	// Protect against odd language values
+	if _, ok := message_valid[lang]; !ok {
+		lang = "en" // default to English
+	}
+
 	oldWord := word
 	// Phase 0: Clean up the word
 	word = strings.ToLower(word)
@@ -67,8 +97,11 @@ func IsValidNaviHelper(word string) string {
 		}
 	}
 
+	// ERROR 1a: letters not in Na'vi
 	if len(nonNaviLetters) > 0 {
-		return "❌ **" + oldWord + "** Has letters not in Na'vi: " + nonNaviLetters
+		message := strings.ReplaceAll(message_non_navi_letters[lang], "{oldWord}", oldWord)
+		message = strings.ReplaceAll(message, "{nonNaviLetters}", nonNaviLetters)
+		return "❌ " + message
 	}
 
 	// Phase 1: don't confuse the digraph compression things
@@ -109,8 +142,11 @@ func IsValidNaviHelper(word string) string {
 	// But the user can say otherwise
 	tempWord = strings.ReplaceAll(tempWord, ">G", "G")
 
+	// ERROR 1b: letters not in Na'vi
 	if badLetters != "" {
-		return "❌ **" + oldWord + "** Invalid letters: `" + badLetters + "`"
+		message := strings.ReplaceAll(message_non_navi_letters[lang], "{oldWord}", oldWord)
+		message = strings.ReplaceAll(message, "{nonNaviLetters}", badLetters)
+		return "❌ " + message
 	}
 
 	// Phase 2: Compress digraphs and divide into syllable boundaries
@@ -138,8 +174,10 @@ func IsValidNaviHelper(word string) string {
 		}
 	}
 
+	// ERROR 2: No syllable nuclei
 	if len(word_nuclei) == 0 {
-		return "❌ **" + oldWord + "** Error: could not find any syllable nuclei"
+		message := strings.ReplaceAll(message_no_nuclei[lang], "{oldWord}", oldWord)
+		return "❌ " + message
 	}
 
 	// Phase 2.1: Go through syllable boundaries
@@ -149,8 +187,10 @@ func IsValidNaviHelper(word string) string {
 		a = strings.ReplaceAll(a, " ", "")
 		if b, ok := letters_map[a]; ok {
 			syllable_breakdown = syllable_breakdown + b
-		} else {
-			return "❌ **" + oldWord + "** Invalid consonant combination: `" + strings.ToLower(decompress(a)) + "`"
+		} else { // ERROR 3: Invalid consonant combination
+			message := strings.ReplaceAll(message_invalid_consonants[lang], "{oldWord}", oldWord)
+			message = strings.ReplaceAll(message, "{badConsonants}", strings.ToLower(decompress(a)))
+			return "❌ " + message
 		}
 		if i < len(word_nuclei) {
 			syllable_breakdown = syllable_breakdown + string(word_nuclei[i])
@@ -173,8 +213,14 @@ func IsValidNaviHelper(word string) string {
 		}
 	}
 
+	// ERROR 4a: Incomplete syllables
 	if !contains[0] {
-		return "❌ **" + oldWord + "** Incomplete syllables: `" + strings.ToLower(decompress(syllable_breakdown)) + "`"
+		syllables[0] += "•"
+		syllable_breakdown_2 := MakeSyllableBreakdown(syllables)
+		syllable_breakdown_2 = NoDoubleDiphthongs(syllable_breakdown_2)
+		message := strings.ReplaceAll(message_needed_vowel[lang], "{oldWord}", oldWord)
+		message = strings.ReplaceAll(message, "{breakdown}", strings.ToLower(decompress(syllable_breakdown_2)))
+		return "❌ " + message
 	}
 
 	if !contains[1] {
@@ -187,7 +233,12 @@ func IsValidNaviHelper(word string) string {
 		}
 
 		if !can_end_a_word {
-			return "❌ **" + oldWord + "** Incomplete syllables: `" + strings.ToLower(decompress(syllable_breakdown)) + "`"
+			syllables[len(syllables)-1] += "•"
+			syllable_breakdown_2 := MakeSyllableBreakdown(syllables)
+			syllable_breakdown_2 = NoDoubleDiphthongs(syllable_breakdown_2)
+			message := strings.ReplaceAll(message_needed_vowel[lang], "{oldWord}", oldWord)
+			message = strings.ReplaceAll(message, "{breakdown}", strings.ToLower(decompress(syllable_breakdown_2)))
+			return "❌ " + message
 		}
 
 		can_coda := false
@@ -200,46 +251,41 @@ func IsValidNaviHelper(word string) string {
 		}
 
 		if !can_coda {
-			return "❌ **" + oldWord + "** Incomplete syllables: `" + strings.ToLower(decompress(syllable_breakdown)) + "`"
+			syllables[len(syllables)-1] += "•"
+			syllable_breakdown_2 := MakeSyllableBreakdown(syllables)
+			syllable_breakdown_2 = NoDoubleDiphthongs(syllable_breakdown_2)
+			message := strings.ReplaceAll(message_needed_vowel[lang], "{oldWord}", oldWord)
+			message = strings.ReplaceAll(message, "{breakdown}", strings.ToLower(decompress(syllable_breakdown_2)))
+			return "❌ " + message
 		}
 
-		syllable_breakdown_temp := ""
-
-		for i, a := range syllables {
-			if i != len(syllables)-1 {
-				syllable_breakdown_temp += "-"
-			}
-			syllable_breakdown_temp += a
-		}
-
-		syllable_breakdown = strings.TrimPrefix(syllable_breakdown_temp, "-")
+		syllable_breakdown = MakeSyllableBreakdown(syllables)
 	}
 
 	// Finally, psuedovowels cannot accept codas
 	for _, a := range letters_end {
 		if a != "" && (strings.Contains(syllable_breakdown, "0"+a) || strings.Contains(syllable_breakdown, "1"+a)) {
-			return "❌ **" + oldWord + "** Psuedovowels can't accept codas: `" + decompress(strings.ToLower(syllable_breakdown)) + "`"
+			message := strings.ReplaceAll(message_psuedovowels_cant_coda[lang], "{oldWord}", oldWord)
+			message = strings.ReplaceAll(message, "{breakdown}", strings.ToLower(decompress(syllable_breakdown)))
+			return "❌ " + message
 		}
 	}
 
 	// Ensure no diphthong confuses the checker (as in "ewll" becoming "ew-ll" and not "e-wll")
-	syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "2-0", "a-w0")
-	syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "2-1", "a-w1")
-	syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "3-0", "a-y0")
-	syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "3-1", "a-y1")
-	syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "4-0", "e-w0")
-	syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "4-1", "e-w1")
-	syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "5-0", "e-y0")
-	syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "5-1", "e-y1")
+	syllable_breakdown = NoDoubleDiphthongs(syllable_breakdown)
 
 	if strings.Contains(syllable_breakdown, "-0-") || strings.Contains(syllable_breakdown, "-1-") ||
 		strings.HasPrefix(syllable_breakdown, "0") || strings.HasPrefix(syllable_breakdown, "1") ||
 		strings.HasSuffix(syllable_breakdown, "-0") || strings.HasSuffix(syllable_breakdown, "-1") {
-		return "❌ **" + oldWord + "** Psuedovowels must have onsets: `" + decompress(strings.ToLower(syllable_breakdown)) + "`"
+		message := strings.ReplaceAll(message_psuedovowels_must_onset[lang], "{oldWord}", oldWord)
+		message = strings.ReplaceAll(message, "{breakdown}", strings.ToLower(decompress(syllable_breakdown)))
+		return "❌ " + message
 	}
 
 	if strings.Contains(syllable_breakdown, "0-r") || strings.Contains(syllable_breakdown, "1-l") {
-		return "❌ **" + oldWord + "** Triple Rs or Ls aren't allowed: `" + decompress(strings.ToLower(syllable_breakdown)) + "`"
+		message := strings.ReplaceAll(message_triple_liquid[lang], "{oldWord}", oldWord)
+		message = strings.ReplaceAll(message, "{breakdown}", strings.ToLower(decompress(syllable_breakdown)))
+		return "❌ " + message
 	}
 
 	// If you reach here, the word is valid
@@ -247,35 +293,35 @@ func IsValidNaviHelper(word string) string {
 
 	syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "ng", "0")
 
-	isReef := ""
+	isReef := false
 	if strings.ContainsAny(syllable_breakdown, "bdg") || strings.Contains(oldWord, "ch") || strings.Contains(oldWord, "sh") {
 		syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "tsy", "ch")
 		syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "sy", "sh")
-		isReef = " (in reef dialect"
+		isReef = true
 	}
 	syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "0", "ng")
 
 	// Identical adjacent vowels mean reef Na'vi
-	if len(isReef) == 0 {
+	if !isReef {
 		found := false
 		for _, a := range []string{"a", "ä", "e", "i", "ì", "o", "u", "ù"} {
 			if strings.Contains(syllable_breakdown, a+"-"+a) {
-				isReef = " (in reef dialect"
+				isReef = true
 				found = true
 				break
 			}
 		}
 		if !found {
 			if strings.Contains(syllable_breakdown, "i-ì") || strings.Contains(syllable_breakdown, "ì-i") {
-				isReef = " (in reef dialect"
+				isReef = true
 			}
 		}
 	}
 
 	// So does ù
-	if len(isReef) == 0 {
+	if !isReef {
 		if strings.Contains(syllable_breakdown, "ù") {
-			isReef = " (in reef dialect"
+			isReef = true
 		}
 	}
 
@@ -286,15 +332,9 @@ func IsValidNaviHelper(word string) string {
 		syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "y-"+string(a), "-y"+string(a))
 	}
 
-	syllable_word := " syllables"
-	syllable_count := len(strings.Split(syllable_breakdown, "-"))
-	if syllable_count == 1 {
-		syllable_word = " syllable"
-	}
-
 	// If reef dialect is present, show what forest looks like
 	syllable_forest := ""
-	if len(isReef) > 0 {
+	if isReef {
 		syllable_forest = strings.ReplaceAll(syllable_breakdown, "sh", "sy")
 		syllable_forest = strings.ReplaceAll(syllable_forest, "ng", "0")
 		syllable_forest = strings.ReplaceAll(syllable_forest, "ch", "tsy")
@@ -302,18 +342,27 @@ func IsValidNaviHelper(word string) string {
 		syllable_forest = strings.ReplaceAll(syllable_forest, "d", "tx")
 		syllable_forest = strings.ReplaceAll(syllable_forest, "g", "kx")
 		for _, a := range []string{"a", "ä", "e", "i", "ì", "o", "u", "ù"} {
+			// First pass: a-a-a-a-a-a is seen as [a-a]-[a-a]-[a-a] and becomes a-ya-a-ya-a-ya
+			syllable_forest = strings.ReplaceAll(syllable_forest, a+"-"+a, a+"-y"+a)
+			// Second pass: a-ya-a-ya-a-ya is seen as a-y[a-a]-y[a-a]-ya and becomes a-ya-ya-ya-ya-ya
 			syllable_forest = strings.ReplaceAll(syllable_forest, a+"-"+a, a+"-y"+a)
 		}
 		syllable_forest = strings.ReplaceAll(syllable_forest, "i-ì", "i-yì")
 		syllable_forest = strings.ReplaceAll(syllable_forest, "ì-i", "ì-yi")
 		syllable_forest = strings.ReplaceAll(syllable_forest, "0", "ng")
-		syllable_forest = ", forest dialect `" + syllable_forest + "`)"
+		syllable_forest = strings.ReplaceAll(message_reef_dialect[lang], "{breakdown}", syllable_forest)
 	}
 
-	return "✅ **" + oldWord + "** Valid: `" + syllable_breakdown + "` with " + strconv.Itoa(syllable_count) + syllable_word + isReef + syllable_forest
+	syllable_count := len(strings.Split(syllable_breakdown, "-"))
+	message := valid_message(syllable_count, lang)
+	message = strings.ReplaceAll(message, "{oldWord}", oldWord)
+	message = strings.ReplaceAll(message, "{breakdown}", strings.ToLower(decompress(syllable_breakdown)))
+	message = strings.ReplaceAll(message, "{syllable_forest}", syllable_forest)
+
+	return "✅ " + message
 }
 
-func IsValidNavi(word string) string {
+func IsValidNavi(word string, lang string) string {
 	// Let it know of valid syllable boundaries
 	if len(letters_map) == 0 {
 		for _, a := range letters_end {
@@ -344,7 +393,7 @@ func IsValidNavi(word string) string {
 	}
 	results := ""
 	for i, a := range strings.Split(word, " ") {
-		newLine := IsValidNaviHelper(a) + "\n"
+		newLine := IsValidNaviHelper(a, lang) + "\n"
 		if len(results)+len(newLine) > 1914 {
 			results += "⛔ (stopped at " + strconv.Itoa(i+1) + ". 2000 Character limit)"
 			break
