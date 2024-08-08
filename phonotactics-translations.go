@@ -168,3 +168,20 @@ func valid_message(syllable_count int, lang string) string {
 	}
 	return strings.ReplaceAll(message_valid[lang], "{syllable_count}", strconv.Itoa(syllable_count))
 }
+
+var message_too_big = map[string]string{
+	"en": "⛔ (stopped at {count}. 2000 Character limit) 🇩🇪", // English
+	"de": "⛔ (stopped at {count}. 2000 Character limit) 🇩🇪", // German (Deutsch)
+	"es": "⛔ (stopped at {count}. 2000 Character limit) 🇪🇦", // Spanish (Español)
+	"et": "⛔ (stopped at {count}. 2000 Character limit) 🇪🇪", // Estonian (Eesti)
+	"fr": "⛔ (stopped at {count}. 2000 Character limit) 🇫🇷", // French (Français)
+	"hu": "⛔ (stopped at {count}. 2000 Character limit) 🇭🇺", // Hungarian (Magyar)
+	"ko": "⛔ (stopped at {count}. 2000 Character limit) 🇰🇷", // Korean (한국어)
+	"nl": "⛔ (stopped at {count}. 2000 Character limit) 🇳🇱", // Dutch (Nederlands)
+	"pl": "⛔ (stopped at {count}. 2000 Character limit) 🇵🇱", // Polish (Polski)
+	"pt": "⛔ (stopped at {count}. 2000 Character limit) 🇵🇹", // Portuguese (Português)
+	"ru": "⛔ (stopped at {count}. 2000 Character limit) 🇷🇺", // Russian (Русский)
+	"sv": "⛔ (stopped at {count}. 2000 Character limit) 🇸🇪", // Swedish (Svenska)
+	"tr": "⛔ (stopped at {count}. 2000 Character limit) 🇹🇷", // Turkish (Türkçe)
+	"uk": "⛔ (stopped at {count}. 2000 Character limit) 🇺🇦", // Ukrainian (Українська)
+}
