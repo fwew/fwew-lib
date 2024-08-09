@@ -667,6 +667,21 @@ func TranslateToNaviHashHelper(searchWord string, langCode string) (results []Wo
 				results = AppendAndAlphabetize(results, a)
 			}
 		}
+	case "ko": // Korean
+		for _, a := range SearchNatlangWord(dictHash2.KO, searchWord) {
+			// Verify the search query is actually in the definition
+			searchWords := SearchTerms(a.KO)
+			found := false
+			for _, d := range searchWords {
+				if d == searchWord {
+					found = true
+					break
+				}
+			}
+			if found {
+				results = AppendAndAlphabetize(results, a)
+			}
+		}
 	case "nl": // Dutch
 		for _, a := range SearchNatlangWord(dictHash2.NL, searchWord) {
 			// Verify the search query is actually in the definition

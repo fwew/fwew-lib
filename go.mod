@@ -1,6 +1,6 @@
 module github.com/fwew/fwew-lib/v5
 
-go 1.20
+go 1.22
 
 require (
 	github.com/go-sql-driver/mysql v1.8.1
