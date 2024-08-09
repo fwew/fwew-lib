@@ -148,7 +148,7 @@ var message_valid = map[string]string{
 	"et": "**{oldWord}** 🇪🇪 Valid: `{breakdown}` with {syllable_count} syllables {syllable_forest}", // Estonian (Eesti)
 	"fr": "**{oldWord}** 🇫🇷 Valid: `{breakdown}` with {syllable_count} syllables {syllable_forest}", // French (Français)
 	"hu": "**{oldWord}** 🇭🇺 Valid: `{breakdown}` with {syllable_count} syllables {syllable_forest}", // Hungarian (Magyar)
-	"ko": "**{oldWord}**는 `{breakdown}` 의 {syllable_count}음절로 구성된 유효한 단어입니다. {syllable_forest}",     // Korean (한국어)
+	"ko": "**{oldWord}** 는 `{breakdown}` 의 {syllable_count}음절로 구성된 유효한 단어입니다. {syllable_forest}",    // Korean (한국어)
 	"nl": "**{oldWord}** 🇳🇱 Valid: `{breakdown}` with {syllable_count} syllables {syllable_forest}", // Dutch (Nederlands)
 	"pl": "**{oldWord}** 🇵🇱 Valid: `{breakdown}` with {syllable_count} syllables {syllable_forest}", // Polish (Polski)
 	"pt": "**{oldWord}** 🇵🇹 Valid: `{breakdown}` with {syllable_count} syllables {syllable_forest}", // Portuguese (Português)
