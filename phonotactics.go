@@ -356,7 +356,7 @@ func IsValidNaviHelper(word string, lang string) string {
 	syllable_count := len(strings.Split(syllable_breakdown, "-"))
 	message := valid_message(syllable_count, lang)
 	message = strings.ReplaceAll(message, "{oldWord}", oldWord)
-	message = strings.ReplaceAll(message, "{breakdown}", strings.ToLower(decompress(syllable_breakdown)))
+	message = strings.ReplaceAll(message, "{breakdown}", syllable_breakdown)
 	message = strings.ReplaceAll(message, "{syllable_forest}", syllable_forest)
 
 	return "✅ " + message
@@ -395,7 +395,7 @@ func IsValidNavi(word string, lang string) string {
 	for i, a := range strings.Split(word, " ") {
 		newLine := IsValidNaviHelper(a, lang) + "\n"
 		if len(results)+len(newLine) > 1914 {
-			results += "⛔ (stopped at " + strconv.Itoa(i+1) + ". 2000 Character limit)"
+			results += strings.ReplaceAll(message_too_big[lang], "{count}", strconv.Itoa(i+1))
 			break
 		}
 		results += newLine
