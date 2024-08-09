@@ -6,20 +6,20 @@ import (
 )
 
 var message_non_navi_letters = map[string]string{
-	"en": "**{oldWord}** Has letters not in Na'vi: `{nonNaviLetters}`",       // English
-	"de": "**{oldWord}** 🇩🇪 Has letters not in Na'vi: `{nonNaviLetters}`",    // German (Deutsch)
-	"es": "**{oldWord}** 🇪🇦 Has letters not in Na'vi: `{nonNaviLetters}`",    // Spanish (Español)
-	"et": "**{oldWord}** 🇪🇪 Has letters not in Na'vi: `{nonNaviLetters}`",    // Estonian (Eesti)
-	"fr": "**{oldWord}** 🇫🇷 Has letters not in Na'vi: `{nonNaviLetters}`",    // French (Français)
-	"hu": "**{oldWord}** 🇭🇺 Has letters not in Na'vi: `{nonNaviLetters}`",    // Hungarian (Magyar)
-	"ko": "**{oldWord}**에는 나비어에 존재하지 않는 낱말이 포함되어 있습니다. - `{nonNaviLetters}`", // Korean (한국어)
-	"nl": "**{oldWord}** 🇳🇱 Has letters not in Na'vi: `{nonNaviLetters}`",    // Dutch (Nederlands)
-	"pl": "**{oldWord}** 🇵🇱 Has letters not in Na'vi: `{nonNaviLetters}`",    // Polish (Polski)
-	"pt": "**{oldWord}** 🇵🇹 Has letters not in Na'vi: `{nonNaviLetters}`",    // Portuguese (Português)
-	"ru": "**{oldWord}** 🇷🇺 Has letters not in Na'vi: `{nonNaviLetters}`",    // Russian (Русский)
-	"sv": "**{oldWord}** 🇸🇪 Has letters not in Na'vi: `{nonNaviLetters}`",    // Swedish (Svenska)
-	"tr": "**{oldWord}** 🇹🇷 Has letters not in Na'vi: `{nonNaviLetters}`",    // Turkish (Türkçe)
-	"uk": "**{oldWord}** 🇺🇦 Has letters not in Na'vi: `{nonNaviLetters}`",    // Ukrainian (Українська)
+	"en": "**{oldWord}** Has letters not in Na'vi: `{nonNaviLetters}`",        // English
+	"de": "**{oldWord}** 🇩🇪 Has letters not in Na'vi: `{nonNaviLetters}`",     // German (Deutsch)
+	"es": "**{oldWord}** 🇪🇦 Has letters not in Na'vi: `{nonNaviLetters}`",     // Spanish (Español)
+	"et": "**{oldWord}** 🇪🇪 Has letters not in Na'vi: `{nonNaviLetters}`",     // Estonian (Eesti)
+	"fr": "**{oldWord}** 🇫🇷 Has letters not in Na'vi: `{nonNaviLetters}`",     // French (Français)
+	"hu": "**{oldWord}** 🇭🇺 Has letters not in Na'vi: `{nonNaviLetters}`",     // Hungarian (Magyar)
+	"ko": "**{oldWord}** 에는 나비어에 존재하지 않는 낱말이 포함되어 있습니다. - `{nonNaviLetters}`", // Korean (한국어)
+	"nl": "**{oldWord}** 🇳🇱 Has letters not in Na'vi: `{nonNaviLetters}`",     // Dutch (Nederlands)
+	"pl": "**{oldWord}** 🇵🇱 Has letters not in Na'vi: `{nonNaviLetters}`",     // Polish (Polski)
+	"pt": "**{oldWord}** 🇵🇹 Has letters not in Na'vi: `{nonNaviLetters}`",     // Portuguese (Português)
+	"ru": "**{oldWord}** 🇷🇺 Has letters not in Na'vi: `{nonNaviLetters}`",     // Russian (Русский)
+	"sv": "**{oldWord}** 🇸🇪 Has letters not in Na'vi: `{nonNaviLetters}`",     // Swedish (Svenska)
+	"tr": "**{oldWord}** 🇹🇷 Has letters not in Na'vi: `{nonNaviLetters}`",     // Turkish (Türkçe)
+	"uk": "**{oldWord}** 🇺🇦 Has letters not in Na'vi: `{nonNaviLetters}`",     // Ukrainian (Українська)
 }
 
 var message_no_nuclei = map[string]string{
@@ -29,7 +29,7 @@ var message_no_nuclei = map[string]string{
 	"et": "**{oldWord}** 🇪🇪 Error: could not find any syllable nuclei", // Estonian (Eesti)
 	"fr": "**{oldWord}** 🇫🇷 Error: could not find any syllable nuclei", // French (Français)
 	"hu": "**{oldWord}** 🇭🇺 Error: could not find any syllable nuclei", // Hungarian (Magyar)
-	"ko": "**{oldWord}**에서 음절핵(중성)에 해당하는 요소를 찾을 수 없습니다.",               // Korean (한국어)
+	"ko": "**{oldWord}** 에서 음절핵(중성)에 해당하는 요소를 찾을 수 없습니다.",              // Korean (한국어)
 	"nl": "**{oldWord}** 🇳🇱 Error: could not find any syllable nuclei", // Dutch (Nederlands)
 	"pl": "**{oldWord}** 🇵🇱 Error: could not find any syllable nuclei", // Polish (Polski)
 	"pt": "**{oldWord}** 🇵🇹 Error: could not find any syllable nuclei", // Portuguese (Português)
@@ -46,7 +46,7 @@ var message_invalid_consonants = map[string]string{
 	"et": "**{oldWord}** 🇪🇪 Invalid consonant combination: `{badConsonants}`", // Estonian (Eesti)
 	"fr": "**{oldWord}** 🇫🇷 Invalid consonant combination: `{badConsonants}`", // French (Français)
 	"hu": "**{oldWord}** 🇭🇺 Invalid consonant combination: `{badConsonants}`", // Hungarian (Magyar)
-	"ko": "**{oldWord}**에 유효하지 않은 조합이 발견되었습니다. - `{badConsonants}`",           // Korean (한국어)
+	"ko": "**{oldWord}** 에 유효하지 않은 조합이 발견되었습니다. - `{badConsonants}`",          // Korean (한국어)
 	"nl": "**{oldWord}** 🇳🇱 Invalid consonant combination: `{badConsonants}`", // Dutch (Nederlands)
 	"pl": "**{oldWord}** 🇵🇱 Invalid consonant combination: `{badConsonants}`", // Polish (Polski)
 	"pt": "**{oldWord}** 🇵🇹 Invalid consonant combination: `{badConsonants}`", // Portuguese (Português)
@@ -74,37 +74,37 @@ var message_needed_vowel = map[string]string{
 }
 
 var message_psuedovowels_cant_coda = map[string]string{
-	"en": "**{oldWord}** Psuedovowels can't accept codas: `{breakdown}`",                         // English
-	"de": "**{oldWord}** 🇩🇪 Psuedovowels can't accept codas: `{breakdown}`",                      // German (Deutsch)
-	"es": "**{oldWord}** 🇪🇦 Psuedovowels can't accept codas: `{breakdown}`",                      // Spanish (Español)
-	"et": "**{oldWord}** 🇪🇪 Psuedovowels can't accept codas: `{breakdown}`",                      // Estonian (Eesti)
-	"fr": "**{oldWord}** 🇫🇷 Psuedovowels can't accept codas: `{breakdown}`",                      // French (Français)
-	"hu": "**{oldWord}** 🇭🇺 Psuedovowels can't accept codas: `{breakdown}`",                      // Hungarian (Magyar)
-	"ko": "**{oldWord}**에 유효하지 않은 자음 조합이 발견되었습니다. 준모음(음절자음)은 말음(종성)을 가질 수 없습니다. - `{breakdown}`", // Korean (한국어)
-	"nl": "**{oldWord}** 🇳🇱 Psuedovowels can't accept codas: `{breakdown}`",                      // Dutch (Nederlands)
-	"pl": "**{oldWord}** 🇵🇱 Psuedovowels can't accept codas: `{breakdown}`",                      // Polish (Polski)
-	"pt": "**{oldWord}** 🇵🇹 Psuedovowels can't accept codas: `{breakdown}`",                      // Portuguese (Português)
-	"ru": "**{oldWord}** 🇷🇺 Psuedovowels can't accept codas: `{breakdown}`",                      // Russian (Русский)
-	"sv": "**{oldWord}** 🇸🇪 Psuedovowels can't accept codas: `{breakdown}`",                      // Swedish (Svenska)
-	"tr": "**{oldWord}** 🇹🇷 Psuedovowels can't accept codas: `{breakdown}`",                      // Turkish (Türkçe)
-	"uk": "**{oldWord}** 🇺🇦 Psuedovowels can't accept codas: `{breakdown}`",                      // Ukrainian (Українська)
+	"en": "**{oldWord}** Psuedovowels can't accept codas: `{breakdown}`",                          // English
+	"de": "**{oldWord}** 🇩🇪 Psuedovowels can't accept codas: `{breakdown}`",                       // German (Deutsch)
+	"es": "**{oldWord}** 🇪🇦 Psuedovowels can't accept codas: `{breakdown}`",                       // Spanish (Español)
+	"et": "**{oldWord}** 🇪🇪 Psuedovowels can't accept codas: `{breakdown}`",                       // Estonian (Eesti)
+	"fr": "**{oldWord}** 🇫🇷 Psuedovowels can't accept codas: `{breakdown}`",                       // French (Français)
+	"hu": "**{oldWord}** 🇭🇺 Psuedovowels can't accept codas: `{breakdown}`",                       // Hungarian (Magyar)
+	"ko": "**{oldWord}** 에 유효하지 않은 자음 조합이 발견되었습니다. 준모음(음절자음)은 말음(종성)을 가질 수 없습니다. - `{breakdown}`", // Korean (한국어)
+	"nl": "**{oldWord}** 🇳🇱 Psuedovowels can't accept codas: `{breakdown}`",                       // Dutch (Nederlands)
+	"pl": "**{oldWord}** 🇵🇱 Psuedovowels can't accept codas: `{breakdown}`",                       // Polish (Polski)
+	"pt": "**{oldWord}** 🇵🇹 Psuedovowels can't accept codas: `{breakdown}`",                       // Portuguese (Português)
+	"ru": "**{oldWord}** 🇷🇺 Psuedovowels can't accept codas: `{breakdown}`",                       // Russian (Русский)
+	"sv": "**{oldWord}** 🇸🇪 Psuedovowels can't accept codas: `{breakdown}`",                       // Swedish (Svenska)
+	"tr": "**{oldWord}** 🇹🇷 Psuedovowels can't accept codas: `{breakdown}`",                       // Turkish (Türkçe)
+	"uk": "**{oldWord}** 🇺🇦 Psuedovowels can't accept codas: `{breakdown}`",                       // Ukrainian (Українська)
 }
 
 var message_psuedovowels_must_onset = map[string]string{
-	"en": "**{oldWord}** Psuedovowels must have onsets: `{breakdown}`",                           // English
-	"de": "**{oldWord}** 🇩🇪 Psuedovowels must have onsets: `{breakdown}`",                        // German (Deutsch)
-	"es": "**{oldWord}** 🇪🇦 Psuedovowels must have onsets: `{breakdown}`",                        // Spanish (Español)
-	"et": "**{oldWord}** 🇪🇪 Psuedovowels must have onsets: `{breakdown}`",                        // Estonian (Eesti)
-	"fr": "**{oldWord}** 🇫🇷 Psuedovowels must have onsets: `{breakdown}`",                        // French (Français)
-	"hu": "**{oldWord}** 🇭🇺 Psuedovowels must have onsets: `{breakdown}`",                        // Hungarian (Magyar)
-	"ko": "**{oldWord}**에 유효하지 않은 자음 조합이 발견되었습니다. 준모음(음절자음)은 반드시 두음(초성)이 필요합니다. - `{breakdown}`", // Korean (한국어)
-	"nl": "**{oldWord}** 🇳🇱 Psuedovowels must have onsets: `{breakdown}`",                        // Dutch (Nederlands)
-	"pl": "**{oldWord}** 🇵🇱 Psuedovowels must have onsets: `{breakdown}`",                        // Polish (Polski)
-	"pt": "**{oldWord}** 🇵🇹 Psuedovowels must have onsets: `{breakdown}`",                        // Portuguese (Português)
-	"ru": "**{oldWord}** 🇷🇺 Psuedovowels must have onsets: `{breakdown}`",                        // Russian (Русский)
-	"sv": "**{oldWord}** 🇸🇪 Psuedovowels must have onsets: `{breakdown}`",                        // Swedish (Svenska)
-	"tr": "**{oldWord}** 🇹🇷 Psuedovowels must have onsets: `{breakdown}`",                        // Turkish (Türkçe)
-	"uk": "**{oldWord}** 🇺🇦 Psuedovowels must have onsets: `{breakdown}`",                        // Ukrainian (Українська)
+	"en": "**{oldWord}** Psuedovowels must have onsets: `{breakdown}`",                            // English
+	"de": "**{oldWord}** 🇩🇪 Psuedovowels must have onsets: `{breakdown}`",                         // German (Deutsch)
+	"es": "**{oldWord}** 🇪🇦 Psuedovowels must have onsets: `{breakdown}`",                         // Spanish (Español)
+	"et": "**{oldWord}** 🇪🇪 Psuedovowels must have onsets: `{breakdown}`",                         // Estonian (Eesti)
+	"fr": "**{oldWord}** 🇫🇷 Psuedovowels must have onsets: `{breakdown}`",                         // French (Français)
+	"hu": "**{oldWord}** 🇭🇺 Psuedovowels must have onsets: `{breakdown}`",                         // Hungarian (Magyar)
+	"ko": "**{oldWord}** 에 유효하지 않은 자음 조합이 발견되었습니다. 준모음(음절자음)은 반드시 두음(초성)이 필요합니다. - `{breakdown}`", // Korean (한국어)
+	"nl": "**{oldWord}** 🇳🇱 Psuedovowels must have onsets: `{breakdown}`",                         // Dutch (Nederlands)
+	"pl": "**{oldWord}** 🇵🇱 Psuedovowels must have onsets: `{breakdown}`",                         // Polish (Polski)
+	"pt": "**{oldWord}** 🇵🇹 Psuedovowels must have onsets: `{breakdown}`",                         // Portuguese (Português)
+	"ru": "**{oldWord}** 🇷🇺 Psuedovowels must have onsets: `{breakdown}`",                         // Russian (Русский)
+	"sv": "**{oldWord}** 🇸🇪 Psuedovowels must have onsets: `{breakdown}`",                         // Swedish (Svenska)
+	"tr": "**{oldWord}** 🇹🇷 Psuedovowels must have onsets: `{breakdown}`",                         // Turkish (Türkçe)
+	"uk": "**{oldWord}** 🇺🇦 Psuedovowels must have onsets: `{breakdown}`",                         // Ukrainian (Українська)
 }
 
 var message_triple_liquid = map[string]string{
@@ -148,7 +148,7 @@ var message_valid = map[string]string{
 	"et": "**{oldWord}** 🇪🇪 Valid: `{breakdown}` with {syllable_count} syllables {syllable_forest}", // Estonian (Eesti)
 	"fr": "**{oldWord}** 🇫🇷 Valid: `{breakdown}` with {syllable_count} syllables {syllable_forest}", // French (Français)
 	"hu": "**{oldWord}** 🇭🇺 Valid: `{breakdown}` with {syllable_count} syllables {syllable_forest}", // Hungarian (Magyar)
-	"ko": "**{oldWord}**는 `{breakdown}`의 {syllable_count}음절로 구성된 유효한 단어입니다. {syllable_forest}",      // Korean (한국어)
+	"ko": "**{oldWord}**는 `{breakdown}` 의 {syllable_count}음절로 구성된 유효한 단어입니다. {syllable_forest}",     // Korean (한국어)
 	"nl": "**{oldWord}** 🇳🇱 Valid: `{breakdown}` with {syllable_count} syllables {syllable_forest}", // Dutch (Nederlands)
 	"pl": "**{oldWord}** 🇵🇱 Valid: `{breakdown}` with {syllable_count} syllables {syllable_forest}", // Polish (Polski)
 	"pt": "**{oldWord}** 🇵🇹 Valid: `{breakdown}` with {syllable_count} syllables {syllable_forest}", // Portuguese (Português)
