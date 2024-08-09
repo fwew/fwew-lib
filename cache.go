@@ -954,7 +954,7 @@ func GetDictSize(lang string) (count string, err error) {
 	} else if lang == "hu" { // Hungarian (Magyar)
 		count = count + " 🇭🇺"
 	} else if lang == "ko" { // Korean (한국어)
-		count = count + " 🇰🇷"
+		count = "Fwew에는 " + count + "개의 단어가 등록되어 있습니다."
 	} else if lang == "nl" { // Dutch (Nederlands)
 		count = count + " 🇳🇱"
 	} else if lang == "pl" { // Polish (Polski)
