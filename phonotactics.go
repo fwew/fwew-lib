@@ -395,6 +395,7 @@ func IsValidNavi(word string, lang string, two_thousand_limit bool) string {
 	for i, a := range strings.Split(word, " ") {
 		newLine := IsValidNaviHelper(a, lang) + "\n"
 		if two_thousand_limit && len([]rune(results))+len([]rune(newLine)) > 1914 {
+			// (stopped at {count}. 2000 Character limit)
 			results += strings.ReplaceAll(message_too_big[lang], "{count}", strconv.Itoa(i+1))
 			break
 		}
