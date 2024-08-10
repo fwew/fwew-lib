@@ -57,20 +57,20 @@ var message_invalid_consonants = map[string]string{
 }
 
 var message_needed_vowel = map[string]string{
-	"en": "**{oldWord}** Needs a vowel, diphthong or psuedovowel here: `{breakdown}`",              // English
-	"de": "**{oldWord}** 🇩🇪 Needs a vowel, diphthong or psuedovowel here: `{breakdown}`",           // German (Deutsch)
-	"es": "**{oldWord}** 🇪🇦 Needs a vowel, diphthong or psuedovowel here: `{breakdown}`",           // Spanish (Español)
-	"et": "**{oldWord}** 🇪🇪 Needs a vowel, diphthong or psuedovowel here: `{breakdown}`",           // Estonian (Eesti)
-	"fr": "**{oldWord}** 🇫🇷 Needs a vowel, diphthong or psuedovowel here: `{breakdown}`",           // French (Français)
-	"hu": "**{oldWord}** 🇭🇺 Needs a vowel, diphthong or psuedovowel here: `{breakdown}`",           // Hungarian (Magyar)
-	"ko": "**{oldWord}**에 유효하지 않은 자음 조합이 발견되었습니다. 다음 위치에 모음 또는 준모음(음절자음)을 추가해주세요. - `{breakdown}`", // Korean (한국어)
-	"nl": "**{oldWord}** 🇳🇱 Needs a vowel, diphthong or psuedovowel here: `{breakdown}`",           // Dutch (Nederlands)
-	"pl": "**{oldWord}** 🇵🇱 Needs a vowel, diphthong or psuedovowel here: `{breakdown}`",           // Polish (Polski)
-	"pt": "**{oldWord}** 🇵🇹 Needs a vowel, diphthong or psuedovowel here: `{breakdown}`",           // Portuguese (Português)
-	"ru": "**{oldWord}** 🇷🇺 Needs a vowel, diphthong or psuedovowel here: `{breakdown}`",           // Russian (Русский)
-	"sv": "**{oldWord}** 🇸🇪 Needs a vowel, diphthong or psuedovowel here: `{breakdown}`",           // Swedish (Svenska)
-	"tr": "**{oldWord}** 🇹🇷 Needs a vowel, diphthong or psuedovowel here: `{breakdown}`",           // Turkish (Türkçe)
-	"uk": "**{oldWord}** 🇺🇦 Needs a vowel, diphthong or psuedovowel here: `{breakdown}`",           // Ukrainian (Українська)
+	"en": "**{oldWord}** Needs a vowel, diphthong or psuedovowel here: `{breakdown}`",               // English
+	"de": "**{oldWord}** 🇩🇪 Needs a vowel, diphthong or psuedovowel here: `{breakdown}`",            // German (Deutsch)
+	"es": "**{oldWord}** 🇪🇦 Needs a vowel, diphthong or psuedovowel here: `{breakdown}`",            // Spanish (Español)
+	"et": "**{oldWord}** 🇪🇪 Needs a vowel, diphthong or psuedovowel here: `{breakdown}`",            // Estonian (Eesti)
+	"fr": "**{oldWord}** 🇫🇷 Needs a vowel, diphthong or psuedovowel here: `{breakdown}`",            // French (Français)
+	"hu": "**{oldWord}** 🇭🇺 Needs a vowel, diphthong or psuedovowel here: `{breakdown}`",            // Hungarian (Magyar)
+	"ko": "**{oldWord}** 에 유효하지 않은 자음 조합이 발견되었습니다. 다음 위치에 모음 또는 준모음(음절자음)을 추가해주세요. - `{breakdown}`", // Korean (한국어)
+	"nl": "**{oldWord}** 🇳🇱 Needs a vowel, diphthong or psuedovowel here: `{breakdown}`",            // Dutch (Nederlands)
+	"pl": "**{oldWord}** 🇵🇱 Needs a vowel, diphthong or psuedovowel here: `{breakdown}`",            // Polish (Polski)
+	"pt": "**{oldWord}** 🇵🇹 Needs a vowel, diphthong or psuedovowel here: `{breakdown}`",            // Portuguese (Português)
+	"ru": "**{oldWord}** 🇷🇺 Needs a vowel, diphthong or psuedovowel here: `{breakdown}`",            // Russian (Русский)
+	"sv": "**{oldWord}** 🇸🇪 Needs a vowel, diphthong or psuedovowel here: `{breakdown}`",            // Swedish (Svenska)
+	"tr": "**{oldWord}** 🇹🇷 Needs a vowel, diphthong or psuedovowel here: `{breakdown}`",            // Turkish (Türkçe)
+	"uk": "**{oldWord}** 🇺🇦 Needs a vowel, diphthong or psuedovowel here: `{breakdown}`",            // Ukrainian (Українська)
 }
 
 var message_psuedovowels_cant_coda = map[string]string{
@@ -114,7 +114,7 @@ var message_triple_liquid = map[string]string{
 	"et": "**{oldWord}** 🇪🇪 Triple Rs or Ls aren't allowed: `{breakdown}`", // Estonian (Eesti)
 	"fr": "**{oldWord}** 🇫🇷 Triple Rs or Ls aren't allowed: `{breakdown}`", // French (Français)
 	"hu": "**{oldWord}** 🇭🇺 Triple Rs or Ls aren't allowed: `{breakdown}`", // Hungarian (Magyar)
-	"ko": "**{oldWord}**연속되는 세개의 R 또는 L은 사용 불가능합니다. - `{breakdown}`",       // Korean (한국어)
+	"ko": "**{oldWord}** 연속되는 세개의 R 또는 L은 사용 불가능합니다. - `{breakdown}`",      // Korean (한국어)
 	"nl": "**{oldWord}** 🇳🇱 Triple Rs or Ls aren't allowed: `{breakdown}`", // Dutch (Nederlands)
 	"pl": "**{oldWord}** 🇵🇱 Triple Rs or Ls aren't allowed: `{breakdown}`", // Polish (Polski)
 	"pt": "**{oldWord}** 🇵🇹 Triple Rs or Ls aren't allowed: `{breakdown}`", // Portuguese (Português)
