@@ -185,3 +185,9 @@ var message_too_big = map[string]string{
 	"tr": "⛔ (stopped at {count}. 2000 Character limit) 🇹🇷", // Turkish (Türkçe)
 	"uk": "⛔ (stopped at {count}. 2000 Character limit) 🇺🇦", // Ukrainian (Українська)
 }
+
+var spongebob_time_cards = map[string]string{
+	"1": "Three weeks later",                                                                       // He's just having a hard time getting his confidence back
+	"2": "Many months later",                                                                       // I'm sure he's close to a breakthrough
+	"3": "So much later that the old narrator got tired of waiting and they had to hore a new one", // Could you move along?  I'm all out of timecards
+}
