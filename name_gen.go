@@ -365,7 +365,7 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 }
 
 func GetPhonemeDistrosMap(lang string) (allDistros [][][]string) {
-	// Non-English ones were pulled out of Google translate
+	// Non-English ones were pulled out of Google translate unless it says VERIFIED
 	header_row := map[string][]string{
 		"en": {"Onset", "Nucleus", "Coda"},          // English
 		"de": {"Beginn", "Kern", "Coda"},            // German (Deutsch)
