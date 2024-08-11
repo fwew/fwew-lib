@@ -113,7 +113,8 @@ func FullNames(ending string, name_count int, dialect int, syllable_count [3]int
 		// Add the ending
 		output += ending2 + "\n"
 		if two_thousand_limit && len([]rune(output)) > 1914 {
-			output += "(stopped at " + strconv.Itoa(i+1) + ". 2000 Character limit)"
+			// (stopped at {count}. 2000 Character limit)
+			output += strings.ReplaceAll(message_too_big["en"], "{count}", strconv.Itoa(i+1))
 			break
 		}
 
@@ -364,7 +365,7 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 }
 
 func GetPhonemeDistrosMap(lang string) (allDistros [][][]string) {
-	// Non-English ones were pulled out of Google translate
+	// Non-English ones were pulled out of Google translate unless it says VERIFIED
 	header_row := map[string][]string{
 		"en": {"Onset", "Nucleus", "Coda"},          // English
 		"de": {"Beginn", "Kern", "Coda"},            // German (Deutsch)
@@ -376,7 +377,7 @@ func GetPhonemeDistrosMap(lang string) (allDistros [][][]string) {
 		"nl": {"Begin", "Kern", "Coda"},             // Dutch (Nederlands)
 		"pl": {"Początek", "Jądro", "Kod"},          // Polish (Polski)
 		"pt": {"Início", "Núcleo", "Coda"},          // Portuguese (Português)
-		"ru": {"Начало", "Ядро", "Кода"},            // Russian (Русский)
+		"ru": {"Инициаль", "Ядро", "Финаль"},        // VERIFIED: Russian (Русский)
 		"sv": {"Debut", "Nucleus", "Coda"},          // Swedish (Svenska)
 		"tr": {"Başlangıç", "çekirdek", "Kodası"},   // Turkish (Türkçe)
 		"uk": {"Початок", "Ядро", "Кода"},           // Ukrainian (Українська)
@@ -393,7 +394,7 @@ func GetPhonemeDistrosMap(lang string) (allDistros [][][]string) {
 		"nl": "Medeklinkerclusters",       // Dutch (Nederlands)
 		"pl": "Zbiory spółgłosek",         // Polish (Polski)
 		"pt": "Aglomerados de consoantes", // Portuguese (Português)
-		"ru": "Согласные кластеры",        // Russian (Русский)
+		"ru": "Кластеры согласных",        // VERIFIED: Russian (Русский)
 		"sv": "Konsonantkluster",          // Swedish (Svenska)
 		"tr": "Ünsüz harfler",             // Turkish (Türkçe)
 		"uk": "Збори приголосних",         // Ukrainian (Українська)

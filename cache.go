@@ -515,7 +515,7 @@ func CacheDictHashOrig(mysql bool) error {
 
 		// See whether or not it violates normal phonotactic rules like Jakesully or Oìsss
 		valid := true
-		for _, a := range strings.Split(IsValidNavi(standardizedWord, "en"), "\n") {
+		for _, a := range strings.Split(IsValidNavi(standardizedWord, "en", false), "\n") {
 			// Check every word.  If one of them isn't good, write down the word
 			if len(a) > 0 && (!strings.Contains(a, "Valid:") || strings.Contains(a, "reef")) {
 				valid = false
