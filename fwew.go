@@ -1160,7 +1160,6 @@ func StartEverything() {
 	start := time.Now()
 	var errors = []error{
 		AssureDict(),
-		CacheDict(),
 		CacheDictHash(),
 		CacheDictHash2(),
 	}
