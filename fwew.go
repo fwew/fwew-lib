@@ -18,7 +18,9 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"strconv"
 	"strings"
+	"time"
 )
 
 // Global
@@ -1155,6 +1157,7 @@ func ReefMe(ipa string, inter bool) []string {
 }
 
 func StartEverything() {
+	start := time.Now()
 	var errors = []error{
 		AssureDict(),
 		CacheDict(),
@@ -1167,4 +1170,7 @@ func StartEverything() {
 		}
 	}
 	PhonemeDistros()
+	elapsed := strconv.FormatFloat(time.Since(start).Seconds(), 'f', -1, 64)
+
+	fmt.Println("Everything is cached.  Took " + elapsed + " seconds")
 }
