@@ -397,6 +397,40 @@ func RomanizeSecondIPA(IPA string) string {
 	return strings.TrimSuffix(breakdown, " ")
 }
 
+func UncacheDict() {
+	dictionaryCached = false
+	dictionary = []Word{}
+}
+
+func CacheDict() error {
+	var err error
+
+	UncacheDict()
+	err = runOnDB(func(word Word) error {
+		dictionary = append(dictionary, word)
+		return nil
+	})
+
+	if err == nil {
+		fmt.Println("cache 0 loaded (SQL)")
+	} else {
+		UncacheDict()
+		err = runOnFile(func(word Word) error {
+			dictionary = append(dictionary, word)
+			return nil
+		})
+		//fmt.Println("cache 0 loaded (File)")
+	}
+
+	if err != nil {
+		UncacheDict()
+		return err
+	}
+
+	dictionaryCached = true
+	return nil
+}
+
 func CacheDictHash() error {
 	err := CacheDictHashOrig(true)
 	if err == nil {
@@ -946,6 +980,12 @@ func UpdateDict() error {
 	err := DownloadDict("")
 	if err != nil {
 		log.Println(Text("downloadError"))
+		return err
+	}
+
+	err = CacheDict()
+	if err != nil {
+		log.Printf("Error caching dict after updatig ... Cache disabled")
 		return err
 	}
 
