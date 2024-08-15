@@ -1021,14 +1021,10 @@ func AssureDict() error {
 		return nil
 	}
 
-	wd, err := os.Getwd()
-	if err != nil {
-		return err
-	}
+	// if it doesn't, put it in ~/.fwew/
+	path := filepath.Join(texts["dataDir"], dictFileName)
 
-	path := filepath.Join(wd, dictFileName)
-
-	err = DownloadDict(path)
+	err := DownloadDict(path)
 	if err != nil {
 		return err
 	}
