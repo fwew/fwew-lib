@@ -1113,8 +1113,9 @@ func ReefMe(ipa string, inter bool) []string {
 				breakdown += romanization2[syllable[0:len(nth_rune(syllable, 0))+1]]
 				syllable = string([]rune(syllable)[2:])
 			} else if len(syllable) > 1 && has("lr", nth_rune(syllable, 0)) {
+				//psuedovowel
 				breakdown += romanization2[syllable[0:3]]
-				continue
+				continue // psuedovowels can't coda
 			} else {
 				//vowel
 				breakdown += romanization2[nth_rune(syllable, 0)]
