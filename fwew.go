@@ -926,7 +926,6 @@ func is_vowel_ipa(letter string) (found bool) {
 }
 
 func ReefMe(ipa string, inter bool) []string {
-	fmt.Println(ipa)
 	if ipa == "ʒɛjk'.ˈsu:.li" { // Obsolete path
 		return []string{"jake-__sùl__-ly", "ʒɛjk'.ˈsʊ:.li"}
 	} else if ipa == "ˈz·ɛŋ.kɛ" { // only IPA not to match the Romanization
