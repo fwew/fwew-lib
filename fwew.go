@@ -975,7 +975,7 @@ func ReefMe(ipa string, inter bool) []string {
 			ipaReef = strings.ReplaceAll(ipaReef, ".ˈ"+a, ".ˈ"+soften[a])
 			ipaReef = strings.ReplaceAll(ipaReef, "."+a, "."+soften[a])
 
-			for _, b := range []string{"a", "ɛ", "u", "ɪ", "o", "i", "æ", "ʊ"} {
+			for _, b := range []string{"a", "ɛ", "ɪ", "o", "u", "i", "æ", "ʊ"} {
 				ipaReef = strings.ReplaceAll(ipaReef, a+".ˈ"+b, soften[a]+".ˈ"+b)
 				ipaReef = strings.ReplaceAll(ipaReef, a+"."+b, soften[a]+"."+b)
 			}
