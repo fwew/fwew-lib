@@ -915,7 +915,7 @@ func GetMultiIPA() (results [][]Word, err error) {
 /* Is it a vowel? (for when the psuedovowel bool won't work) */
 func is_vowel_ipa(letter string) (found bool) {
 	// Also arranged from most to least common (not accounting for diphthongs)
-	vowels := []string{"a", "ɛ", "u", "ɪ", "o", "i", "æ", "ʊ"}
+	vowels := []string{"a", "ɛ", "ɪ", "o", "u", "i", "æ", "ʊ"}
 	// Linear search
 	for _, a := range vowels {
 		if letter == a {
