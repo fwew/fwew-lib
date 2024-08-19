@@ -990,7 +990,7 @@ func ReefMe(ipa string, inter bool) []string {
 		// Glottal stops between two vowels are removed
 		for i, a := range runes {
 			if i != 0 && i != len(runes)-1 && a == 'ʔ' {
-				if runes[i-1] == '.' {
+				if runes[i-1] == '.' && i > 1 {
 					if is_vowel_ipa(string(runes[i+1])) && is_vowel_ipa(string(runes[i-2])) {
 						if runes[i+1] != runes[i-2] {
 							continue
@@ -1002,7 +1002,7 @@ func ReefMe(ipa string, inter bool) []string {
 							continue
 						}
 					}
-				} else if runes[i-1] == 'ˈ' && i > 1 {
+				} else if runes[i-1] == 'ˈ' && i > 2 {
 					if is_vowel_ipa(string(runes[i+1])) && is_vowel_ipa(string(runes[i-3])) {
 						if runes[i+1] != runes[i-3] {
 							continue
