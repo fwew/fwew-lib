@@ -22,6 +22,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path"
 	"strings"
 	"unicode"
 )
@@ -151,9 +152,7 @@ func StripChars(str, chr string) string {
 // DownloadDict downloads the latest released version of the dictionary file and saves it to the given filepath.
 // You can give an empty string as filepath param, to update the found dictionary file.
 func DownloadDict(filepath string) error {
-	var (
-		url = Text("dictURL")
-	)
+	var url = Text("dictURL")
 
 	// only try to find dictionary-file if no path is given
 	if filepath == "" {
@@ -172,6 +171,7 @@ func DownloadDict(filepath string) error {
 	}
 
 	// create new file, this will remove the old file, if it exists
+	err = os.Mkdir(path.Dir(filepath), 0755)
 	out, err := os.Create(filepath)
 	if err != nil {
 		return err

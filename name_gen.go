@@ -113,7 +113,8 @@ func FullNames(ending string, name_count int, dialect int, syllable_count [3]int
 		// Add the ending
 		output += ending2 + "\n"
 		if two_thousand_limit && len([]rune(output)) > 1914 {
-			output += "(stopped at " + strconv.Itoa(i+1) + ". 2000 Character limit)"
+			// (stopped at {count}. 2000 Character limit)
+			output += strings.ReplaceAll(message_too_big["en"], "{count}", strconv.Itoa(i+1))
 			break
 		}
 
@@ -363,10 +364,56 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 	return output
 }
 
-func GetPhonemeDistrosMap() (allDistros [][][]string) {
+func GetPhonemeDistrosMap(lang string) (allDistros [][][]string) {
+	// Non-English ones were pulled out of Google translate unless it says VERIFIED
+	header_row := map[string][]string{
+		"en": {"Onset", "Nucleus", "Coda"},          // English
+		"de": {"Beginn", "Kern", "Coda"},            // German (Deutsch)
+		"es": {"Inicio", "Núcleo", "Coda"},          // Spanish (Español)
+		"et": {"Algus", "tuum", "Coda"},             // Estonian (Eesti)
+		"fr": {"Début", "Noyau", "Coda"},            // French (Français)
+		"hu": {"Szótagkezdet", "Szótagmag", "Coda"}, // Hungarian (Magyar)
+		"ko": {"초성(두음)", "중성(음절핵)", "종성(말음)"},       // Korean (한국어)
+		"nl": {"Begin", "Kern", "Coda"},             // Dutch (Nederlands)
+		"pl": {"Początek", "Jądro", "Kod"},          // Polish (Polski)
+		"pt": {"Início", "Núcleo", "Coda"},          // Portuguese (Português)
+		"ru": {"Инициаль", "Ядро", "Финаль"},        // VERIFIED: Russian (Русский)
+		"sv": {"Debut", "Nucleus", "Coda"},          // Swedish (Svenska)
+		"tr": {"Başlangıç", "çekirdek", "Kodası"},   // Turkish (Türkçe)
+		"uk": {"Початок", "Ядро", "Кода"},           // Ukrainian (Українська)
+	}
+
+	cluster_name := map[string]string{
+		"en": "Consonant Clusters",        // English
+		"de": "Konsonantengruppen",        // German (Deutsch)
+		"es": "Grupos de consonantes",     // Spanish (Español)
+		"et": "Konsonantide klastrid",     // Estonian (Eesti)
+		"fr": "Groupes de consonnes",      // French (Français)
+		"hu": "Mássalhangzócsoportok",     // Hungarian (Magyar)
+		"ko": "자음군",                       // Korean (한국어)
+		"nl": "Medeklinkerclusters",       // Dutch (Nederlands)
+		"pl": "Zbiory spółgłosek",         // Polish (Polski)
+		"pt": "Aglomerados de consoantes", // Portuguese (Português)
+		"ru": "Кластеры согласных",        // VERIFIED: Russian (Русский)
+		"sv": "Konsonantkluster",          // Swedish (Svenska)
+		"tr": "Ünsüz harfler",             // Turkish (Türkçe)
+		"uk": "Збори приголосних",         // Ukrainian (Українська)
+	}
+
+	// Default to English
+	header_lang := []string{"Onset", "Nucleus", "Coda"}
+	cluster_lang := "Consonant Clusters"
+
+	if a, ok := header_row[lang]; ok {
+		header_lang = a
+	}
+	if a, ok := cluster_name[lang]; ok {
+		cluster_lang = a
+	}
+
 	allDistros = [][][]string{
-		{{"Onset", "Nucleus", "Coda"}},
-		{{"", "f", "s", "ts"}},
+		{header_lang},
+		{{cluster_lang, "f", "s", "ts"}},
 	}
 
 	// Convert them to tuples for sorting

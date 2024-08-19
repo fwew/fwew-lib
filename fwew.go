@@ -18,7 +18,9 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"strconv"
 	"strings"
+	"time"
 )
 
 // Global
@@ -667,6 +669,21 @@ func TranslateToNaviHashHelper(searchWord string, langCode string) (results []Wo
 				results = AppendAndAlphabetize(results, a)
 			}
 		}
+	case "ko": // Korean
+		for _, a := range SearchNatlangWord(dictHash2.KO, searchWord) {
+			// Verify the search query is actually in the definition
+			searchWords := SearchTerms(a.KO)
+			found := false
+			for _, d := range searchWords {
+				if d == searchWord {
+					found = true
+					break
+				}
+			}
+			if found {
+				results = AppendAndAlphabetize(results, a)
+			}
+		}
 	case "nl": // Dutch
 		for _, a := range SearchNatlangWord(dictHash2.NL, searchWord) {
 			// Verify the search query is actually in the definition
@@ -895,32 +912,13 @@ func GetMultiIPA() (results [][]Word, err error) {
 	return TranslateFromNaviHash(multiIPA, false)
 }
 
-func EjectiveSoftener(ipa string, oldLetter string, newLetter string) (newIpa string) {
-	ipa = "." + ipa
-
-	for i, k := range []string{"t͡s", "s", "f"} {
-		ipa = strings.ReplaceAll(ipa, k+oldLetter, fmt.Sprint(i))
-	}
-
-	ipa = strings.ReplaceAll(ipa, "."+oldLetter, "."+newLetter)
-	ipa = strings.ReplaceAll(ipa, ".ˈ"+oldLetter, ".ˈ"+newLetter)
-
-	for i, k := range []string{"t͡s", "s", "f"} {
-		ipa = strings.ReplaceAll(ipa, fmt.Sprint(i), k+oldLetter)
-	}
-
-	ipa = strings.TrimPrefix(ipa, ".")
-
-	return ipa
-}
-
 /* Is it a vowel? (for when the psuedovowel bool won't work) */
 func is_vowel_ipa(letter string) (found bool) {
 	// Also arranged from most to least common (not accounting for diphthongs)
-	vowels := []string{"a", "ɛ", "u", "ɪ", "o", "i", "æ", "ʊ"}
+	vowels := []string{"a", "ɛ", "ɪ", "o", "u", "i", "æ", "ʊ"}
 	// Linear search
-	for i := 0; i < 8; i++ {
-		if letter == vowels[i] {
+	for _, a := range vowels {
+		if letter == a {
 			return true
 		}
 	}
@@ -928,10 +926,12 @@ func is_vowel_ipa(letter string) (found bool) {
 }
 
 func ReefMe(ipa string, inter bool) []string {
-	if ipa == "ʒɛjk'.ˈsu:.li" {
+	if ipa == "ʒɛjk'.ˈsu:.li" { // Obsolete path
 		return []string{"jake-__sùl__-ly", "ʒɛjk'.ˈsʊ:.li"}
-	} else if ipa == "ˈz·ɛŋ.kɛ" {
+	} else if ipa == "ˈz·ɛŋ.kɛ" { // only IPA not to match the Romanization
 		return []string{"__zen__-ke", "ˈz·ɛŋ.kɛ"}
+	} else if ipa == "ɾæ.ˈʔæ" || ipa == "ˈɾæ.ʔæ" { // we hear this in Avatar 2
+		return []string{"rä-__'ä__", "ɾæ.ˈʔæ"}
 	}
 
 	// Replace the spaces so as not to confuse strings.Split()
@@ -948,17 +948,38 @@ func ReefMe(ipa string, inter bool) []string {
 			new_ipa += a
 		}
 	}
-	new_ipa = strings.TrimPrefix(new_ipa, ".")
+
 	ipa = new_ipa
 
 	breakdown := ""
+	ejectives := []string{"p'", "t'", "k'"}
+	soften := map[string]string{
+		"p'": "b",
+		"t'": "d",
+		"k'": "g",
+	}
 
 	// Reefify the IPA first
 	ipaReef := strings.ReplaceAll(ipa, "·", "")
 	if !inter {
-		ipaReef = EjectiveSoftener(ipaReef, "p'", "b")
-		ipaReef = EjectiveSoftener(ipaReef, "t'", "d")
-		ipaReef = EjectiveSoftener(ipaReef, "k'", "g")
+		// atxkxe and ekxtxu
+		for _, a := range ejectives {
+			for _, b := range ejectives {
+				ipaReef = strings.ReplaceAll(ipaReef, a+".ˈ"+b, soften[a]+".ˈ"+soften[b])
+				ipaReef = strings.ReplaceAll(ipaReef, a+"."+b, soften[a]+"."+soften[b])
+			}
+		}
+
+		// Ejectives before vowels and diphthongs become voiced plosives regardless of syllable boundaries
+		for _, a := range ejectives {
+			ipaReef = strings.ReplaceAll(ipaReef, ".ˈ"+a, ".ˈ"+soften[a])
+			ipaReef = strings.ReplaceAll(ipaReef, "."+a, "."+soften[a])
+
+			for _, b := range []string{"a", "ɛ", "ɪ", "o", "u", "i", "æ", "ʊ"} {
+				ipaReef = strings.ReplaceAll(ipaReef, a+".ˈ"+b, soften[a]+".ˈ"+b)
+				ipaReef = strings.ReplaceAll(ipaReef, a+"."+b, soften[a]+"."+b)
+			}
+		}
 
 		ipaReef = strings.ReplaceAll(ipaReef, "t͡sj", "tʃ")
 		ipaReef = strings.ReplaceAll(ipaReef, "sj", "ʃ")
@@ -994,6 +1015,8 @@ func ReefMe(ipa string, inter bool) []string {
 
 		ipaReef = temp
 	}
+
+	ipaReef = strings.TrimPrefix(ipaReef, ".")
 
 	ipaReef = strings.ReplaceAll(ipaReef, "*.", " ")
 
@@ -1096,8 +1119,9 @@ func ReefMe(ipa string, inter bool) []string {
 				breakdown += romanization2[syllable[0:len(nth_rune(syllable, 0))+1]]
 				syllable = string([]rune(syllable)[2:])
 			} else if len(syllable) > 1 && has("lr", nth_rune(syllable, 0)) {
+				//psuedovowel
 				breakdown += romanization2[syllable[0:3]]
-				continue
+				continue // psuedovowels can't coda
 			} else {
 				//vowel
 				breakdown += romanization2[nth_rune(syllable, 0)]
@@ -1140,6 +1164,7 @@ func ReefMe(ipa string, inter bool) []string {
 }
 
 func StartEverything() {
+	start := time.Now()
 	var errors = []error{
 		AssureDict(),
 		CacheDict(),
@@ -1152,5 +1177,7 @@ func StartEverything() {
 		}
 	}
 	PhonemeDistros()
-	homonymSearch()
+	elapsed := strconv.FormatFloat(time.Since(start).Seconds(), 'f', -1, 64)
+
+	fmt.Println("Everything is cached.  Took " + elapsed + " seconds")
 }

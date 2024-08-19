@@ -4,11 +4,13 @@ import (
 	"bufio"
 	"database/sql"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
 	"log"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 const dictFileName = "dictionary-v2.txt"
@@ -30,6 +32,7 @@ type MetaDict struct {
 	ET map[string][]string
 	FR map[string][]string
 	HU map[string][]string
+	KO map[string][]string
 	NL map[string][]string
 	PL map[string][]string
 	PT map[string][]string
@@ -209,6 +212,11 @@ func EnglishIfNull(word Word) Word {
 		word.HU = word.EN
 	}
 
+	// Korean (한국어)
+	if word.KO == "NULL" {
+		word.KO = word.EN
+	}
+
 	// Dutch (Nederlands)
 	if word.NL == "NULL" {
 		word.NL = word.EN
@@ -252,6 +260,7 @@ func EnglishIfNull(word Word) Word {
 func RomanizeSecondIPA(IPA string) string {
 	// now Romanize the IPA
 	IPA = strings.ReplaceAll(IPA, "ʊ", "u")
+	IPA = strings.ReplaceAll(IPA, "õ", "o") // vonvä' as võvä' only
 	word := strings.Split(IPA, " ")
 
 	breakdown := ""
@@ -506,7 +515,7 @@ func CacheDictHashOrig(mysql bool) error {
 
 		// See whether or not it violates normal phonotactic rules like Jakesully or Oìsss
 		valid := true
-		for _, a := range strings.Split(IsValidNavi(standardizedWord), "\n") {
+		for _, a := range strings.Split(IsValidNavi(standardizedWord, "en", false), "\n") {
 			// Check every word.  If one of them isn't good, write down the word
 			if len(a) > 0 && (!strings.Contains(a, "Valid:") || strings.Contains(a, "reef")) {
 				valid = false
@@ -628,6 +637,7 @@ func CacheDictHash2Orig(mysql bool) error {
 		dictHash2.ET = make(map[string][]string)
 		dictHash2.FR = make(map[string][]string)
 		dictHash2.HU = make(map[string][]string)
+		dictHash2.KO = make(map[string][]string)
 		dictHash2.NL = make(map[string][]string)
 		dictHash2.PL = make(map[string][]string)
 		dictHash2.PT = make(map[string][]string)
@@ -671,6 +681,11 @@ func CacheDictHash2Orig(mysql bool) error {
 		// Hungarian (Magyar)
 		if word.HU != "NULL" {
 			dictHash2.HU = AssignWord(dictHash2.HU, word.HU, standardizedWord)
+		}
+
+		// Korean (한국어)
+		if word.KO != "NULL" {
+			dictHash2.KO = AssignWord(dictHash2.KO, word.KO, standardizedWord)
 		}
 
 		// Dutch (Nederlands)
@@ -734,6 +749,8 @@ func CacheDictHash2Orig(mysql bool) error {
 func UncacheHashDict() {
 	dictHashCached = false
 	dictHash = nil
+	homonyms = ""
+	oddballs = ""
 }
 
 func UncacheHashDict2() {
@@ -744,6 +761,7 @@ func UncacheHashDict2() {
 	dictHash2.ET = nil
 	dictHash2.FR = nil
 	dictHash2.HU = nil
+	dictHash2.KO = nil
 	dictHash2.NL = nil
 	dictHash2.PL = nil
 	dictHash2.PT = nil
@@ -797,6 +815,7 @@ func runOnDB(f func(word Word) error) error {
 		"(SELECT localized FROM fwedit_localizedWords AS l WHERE l.id = m.id AND languageCode = 'et') AS et, " +
 		"(SELECT localized FROM fwedit_localizedWords AS l WHERE l.id = m.id AND languageCode = 'fr') AS fr, " +
 		"(SELECT localized FROM fwedit_localizedWords AS l WHERE l.id = m.id AND languageCode = 'hu') AS hu, " +
+		"(SELECT localized FROM fwedit_localizedWords AS l WHERE l.id = m.id AND languageCode = 'ko') AS ko, " +
 		"(SELECT localized FROM fwedit_localizedWords AS l WHERE l.id = m.id AND languageCode = 'nl') AS nl, " +
 		"(SELECT localized FROM fwedit_localizedWords AS l WHERE l.id = m.id AND languageCode = 'pl') AS pl, " +
 		"(SELECT localized FROM fwedit_localizedWords AS l WHERE l.id = m.id AND languageCode = 'pt') AS pt, " +
@@ -813,11 +832,11 @@ func runOnDB(f func(word Word) error) error {
 	}
 
 	var w Word
-	var de, en, es, et, fr, hu, nl, pl, pt, ru, sv, tr, uk []byte
+	var de, en, es, et, fr, hu, ko, nl, pl, pt, ru, sv, tr, uk []byte
 
 	for rows.Next() {
 		err = rows.Scan(&w.ID, &w.Navi, &w.IPA, &w.InfixLocations, &w.PartOfSpeech, &w.Source, &w.Stressed,
-			&w.Syllables, &w.InfixDots, &de, &en, &es, &et, &fr, &hu, &nl, &pl, &pt, &ru, &sv, &tr, &uk)
+			&w.Syllables, &w.InfixDots, &de, &en, &es, &et, &fr, &hu, &ko, &nl, &pl, &pt, &ru, &sv, &tr, &uk)
 
 		if err != nil {
 			return err
@@ -829,6 +848,7 @@ func runOnDB(f func(word Word) error) error {
 		w.ET = string(et)
 		w.FR = string(fr)
 		w.HU = string(hu)
+		w.KO = string(ko)
 		w.NL = string(nl)
 		w.PL = string(pl)
 		w.PT = string(pt)
@@ -900,7 +920,15 @@ func GetFullDict() (allWords []Word, err error) {
 	return
 }
 
-func GetDictSize() (amount int, err error) {
+// Just a number
+func GetDictSizeSimple() (count int) {
+	return len(dictionary)
+}
+
+// Return a complete sentence
+func GetDictSize(lang string) (count string, err error) {
+	// Count words
+	amount := 0
 	if dictionaryCached {
 		amount = len(dictionary)
 	} else {
@@ -909,6 +937,40 @@ func GetDictSize() (amount int, err error) {
 			return nil
 		})
 	}
+
+	// Put the word count into a complete sentence
+	count = strconv.Itoa(amount)
+
+	if lang == "en" { // English
+		count = "There are " + count + " entries in the dictionary."
+	} else if lang == "de" { // German (Deutsch)
+		count = count + " 🇩🇪"
+	} else if lang == "es" { // Spanish (Español)
+		count = count + " 🇪🇦"
+	} else if lang == "et" { // Estonian (Eesti)
+		count = count + " 🇪🇪"
+	} else if lang == "fr" { // French (Français)
+		count = count + " 🇫🇷"
+	} else if lang == "hu" { // Hungarian (Magyar)
+		count = count + " 🇭🇺"
+	} else if lang == "ko" { // Korean (한국어)
+		count = "Fwew에는 " + count + "개의 단어가 등록되어 있습니다."
+	} else if lang == "nl" { // Dutch (Nederlands)
+		count = count + " 🇳🇱"
+	} else if lang == "pl" { // Polish (Polski)
+		count = count + " 🇵🇱"
+	} else if lang == "pt" { // Portuguese (Português)
+		count = count + " 🇵🇹"
+	} else if lang == "ru" { // Russian (Русский)
+		count = count + " 🇷🇺"
+	} else if lang == "sv" { // Swedish (Svenska)
+		count = count + " 🇸🇪"
+	} else if lang == "tr" { // Turkish (Türkçe)
+		count = count + " 🇹🇷"
+	} else if lang == "uk" { // Ukrainian (Українська)
+		count = count + " 🇺🇦"
+	}
+
 	return
 }
 
@@ -959,14 +1021,10 @@ func AssureDict() error {
 		return nil
 	}
 
-	wd, err := os.Getwd()
-	if err != nil {
-		return err
-	}
+	// if it doesn't, put it in ~/.fwew/
+	path := filepath.Join(texts["dataDir"], dictFileName)
 
-	path := filepath.Join(wd, dictFileName)
-
-	err = DownloadDict(path)
+	err := DownloadDict(path)
 	if err != nil {
 		return err
 	}
