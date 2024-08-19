@@ -939,17 +939,19 @@ func ReefMe(ipa string, inter bool) []string {
 
 	// Unstressed ä becomes e
 	ipa_syllables := strings.Split(ipa, ".")
-	new_ipa := ""
-	for _, a := range ipa_syllables {
-		new_ipa += "."
-		if !strings.Contains(a, "ˈ") {
-			new_ipa += strings.ReplaceAll(a, "æ", "ɛ")
-		} else {
-			new_ipa += a
+	if len(ipa_syllables) > 1 {
+		new_ipa := ""
+		for _, a := range ipa_syllables {
+			new_ipa += "."
+			if !strings.Contains(a, "ˈ") {
+				new_ipa += strings.ReplaceAll(a, "æ", "ɛ")
+			} else {
+				new_ipa += a
+			}
 		}
-	}
 
-	ipa = new_ipa
+		ipa = new_ipa
+	}
 
 	breakdown := ""
 	ejectives := []string{"p'", "t'", "k'"}
@@ -1178,6 +1180,18 @@ func StartEverything() {
 	}
 	PhonemeDistros()
 	elapsed := strconv.FormatFloat(time.Since(start).Seconds(), 'f', -1, 64)
+
+	var g = func(word Word) error {
+		reefy := strings.ReplaceAll(ReefMe(word.IPA, false)[1], "-", "")
+		if reefy == strings.ReplaceAll(strings.ReplaceAll(word.IPA, "ʊ", "u"), "·", "") {
+			fmt.Println("NULL")
+		} else {
+			fmt.Println(reefy)
+		}
+		return nil
+	}
+
+	runOnFile(g)
 
 	fmt.Println("Everything is cached.  Took " + elapsed + " seconds")
 }
