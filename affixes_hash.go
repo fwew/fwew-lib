@@ -122,6 +122,19 @@ var first = []string{"ay", "asy", "aly", "ary", "ìy", "ìsy", "ìly", "ìry", "
 	"ìlm", "ìrm", "am", "alm", "arm", "ìyev", "iyev", "iv", "ilv", "irv", "imv", "us", "awn"}
 var second = []string{"ei", "eiy", "äng", "eng", "uy", "ats"}
 
+var weirdNounSuffixes = map[string]string{
+	// For "tsa" with case endings
+	// Canonized in:
+	// https://naviteri.org/2011/08/new-vocabulary-clothing/comment-page-1/#comment-912
+	"tsa": "tsaw",
+	// The a re-appears when case endings are added (it uses a instead of ì)
+	"oenga": "oeng",
+	// Foreign nouns
+	"keln":     "kelnì",
+	"kerìsmìs": "kerìsmìsì",
+	"kìreys":   "kìreysì",
+}
+
 func isDuplicate(input ConjugationCandidate) bool {
 	for _, a := range candidates {
 		if input.word == a.word && input.insistPOS == a.insistPOS {
@@ -187,18 +200,8 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 
 	// Exceptions for how words conjugate
 	if len(input.suffixes) == 1 {
-		if input.word == "tsa" {
-			// For "tsa" with case endings
-			// Canonized in:
-			// https://naviteri.org/2011/08/new-vocabulary-clothing/comment-page-1/#comment-912
-			input.word = "tsaw"
-			if !isDuplicate(input) {
-				candidates = append(candidates, input)
-			}
-			return candidates
-		} else if input.word == "oenga" {
-			// The a re-appears when case endings are added (it uses a instead of ì)
-			input.word = "oeng"
+		if validWord, ok := weirdNounSuffixes[input.word]; ok {
+			input.word = validWord
 			if !isDuplicate(input) {
 				candidates = append(candidates, input)
 			}
