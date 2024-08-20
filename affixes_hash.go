@@ -206,7 +206,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 		}
 	}
 
-	if len(infixes) > 0 && implContainsAny(input.infixes, []string{"ats", "uy"}) {
+	if len(input.infixes) > 0 && implContainsAny(input.infixes, []string{"ats", "uy"}) {
 		// for the cases of zen<ats>eke and zen<uy>eke
 		// confirmed in here: https://forum.learnnavi.org/index.php?msg=493217
 		if input.word == "zeneke" {
@@ -903,6 +903,9 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 
 					// pre-first position infixes
 					rebuiltVerb := c.InfixLocations
+					if c.InfixLocations == "z<0><1>en<2>ke" && implContainsAny(candidate.infixes, []string{"ats", "uy"}) {
+						rebuiltVerb = "z<0><1>en<2>eke"
+					}
 					firstInfixes := ""
 					found := false
 
