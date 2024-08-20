@@ -133,7 +133,7 @@ var weirdNounSuffixes = map[string]string{
 	"'ìnglìs":      "'ìnglìsì",
 	"keln":         "kelnì",
 	"kerìsmìs":     "kerìsmìsì",
-	"kìreys":       "kìreysì",
+	"kìreys":       "kìreysì", // https://naviteri.org/2011/09/miscellaneous-vocabulary/
 	"tsìräf":       "tsìräfì",
 	"nìyu york":    "nìyu yorkì",
 	"nu york":      "nu yorkì", // https://naviteri.org/2013/01/awvea-posti-zisita-amip-first-post-of-the-new-year/
