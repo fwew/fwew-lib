@@ -928,8 +928,8 @@ func is_vowel_ipa(letter string) (found bool) {
 func ReefMe(ipa string, inter bool) []string {
 	if ipa == "ʒɛjk'.ˈsu:.li" { // Obsolete path
 		return []string{"jake-__sùl__-ly", "ʒɛjk'.ˈsʊ:.li"}
-	} else if ipa == "ˈz·ɛŋ.kɛ" { // only IPA not to match the Romanization
-		return []string{"__zen__-ke", "ˈz·ɛŋ.kɛ"}
+	} else if strings.ReplaceAll(ipa, "·", "") == "ˈzɛŋ.kɛ" { // only IPA not to match the Romanization
+		return []string{"__zen__-ke", "ˈz·ɛŋ·.kɛ"}
 	} else if ipa == "ɾæ.ˈʔæ" || ipa == "ˈɾæ.ʔæ" { // we hear this in Avatar 2
 		return []string{"rä-__'ä__", "ɾæ.ˈʔæ"}
 	}
