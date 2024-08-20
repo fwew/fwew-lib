@@ -166,6 +166,20 @@ func infixError(query string, didYouMean string, ipa string) Word {
 	return d
 }
 
+// fuction to check given string is in array or not
+// modified from https://www.golinuxcloud.com/golang-array-contains/
+func implContainsAny(sl []string, names []string) bool {
+	// iterate over the array and compare given string to each element
+	for _, value := range sl {
+		for _, name := range names {
+			if value == name {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck int, unlenite int8, checkInfixes bool) []ConjugationCandidate {
 	if isDuplicate(input) {
 		return candidates
@@ -185,6 +199,18 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 		} else if input.word == "oenga" {
 			// The a re-appears when case endings are added (it uses a instead of ì)
 			input.word = "oeng"
+			if !isDuplicate(input) {
+				candidates = append(candidates, input)
+			}
+			return candidates
+		}
+	}
+
+	if len(infixes) > 0 && implContainsAny(input.infixes, []string{"ats", "uy"}) {
+		// for the cases of zen<ats>eke and zen<uy>eke
+		// confirmed in here: https://forum.learnnavi.org/index.php?msg=493217
+		if input.word == "zeneke" {
+			input.word = "zenke"
 			if !isDuplicate(input) {
 				candidates = append(candidates, input)
 			}
