@@ -122,6 +122,26 @@ var first = []string{"ay", "asy", "aly", "ary", "ìy", "ìsy", "ìly", "ìry", "
 	"ìlm", "ìrm", "am", "alm", "arm", "ìyev", "iyev", "iv", "ilv", "irv", "imv", "us", "awn"}
 var second = []string{"ei", "eiy", "äng", "eng", "uy", "ats"}
 
+var weirdNounSuffixes = map[string]string{
+	// For "tsa" with case endings
+	// Canonized in:
+	// https://naviteri.org/2011/08/new-vocabulary-clothing/comment-page-1/#comment-912
+	"tsa": "tsaw",
+	// The a re-appears when case endings are added (it uses a instead of ì)
+	"oenga": "oeng",
+	// Foreign nouns
+	"'ìnglìs":      "'ìnglìsì",
+	"keln":         "kelnì",
+	"kerìsmìs":     "kerìsmìsì",
+	"kìreys":       "kìreysì", // https://naviteri.org/2011/09/miscellaneous-vocabulary/
+	"tsìräf":       "tsìräfì",
+	"nìyu york":    "nìyu yorkì",
+	"nu york":      "nu yorkì", // https://naviteri.org/2013/01/awvea-posti-zisita-amip-first-post-of-the-new-year/
+	"päts":         "pätsì",
+	"post":         "postì",
+	"losäntsyeles": "losäntsyelesì",
+}
+
 func isDuplicate(input ConjugationCandidate) bool {
 	for _, a := range candidates {
 		if input.word == a.word && input.insistPOS == a.insistPOS {
@@ -166,6 +186,20 @@ func infixError(query string, didYouMean string, ipa string) Word {
 	return d
 }
 
+// fuction to check given string is in array or not
+// modified from https://www.golinuxcloud.com/golang-array-contains/
+func implContainsAny(sl []string, names []string) bool {
+	// iterate over the array and compare given string to each element
+	for _, value := range sl {
+		for _, name := range names {
+			if value == name {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck int, unlenite int8, checkInfixes bool) []ConjugationCandidate {
 	if isDuplicate(input) {
 		return candidates
@@ -173,18 +207,20 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 
 	// Exceptions for how words conjugate
 	if len(input.suffixes) == 1 {
-		if input.word == "tsa" {
-			// For "tsa" with case endings
-			// Canonized in:
-			// https://naviteri.org/2011/08/new-vocabulary-clothing/comment-page-1/#comment-912
-			input.word = "tsaw"
+		if validWord, ok := weirdNounSuffixes[input.word]; ok {
+			input.word = validWord
 			if !isDuplicate(input) {
 				candidates = append(candidates, input)
 			}
 			return candidates
-		} else if input.word == "oenga" {
-			// The a re-appears when case endings are added (it uses a instead of ì)
-			input.word = "oeng"
+		}
+	}
+
+	if len(input.infixes) > 0 && implContainsAny(input.infixes, []string{"ats", "uy"}) {
+		// for the cases of zen<ats>eke and zen<uy>eke
+		// confirmed in here: https://forum.learnnavi.org/index.php?msg=493217
+		if input.word == "zeneke" {
+			input.word = "zenke"
 			if !isDuplicate(input) {
 				candidates = append(candidates, input)
 			}
@@ -877,6 +913,9 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 
 					// pre-first position infixes
 					rebuiltVerb := c.InfixLocations
+					if c.InfixLocations == "z<0><1>en<2>ke" && implContainsAny(candidate.infixes, []string{"ats", "uy"}) {
+						rebuiltVerb = "z<0><1>en<2>eke"
+					}
 					firstInfixes := ""
 					found := false
 

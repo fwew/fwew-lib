@@ -928,8 +928,8 @@ func is_vowel_ipa(letter string) (found bool) {
 func ReefMe(ipa string, inter bool) []string {
 	if ipa == "ʒɛjk'.ˈsu:.li" { // Obsolete path
 		return []string{"jake-__sùl__-ly", "ʒɛjk'.ˈsʊ:.li"}
-	} else if ipa == "ˈz·ɛŋ.kɛ" { // only IPA not to match the Romanization
-		return []string{"__zen__-ke", "ˈz·ɛŋ.kɛ"}
+	} else if strings.ReplaceAll(ipa, "·", "") == "ˈzɛŋ.kɛ" { // only IPA not to match the Romanization
+		return []string{"__zen__-ke", "ˈz·ɛŋ·.kɛ"}
 	} else if ipa == "ɾæ.ˈʔæ" || ipa == "ˈɾæ.ʔæ" { // we hear this in Avatar 2
 		return []string{"rä-__'ä__", "ɾæ.ˈʔæ"}
 	}
@@ -939,17 +939,19 @@ func ReefMe(ipa string, inter bool) []string {
 
 	// Unstressed ä becomes e
 	ipa_syllables := strings.Split(ipa, ".")
-	new_ipa := ""
-	for _, a := range ipa_syllables {
-		new_ipa += "."
-		if !strings.Contains(a, "ˈ") {
-			new_ipa += strings.ReplaceAll(a, "æ", "ɛ")
-		} else {
-			new_ipa += a
+	if len(ipa_syllables) > 1 {
+		new_ipa := ""
+		for _, a := range ipa_syllables {
+			new_ipa += "."
+			if !strings.Contains(a, "ˈ") {
+				new_ipa += strings.ReplaceAll(a, "æ", "ɛ")
+			} else {
+				new_ipa += a
+			}
 		}
-	}
 
-	ipa = new_ipa
+		ipa = new_ipa
+	}
 
 	breakdown := ""
 	ejectives := []string{"p'", "t'", "k'"}
@@ -990,7 +992,7 @@ func ReefMe(ipa string, inter bool) []string {
 		// Glottal stops between two vowels are removed
 		for i, a := range runes {
 			if i != 0 && i != len(runes)-1 && a == 'ʔ' {
-				if runes[i-1] == '.' {
+				if runes[i-1] == '.' && i > 1 {
 					if is_vowel_ipa(string(runes[i+1])) && is_vowel_ipa(string(runes[i-2])) {
 						if runes[i+1] != runes[i-2] {
 							continue
@@ -1002,7 +1004,7 @@ func ReefMe(ipa string, inter bool) []string {
 							continue
 						}
 					}
-				} else if runes[i-1] == 'ˈ' && i > 1 {
+				} else if runes[i-1] == 'ˈ' && i > 2 {
 					if is_vowel_ipa(string(runes[i+1])) && is_vowel_ipa(string(runes[i-3])) {
 						if runes[i+1] != runes[i-3] {
 							continue
