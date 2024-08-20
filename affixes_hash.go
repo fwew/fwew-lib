@@ -130,9 +130,16 @@ var weirdNounSuffixes = map[string]string{
 	// The a re-appears when case endings are added (it uses a instead of ì)
 	"oenga": "oeng",
 	// Foreign nouns
-	"keln":     "kelnì",
-	"kerìsmìs": "kerìsmìsì",
-	"kìreys":   "kìreysì",
+	"'ìnglìs":      "'ìnglìsì",
+	"keln":         "kelnì",
+	"kerìsmìs":     "kerìsmìsì",
+	"kìreys":       "kìreysì",
+	"tsìräf":       "tsìräfì",
+	"nìyu york":    "nìyu yorkì",
+	"nu york":      "nu yorkì", // https://naviteri.org/2013/01/awvea-posti-zisita-amip-first-post-of-the-new-year/
+	"päts":         "pätsì",
+	"post":         "postì",
+	"losäntsyeles": "losäntsyelesì",
 }
 
 func isDuplicate(input ConjugationCandidate) bool {
