@@ -1182,12 +1182,14 @@ func StartEverything() {
 	elapsed := strconv.FormatFloat(time.Since(start).Seconds(), 'f', -1, 64)
 
 	var g = func(word Word) error {
-		reefy := strings.ReplaceAll(ReefMe(word.IPA, false)[1], "-", "")
-		if reefy == strings.ReplaceAll(strings.ReplaceAll(word.IPA, "ʊ", "u"), "·", "") {
+		//reefy := strings.ReplaceAll(ReefMe(word.IPA, false)[0], "-", "")
+		foresty := strings.ReplaceAll(word.IPA, "ʊ", "u")
+		if foresty == word.IPA {
 			fmt.Println("NULL")
 		} else {
-			fmt.Println(reefy)
+			fmt.Println(foresty)
 		}
+		//fmt.Println()
 		return nil
 	}
 
