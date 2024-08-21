@@ -651,12 +651,12 @@ var englishWords = []struct {
 		},
 		want: []Word{
 			{
-				ID:   "440",
-				Navi: "fpxafaw",
-			},
-			{
 				ID:   "612",
 				Navi: "ioang",
+			},
+			{
+				ID:   "9460",
+				Navi: "kxänäng",
 			},
 			{
 				ID:   "1440",
@@ -669,14 +669,6 @@ var englishWords = []struct {
 			{
 				ID:   "2744",
 				Navi: "yerik",
-			},
-			{
-				ID:   "7676",
-				Navi: "fwampop",
-			},
-			{
-				ID:   "10704",
-				Navi: "seyto",
 			},
 		},
 	},
@@ -701,16 +693,16 @@ var englishWords = []struct {
 		},
 		want: []Word{
 			{
+				ID:   "8604",
+				Navi: "litx",
+			},
+			{
 				ID:   "1608",
 				Navi: "pxi",
 			},
 			{
 				ID:   "1616",
 				Navi: "pxiut",
-			},
-			{
-				ID:   "8604",
-				Navi: "litx",
 			},
 		},
 	},
@@ -837,19 +829,32 @@ func BenchmarkTranslateFromNaviBigCached(b *testing.B) {
 	UncacheHashDict()
 }
 
-func TestTranslateToNavi(t *testing.T) {
+func TestTranslateToNaviCached(t *testing.T) {
+	var (
+		err1 error
+		err2 error
+	)
+
+	err1 = CacheDictHash()
+	err2 = CacheDictHash2()
+
+	if err1 != nil {
+		t.Errorf("TranslateToNaviCached() Failed to CacheDictHash")
+	}
+	if err2 != nil {
+		t.Errorf("TranslateToNaviCached() Failed to CacheDictHash2")
+	}
+
 	for _, tt := range englishWords {
 		t.Run(tt.name, func(t *testing.T) {
-			if gotResults := TranslateToNaviHash(tt.args.searchNaviText, tt.args.languageCode); !wordSimpleEqual(gotResults[1], tt.want) {
-				t.Errorf("TranslateToNavi() = %v, want %v", gotResults, tt.want)
+			gotResults := TranslateToNaviHash(tt.args.searchNaviText, tt.args.languageCode)
+			if !wordSimpleEqual(gotResults[0][1:], tt.want) {
+				t.Errorf("TranslateToNavi() = %v, want %v", gotResults[0][1:], tt.want)
 			}
 		})
 	}
-}
 
-func TestTranslateToNaviCached(t *testing.T) {
-	CacheDictHash2()
-	TestTranslateToNavi(t)
+	UncacheHashDict()
 	UncacheHashDict2()
 }
 
