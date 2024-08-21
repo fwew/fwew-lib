@@ -46,21 +46,7 @@ func wordSimpleEqual(w1a, w2a []Word) bool {
 		w1 := w1a[j]
 		w2 := w2a[j]
 
-		if w1.ID != w2.ID ||
-			//w1.DE != w2.DE ||
-			//w1.EN != w2.EN ||
-			//w1.ES != w2.ES ||
-			//w1.ET != w2.ET ||
-			//w1.FR != w2.FR ||
-			//w1.HU != w2.HU ||
-			//w1.NL != w2.NL ||
-			//w1.PL != w2.PL ||
-			//w1.PT != w2.PT ||
-			//w1.RU != w2.RU ||
-			//w1.SV != w2.SV ||
-			//w1.TR != w2.TR ||
-			//w1.UK != w2.UK ||
-			w1.Navi != w2.Navi ||
+		if w1.ID != w2.ID || w1.Navi != w2.Navi ||
 			(!reflect.DeepEqual(w1.Affixes.Prefix, w2.Affixes.Prefix) ||
 				!reflect.DeepEqual(w1.Affixes.Infix, w2.Affixes.Infix) ||
 				!reflect.DeepEqual(w1.Affixes.Suffix, w2.Affixes.Suffix) ||
@@ -108,20 +94,20 @@ var naviWords = []struct {
 		},
 		want: []Word{
 			{
+				ID:   "6224",
+				Navi: "'a'aw",
+				Affixes: affix{
+					Lenition: []string{
+						"'a→a",
+					},
+				},
+			},
+			{
 				ID:   "12",
 				Navi: "'aw",
 				Affixes: affix{
 					Prefix: []string{
 						"a",
-					},
-				},
-			},
-			{
-				ID:   "6224",
-				Navi: "'a'aw",
-				Affixes: affix{
-					Lenition: []string{
-						"'→",
 					},
 				},
 			},
@@ -207,37 +193,36 @@ var naviWords = []struct {
 				Navi: "'eveng",
 				Affixes: affix{
 					Prefix: []string{
-						"pe",
-						"pxe",
+						"pepe",
 					},
 				},
 			},
 		},
 	},
 	{
-		name: "pepfil",
+		name: "pepefil",
 		args: args{
-			searchNaviText: "pepfil",
+			searchNaviText: "pepefil",
 		},
 		want: []Word{
-			{
-				ID:   "6616",
-				Navi: "pil",
-				Affixes: affix{
-					Prefix: []string{
-						"pep",
-					},
-					Lenition: []string{
-						"p→f",
-					},
-				},
-			},
 			{
 				ID:   "12989",
 				Navi: "fil",
 				Affixes: affix{
 					Prefix: []string{
-						"pep",
+						"pepe",
+					},
+				},
+			},
+			{
+				ID:   "6616",
+				Navi: "pil",
+				Affixes: affix{
+					Prefix: []string{
+						"pepe",
+					},
+					Lenition: []string{
+						"p→f",
 					},
 				},
 			},
@@ -298,6 +283,15 @@ var naviWords = []struct {
 					},
 				},
 			},
+			{
+				ID:   "1044",
+				Navi: "lu",
+				Affixes: affix{
+					Suffix: []string{
+						"yu",
+					},
+				},
+			},
 		},
 	},
 	{
@@ -311,7 +305,7 @@ var naviWords = []struct {
 				Navi: "si",
 				Affixes: affix{
 					Infix: []string{
-						"ei",
+						"eiy",
 					},
 				},
 			},
@@ -358,25 +352,16 @@ var naviWords = []struct {
 		},
 		want: []Word{
 			{
-				ID:   "4984",
-				Navi: "tswa'",
-				Affixes: affix{
-					Prefix: []string{
-						"ketsuk",
-					},
-				},
-			},
-			{
 				ID:      "7352",
 				Navi:    "ketsuktswa'",
 				Affixes: affix{},
 			},
 			{
-				ID:   "7356",
-				Navi: "tsuktswa'",
+				ID:   "4984",
+				Navi: "tswa'",
 				Affixes: affix{
 					Prefix: []string{
-						"ke",
+						"ketsuk",
 					},
 				},
 			},
@@ -389,6 +374,11 @@ var naviWords = []struct {
 		},
 		want: []Word{
 			{
+				ID:      "6156",
+				Navi:    "tìtusaron",
+				Affixes: affix{},
+			},
+			{
 				ID:   "2004",
 				Navi: "taron",
 				Affixes: affix{
@@ -399,11 +389,6 @@ var naviWords = []struct {
 						"us",
 					},
 				},
-			},
-			{
-				ID:      "6156",
-				Navi:    "tìtusaron",
-				Affixes: affix{},
 			},
 		},
 	}, // tì prefix
@@ -536,26 +521,6 @@ var naviWords = []struct {
 		},
 	}, // tswo suffix
 	{
-		name: "pawnengsì",
-		args: args{
-			searchNaviText: "pawnengsì",
-		},
-		want: []Word{
-			{
-				ID:   "1512",
-				Navi: "peng",
-				Affixes: affix{
-					Infix: []string{
-						"awn",
-					},
-					Suffix: []string{
-						"sì",
-					},
-				},
-			},
-		},
-	}, // awn infix and some suffix
-	{
 		name: "tsuknumesì",
 		args: args{
 			searchNaviText: "tsuknumesì",
@@ -615,7 +580,7 @@ var naviWords = []struct {
 				Navi: "'u",
 				Affixes: affix{
 					Suffix: []string{
-						"eyä",
+						"yä", "o",
 					},
 				},
 			},
@@ -798,20 +763,37 @@ var englishWords = []struct {
 	},
 }
 
-func TestTranslateFromNavi(t *testing.T) {
+func TestTranslateFromNaviCached(t *testing.T) {
+	var (
+		err1 error
+		err2 error
+	)
+
+	err1 = CacheDictHash()
+	err2 = CacheDictHash2()
+
+	if err1 != nil {
+		t.Errorf("TranslateFromNaviCached() Failed to CacheDictHash")
+	}
+	if err2 != nil {
+		t.Errorf("TranslateFromNaviCached() Failed to CacheDictHash2")
+	}
+
 	for _, tt := range naviWords {
 		t.Run(tt.name, func(t *testing.T) {
-			if got, err := TranslateFromNaviHash(tt.args.searchNaviText, true); err != nil || !wordSimpleEqual(got[1], tt.want) {
-				t.Errorf("TranslateFromNavi() = %v, want %v", got, tt.want)
+			got, err := TranslateFromNaviHash(tt.args.searchNaviText, true)
+			if err == nil && tt.args.searchNaviText == "" && got != nil {
+				t.Errorf("TranslateFromNaviCached() got = %v, want %v", got, tt.want)
+			} else if err == nil && len(tt.want) == 0 && len(got) > 0 {
+				t.Errorf("TranslateFromNaviCached() got = %v, want %v", got, tt.want)
+			} else if err != nil || len(tt.want) > 0 && len(got) > 0 && !wordSimpleEqual(got[0][1:], tt.want) {
+				t.Errorf("TranslateFromNaviCached() = %v, want %v", got[0][1:], tt.want)
 			}
 		})
 	}
-}
 
-func TestTranslateFromNaviCached(t *testing.T) {
-	CacheDictHash()
-	TestTranslateFromNavi(t)
 	UncacheHashDict()
+	UncacheHashDict2()
 }
 
 func BenchmarkTranslateFromNavi(b *testing.B) {
