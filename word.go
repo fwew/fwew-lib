@@ -308,11 +308,19 @@ func (w *Word) ToOutputLine(
 
 	if reef {
 		reefy := ReefMe(w.IPA, false)
-		reefBreakdown, err := w.doUnderline(reefy[0], withMarkdown)
-		if err != nil {
-			return "", err
+		output += "\n(Reef Na'vi: "
+		for _, a := range strings.Split(reefy[0], " ") {
+			if a == "or" {
+				output += " or "
+				continue
+			}
+			reefBreakdown, err := w.doUnderline(a, withMarkdown)
+			if err != nil {
+				return "", err
+			}
+			output += reefBreakdown
 		}
-		output += "\n(Reef Na'vi: " + reefBreakdown + " [" + reefy[1] + "])"
+		output += " [" + reefy[1] + "])"
 	}
 
 	if len(w.Affixes.Prefix) > 0 {
