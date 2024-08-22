@@ -931,7 +931,7 @@ func ReefMe(ipa string, inter bool) []string {
 	} else if strings.ReplaceAll(ipa, "·", "") == "ˈzɛŋ.kɛ" { // only IPA not to match the Romanization
 		return []string{"__zen__-ke", "ˈz·ɛŋ·.kɛ"}
 	} else if ipa == "ɾæ.ˈʔæ" || ipa == "ˈɾæ.ʔæ" { // we hear this in Avatar 2
-		return []string{"rä-__'ä__ or rä-__ä__", "ɾæ.ˈʔæ] or [ɾæ.ˈʔæ"}
+		return []string{"rä-__'ä__ or rä-__ä__", "ɾæ.ˈʔæ] or [ɾæ.ˈæ"}
 	}
 
 	// Replace the spaces so as not to confuse strings.Split()
