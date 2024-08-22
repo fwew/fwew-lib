@@ -221,7 +221,7 @@ const (
 
 func (w *Word) ToOutputLine(
 	i string,
-	withMarkdown, showIPA, showInfixes, showDashed, showInfDots, showSource bool,
+	withMarkdown, showIPA, showInfixes, showDashed, showInfDots, showSource, reef bool,
 	langCode string,
 ) (output string, err error) {
 	num := fmt.Sprintf("[%s]", i)
@@ -232,7 +232,7 @@ func (w *Word) ToOutputLine(
 	src := fmt.Sprintf("%s: %s", Text("src"), w.Source)
 	ifd := "" + w.InfixDots
 
-	syl, err := w.doUnderline(withMarkdown)
+	syl, err := w.doUnderline("", withMarkdown)
 	if err != nil {
 		return "", err
 	}
@@ -245,7 +245,10 @@ func (w *Word) ToOutputLine(
 	output += num + space + nav + space
 
 	if showIPA {
-		output += ipa + space
+		output += strings.ReplaceAll(ipa, "ʊ", "u") + space
+		if strings.Contains(ipa, "ʊ") {
+			output += "or " + ipa + space
+		}
 	}
 
 	if showInfixes && w.InfixLocations != valNull {
@@ -303,6 +306,15 @@ func (w *Word) ToOutputLine(
 		output += w.EN
 	}
 
+	if reef {
+		reefy := ReefMe(w.IPA, false)
+		reefBreakdown, err := w.doUnderline(reefy[0], withMarkdown)
+		if err != nil {
+			return "", err
+		}
+		output += "\n(Reef Na'vi: " + reefBreakdown + " [" + reefy[1] + "])"
+	}
+
 	if len(w.Affixes.Prefix) > 0 {
 		output += newline + fmt.Sprintf("Prefixes: %s", w.Affixes.Prefix)
 	}
@@ -326,16 +338,20 @@ func (w *Word) ToOutputLine(
 	return
 }
 
-func (w *Word) doUnderline(markdown bool) (string, error) {
-	if !strings.Contains(w.Syllables, "-") || w.Stressed == "0" {
-		return w.Syllables, nil
+func (w *Word) doUnderline(input string, markdown bool) (string, error) {
+	syllables := w.Syllables
+	if len(input) > 0 {
+		syllables = input
+	}
+	if !strings.Contains(syllables, "-") || w.Stressed == "0" {
+		return syllables, nil
 	}
 
 	var err error
 	mdUnderline := "__"
 	shUnderlineA := "\033[4m"
 	shUnderlineB := "\033[0m"
-	dashed := w.Syllables
+	dashed := syllables
 	dSlice := strings.FieldsFunc(dashed, func(r rune) bool {
 		return r == '-' || r == ' '
 	})
