@@ -35,7 +35,7 @@ var romanization2 = map[string]string{
 	// Vowels
 	"a": "a", "i": "i", "ɪ": "ì",
 	"o": "o", "ɛ": "e", "u": "u",
-	"æ": "ä",
+	"æ": "ä", "õ": "õ", //võvä' only
 	// Diphthongs
 	"aw": "aw", "ɛj": "ey",
 	"aj": "ay", "ɛw": "ew",
