@@ -931,7 +931,7 @@ func ReefMe(ipa string, inter bool) []string {
 	} else if strings.ReplaceAll(ipa, "·", "") == "ˈzɛŋ.kɛ" { // only IPA not to match the Romanization
 		return []string{"__zen__-ke", "ˈz·ɛŋ·.kɛ"}
 	} else if ipa == "ɾæ.ˈʔæ" || ipa == "ˈɾæ.ʔæ" { // we hear this in Avatar 2
-		return []string{"rä-__'ä__", "ɾæ.ˈʔæ"}
+		return []string{"rä-__'ä__ or rä-__ä__", "ɾæ.ˈʔæ] or [ɾæ.ˈʔæ"}
 	}
 
 	// Replace the spaces so as not to confuse strings.Split()
@@ -1161,6 +1161,30 @@ func ReefMe(ipa string, inter bool) []string {
 	breakdown = strings.TrimPrefix(breakdown, "-")
 	breakdown = strings.ReplaceAll(breakdown, " -", " ")
 	breakdown = strings.TrimSuffix(breakdown, " ")
+
+	// If there's a tìftang between two identical vowels, the tìftang is optional
+	for _, a := range []string{"a", "ɛ", "ɪ", "o", "u", "i", "æ", "ʊ"} {
+		if strings.Contains(strings.ReplaceAll(strings.ReplaceAll(ipaReef, "ˈ", ""), ".", ""), a+"ʔ"+a) {
+			// fix IPA
+			noTìftangIPA := strings.ReplaceAll(ipaReef, a+".ˈʔ"+a, a+".ˈ"+a)
+			noTìftangIPA = strings.ReplaceAll(noTìftangIPA, a+".ʔ"+a, a+"."+a)
+			noTìftangIPA = strings.ReplaceAll(noTìftangIPA, a+"ʔ."+a, a+"."+a)
+			noTìftangIPA = strings.ReplaceAll(noTìftangIPA, a+"ʔ.ˈ"+a, a+".ˈ"+a)
+
+			ipaReef += "] or [" + noTìftangIPA
+		}
+	}
+
+	// fix breakdown
+	for _, a := range []string{"a", "e", "ì", "o", "u", "i", "ä", "ù"} {
+		if strings.Contains(strings.ReplaceAll(breakdown, "-", ""), a+"'"+a) {
+			noTìftangBreakdown := strings.ReplaceAll(breakdown, a+"-'"+a, a+"-"+a)
+			noTìftangBreakdown = strings.ReplaceAll(noTìftangBreakdown, a+"'-"+a, a+"-"+a)
+
+			breakdown += " or " + noTìftangBreakdown
+		}
+
+	}
 
 	return []string{breakdown, ipaReef}
 }
