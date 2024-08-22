@@ -1163,8 +1163,9 @@ func ReefMe(ipa string, inter bool) []string {
 	breakdown = strings.TrimSuffix(breakdown, " ")
 
 	// If there's a tìftang between two identical vowels, the tìftang is optional
+	shortString := strings.ReplaceAll(strings.ReplaceAll(ipaReef, "ˈ", ""), ".", "")
 	for _, a := range []string{"a", "ɛ", "ɪ", "o", "u", "i", "æ", "ʊ"} {
-		if strings.Contains(strings.ReplaceAll(strings.ReplaceAll(ipaReef, "ˈ", ""), ".", ""), a+"ʔ"+a) {
+		if strings.Contains(shortString, a+"ʔ"+a) {
 			// fix IPA
 			noTìftangIPA := strings.ReplaceAll(ipaReef, a+".ˈʔ"+a, a+".ˈ"+a)
 			noTìftangIPA = strings.ReplaceAll(noTìftangIPA, a+".ʔ"+a, a+"."+a)
@@ -1176,8 +1177,9 @@ func ReefMe(ipa string, inter bool) []string {
 	}
 
 	// fix breakdown
+	shortString = strings.ReplaceAll(breakdown, "-", "")
 	for _, a := range []string{"a", "e", "ì", "o", "u", "i", "ä", "ù"} {
-		if strings.Contains(strings.ReplaceAll(breakdown, "-", ""), a+"'"+a) {
+		if strings.Contains(shortString, a+"'"+a) {
 			noTìftangBreakdown := strings.ReplaceAll(breakdown, a+"-'"+a, a+"-"+a)
 			noTìftangBreakdown = strings.ReplaceAll(noTìftangBreakdown, a+"'-"+a, a+"-"+a)
 
