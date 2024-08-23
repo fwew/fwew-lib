@@ -300,6 +300,8 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 			keepAffixes := *new(affix)
 
 			extraWord := 0
+
+			revert := results[0][0].Navi
 			// There could be more than one pair (win säpi and win si for example)
 			for j, pairWord := range pairWordSet {
 				found = false
@@ -363,6 +365,7 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 
 					// Chain is broken.  Exit.
 					if !found {
+						results[0][0].Navi = revert
 						break
 					}
 				}
