@@ -1032,20 +1032,27 @@ func ReefMe(ipa string, inter bool) []string {
 
 	for j := 0; j < len(word); j++ {
 		word[j] = strings.ReplaceAll(word[j], "]", "")
+		word[j] = strings.ReplaceAll(word[j], "[", "")
 		// "or" means there's more than one IPA in this word, and we only want one
 		if word[j] == "or" {
-			break
+			breakdown += "or "
+			continue
 		}
 
 		syllables := strings.Split(word[j], ".")
 
 		/* Onset */
 		for k := 0; k < len(syllables); k++ {
+			breakdown += "-"
+
+			stressed := false
 			syllable := strings.ReplaceAll(syllables[k], "·", "")
+			if strings.Contains(syllable, "ˈ") {
+				stressed = true
+				breakdown += "__"
+			}
 			syllable = strings.ReplaceAll(syllable, "ˈ", "")
 			syllable = strings.ReplaceAll(syllable, "ˌ", "")
-
-			breakdown += "-"
 
 			// tsy
 			if strings.HasPrefix(syllable, "tʃ") {
@@ -1156,6 +1163,10 @@ func ReefMe(ipa string, inter bool) []string {
 						}
 					}
 				}
+			}
+
+			if stressed {
+				breakdown += "__"
 			}
 		}
 		breakdown += " "
