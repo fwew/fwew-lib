@@ -1165,7 +1165,7 @@ func ReefMe(ipa string, inter bool) []string {
 	return []string{breakdown, ipaReef}
 }
 
-func StartEverything() {
+func StartEverything() string {
 	start := time.Now()
 	var errors = []error{
 		AssureDict(),
@@ -1181,5 +1181,5 @@ func StartEverything() {
 	PhonemeDistros()
 	elapsed := strconv.FormatFloat(time.Since(start).Seconds(), 'f', -1, 64)
 
-	fmt.Println("Everything is cached.  Took " + elapsed + " seconds")
+	return fmt.Sprintln("Everything is cached.  Took " + elapsed + " seconds")
 }
