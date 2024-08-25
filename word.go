@@ -18,7 +18,6 @@ package fwew_lib
 import (
 	"fmt"
 	"reflect"
-	"strconv"
 	"strings"
 )
 
@@ -221,7 +220,7 @@ const (
 
 func (w *Word) ToOutputLine(
 	i string,
-	withMarkdown, showIPA, showInfixes, showDashed, showInfDots, showSource bool,
+	withMarkdown, showIPA, showInfixes, showDashed, showInfDots, showSource, reef bool,
 	langCode string,
 ) (output string, err error) {
 	num := fmt.Sprintf("[%s]", i)
@@ -232,9 +231,29 @@ func (w *Word) ToOutputLine(
 	src := fmt.Sprintf("%s: %s", Text("src"), w.Source)
 	ifd := "" + w.InfixDots
 
-	syl, err := w.doUnderline(withMarkdown)
-	if err != nil {
-		return "", err
+	sylBuilder := ""
+	syl := ""
+	allSpaces := strings.Split(w.Syllables, " ")
+	for i, a := range allSpaces {
+		if a == "or" {
+			sylBuilder = strings.Trim(sylBuilder, " -")
+			input, err := w.doUnderline(sylBuilder, withMarkdown)
+			if err != nil {
+				return "", err
+			}
+			syl += input + " or "
+			sylBuilder = ""
+			continue
+		}
+		sylBuilder += a + " "
+		if i+1 == len(allSpaces) {
+			sylBuilder = strings.Trim(sylBuilder, " -")
+			input, err := w.doUnderline(sylBuilder, withMarkdown)
+			if err != nil {
+				return "", err
+			}
+			syl += input
+		}
 	}
 
 	if withMarkdown {
@@ -245,7 +264,10 @@ func (w *Word) ToOutputLine(
 	output += num + space + nav + space
 
 	if showIPA {
-		output += ipa + space
+		output += strings.ReplaceAll(ipa, "ʊ", "u") + space
+		if strings.Contains(ipa, "ʊ") {
+			output += "or " + ipa + space
+		}
 	}
 
 	if showInfixes && w.InfixLocations != valNull {
@@ -303,6 +325,35 @@ func (w *Word) ToOutputLine(
 		output += w.EN
 	}
 
+	if reef {
+		reefy := ReefMe(w.IPA, false)
+		output += "\n(Reef Na'vi: "
+		reefBreakdownInput := ""
+		allSpaces := strings.Split(reefy[0], " ")
+		for i, a := range allSpaces {
+			if a == "or" {
+				reefBreakdownInput = strings.Trim(reefBreakdownInput, " -")
+				input, err := w.doUnderline(reefBreakdownInput, withMarkdown)
+				if err != nil {
+					return "", err
+				}
+				output += input + " or "
+				reefBreakdownInput = ""
+				continue
+			}
+			reefBreakdownInput += a + " "
+			if i+1 == len(allSpaces) {
+				reefBreakdownInput = strings.Trim(reefBreakdownInput, " -")
+				input, err := w.doUnderline(reefBreakdownInput, withMarkdown)
+				if err != nil {
+					return "", err
+				}
+				output += input
+			}
+		}
+		output += " [" + reefy[1] + "])"
+	}
+
 	if len(w.Affixes.Prefix) > 0 {
 		output += newline + fmt.Sprintf("Prefixes: %s", w.Affixes.Prefix)
 	}
@@ -326,21 +377,66 @@ func (w *Word) ToOutputLine(
 	return
 }
 
-func (w *Word) doUnderline(markdown bool) (string, error) {
-	if !strings.Contains(w.Syllables, "-") || w.Stressed == "0" {
-		return w.Syllables, nil
+func (w *Word) doUnderline(input string, markdown bool) (string, error) {
+	syllables := w.Syllables
+	if len(input) > 0 {
+		syllables = input
+	}
+	if !strings.Contains(syllables, "-") || w.Stressed == "0" {
+		return syllables, nil
 	}
 
-	var err error
+	//var err error
 	mdUnderline := "__"
 	shUnderlineA := "\033[4m"
 	shUnderlineB := "\033[0m"
-	dashed := w.Syllables
-	dSlice := strings.FieldsFunc(dashed, func(r rune) bool {
+	//dashed := syllables
+	/*dSlice := strings.FieldsFunc(dashed, func(r rune) bool {
 		return r == '-' || r == ' '
-	})
+	})*/
 
-	stressedIndex, err := strconv.Atoi(w.Stressed)
+	// get it from the IPA
+	stressed := []bool{}
+	for _, a := range strings.Split(w.IPA, " ") {
+		if a == "or" {
+			break
+		}
+		for _, b := range strings.Split(a, ".") {
+			if strings.Contains(b, "ˈ") {
+				stressed = append(stressed, true)
+			} else {
+				stressed = append(stressed, false)
+			}
+		}
+	}
+
+	// apply it from the IPA
+	i := 0
+	underlined := ""
+	for _, a := range strings.Split(syllables, " ") {
+		for _, b := range strings.Split(a, "-") {
+			if i >= len(stressed) {
+				break
+			}
+			if stressed[i] {
+				if markdown {
+					underlined += "-" + mdUnderline + b + mdUnderline
+				} else {
+					underlined += "-" + shUnderlineA + b + shUnderlineB
+				}
+			} else {
+				underlined += "-" + b
+			}
+			i += 1
+		}
+		underlined += " "
+	}
+
+	underlined = strings.TrimPrefix(underlined, "-")
+	underlined = strings.TrimSuffix(underlined, " ")
+	underlined = strings.ReplaceAll(underlined, " -", " ")
+
+	/*stressedIndex, err := strconv.Atoi(w.Stressed)
 	if err != nil {
 		return "", InvalidNumber.wrap(err)
 	}
@@ -363,7 +459,8 @@ func (w *Word) doUnderline(markdown bool) (string, error) {
 			dSlice[stressedIndex-1] = shUnderlineA + stressedSyllable + shUnderlineB
 		}
 		return strings.Join(dSlice, "-"), nil
-	}
+	}*/
+	return underlined, nil
 }
 
 // This holds the positions, how the fields are sorted (with dictV2 the fields can have any order)

@@ -35,7 +35,7 @@ var romanization2 = map[string]string{
 	// Vowels
 	"a": "a", "i": "i", "ɪ": "ì",
 	"o": "o", "ɛ": "e", "u": "u",
-	"æ": "ä",
+	"æ": "ä", "õ": "õ", //võvä' only
 	// Diphthongs
 	"aw": "aw", "ɛj": "ey",
 	"aj": "ay", "ɛw": "ew",
@@ -300,6 +300,8 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 			keepAffixes := *new(affix)
 
 			extraWord := 0
+
+			revert := results[0][0].Navi
 			// There could be more than one pair (win säpi and win si for example)
 			for j, pairWord := range pairWordSet {
 				found = false
@@ -363,6 +365,7 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 
 					// Chain is broken.  Exit.
 					if !found {
+						results[0][0].Navi = revert
 						break
 					}
 				}
@@ -931,7 +934,7 @@ func ReefMe(ipa string, inter bool) []string {
 	} else if strings.ReplaceAll(ipa, "·", "") == "ˈzɛŋ.kɛ" { // only IPA not to match the Romanization
 		return []string{"__zen__-ke", "ˈz·ɛŋ·.kɛ"}
 	} else if ipa == "ɾæ.ˈʔæ" || ipa == "ˈɾæ.ʔæ" { // we hear this in Avatar 2
-		return []string{"rä-__'ä__", "ɾæ.ˈʔæ"}
+		return []string{"rä-__'ä__ or rä-__ä__", "ɾæ.ˈʔæ] or [ɾæ.ˈæ"}
 	}
 
 	// Replace the spaces so as not to confuse strings.Split()
@@ -1029,20 +1032,27 @@ func ReefMe(ipa string, inter bool) []string {
 
 	for j := 0; j < len(word); j++ {
 		word[j] = strings.ReplaceAll(word[j], "]", "")
+		word[j] = strings.ReplaceAll(word[j], "[", "")
 		// "or" means there's more than one IPA in this word, and we only want one
 		if word[j] == "or" {
-			break
+			breakdown += "or "
+			continue
 		}
 
 		syllables := strings.Split(word[j], ".")
 
 		/* Onset */
 		for k := 0; k < len(syllables); k++ {
+			breakdown += "-"
+
+			stressed := false
 			syllable := strings.ReplaceAll(syllables[k], "·", "")
+			if strings.Contains(syllable, "ˈ") {
+				stressed = true
+				breakdown += "__"
+			}
 			syllable = strings.ReplaceAll(syllable, "ˈ", "")
 			syllable = strings.ReplaceAll(syllable, "ˌ", "")
-
-			breakdown += "-"
 
 			// tsy
 			if strings.HasPrefix(syllable, "tʃ") {
@@ -1154,6 +1164,10 @@ func ReefMe(ipa string, inter bool) []string {
 					}
 				}
 			}
+
+			if stressed {
+				breakdown += "__"
+			}
 		}
 		breakdown += " "
 	}
@@ -1161,6 +1175,32 @@ func ReefMe(ipa string, inter bool) []string {
 	breakdown = strings.TrimPrefix(breakdown, "-")
 	breakdown = strings.ReplaceAll(breakdown, " -", " ")
 	breakdown = strings.TrimSuffix(breakdown, " ")
+
+	// If there's a tìftang between two identical vowels, the tìftang is optional
+	shortString := strings.ReplaceAll(strings.ReplaceAll(ipaReef, "ˈ", ""), ".", "")
+	for _, a := range []string{"a", "ɛ", "ɪ", "o", "u", "i", "æ", "ʊ"} {
+		if strings.Contains(shortString, a+"ʔ"+a) {
+			// fix IPA
+			noTìftangIPA := strings.ReplaceAll(ipaReef, a+".ˈʔ"+a, a+".ˈ"+a)
+			noTìftangIPA = strings.ReplaceAll(noTìftangIPA, a+".ʔ"+a, a+"."+a)
+			noTìftangIPA = strings.ReplaceAll(noTìftangIPA, a+"ʔ."+a, a+"."+a)
+			noTìftangIPA = strings.ReplaceAll(noTìftangIPA, a+"ʔ.ˈ"+a, a+".ˈ"+a)
+
+			ipaReef += "] or [" + noTìftangIPA
+		}
+	}
+
+	// fix breakdown
+	shortString = strings.ReplaceAll(breakdown, "-", "")
+	for _, a := range []string{"a", "e", "ì", "o", "u", "i", "ä", "ù"} {
+		if strings.Contains(shortString, a+"'"+a) {
+			noTìftangBreakdown := strings.ReplaceAll(breakdown, a+"-'"+a, a+"-"+a)
+			noTìftangBreakdown = strings.ReplaceAll(noTìftangBreakdown, a+"'-"+a, a+"-"+a)
+
+			breakdown += " or " + noTìftangBreakdown
+		}
+
+	}
 
 	return []string{breakdown, ipaReef}
 }
