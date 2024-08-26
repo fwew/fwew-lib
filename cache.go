@@ -944,31 +944,31 @@ func GetDictSize(lang string) (count string, err error) {
 	if lang == "en" { // English
 		count = "There are " + count + " entries in the dictionary."
 	} else if lang == "de" { // German (Deutsch)
-		count = count + " 🇩🇪"
+		count = "There are " + count + " entries in the dictionary." // TODO
 	} else if lang == "es" { // Spanish (Español)
-		count = count + " 🇪🇦"
+		count = "There are " + count + " entries in the dictionary." // TODO
 	} else if lang == "et" { // Estonian (Eesti)
-		count = count + " 🇪🇪"
+		count = "There are " + count + " entries in the dictionary." // TODO
 	} else if lang == "fr" { // French (Français)
-		count = count + " 🇫🇷"
+		count = "There are " + count + " entries in the dictionary." // TODO
 	} else if lang == "hu" { // Hungarian (Magyar)
-		count = count + " 🇭🇺"
+		count = "There are " + count + " entries in the dictionary." // TODO
 	} else if lang == "ko" { // Korean (한국어)
 		count = "Fwew에는 " + count + "개의 단어가 등록되어 있습니다."
 	} else if lang == "nl" { // Dutch (Nederlands)
-		count = count + " 🇳🇱"
+		count = "There are " + count + " entries in the dictionary." // TODO
 	} else if lang == "pl" { // Polish (Polski)
-		count = count + " 🇵🇱"
+		count = "There are " + count + " entries in the dictionary." // TODO
 	} else if lang == "pt" { // Portuguese (Português)
-		count = count + " 🇵🇹"
+		count = "There are " + count + " entries in the dictionary." // TODO
 	} else if lang == "ru" { // Russian (Русский)
-		count = count + " 🇷🇺"
+		count = "There are " + count + " entries in the dictionary." // TODO
 	} else if lang == "sv" { // Swedish (Svenska)
-		count = count + " 🇸🇪"
+		count = "There are " + count + " entries in the dictionary." // TODO
 	} else if lang == "tr" { // Turkish (Türkçe)
-		count = count + " 🇹🇷"
+		count = "There are " + count + " entries in the dictionary." // TODO
 	} else if lang == "uk" { // Ukrainian (Українська)
-		count = count + " 🇺🇦"
+		count = "There are " + count + " entries in the dictionary." // TODO
 	}
 
 	return
