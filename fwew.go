@@ -161,6 +161,9 @@ func TranslateFromNaviHash(searchNaviWords string, checkFixes bool) (results [][
 
 	allWords := strings.Split(clean(searchNaviWords), " ")
 
+	// don't crunch more than once
+	crunched := dialectCrunch(allWords)
+
 	i := 0
 
 	results = [][]Word{}
@@ -171,7 +174,7 @@ func TranslateFromNaviHash(searchNaviWords string, checkFixes bool) (results [][
 			i++
 			continue
 		}
-		j, newWords, error2 := TranslateFromNaviHashHelper(i, allWords, checkFixes)
+		j, newWords, error2 := TranslateFromNaviHashHelper(i, crunched, checkFixes)
 		if error2 == nil {
 			for _, newWord := range newWords {
 				// Set up receptacle for words
@@ -179,6 +182,7 @@ func TranslateFromNaviHash(searchNaviWords string, checkFixes bool) (results [][
 				results[len(results)-1] = append(results[len(results)-1], newWord...)
 			}
 		}
+		results[len(results)-1][0].Navi = allWords[i]
 		i += j
 		i++
 	}
@@ -829,10 +833,13 @@ func BidirectionalSearch(searchNaviWords string, checkFixes bool, langCode strin
 
 	i := 0
 
+	// don't crunch more than once
+	crunched := dialectCrunch(allWords)
+
 	results = [][]Word{}
 	for i < len(allWords) {
 		// Search for Na'vi words
-		j, newWords, error2 := TranslateFromNaviHashHelper(i, allWords, checkFixes)
+		j, newWords, error2 := TranslateFromNaviHashHelper(i, crunched, checkFixes)
 		if error2 == nil {
 			for _, newWord := range newWords {
 				// Set up receptacle for words
@@ -850,6 +857,8 @@ func BidirectionalSearch(searchNaviWords string, checkFixes bool, langCode strin
 
 		// ...but not with the Na'vi words
 		results[len(results)-1] = append(results[len(results)-1], natlangWords...)
+
+		results[len(results)-1][0].Navi = allWords[i]
 
 		i += j
 
@@ -926,6 +935,42 @@ func is_vowel_ipa(letter string) (found bool) {
 		}
 	}
 	return false
+}
+
+func dialectCrunch(query []string) []string {
+	newQuery := []string{}
+	for _, a := range query {
+		for i, b := range nkx {
+			// make sure words like tìkankxan show up
+			a = strings.ReplaceAll(a, strconv.Itoa(i), "")
+			a = strings.ReplaceAll(a, b, strconv.Itoa(i))
+		}
+		// don't accidentally make every ng into nkx
+		a = strings.ReplaceAll(a, "?", "")
+		a = strings.ReplaceAll(a, "ng", "?")
+		// unsoften ejectives
+		a = strings.ReplaceAll(a, "b", "px")
+		a = strings.ReplaceAll(a, "d", "tx")
+		a = strings.ReplaceAll(a, "g", "kx")
+		// these too
+		a = strings.ReplaceAll(a, "ch", "tsy")
+		a = strings.ReplaceAll(a, "sh", "sy")
+		a = strings.ReplaceAll(a, "?", "ng")
+		// and to make sure every ä is possibly an e
+		a = strings.ReplaceAll(a, "ä", "e")
+		for i, b := range nkx {
+			// make sure words like tìkankxan show up
+			a = strings.ReplaceAll(a, strconv.Itoa(i), nkxSub[b])
+		}
+		// remove reef tìftangs
+		for _, b := range []string{"a", "e", "i", "ì", "o", "u", "ù"} {
+			for _, c := range []string{"a", "e", "i", "ì", "o", "u", "ù"} {
+				a = strings.ReplaceAll(a, b+"'"+c, b+c)
+			}
+		}
+		newQuery = append(newQuery, a)
+	}
+	return newQuery
 }
 
 func ReefMe(ipa string, inter bool) []string {

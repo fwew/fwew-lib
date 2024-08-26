@@ -510,6 +510,9 @@ func fast_random(wordList []Word) (results Word) {
 
 func nth_rune(word string, n int) (output string) {
 	r := []rune(word)
+	if n < 0 { // negative index
+		n = len(r) + n
+	}
 	if n >= len(r) {
 		return ""
 	}
