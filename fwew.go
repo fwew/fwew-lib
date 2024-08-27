@@ -288,7 +288,7 @@ func IsVerb(input string, comparator string) (result bool, affixes Word) {
 func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) (steps int, results [][]Word, err error) {
 	i := start
 
-	if allWords[i] == "rä'ä" {
+	if strings.HasSuffix(allWords[i], "zekwä-äo") {
 		fmt.Println("Here")
 	}
 
@@ -470,7 +470,7 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 							break
 						} else {
 							// For "[word] ke si and [word] rä'ä si"
-							if i+j+2 < len(crunched) && (crunched[i+j+1] == "ke" || crunched[i+j+1] == "rä'ä") {
+							if i+j+2 < len(crunched) && (crunched[i+j+1] == "ke" || crunched[i+j+1] == "ree") {
 								validVerb, itsAffixes := IsVerb(crunched[i+j+2], pairWord)
 								if validVerb {
 									extraWord = 1
@@ -963,6 +963,12 @@ func is_vowel_ipa(letter string) (found bool) {
 func dialectCrunch(query []string, guaranteedForest bool) []string {
 	newQuery := []string{}
 	for _, a := range query {
+		// exception(s) to ä becoming e
+		if a == "'ä'o" {
+			newQuery = append(newQuery, "'äo")
+			continue
+		}
+		oldQuery := a
 		// When caching, we are guaranteed forest words and don't need anything in this block
 		if !guaranteedForest {
 			for i, b := range nkx {
@@ -1002,6 +1008,11 @@ func dialectCrunch(query []string, guaranteedForest bool) []string {
 		if nucleusCount > 1 && strings.Contains(a, "ä") {
 			// and to make sure every ä is possibly an e
 			a = strings.ReplaceAll(a, "ä", "e")
+		}
+
+		// "eo" and "äo" are different, so the distinction must remain
+		if strings.HasSuffix(oldQuery, "äo") {
+			a = strings.TrimSuffix(a, "eo") + "äo"
 		}
 		newQuery = append(newQuery, a)
 	}

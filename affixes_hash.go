@@ -87,7 +87,7 @@ var adposuffixes = []string{
 	"kxamlä", "ìlä", "wä", //"genitive"
 	"teri", //"topical"
 	// Case endings
-	"ìl", "l", "it", "ti", "t", "ur", "ru", "r", "yä", "ä", "ìri", "ri",
+	"ìl", "l", "it", "ti", "t", "ur", "ru", "r", "yä", "ä", "e", "ye", "ìri", "ri",
 	// Sorted alphabetically by their reverse forms
 	"nemfa", "rofa", "ka", "fa", "na", "ta", "ya", //-a
 	"lisre", "pxisre", "sre", "luke", "ne", //-e
@@ -103,7 +103,14 @@ var adposuffixes = []string{
 	"vay", "kay", //-y
 }
 
-var vowelSuffixes = map[string]string{"äo": "ä", "eo": "e", "io": "i", "uo": "u", "ìlä": "ì", "o": "o"}
+var vowelSuffixes = map[string][]string{
+	"äo":  []string{"ä", "e"},
+	"eo":  []string{"e"},
+	"io":  []string{"i"},
+	"uo":  []string{"u"},
+	"ìlä": []string{"ì"},
+	"o":   []string{"o"},
+}
 var stemSuffixes = []string{"tsyìp", "fkeyk"}
 var verbSuffixes = []string{"tswo", "yu"}
 
@@ -518,6 +525,11 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 						newString += "a"
 						newCandidate.word = newString
 						deconjugateHelper(newCandidate, newPrefixCheck, 1, unlenite, false, "", oldSuffix)
+					} else if oldSuffix == "e" && !strings.HasSuffix(input.word, "ye") && strings.HasSuffix(input.word, "ie") {
+						// reef of above
+						newString += "a"
+						newCandidate.word = newString
+						deconjugateHelper(newCandidate, newPrefixCheck, 1, unlenite, false, "", oldSuffix)
 					} else if oldSuffix == "yä" && strings.HasSuffix(newString, "e") {
 						// A one-off
 						if newString == "tse" {
@@ -535,12 +547,31 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 						// sneyä -> sno
 						newCandidate.word = strings.TrimSuffix(newString, "e") + "o"
 						deconjugateHelper(newCandidate, newPrefixCheck, 1, unlenite, false, "", oldSuffix)
-					} else if vowel, ok := vowelSuffixes[oldSuffix]; ok {
-						// Make sure zekwä-äo is recognized
-						if strings.HasSuffix(newString, vowel+"-") {
-							newString = strings.TrimSuffix(newString, "-")
-							newCandidate.word = newString
+					} else if oldSuffix == "ye" && strings.HasSuffix(newString, "e") {
+						// reef of above
+						if newString == "tse" {
+							newCandidate.word = "tsaw"
 							deconjugateHelper(newCandidate, newPrefixCheck, 1, unlenite, false, "", oldSuffix)
+						}
+						// ngeye -> nga
+						newCandidate.word = strings.TrimSuffix(newString, "e") + "a"
+						deconjugateHelper(newCandidate, newPrefixCheck, 1, unlenite, false, "", oldSuffix)
+						// oengeye
+						newCandidate.word = strings.TrimSuffix(newString, "e")
+						if newCandidate.word == "oeng" { //no mengeyä -> meng -> me + 'eng
+							deconjugateHelper(newCandidate, newPrefixCheck, 1, unlenite, false, "", oldSuffix)
+						}
+						// sneye -> sno
+						newCandidate.word = strings.TrimSuffix(newString, "e") + "o"
+						deconjugateHelper(newCandidate, newPrefixCheck, 1, unlenite, false, "", oldSuffix)
+					} else if vowels, ok := vowelSuffixes[oldSuffix]; ok {
+						for _, vowel := range vowels {
+							// Make sure zekwä-äo is recognized
+							if strings.HasSuffix(newString, vowel+"-") {
+								newString = strings.TrimSuffix(newString, "-")
+								newCandidate.word = newString
+								deconjugateHelper(newCandidate, newPrefixCheck, 1, unlenite, false, "", oldSuffix)
+							}
 						}
 					}
 				}
@@ -600,12 +631,14 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 				deconjugateHelper(newCandidate, newPrefixCheck, 4, unlenite, false, "", "o")
 
 				// Make sure fya'o-o is recognized
-				if vowel, ok := vowelSuffixes["o"]; ok {
-					// Make sure fya'o-o is recognized
-					if strings.HasSuffix(newString, vowel+"-") {
-						newString = strings.TrimSuffix(newString, "-")
-						newCandidate.word = newString
-						deconjugateHelper(newCandidate, newPrefixCheck, 1, unlenite, false, "", "o")
+				if vowels, ok := vowelSuffixes["o"]; ok {
+					for _, vowel := range vowels {
+						// Make sure fya'o-o is recognized
+						if strings.HasSuffix(newString, vowel+"-") {
+							newString = strings.TrimSuffix(newString, "-")
+							newCandidate.word = newString
+							deconjugateHelper(newCandidate, newPrefixCheck, 1, unlenite, false, "", "o")
+						}
 					}
 				}
 			}
