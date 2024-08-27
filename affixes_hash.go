@@ -189,8 +189,9 @@ func infixError(query string, didYouMean string, ipa string) Word {
 	d.ES = didYouMean
 	d.ET = didYouMean
 	d.FR = didYouMean
-	d.NL = didYouMean
 	d.HU = didYouMean
+	d.KO = didYouMean
+	d.NL = didYouMean
 	d.PL = didYouMean
 	d.PT = didYouMean
 	d.RU = didYouMean
