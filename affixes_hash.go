@@ -265,7 +265,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 	}
 
 	// Add a way for e to become ä again if we're down to 1 syllable
-	if len([]rune(input.word)) < 8 { // could be tskxäpx (7 letters 1 syllable)
+	if len([]rune(input.word)) < 8 && (len(input.prefixes) > 0 || len(input.infixes) > 0 || len(input.suffixes) > 0) { // could be tskxäpx (7 letters 1 syllable)
 		nucleusCount := 0
 		for _, b := range []string{"a", "ä", "e", "i", "ì", "o", "u", "ù", "ll", "rr"} {
 			nucleusCount += strings.Count(input.word, b)
