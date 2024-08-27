@@ -959,11 +959,6 @@ func is_vowel_ipa(letter string) (found bool) {
 func dialectCrunch(query []string, guaranteedForest bool) []string {
 	newQuery := []string{}
 	for _, a := range query {
-		// exception(s) to ä becoming e
-		if a == "'ä'o" {
-			newQuery = append(newQuery, "'äo")
-			continue
-		}
 		oldQuery := a
 		// When caching, we are guaranteed forest words and don't need anything in this block
 		if !guaranteedForest {
