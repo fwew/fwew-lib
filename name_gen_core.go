@@ -208,7 +208,7 @@ func insert_infix(verb []string, infix string, dialect int) (output string) {
 			output += "-"
 		}
 	}
-	return output
+	return glottal_caps(output)
 }
 
 // Assistant function for name generating functions
@@ -348,6 +348,10 @@ func convertDialect(word Word, dialect int) string {
 	default: // forest
 		output += word.Navi
 	}
+	if strings.Contains(output, " or ") {
+		output = strings.Split(output, " or ")[0]
+	}
+	output = strings.ReplaceAll(output, "_", "")
 	return output
 }
 
@@ -499,6 +503,7 @@ func glottal_caps(input string) (output string) {
 	for ; n < len(a); n++ {
 		output += string(a[n])
 	}
+	fmt.Println(output)
 	return output
 }
 

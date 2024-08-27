@@ -361,8 +361,7 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 		output += "\n"
 	}
 
-	// no underlines here
-	return strings.ReplaceAll(output, "_", "")
+	return output
 }
 
 func GetPhonemeDistrosMap(lang string) (allDistros [][][]string) {
