@@ -1069,14 +1069,14 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 						} else if identicalRunes(rebuiltVerb+"a", rebuiltHyphen) {
 							// v<us>erb-a and v<awn>erb-a
 							results = AppendAndAlphabetize(results, a)
-						} /*else if firstInfixes == "us" {
+						} else if firstInfixes == "us" {
 							results = AppendAndAlphabetize(results, infixError(searchNaviWord, "Did you mean **"+rebuiltVerbForest+"**?", c.IPA))
 						}
 					} else if gerund { // ti is needed to weed out non-productive tì-verbs
 						results = AppendAndAlphabetize(results, infixError(searchNaviWord, "Did you mean **"+rebuiltVerbForest+"**?", c.IPA))
 					} else {
 						results = AppendAndAlphabetize(results, infixError(searchNaviWord, "Did you mean **"+rebuiltVerbForest+"**?", c.IPA))
-					}*/
+					}
 				}
 			} else if candidate.insistPOS == "nì." {
 				posNoun := c.PartOfSpeech
