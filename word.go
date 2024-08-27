@@ -351,7 +351,10 @@ func (w *Word) ToOutputLine(
 				output += input
 			}
 		}
-		output += " [" + reefy[1] + "])"
+		if showIPA {
+			output += " [" + reefy[1] + "]"
+		}
+		output += ")"
 	}
 
 	if len(w.Affixes.Prefix) > 0 {
