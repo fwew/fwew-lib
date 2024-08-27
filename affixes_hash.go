@@ -733,7 +733,7 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 	conjugations := deconjugate(searchNaviWord)
 	for _, candidate := range conjugations {
 		a := strings.ReplaceAll(candidate.word, "ù", "u")
-		standardizedWordArray := dialectCrunch(strings.Split(a, " "))
+		standardizedWordArray := dialectCrunch(strings.Split(a, " "), false)
 		a = ""
 		for i, b := range standardizedWordArray {
 			if i != 0 {
@@ -1012,7 +1012,8 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 						rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "errr", "er")
 					}
 
-					rebuiltVerbArray := dialectCrunch(strings.Split(rebuiltVerb, " "))
+					rebuiltVerbForest := rebuiltVerb
+					rebuiltVerbArray := dialectCrunch(strings.Split(rebuiltVerb, " "), false)
 					rebuiltVerb = ""
 					for k, x := range rebuiltVerbArray {
 						if k != 0 {
@@ -1033,10 +1034,12 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 							// v<us>erb-a and v<awn>erb-a
 							results = AppendAndAlphabetize(results, a)
 						} else if firstInfixes == "us" {
-							results = AppendAndAlphabetize(results, infixError(searchNaviWord, "Did you mean **"+rebuiltVerb+"**?", c.IPA))
+							results = AppendAndAlphabetize(results, infixError(searchNaviWord, "Did you mean **"+rebuiltVerbForest+"**?", c.IPA))
 						}
 					} else if gerund { // ti is needed to weed out non-productive tì-verbs
-						results = AppendAndAlphabetize(results, infixError(searchNaviWord, "Did you mean **"+rebuiltVerb+"**?", c.IPA))
+						results = AppendAndAlphabetize(results, infixError(searchNaviWord, "Did you mean **"+rebuiltVerbForest+"**?", c.IPA))
+					} else {
+						results = AppendAndAlphabetize(results, infixError(searchNaviWord, "Did you mean **"+rebuiltVerbForest+"**?", c.IPA))
 					}
 				}
 			} else if candidate.insistPOS == "nì." {

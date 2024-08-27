@@ -54,6 +54,8 @@ var letterMap = map[rune]int{
 	'y': 32, 'z': 33, '-': 34,
 }
 
+var singleä = []string{}
+
 var nkx = []string{}
 var nkxSub = map[string]string{}
 
@@ -492,6 +494,10 @@ func CacheDictHashOrig(mysql bool) error {
 		// find everything lowercase
 		standardizedWord = strings.ToLower(standardizedWord)
 
+		if standardizedWord == "rä'ä" {
+			fmt.Println("Here")
+		}
+
 		// Make sure we know of every word with nkx
 		if strings.Contains(standardizedWord, "nkx") {
 			fakeNG := strings.ReplaceAll(standardizedWord, "nkx", "ng")
@@ -499,7 +505,7 @@ func CacheDictHashOrig(mysql bool) error {
 			nkxSub[fakeNG] = standardizedWord
 		}
 
-		standardizedWordArray := dialectCrunch(strings.Split(standardizedWord, " "))
+		standardizedWordArray := dialectCrunch(strings.Split(standardizedWord, " "), true)
 		standardizedWord = ""
 		for i, a := range standardizedWordArray {
 			if i != 0 {
@@ -520,6 +526,8 @@ func CacheDictHashOrig(mysql bool) error {
 			if !found {
 				tempHoms = append(tempHoms, standardizedWord)
 			}
+		} else if word.Syllables == "1" && strings.Contains(strings.ToLower(word.Navi), "ä") {
+			singleä = append(singleä, strings.ReplaceAll(standardizedWord, "e", "ä"))
 		}
 		if strings.Contains(standardizedWord, "é") {
 			noAcute := strings.ReplaceAll(standardizedWord, "é", "e")
@@ -688,7 +696,7 @@ func CacheDictHash2Orig(mysql bool) error {
 		standardizedWord := strings.ToLower(word.Navi)
 		standardizedWord = strings.ReplaceAll(standardizedWord, "+", "")
 
-		standardizedWordArray := dialectCrunch(strings.Split(standardizedWord, " "))
+		standardizedWordArray := dialectCrunch(strings.Split(standardizedWord, " "), true)
 		standardizedWord = ""
 		for i, b := range standardizedWordArray {
 			if i != 0 {
