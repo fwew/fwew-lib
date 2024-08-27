@@ -298,10 +298,6 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 	// Find the word
 	a := strings.ReplaceAll(searchNaviWord, "ù", "u")
 
-	if implContainsAny(singleä, []string{searchNaviWord}) {
-		return 1, [][]Word{append([]Word{simpleWord(allWords[i])}, dictHash[searchNaviWord]...)}, nil
-	}
-
 	if _, ok := dictHash[a]; ok {
 		//bareNaviWord = true
 

@@ -261,10 +261,6 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 		}
 	}
 
-	if !isDuplicate(input) {
-		candidates = append(candidates, input)
-	}
-
 	// Add a way for e to become ä again if we're down to 1 syllable
 	if len([]rune(input.word)) < 8 && (len(input.prefixes) > 0 || len(input.infixes) > 0 || len(input.suffixes) > 0) { // could be tskxäpx (7 letters 1 syllable)
 		nucleusCount := 0

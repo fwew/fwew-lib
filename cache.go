@@ -54,8 +54,6 @@ var letterMap = map[rune]int{
 	'y': 32, 'z': 33, '-': 34,
 }
 
-var singleä = []string{}
-
 var nkx = []string{}
 var nkxSub = map[string]string{}
 
@@ -541,12 +539,6 @@ func CacheDictHashOrig(mysql bool) error {
 
 		word = EnglishIfNull(word)
 		dictHash[standardizedWord] = append(dictHash[standardizedWord], word)
-
-		/*if word.Syllables == "1" && strings.Contains(strings.ToLower(word.Navi), "ä") {
-			newLookup := strings.ReplaceAll(standardizedWord, "e", "ä")
-			singleä = append(singleä, newLookup)
-			dictHash[newLookup] = append(dictHash[newLookup], word)
-		}*/
 
 		//find words with multiple IPAs
 		if strings.Contains(word.IPA, " or ") {
