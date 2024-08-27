@@ -1,7 +1,6 @@
 package fwew_lib
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -221,8 +220,6 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 	if isDuplicate(input) {
 		return candidates
 	}
-
-	fmt.Println(input.word)
 
 	// fneu checking for fne-'u
 	if len(lastPrefix) > 0 && len(input.word) > 0 && is_vowel(nth_rune(lastPrefix, -1)) && is_vowel(nth_rune(input.word, -1)) {

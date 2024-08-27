@@ -503,7 +503,6 @@ func glottal_caps(input string) (output string) {
 	for ; n < len(a); n++ {
 		output += string(a[n])
 	}
-	fmt.Println(output)
 	return output
 }
 
