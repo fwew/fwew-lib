@@ -494,10 +494,6 @@ func CacheDictHashOrig(mysql bool) error {
 		// find everything lowercase
 		standardizedWord = strings.ToLower(standardizedWord)
 
-		if standardizedWord == "rä'ä" {
-			fmt.Println("Here")
-		}
-
 		// Make sure we know of every word with nkx
 		if strings.Contains(standardizedWord, "nkx") {
 			fakeNG := strings.ReplaceAll(standardizedWord, "nkx", "ng")

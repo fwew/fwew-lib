@@ -288,10 +288,6 @@ func IsVerb(input string, comparator string) (result bool, affixes Word) {
 func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) (steps int, results [][]Word, err error) {
 	i := start
 
-	if strings.HasSuffix(allWords[i], "zekwä-äo") {
-		fmt.Println("Here")
-	}
-
 	// don't crunch more than once
 	crunched := dialectCrunch(allWords, false)
 
