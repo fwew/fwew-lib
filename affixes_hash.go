@@ -1002,56 +1002,37 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 						rebuiltVerb = "z<0><1>en<2>eke"
 					}
 					firstInfixes := ""
-					found := false
 
-					for _, infix := range prefirst {
-						for _, newInfix := range candidate.infixes {
-							if newInfix == infix {
-								firstInfixes += infix
-								found = true
-							}
+					for _, newInfix := range candidate.infixes {
+						if implContainsAny(prefirst, []string{newInfix}) {
+							firstInfixes += newInfix
 						}
 					}
 					rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<0>", firstInfixes)
 
 					// first position infixes
-					found = false
 					firstInfixes = ""
-					for _, infix := range first {
-						for _, newInfix := range candidate.infixes {
-							if newInfix == infix {
-								rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<1>", infix)
-								firstInfixes = infix
-								found = true
-								if infix == "ol" {
-									ol = true
-								} else if infix == "er" {
-									er = true
-								}
-								break
+					for _, newInfix := range candidate.infixes {
+						if implContainsAny(first, []string{newInfix}) {
+							rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<1>", newInfix)
+							firstInfixes = newInfix
+							if newInfix == "ol" {
+								ol = true
+							} else if newInfix == "er" {
+								er = true
 							}
-						}
-						if found {
 							break
 						}
 					}
 					rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<1>", "")
 
 					// second position infixes
-					found = false
-					for _, infix := range second {
-						for _, newInfix := range candidate.infixes {
-							if newInfix == "eng" {
-								rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<2>", "äng")
-								found = true
-								break
-							} else if newInfix == infix {
-								rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<2>", infix)
-								found = true
-								break
-							}
-						}
-						if found {
+					for _, newInfix := range candidate.infixes {
+						if newInfix == "eng" {
+							rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<2>", "äng")
+							break
+						} else if implContainsAny(second, []string{newInfix}) {
+							rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<2>", newInfix)
 							break
 						}
 					}
@@ -1076,7 +1057,7 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 						rebuiltVerb += x
 					}
 
-					if identicalRunes(rebuiltVerb, strings.ReplaceAll(searchNaviWord, "-", " ")) {
+					if len(candidate.infixes) == 0 || identicalRunes(rebuiltVerb, strings.ReplaceAll(searchNaviWord, "-", " ")) {
 						results = AppendAndAlphabetize(results, a)
 					} else if participle {
 						// In case we have a [word]-susi
