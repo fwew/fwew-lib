@@ -223,7 +223,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 	}
 
 	// fneu checking for fne-'u
-	if len(lastPrefix) > 0 && len(input.word) > 0 && is_vowel(nth_rune(lastPrefix, -1)) && is_vowel(nth_rune(input.word, -1)) {
+	if len(lastPrefix) > 0 && len(input.word) > 0 && is_vowel(nth_rune(lastPrefix, -1)) && is_vowel(nth_rune(input.word, 0)) {
 		if !implContainsAny(prefixes1lenition, []string{lastPrefix}) { // do not do this for leniting prefixes
 			newCandidate := candidateDupe(input)
 			newCandidate.word = "'" + newCandidate.word
@@ -232,7 +232,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 	}
 
 	// fea checkeing for fe'a
-	if len(lastSuffix) > 0 && len(input.word) > 0 && is_vowel(nth_rune(lastSuffix, -1)) && is_vowel(nth_rune(input.word, -1)) {
+	if len(lastSuffix) > 0 && len(input.word) > 0 && is_vowel(nth_rune(lastSuffix, 0)) && is_vowel(nth_rune(input.word, -1)) {
 		newCandidate := candidateDupe(input)
 		newCandidate.word += "'"
 		deconjugateHelper(newCandidate, prefixCheck, suffixCheck, unlenite, checkInfixes, "", "")
@@ -606,6 +606,9 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 							deconjugateHelper(newCandidate, newPrefixCheck, 2, unlenite, false, "", "yä")
 						}
 					}
+				} else {
+					newCandidate.word = strings.TrimSuffix(newString, oldSuffix)
+					deconjugateHelper(newCandidate, newPrefixCheck, 2, unlenite, false, "", oldSuffix)
 				}
 			}
 		}
@@ -884,7 +887,7 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 					rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<2>", "")
 
 					// Does the noun actually contain the verb?
-					if strings.Contains(searchNaviWord, rebuiltVerb) {
+					if strings.Contains(searchNaviWord, strings.TrimPrefix(rebuiltVerb, "'")) {
 						a := c
 						a.Affixes.Lenition = candidate.lenition
 						a.Affixes.Prefix = candidate.prefixes
