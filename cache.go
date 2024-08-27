@@ -522,9 +522,8 @@ func CacheDictHashOrig(mysql bool) error {
 			if !found {
 				tempHoms = append(tempHoms, standardizedWord)
 			}
-		} else if word.Syllables == "1" && strings.Contains(strings.ToLower(word.Navi), "ä") {
-			singleä = append(singleä, strings.ReplaceAll(standardizedWord, "e", "ä"))
 		}
+
 		if strings.Contains(standardizedWord, "é") {
 			noAcute := strings.ReplaceAll(standardizedWord, "é", "e")
 			found := false
@@ -542,6 +541,12 @@ func CacheDictHashOrig(mysql bool) error {
 
 		word = EnglishIfNull(word)
 		dictHash[standardizedWord] = append(dictHash[standardizedWord], word)
+
+		/*if word.Syllables == "1" && strings.Contains(strings.ToLower(word.Navi), "ä") {
+			newLookup := strings.ReplaceAll(standardizedWord, "e", "ä")
+			singleä = append(singleä, newLookup)
+			dictHash[newLookup] = append(dictHash[newLookup], word)
+		}*/
 
 		//find words with multiple IPAs
 		if strings.Contains(word.IPA, " or ") {
