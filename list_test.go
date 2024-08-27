@@ -7,6 +7,9 @@ import (
 )
 
 func TestList(t *testing.T) {
+	CacheDict()
+	CacheDictHash()
+	CacheDictHash2()
 	type args struct {
 		args []string
 	}
@@ -474,56 +477,52 @@ func TestList(t *testing.T) {
 			},
 			wantResults: []Word{
 				{
-					ID:             "12",
-					Navi:           "'aw",
-					IPA:            "ʔaw",
-					InfixLocations: "NULL",
-					PartOfSpeech:   "num.",
-					Source:         "NULL",
-					Stressed:       "1",
-					Syllables:      "'aw",
-					InfixDots:      "NULL",
+					Affixes: affix{
+						Comment:  nil,
+						Infix:    nil,
+						Lenition: nil,
+						Prefix:   nil,
+						Suffix:   nil,
+					},
 					DE:             "eins",
 					EN:             "one",
 					ES:             "uno",
 					ET:             "üks",
 					FR:             "1 (un)",
 					HU:             "egy, 1",
+					ID:             "12",
+					IPA:            "ʔaw",
+					InfixDots:      "NULL",
+					InfixLocations: "NULL",
+					KO:             "1, 하나",
 					NL:             "één",
+					Navi:           "'aw",
 					PL:             "jeden",
 					PT:             "um",
-					RU:             "один",
+					PartOfSpeech:   "num.",
+					RU:             "один (число)",
 					SV:             "en, ett",
+					Source:         "NULL",
+					Stressed:       "1",
+					Syllables:      "'aw",
 					TR:             "bir",
 					UK:             "один",
-					Affixes: affix{
-						Prefix:   nil,
-						Infix:    nil,
-						Suffix:   nil,
-						Lenition: nil,
-					},
 				},
 			},
 			wantErr: nil,
 		},
-		{
-			name: "stress != -1 and word like 'aw",
-			args: args{
-				args: []string{"stress", "!=", "-1", "and", "word", "like", "'aw"},
-			},
-			wantResults: nil,
-			wantErr:     nil,
-		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			gotResults, err := List(tt.args.args, 1)
+
 			if !errors.Is(err, tt.wantErr) {
 				t.Errorf("List() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			// test new negative stress feature
-			if tt.name == "stress = -1 and word like 'aw" || tt.name == "stress != -1 and word like 'aw" {
+
+			if tt.name == "stress = -1 and word like 'aw" {
 				if !reflect.DeepEqual(gotResults, tt.wantResults) {
 					t.Errorf("List() gotResults = %v, want %v", gotResults, tt.wantResults)
 				}

@@ -54,6 +54,25 @@ var letterMap = map[rune]int{
 	'y': 32, 'z': 33, '-': 34,
 }
 
+var nkx = []string{}
+var nkxSub = map[string]string{}
+
+// helper for nkx for shortest words first
+func shortestFirst(array []string, input string) []string {
+	newArray := []string{}
+	found := false
+	for _, a := range array {
+		if !found && len(a) > len(input) {
+			newArray = append(newArray, input)
+		}
+		newArray = append(newArray, a)
+	}
+	if !found {
+		newArray = append(newArray, input)
+	}
+	return newArray
+}
+
 // check if a file exists
 func fileExists(filepath string) bool {
 	fileStat, err := os.Stat(filepath)
@@ -473,6 +492,22 @@ func CacheDictHashOrig(mysql bool) error {
 		// find everything lowercase
 		standardizedWord = strings.ToLower(standardizedWord)
 
+		// Make sure we know of every word with nkx
+		if strings.Contains(standardizedWord, "nkx") {
+			fakeNG := strings.ReplaceAll(standardizedWord, "nkx", "ng")
+			nkx = shortestFirst(nkx, fakeNG)
+			nkxSub[fakeNG] = standardizedWord
+		}
+
+		standardizedWordArray := dialectCrunch(strings.Split(standardizedWord, " "), true)
+		standardizedWord = ""
+		for i, a := range standardizedWordArray {
+			if i != 0 {
+				standardizedWord += " "
+			}
+			standardizedWord += a
+		}
+
 		// If the word appears more than once, record it
 		if _, ok := dictHash[standardizedWord]; ok {
 			found := false
@@ -486,6 +521,7 @@ func CacheDictHashOrig(mysql bool) error {
 				tempHoms = append(tempHoms, standardizedWord)
 			}
 		}
+
 		if strings.Contains(standardizedWord, "é") {
 			noAcute := strings.ReplaceAll(standardizedWord, "é", "e")
 			found := false
@@ -652,6 +688,15 @@ func CacheDictHash2Orig(mysql bool) error {
 	var setUpTheWholeThing = func(word Word) error {
 		standardizedWord := strings.ToLower(word.Navi)
 		standardizedWord = strings.ReplaceAll(standardizedWord, "+", "")
+
+		standardizedWordArray := dialectCrunch(strings.Split(standardizedWord, " "), true)
+		standardizedWord = ""
+		for i, b := range standardizedWordArray {
+			if i != 0 {
+				standardizedWord += " "
+			}
+			standardizedWord += b
+		}
 
 		// English
 		if word.EN != "NULL" {

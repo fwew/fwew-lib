@@ -183,6 +183,11 @@ func filterNumeric(results []Word, word Word, args []string) (filtered []Word, e
 		err = InvalidNumber.wrap(err1)
 		return
 	}
+	if ispec < 0 {
+		syllDash := strings.ReplaceAll(word.Syllables, " ", "-")
+		syllArr := strings.Split(syllDash, "-")
+		ispec += len(syllArr) + 1
+	}
 
 	istress, err2 := strconv.Atoi(word.Stressed)
 	if err2 != nil {

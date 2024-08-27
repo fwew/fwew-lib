@@ -208,7 +208,7 @@ func insert_infix(verb []string, infix string, dialect int) (output string) {
 			output += "-"
 		}
 	}
-	return output
+	return glottal_caps(output)
 }
 
 // Assistant function for name generating functions
@@ -348,6 +348,10 @@ func convertDialect(word Word, dialect int) string {
 	default: // forest
 		output += word.Navi
 	}
+	if strings.Contains(output, " or ") {
+		output = strings.Split(output, " or ")[0]
+	}
+	output = strings.ReplaceAll(output, "_", "")
 	return output
 }
 
@@ -510,6 +514,9 @@ func fast_random(wordList []Word) (results Word) {
 
 func nth_rune(word string, n int) (output string) {
 	r := []rune(word)
+	if n < 0 { // negative index
+		n = len(r) + n
+	}
 	if n >= len(r) {
 		return ""
 	}
@@ -598,26 +605,27 @@ func PhonemeDistros() {
 		// Piggybacking off of the frequency script to get all words with spaces
 		all_words := strings.Split(strings.ToLower(words[i].Navi), " ")
 		if len(all_words) > 1 {
-			if _, ok := multiword_words[all_words[0]]; ok {
+			new_words := dialectCrunch(all_words, true)
+			if _, ok := multiword_words[new_words[0]]; ok {
 				// Ensure no duplicates
 				appended := false
 
 				// Append in a way that makes the longer words first
 				temp := [][]string{}
-				for _, j := range multiword_words[all_words[0]] {
-					if !appended && len([]rune(all_words[1])) > len([]rune(j[0])) {
-						temp = append(temp, all_words[1:])
+				for _, j := range multiword_words[new_words[0]] {
+					if !appended && len([]rune(new_words[1])) > len([]rune(j[0])) {
+						temp = append(temp, new_words[1:])
 						appended = true
 					}
 					temp = append(temp, j)
 				}
-				if len(temp) <= len(multiword_words[all_words[0]]) {
-					temp = append(temp, all_words[1:])
+				if len(temp) <= len(multiword_words[new_words[0]]) {
+					temp = append(temp, new_words[1:])
 				}
 
-				multiword_words[all_words[0]] = temp
+				multiword_words[new_words[0]] = temp
 			} else {
-				multiword_words[all_words[0]] = [][]string{all_words[1:]}
+				multiword_words[new_words[0]] = [][]string{new_words[1:]}
 			}
 		}
 

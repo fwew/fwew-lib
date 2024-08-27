@@ -35,7 +35,7 @@ var romanization2 = map[string]string{
 	// Vowels
 	"a": "a", "i": "i", "ɪ": "ì",
 	"o": "o", "ɛ": "e", "u": "u",
-	"æ": "ä",
+	"æ": "ä", "õ": "õ", //võvä' only
 	// Diphthongs
 	"aw": "aw", "ɛj": "ey",
 	"aj": "ay", "ɛw": "ew",
@@ -179,6 +179,24 @@ func TranslateFromNaviHash(searchNaviWords string, checkFixes bool) (results [][
 				results[len(results)-1] = append(results[len(results)-1], newWord...)
 			}
 		}
+
+		if len(results[len(results)-1]) > 1 && len(strings.Split(results[len(results)-1][1].Navi, " ")) > 1 {
+			newQuery := ""
+			kOffset := 0
+			for k := range strings.Split(results[len(results)-1][1].Navi, " ") {
+				if allWords[i+k+kOffset] == "ke" || strings.ReplaceAll(allWords[i+k+kOffset], "e", "ä") == "rä'ä" {
+					kOffset += 1
+				}
+				if k != 0 {
+					newQuery += " "
+				}
+				newQuery += allWords[i+k+kOffset]
+				if strings.HasSuffix(allWords[i+k+kOffset], "-susi") {
+					break
+				}
+			}
+			results[len(results)-1][0].Navi = newQuery
+		}
 		i += j
 		i++
 	}
@@ -270,12 +288,16 @@ func IsVerb(input string, comparator string) (result bool, affixes Word) {
 func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) (steps int, results [][]Word, err error) {
 	i := start
 
-	searchNaviWord := allWords[i]
-	results = [][]Word{{simpleWord(searchNaviWord)}}
+	// don't crunch more than once
+	crunched := dialectCrunch(allWords, false)
+
+	searchNaviWord := crunched[i]
+	results = [][]Word{{simpleWord(allWords[i])}}
 
 	//bareNaviWord := false
 	// Find the word
 	a := strings.ReplaceAll(searchNaviWord, "ù", "u")
+
 	if _, ok := dictHash[a]; ok {
 		//bareNaviWord = true
 
@@ -300,27 +322,29 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 			keepAffixes := *new(affix)
 
 			extraWord := 0
+
+			revert := results[0][0].Navi
 			// There could be more than one pair (win säpi and win si for example)
 			for j, pairWord := range pairWordSet {
 				found = false
 				// Don't cause an index out of range error
-				if i+j+1 >= len(allWords) {
+				if i+j+1 >= len(crunched) {
 					break
 				} else {
 					// For "[word] ke si and [word] rä'ä si"
-					if i+j+2 < len(allWords) && (allWords[i+j+1] == "ke" || allWords[i+j+1] == "rä'ä") {
-						validVerb, itsAffixes := IsVerb(allWords[i+j+2], pairWord)
+					if i+j+2 < len(crunched) && (crunched[i+j+1] == "ke" || crunched[i+j+1] == "rä'ä") {
+						validVerb, itsAffixes := IsVerb(crunched[i+j+2], pairWord)
 						if validVerb {
 							extraWord = 1
 							if len(results) == 1 {
 								results = append(results, []Word{simpleWord(allWords[i+j+1])})
-								for _, b := range dictHash[allWords[i+j+1]] {
+								for _, b := range dictHash[crunched[i+j+1]] {
 									results[1] = AppendToFront(results[1], b)
 								}
 							}
 							found = true
 							foundAlready = true
-							results[0][0].Navi += " " + allWords[i+j+2]
+							results[0][0].Navi += " " + crunched[i+j+2]
 							keepAffixes = itsAffixes.Affixes
 							j += 1
 							continue
@@ -328,11 +352,11 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 					}
 
 					// Verbs don't just come after ke or rä'ä
-					validVerb, itsAffixes := IsVerb(allWords[i+j+1], pairWord)
+					validVerb, itsAffixes := IsVerb(crunched[i+j+1], pairWord)
 					if validVerb {
 						found = true
 						foundAlready = true
-						results[0][0].Navi += " " + allWords[i+j+1]
+						results[0][0].Navi += " " + crunched[i+j+1]
 						keepAffixes = itsAffixes.Affixes
 						continue
 					}
@@ -341,14 +365,14 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 					secondWords := []Word{}
 
 					// First by itself
-					if pairWord == allWords[i+j+1] {
+					if pairWord == crunched[i+j+1] {
 						found = true
-						results[0][0].Navi += " " + allWords[i+j+1]
+						results[0][0].Navi += " " + crunched[i+j+1]
 						continue
 					}
 
 					// And then by its possible conjugations
-					for _, b := range TestDeconjugations(allWords[i+j+1]) {
+					for _, b := range TestDeconjugations(crunched[i+j+1]) {
 						secondWords = AppendAndAlphabetize(secondWords, b)
 					}
 
@@ -363,6 +387,7 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 
 					// Chain is broken.  Exit.
 					if !found {
+						results[0][0].Navi = revert
 						break
 					}
 				}
@@ -433,23 +458,23 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 					for j, pairWord := range pairWordSet {
 						found = false
 						// Don't cause an index out of range error
-						if i+j+1 >= len(allWords) {
+						if i+j+1 >= len(crunched) {
 							break
 						} else {
 							// For "[word] ke si and [word] rä'ä si"
-							if i+j+2 < len(allWords) && (allWords[i+j+1] == "ke" || allWords[i+j+1] == "rä'ä") {
-								validVerb, itsAffixes := IsVerb(allWords[i+j+2], pairWord)
+							if i+j+2 < len(crunched) && (crunched[i+j+1] == "ke" || crunched[i+j+1] == "ree") {
+								validVerb, itsAffixes := IsVerb(crunched[i+j+2], pairWord)
 								if validVerb {
 									extraWord = 1
 									if len(results) == 1 {
 										results = append(results, []Word{simpleWord(allWords[i+j+1])})
-										for _, b := range dictHash[allWords[i+j+1]] {
+										for _, b := range dictHash[crunched[i+j+1]] {
 											results[1] = AppendToFront(results[1], b)
 										}
 									}
 									found = true
 									foundAlready = true
-									results[0][0].Navi += " " + allWords[i+j+2]
+									results[0][0].Navi += " " + crunched[i+j+2]
 									keepAffixes = itsAffixes.Affixes
 									j += 1
 
@@ -461,14 +486,14 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 							secondWords := []Word{}
 
 							// First by itself
-							if pairWord == allWords[i+j+1] {
+							if pairWord == crunched[i+j+1] {
 								found = true
-								results[0][0].Navi += " " + allWords[i+j+1]
+								results[0][0].Navi += " " + crunched[i+j+1]
 								continue
 							}
 
 							// And then by its possible conjugations
-							for _, b := range TestDeconjugations(allWords[i+j+1]) {
+							for _, b := range TestDeconjugations(crunched[i+j+1]) {
 								secondWords = AppendAndAlphabetize(secondWords, b)
 							}
 
@@ -848,6 +873,8 @@ func BidirectionalSearch(searchNaviWords string, checkFixes bool, langCode strin
 		// ...but not with the Na'vi words
 		results[len(results)-1] = append(results[len(results)-1], natlangWords...)
 
+		results[len(results)-1][0].Navi = allWords[i]
+
 		i += j
 
 		i++
@@ -925,13 +952,67 @@ func is_vowel_ipa(letter string) (found bool) {
 	return false
 }
 
+func dialectCrunch(query []string, guaranteedForest bool) []string {
+	newQuery := []string{}
+	for _, a := range query {
+		oldQuery := a
+		// When caching, we are guaranteed forest words and don't need anything in this block
+		if !guaranteedForest {
+			for i, b := range nkx {
+				// make sure words like tìkankxan show up
+				a = strings.ReplaceAll(a, strconv.Itoa(i), "")
+				a = strings.ReplaceAll(a, b, strconv.Itoa(i))
+			}
+			// don't accidentally make every ng into nkx
+			a = strings.ReplaceAll(a, "?", "")
+			a = strings.ReplaceAll(a, "ng", "?")
+			// unsoften ejectives
+			a = strings.ReplaceAll(a, "b", "px")
+			a = strings.ReplaceAll(a, "d", "tx")
+			a = strings.ReplaceAll(a, "g", "kx")
+			// these too
+			a = strings.ReplaceAll(a, "ch", "tsy")
+			a = strings.ReplaceAll(a, "sh", "sy")
+			a = strings.ReplaceAll(a, "?", "ng")
+			for i, b := range nkx {
+				// make sure words like tìkankxan show up
+				a = strings.ReplaceAll(a, strconv.Itoa(i), nkxSub[b])
+			}
+		}
+
+		nucleusCount := 0
+		// remove reef tìftangs
+		for _, b := range []string{"a", "ä", "e", "i", "ì", "o", "u", "ù", "ll", "rr"} {
+			if strings.Contains(a, b) {
+				nucleusCount += strings.Count(a, b)
+				for _, c := range []string{"a", "ä", "e", "i", "ì", "o", "u", "ù", "ll", "rr"} {
+					if is_vowel(b) && is_vowel(c) {
+						a = strings.ReplaceAll(a, b+"'"+c, b+c)
+					}
+				}
+			}
+		}
+		if nucleusCount > 1 && strings.Contains(a, "ä") {
+			// and to make sure every ä is possibly an e
+			a = strings.ReplaceAll(a, "ä", "e")
+		}
+
+		// "eo" and "äo" are different, so the distinction must remain
+		if strings.HasSuffix(oldQuery, "äo") || strings.HasSuffix(oldQuery, "ä'o") {
+			a = strings.TrimSuffix(a, "eo") + "äo"
+		}
+		newQuery = append(newQuery, a)
+	}
+	return newQuery
+}
+
 func ReefMe(ipa string, inter bool) []string {
 	if ipa == "ʒɛjk'.ˈsu:.li" { // Obsolete path
 		return []string{"jake-__sùl__-ly", "ʒɛjk'.ˈsʊ:.li"}
-	} else if ipa == "ˈz·ɛŋ.kɛ" { // only IPA not to match the Romanization
-		return []string{"__zen__-ke", "ˈz·ɛŋ.kɛ"}
+	} else if strings.ReplaceAll(ipa, "·", "") == "ˈzɛŋ.kɛ" { // only IPA not to match the Romanization
+		return []string{"__zen__-ke", "ˈz·ɛŋ·.kɛ"}
 	} else if ipa == "ɾæ.ˈʔæ" || ipa == "ˈɾæ.ʔæ" { // we hear this in Avatar 2
-		return []string{"rä-__'ä__", "ɾæ.ˈʔæ"}
+		return []string{"rä-__'ä__ or rä-__ä__", "ɾæ.ˈʔæ] or [ɾæ.ˈæ"}
 	}
 
 	// Replace the spaces so as not to confuse strings.Split()
@@ -1029,20 +1110,27 @@ func ReefMe(ipa string, inter bool) []string {
 
 	for j := 0; j < len(word); j++ {
 		word[j] = strings.ReplaceAll(word[j], "]", "")
+		word[j] = strings.ReplaceAll(word[j], "[", "")
 		// "or" means there's more than one IPA in this word, and we only want one
 		if word[j] == "or" {
-			break
+			breakdown += "or "
+			continue
 		}
 
 		syllables := strings.Split(word[j], ".")
 
 		/* Onset */
 		for k := 0; k < len(syllables); k++ {
+			breakdown += "-"
+
+			stressed := false
 			syllable := strings.ReplaceAll(syllables[k], "·", "")
+			if strings.Contains(syllable, "ˈ") {
+				stressed = true
+				breakdown += "__"
+			}
 			syllable = strings.ReplaceAll(syllable, "ˈ", "")
 			syllable = strings.ReplaceAll(syllable, "ˌ", "")
-
-			breakdown += "-"
 
 			// tsy
 			if strings.HasPrefix(syllable, "tʃ") {
@@ -1154,6 +1242,10 @@ func ReefMe(ipa string, inter bool) []string {
 					}
 				}
 			}
+
+			if stressed {
+				breakdown += "__"
+			}
 		}
 		breakdown += " "
 	}
@@ -1162,10 +1254,36 @@ func ReefMe(ipa string, inter bool) []string {
 	breakdown = strings.ReplaceAll(breakdown, " -", " ")
 	breakdown = strings.TrimSuffix(breakdown, " ")
 
+	// If there's a tìftang between two identical vowels, the tìftang is optional
+	shortString := strings.ReplaceAll(strings.ReplaceAll(ipaReef, "ˈ", ""), ".", "")
+	for _, a := range []string{"a", "ɛ", "ɪ", "o", "u", "i", "æ", "ʊ"} {
+		if strings.Contains(shortString, a+"ʔ"+a) {
+			// fix IPA
+			noTìftangIPA := strings.ReplaceAll(ipaReef, a+".ˈʔ"+a, a+".ˈ"+a)
+			noTìftangIPA = strings.ReplaceAll(noTìftangIPA, a+".ʔ"+a, a+"."+a)
+			noTìftangIPA = strings.ReplaceAll(noTìftangIPA, a+"ʔ."+a, a+"."+a)
+			noTìftangIPA = strings.ReplaceAll(noTìftangIPA, a+"ʔ.ˈ"+a, a+".ˈ"+a)
+
+			ipaReef += "] or [" + noTìftangIPA
+		}
+	}
+
+	// fix breakdown
+	shortString = strings.ReplaceAll(breakdown, "-", "")
+	for _, a := range []string{"a", "e", "ì", "o", "u", "i", "ä", "ù"} {
+		if strings.Contains(shortString, a+"'"+a) {
+			noTìftangBreakdown := strings.ReplaceAll(breakdown, a+"-'"+a, a+"-"+a)
+			noTìftangBreakdown = strings.ReplaceAll(noTìftangBreakdown, a+"'-"+a, a+"-"+a)
+
+			breakdown += " or " + noTìftangBreakdown
+		}
+
+	}
+
 	return []string{breakdown, ipaReef}
 }
 
-func StartEverything() {
+func StartEverything() string {
 	start := time.Now()
 	var errors = []error{
 		AssureDict(),
@@ -1181,17 +1299,5 @@ func StartEverything() {
 	PhonemeDistros()
 	elapsed := strconv.FormatFloat(time.Since(start).Seconds(), 'f', -1, 64)
 
-	var g = func(word Word) error {
-		reefy := strings.ReplaceAll(ReefMe(word.IPA, false)[1], "-", "")
-		if reefy == strings.ReplaceAll(strings.ReplaceAll(word.IPA, "ʊ", "u"), "·", "") {
-			fmt.Println("NULL")
-		} else {
-			fmt.Println(reefy)
-		}
-		return nil
-	}
-
-	runOnFile(g)
-
-	fmt.Println("Everything is cached.  Took " + elapsed + " seconds")
+	return fmt.Sprintln("Everything is cached.  Took " + elapsed + " seconds")
 }
