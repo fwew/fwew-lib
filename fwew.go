@@ -1007,7 +1007,7 @@ func dialectCrunch(query []string, guaranteedForest bool) []string {
 		}
 
 		// "eo" and "äo" are different, so the distinction must remain
-		if strings.HasSuffix(oldQuery, "äo") {
+		if strings.HasSuffix(oldQuery, "äo") || strings.HasSuffix(oldQuery, "ä'o") {
 			a = strings.TrimSuffix(a, "eo") + "äo"
 		}
 		newQuery = append(newQuery, a)
