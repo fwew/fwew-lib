@@ -184,6 +184,9 @@ func TranslateFromNaviHash(searchNaviWords string, checkFixes bool) (results [][
 			newQuery := ""
 			kOffset := 0
 			for k := range strings.Split(results[len(results)-1][1].Navi, " ") {
+				if i+k+kOffset >= len(allWords) {
+					break
+				}
 				if allWords[i+k+kOffset] == "ke" || strings.ReplaceAll(allWords[i+k+kOffset], "e", "ä") == "rä'ä" {
 					kOffset += 1
 				}
@@ -1298,6 +1301,8 @@ func StartEverything() string {
 	}
 	PhonemeDistros()
 	elapsed := strconv.FormatFloat(time.Since(start).Seconds(), 'f', -1, 64)
+
+	homonymSearch()
 
 	return fmt.Sprintln("Everything is cached.  Took " + elapsed + " seconds")
 }

@@ -1060,7 +1060,6 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 						rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "errr", "er")
 					}
 
-					rebuiltVerbForest := rebuiltVerb
 					rebuiltVerbArray := dialectCrunch(strings.Split(rebuiltVerb, " "), false)
 					rebuiltVerb = ""
 					for k, x := range rebuiltVerbArray {
@@ -1081,30 +1080,31 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 						} else if identicalRunes(rebuiltVerb+"a", rebuiltHyphen) {
 							// v<us>erb-a and v<awn>erb-a
 							results = AppendAndAlphabetize(results, a)
-						} else if firstInfixes == "us" {
+						} /*else if firstInfixes == "us" {
 							results = AppendAndAlphabetize(results, infixError(searchNaviWord, "Did you mean **"+rebuiltVerbForest+"**?", c.IPA))
 						}
 					} else if gerund { // ti is needed to weed out non-productive tì-verbs
 						results = AppendAndAlphabetize(results, infixError(searchNaviWord, "Did you mean **"+rebuiltVerbForest+"**?", c.IPA))
 					} else {
 						results = AppendAndAlphabetize(results, infixError(searchNaviWord, "Did you mean **"+rebuiltVerbForest+"**?", c.IPA))
+					}*/
 					}
-				}
-			} else if candidate.insistPOS == "nì." {
-				posNoun := c.PartOfSpeech
-				if len(candidate.infixes) == 0 && (posNoun == "adj." || posNoun == "pn.") {
+				} else if candidate.insistPOS == "nì." {
+					posNoun := c.PartOfSpeech
+					if len(candidate.infixes) == 0 && (posNoun == "adj." || posNoun == "pn.") {
+						a := c
+						a.Affixes.Lenition = candidate.lenition
+						a.Affixes.Prefix = candidate.prefixes
+						a.Affixes.Suffix = candidate.suffixes
+						results = AppendAndAlphabetize(results, a)
+					}
+				} else if len(candidate.infixes) == 0 {
 					a := c
 					a.Affixes.Lenition = candidate.lenition
 					a.Affixes.Prefix = candidate.prefixes
 					a.Affixes.Suffix = candidate.suffixes
 					results = AppendAndAlphabetize(results, a)
 				}
-			} else if len(candidate.infixes) == 0 {
-				a := c
-				a.Affixes.Lenition = candidate.lenition
-				a.Affixes.Prefix = candidate.prefixes
-				a.Affixes.Suffix = candidate.suffixes
-				results = AppendAndAlphabetize(results, a)
 			}
 		}
 	}
