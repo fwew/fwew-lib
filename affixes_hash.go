@@ -951,6 +951,8 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 						}
 					}
 
+					looseTì := false
+
 					if len(candidate.prefixes) > 0 {
 						// Reverse search is more likely to find it immediately
 						for i := len(candidate.prefixes) - 1; i >= 0; i-- {
@@ -958,7 +960,8 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 								attributed = true
 							} else if candidate.prefixes[i] == "tì" {
 								// we found gerunds up top, so this isn't needed
-								continue
+								looseTì = true
+								break
 							} else {
 								for _, j := range verbPrefixes {
 									if candidate.prefixes[i] == j {
@@ -972,7 +975,7 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 								}
 							}
 
-							if infixBan || doubleBan {
+							if infixBan || doubleBan || looseTì {
 								break
 							}
 						}
@@ -984,7 +987,7 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 					}
 
 					// Take action on tsuk-verb-yus and a-verb-tswos
-					if doubleBan || (attributed && infixBan) {
+					if doubleBan || (attributed && infixBan) || looseTì {
 						continue
 					}
 
