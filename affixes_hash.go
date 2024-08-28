@@ -828,7 +828,7 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 			if len(candidate.infixes) == 1 && candidate.infixes[0] == "us" {
 				// Reverse search is more likely to find it immediately
 				for i := len(candidate.prefixes) - 1; i >= 0; i-- {
-					if candidate.prefixes[i] == "tì" {
+					if candidate.prefixes[i] == "tì" && len(candidate.infixes) == 1 {
 						gerund = true
 						break
 					}
@@ -956,7 +956,10 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 						for i := len(candidate.prefixes) - 1; i >= 0; i-- {
 							if candidate.prefixes[i] == "a" {
 								attributed = true
-							} else {
+							} else if candidate.prefixes[i] == "tì" {
+								// we found gerunds up top, so this isn't needed
+								continue
+							} {
 								for _, j := range verbPrefixes {
 									if candidate.prefixes[i] == j {
 										if infixBan {
