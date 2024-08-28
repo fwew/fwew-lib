@@ -1302,7 +1302,5 @@ func StartEverything() string {
 	PhonemeDistros()
 	elapsed := strconv.FormatFloat(time.Since(start).Seconds(), 'f', -1, 64)
 
-	homonymSearch()
-
 	return fmt.Sprintln("Everything is cached.  Took " + elapsed + " seconds")
 }
