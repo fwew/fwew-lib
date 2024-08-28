@@ -959,7 +959,7 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 							} else if candidate.prefixes[i] == "tì" {
 								// we found gerunds up top, so this isn't needed
 								continue
-							} {
+							} else {
 								for _, j := range verbPrefixes {
 									if candidate.prefixes[i] == j {
 										if infixBan {
