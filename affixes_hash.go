@@ -878,7 +878,7 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 					}
 				}
 			} else if gerund {
-				if len(candidate.infixes) == 1 && c.PartOfSpeech[0] == 'v' {
+				if c.PartOfSpeech[0] == 'v' {
 					// Make sure the <us> is in the correct place
 					rebuiltVerb := strings.ReplaceAll(c.InfixLocations, "<0>", "")
 					rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<1>", "us")
