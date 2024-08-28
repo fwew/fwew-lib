@@ -798,7 +798,7 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 
 		for _, c := range dictHash[a] {
 			// An inter. can act like a noun or an adjective, so it gets special treatment
-			if c.PartOfSpeech == "inter." && candidate.insistPOS[0] != 'v' && len(c.Affixes.Infix) == 0 {
+			if c.PartOfSpeech == "inter." && candidate.insistPOS[0] != 'v' && len(candidate.infixes) == 0 {
 				dupe := false
 				for _, b := range results {
 					if b.Navi == c.Navi {
@@ -892,9 +892,9 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 						a.Affixes.Infix = candidate.infixes
 						a.Affixes.Suffix = candidate.suffixes
 						results = AppendAndAlphabetize(results, a)
-					} /*else {
+					} else {
 						results = AppendAndAlphabetize(results, infixError(searchNaviWord, "Did you mean **tì"+rebuiltVerb+"**?", c.IPA))
-					}*/
+					}
 				}
 			} else if candidate.insistPOS == "n." {
 				// n., pn., Prop.n. and inter. (but not vin.)
@@ -933,6 +933,7 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 						for i := len(candidate.suffixes) - 1; i >= 0; i-- {
 							if candidate.suffixes[i] == "a" {
 								attributed = true
+								break
 							}
 						}
 						// Forward search fixs the "a" before "yu" and "tswo"
@@ -950,11 +951,17 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 						}
 					}
 
+					looseTì := false
+
 					if len(candidate.prefixes) > 0 {
 						// Reverse search is more likely to find it immediately
 						for i := len(candidate.prefixes) - 1; i >= 0; i-- {
-							if candidate.prefixes[i] == "a" && infixBan {
+							if candidate.prefixes[i] == "a" {
 								attributed = true
+							} else if candidate.prefixes[i] == "tì" {
+								// we found gerunds up top, so this isn't needed
+								looseTì = true
+								break
 							} else {
 								for _, j := range verbPrefixes {
 									if candidate.prefixes[i] == j {
@@ -968,14 +975,19 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 								}
 							}
 
-							if infixBan || doubleBan {
+							if infixBan || doubleBan || looseTì {
 								break
 							}
 						}
 					}
 
+					// Don't want a[verb] and [verb]a
+					if attributed && (len(candidate.infixes) == 0 || infixBan) {
+						continue
+					}
+
 					// Take action on tsuk-verb-yus and a-verb-tswos
-					if doubleBan || (attributed && infixBan) {
+					if doubleBan || (attributed && infixBan) || looseTì {
 						continue
 					}
 

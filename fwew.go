@@ -184,6 +184,9 @@ func TranslateFromNaviHash(searchNaviWords string, checkFixes bool) (results [][
 			newQuery := ""
 			kOffset := 0
 			for k := range strings.Split(results[len(results)-1][1].Navi, " ") {
+				if i+k+kOffset >= len(allWords) {
+					break
+				}
 				if allWords[i+k+kOffset] == "ke" || strings.ReplaceAll(allWords[i+k+kOffset], "e", "ä") == "rä'ä" {
 					kOffset += 1
 				}
