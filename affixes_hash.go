@@ -892,9 +892,9 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 						a.Affixes.Infix = candidate.infixes
 						a.Affixes.Suffix = candidate.suffixes
 						results = AppendAndAlphabetize(results, a)
-					} /*else {
+					} else {
 						results = AppendAndAlphabetize(results, infixError(searchNaviWord, "Did you mean **tì"+rebuiltVerb+"**?", c.IPA))
-					}*/
+					}
 				}
 			} else if candidate.insistPOS == "n." {
 				// n., pn., Prop.n. and inter. (but not vin.)
