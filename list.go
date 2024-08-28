@@ -1,8 +1,6 @@
 package fwew_lib
 
 import (
-	"fmt"
-	"log"
 	"regexp"
 	"strconv"
 	"strings"
@@ -151,7 +149,7 @@ func filterWords(results []Word, word Word, args []string, wordsLen, index int) 
 
 	specNumber, err1 := strconv.Atoi(spec)
 	if err1 != nil {
-		log.Printf("%s (%s)\n", Text("invalidNumericError"), spec)
+		// log.Printf("%s (%s)\n", Text("invalidNumericError"), spec)
 		err = InvalidNumber.wrap(err1)
 		return
 	}
@@ -179,7 +177,7 @@ func filterNumeric(results []Word, word Word, args []string) (filtered []Word, e
 
 	ispec, err1 := strconv.Atoi(spec)
 	if err1 != nil {
-		fmt.Println(Text("invalidDecimalError"))
+		// log.Printf("%s (%s)\n", Text("invalidDecimalError"), spec)
 		err = InvalidNumber.wrap(err1)
 		return
 	}
@@ -191,7 +189,7 @@ func filterNumeric(results []Word, word Word, args []string) (filtered []Word, e
 
 	istress, err2 := strconv.Atoi(word.Stressed)
 	if err2 != nil {
-		fmt.Println(Text("invalidDecimalError"))
+		// log.Printf("%s (%s)\n", Text("invalidDecimalError"), spec)
 		err = InvalidNumber.wrap(err2)
 		return
 	}
