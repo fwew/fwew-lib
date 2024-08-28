@@ -933,6 +933,7 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 						for i := len(candidate.suffixes) - 1; i >= 0; i-- {
 							if candidate.suffixes[i] == "a" {
 								attributed = true
+								break
 							}
 						}
 						// Forward search fixs the "a" before "yu" and "tswo"
@@ -953,7 +954,7 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 					if len(candidate.prefixes) > 0 {
 						// Reverse search is more likely to find it immediately
 						for i := len(candidate.prefixes) - 1; i >= 0; i-- {
-							if candidate.prefixes[i] == "a" && infixBan {
+							if candidate.prefixes[i] == "a" {
 								attributed = true
 							} else {
 								for _, j := range verbPrefixes {
@@ -972,6 +973,11 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 								break
 							}
 						}
+					}
+
+					// Don't want a[verb] and [verb]a
+					if attributed && (len(candidate.infixes) == 0 || infixBan) {
+						continue
 					}
 
 					// Take action on tsuk-verb-yus and a-verb-tswos
