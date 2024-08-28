@@ -798,7 +798,7 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 
 		for _, c := range dictHash[a] {
 			// An inter. can act like a noun or an adjective, so it gets special treatment
-			if c.PartOfSpeech == "inter." && candidate.insistPOS[0] != 'v' && len(c.Affixes.Infix) == 0 {
+			if c.PartOfSpeech == "inter." && candidate.insistPOS[0] != 'v' && len(candidate.infixes) == 0 {
 				dupe := false
 				for _, b := range results {
 					if b.Navi == c.Navi {
@@ -953,7 +953,7 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 					if len(candidate.prefixes) > 0 {
 						// Reverse search is more likely to find it immediately
 						for i := len(candidate.prefixes) - 1; i >= 0; i-- {
-							if candidate.prefixes[i] == "a" && infixBan {
+							if candidate.prefixes[i] == "a" {
 								attributed = true
 							} else {
 								for _, j := range verbPrefixes {
@@ -972,6 +972,11 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 								break
 							}
 						}
+					}
+
+					// Don't want a[verb] and [verb]a
+					if attributed && (len(candidate.infixes) == 0 || infixBan) {
+						continue
 					}
 
 					// Take action on tsuk-verb-yus and a-verb-tswos
