@@ -828,7 +828,7 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 			if len(candidate.infixes) == 1 && candidate.infixes[0] == "us" {
 				// Reverse search is more likely to find it immediately
 				for i := len(candidate.prefixes) - 1; i >= 0; i-- {
-					if candidate.prefixes[i] == "tì" && len(candidate.infixes) == 1 {
+					if candidate.prefixes[i] == "tì" {
 						gerund = true
 						break
 					}
@@ -878,7 +878,7 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 					}
 				}
 			} else if gerund {
-				if c.PartOfSpeech[0] == 'v' {
+				if len(candidate.infixes) == 1 && c.PartOfSpeech[0] == 'v' {
 					// Make sure the <us> is in the correct place
 					rebuiltVerb := strings.ReplaceAll(c.InfixLocations, "<0>", "")
 					rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<1>", "us")
