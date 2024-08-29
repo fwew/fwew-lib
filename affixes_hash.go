@@ -1,7 +1,6 @@
 package fwew_lib
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -1036,7 +1035,6 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 									}
 								}
 								a.Affixes.Infix = newCandidateInfixes
-								fmt.Println(newCandidateInfixes)
 							}
 							break
 						}
