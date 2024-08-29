@@ -1023,6 +1023,19 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 						if implContainsAny(prefirst, []string{newInfix}) {
 							firstInfixes += newInfix
 							rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<0>", firstInfixes)
+							if newInfix == "epeyk" || newInfix == "äpeyk" {
+								newCandidateInfixes := []string{}
+								for _, newInfix2 := range candidate.infixes {
+									// äpeyk gets split
+									if newInfix2 == "epeyk" || newInfix2 == "äpeyk" {
+										newCandidateInfixes = append(newCandidateInfixes, "äp")
+										newCandidateInfixes = append(newCandidateInfixes, "eyk")
+									} else {
+										newCandidateInfixes = append(newCandidateInfixes, newInfix2)
+									}
+									candidate.infixes = newCandidateInfixes
+								}
+							}
 							break
 						}
 					}
