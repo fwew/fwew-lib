@@ -169,7 +169,8 @@ func isDuplicateFix(fixes []string, fix string) (newFixes []string) {
 				return fixes
 			}
 		}
-		fixes = append(fixes, fix)
+		fixes = append(fixes, "äp")
+		fixes = append(fixes, "eyk")
 		return fixes
 	} else if fix == "eng" {
 		fix = "äng"
