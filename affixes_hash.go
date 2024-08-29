@@ -163,19 +163,12 @@ func isDuplicate(input ConjugationCandidate) bool {
 }
 
 func isDuplicateFix(fixes []string, fix string) (newFixes []string) {
-	if fix == "epeyk" || fix == "äpeyk" {
-		for _, a := range fixes {
-			if a == "äp" || a == "eyk" {
-				return fixes
-			}
-		}
-		fixes = append(fixes, "äp")
-		fixes = append(fixes, "eyk")
-		return fixes
-	} else if fix == "eng" {
+	if fix == "eng" {
 		fix = "äng"
 	} else if fix == "ep" {
 		fix = "äp"
+	} else if fix == "epeyk" {
+		fix = "äpeyk"
 	} else if fix == "ye" {
 		fix = "yä"
 	} else if fix == "e" {
