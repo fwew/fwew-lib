@@ -1033,8 +1033,8 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 									} else {
 										newCandidateInfixes = append(newCandidateInfixes, newInfix2)
 									}
-									candidate.infixes = newCandidateInfixes
 								}
+								candidate.infixes = newCandidateInfixes
 							}
 							break
 						}
