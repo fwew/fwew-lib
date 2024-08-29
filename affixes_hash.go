@@ -116,15 +116,15 @@ var verbSuffixes = []string{"tswo", "yu"}
 
 var infixes = map[rune][]string{
 	rune('a'): {"ay", "asy", "aly", "ary", "am", "alm", "arm", "ats", "awn"},
-	rune('ä'): {"äng", "äp"},
-	rune('e'): {"ep", "er", "ei", "eiy", "eng", "eyk"},
+	rune('ä'): {"äng", "äpeyk", "äp"},
+	rune('e'): {"epeyk", "ep", "er", "ei", "eiy", "eng", "eyk"},
 	rune('i'): {"iv", "ilv", "irv", "imv", "iyev"},
 	rune('ì'): {"ìy", "ìsy", "ìly", "ìry", "ìm", "ìlm", "ìrm", "ìyev"},
 	rune('o'): {"ol"},
 	rune('u'): {"us", "uy"},
 }
 
-var prefirst = []string{"äp", "ep", "eyk"}
+var prefirst = []string{"äp", "äpeyk", "ep", "epeyk", "eyk"}
 var first = []string{"ay", "asy", "aly", "ary", "ìy", "ìsy", "ìly", "ìry", "ol", "er", "ìm",
 	"ìlm", "ìrm", "am", "alm", "arm", "ìyev", "iyev", "iv", "ilv", "irv", "imv", "us", "awn"}
 var second = []string{"ei", "eiy", "äng", "eng", "uy", "ats"}
@@ -167,6 +167,8 @@ func isDuplicateFix(fixes []string, fix string) (newFixes []string) {
 		fix = "äng"
 	} else if fix == "ep" {
 		fix = "äp"
+	} else if fix == "epeyk" {
+		fix = "äpeyk"
 	} else if fix == "ye" {
 		fix = "yä"
 	} else if fix == "e" {
@@ -184,20 +186,21 @@ func isDuplicateFix(fixes []string, fix string) (newFixes []string) {
 func infixError(query string, didYouMean string, ipa string) Word {
 	d := Word{}
 	d.Navi = query
-	d.EN = didYouMean
-	d.DE = didYouMean
-	d.ES = didYouMean
-	d.ET = didYouMean
-	d.FR = didYouMean
-	d.HU = didYouMean
-	d.KO = didYouMean
-	d.NL = didYouMean
-	d.PL = didYouMean
-	d.PT = didYouMean
-	d.RU = didYouMean
-	d.SV = didYouMean
-	d.TR = didYouMean
-	d.UK = didYouMean
+	d.EN = "Did you mean **" + didYouMean + "**?" // English
+	// TODO: Translations
+	d.DE = d.EN // German (Deutsch)
+	d.ES = d.EN // Spanish (Español)
+	d.ET = d.EN // Estonian (Eesti)
+	d.FR = d.EN // French (Français)
+	d.HU = d.EN // Hungarian (Magyar)
+	d.KO = d.EN // Korean (한국어)
+	d.NL = d.EN // Dutch (Nederlands)
+	d.PL = d.EN // Polish (Polski)
+	d.PT = d.EN // Portuguese (Português)
+	d.RU = d.EN // Russian (Русский)
+	d.SV = d.EN // Swedish (Svenska)
+	d.TR = d.EN // Turkish (Türkçe)
+	d.UK = d.EN // Ukrainian (Українська)
 	d.IPA = ipa
 	d.PartOfSpeech = "err."
 	return d
@@ -727,7 +730,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 		}
 	}
 
-	if checkInfixes {
+	if checkInfixes && len(input.infixes) < 3 {
 		// Maybe someone else came in with stripped infixes
 		if len(input.word) > 2 && input.word[len(input.word)-3] != ' ' &&
 			strings.HasSuffix(input.word, "si") && !strings.HasSuffix(input.word, "usi") &&
@@ -892,8 +895,8 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 						a.Affixes.Infix = candidate.infixes
 						a.Affixes.Suffix = candidate.suffixes
 						results = AppendAndAlphabetize(results, a)
-					} else {
-						results = AppendAndAlphabetize(results, infixError(searchNaviWord, "Did you mean **tì"+rebuiltVerb+"**?", c.IPA))
+					} else if len(results) == 0 {
+						results = AppendAndAlphabetize(results, infixError(searchNaviWord, "tì"+rebuiltVerb, c.IPA))
 					}
 				}
 			} else if candidate.insistPOS == "n." {
@@ -1019,9 +1022,24 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 					for _, newInfix := range candidate.infixes {
 						if implContainsAny(prefirst, []string{newInfix}) {
 							firstInfixes += newInfix
+							rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<0>", firstInfixes)
+							if newInfix == "epeyk" || newInfix == "äpeyk" {
+								newCandidateInfixes := []string{}
+								for _, newInfix2 := range candidate.infixes {
+									// äpeyk gets split
+									if newInfix2 == "epeyk" || newInfix2 == "äpeyk" {
+										newCandidateInfixes = append(newCandidateInfixes, "äp")
+										newCandidateInfixes = append(newCandidateInfixes, "eyk")
+									} else {
+										newCandidateInfixes = append(newCandidateInfixes, newInfix2)
+									}
+								}
+								a.Affixes.Infix = newCandidateInfixes
+							}
+							break
 						}
 					}
-					rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<0>", firstInfixes)
+					rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<0>", "")
 
 					// first position infixes
 					firstInfixes = ""
@@ -1082,12 +1100,18 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 							// v<us>erb-a and v<awn>erb-a
 							results = AppendAndAlphabetize(results, a)
 						} else if firstInfixes == "us" {
-							results = AppendAndAlphabetize(results, infixError(searchNaviWord, "Did you mean **"+rebuiltVerbForest+"**?", c.IPA))
+							if len(results) == 0 {
+								results = AppendAndAlphabetize(results, infixError(searchNaviWord, rebuiltVerbForest, c.IPA))
+							}
 						}
 					} else if gerund { // ti is needed to weed out non-productive tì-verbs
-						results = AppendAndAlphabetize(results, infixError(searchNaviWord, "Did you mean **"+rebuiltVerbForest+"**?", c.IPA))
+						if len(results) == 0 {
+							results = AppendAndAlphabetize(results, infixError(searchNaviWord, rebuiltVerbForest, c.IPA))
+						}
 					} else {
-						results = AppendAndAlphabetize(results, infixError(searchNaviWord, "Did you mean **"+rebuiltVerbForest+"**?", c.IPA))
+						if len(results) == 0 {
+							results = AppendAndAlphabetize(results, infixError(searchNaviWord, rebuiltVerbForest, c.IPA))
+						}
 					}
 				}
 			} else if candidate.insistPOS == "nì." {
