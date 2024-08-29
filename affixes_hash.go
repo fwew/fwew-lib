@@ -168,7 +168,8 @@ func isDuplicateFix(fixes []string, fix string) (newFixes []string) {
 	} else if fix == "ep" {
 		fix = "äp"
 	} else if fix == "epeyk" {
-		fix = "äpeyk"
+		fix = "äp"
+		fixes = isDuplicateFix(fixes, "eyk")
 	} else if fix == "ye" {
 		fix = "yä"
 	} else if fix == "e" {
