@@ -25,6 +25,7 @@ func candidateDupe(candidate ConjugationCandidate) (c ConjugationCandidate) {
 }
 
 var candidates []ConjugationCandidate
+var candidateMap = map[string]ConjugationCandidate{}
 var unlenitionLetters = []string{
 	"ts", "kx", "tx", "px", // traps digraphs because they cannot unlenite
 	"f", "p", "h", "k", "s",
@@ -150,8 +151,8 @@ var weirdNounSuffixes = map[string]string{
 }
 
 func isDuplicate(input ConjugationCandidate) bool {
-	for _, a := range candidates {
-		if input.word == a.word && input.insistPOS == a.insistPOS {
+	if a, ok := candidateMap[input.word]; ok {
+		if input.insistPOS == a.insistPOS {
 			if len(input.prefixes) == len(a.prefixes) && len(input.suffixes) == len(a.suffixes) {
 				if len(input.infixes) == len(a.infixes) {
 					return true
@@ -247,6 +248,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 			input.word = validWord
 			if !isDuplicate(input) {
 				candidates = append(candidates, input)
+				candidateMap[input.word] = input
 			}
 			return candidates
 		}
@@ -259,12 +261,14 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 			input.word = "zenke"
 			if !isDuplicate(input) {
 				candidates = append(candidates, input)
+				candidateMap[input.word] = input
 			}
 			return candidates
 		}
 	}
 
 	candidates = append(candidates, input)
+	candidateMap[input.word] = input
 
 	// Add a way for e to become ä again if we're down to 1 syllable
 	if len([]rune(input.word)) < 8 && (len(input.prefixes) > 0 || len(input.infixes) > 0 || len(input.suffixes) > 0) { // could be tskxäpx (7 letters 1 syllable)
@@ -290,6 +294,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 			newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, "tswo")
 			if !isDuplicate(newCandidate) {
 				candidates = append(candidates, newCandidate)
+				candidateMap[input.word] = input
 			}
 		}
 	}
@@ -335,6 +340,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 
 			if !isDuplicate(input) {
 				candidates = append(candidates, input)
+				candidateMap[input.word] = input
 			} // to bump the real candidate into recognition
 
 			if found {
@@ -351,6 +357,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 				}
 				if !isDuplicate(newCandidate) {
 					candidates = append(candidates, newCandidate)
+					candidateMap[input.word] = input
 				}
 			}
 			return candidates
@@ -778,6 +785,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 
 func deconjugate(input string) []ConjugationCandidate {
 	candidates = []ConjugationCandidate{} //empty array of strings
+	candidateMap = map[string]ConjugationCandidate{}
 	newCandidate := ConjugationCandidate{}
 	newCandidate.word = input
 	newCandidate.insistPOS = "any"
