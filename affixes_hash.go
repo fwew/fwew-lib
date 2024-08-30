@@ -151,8 +151,8 @@ var weirdNounSuffixes = map[string]string{
 }
 
 func isDuplicate(input ConjugationCandidate) bool {
-	if a, ok := candidateMap[input.word]; ok {
-		if input.insistPOS == a.insistPOS {
+	for _, a := range candidates {
+		if input.word == a.word && input.insistPOS == a.insistPOS {
 			if len(input.prefixes) == len(a.prefixes) && len(input.suffixes) == len(a.suffixes) {
 				if len(input.infixes) == len(a.infixes) {
 					return true
@@ -737,7 +737,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 		}
 	}
 
-	if checkInfixes && len(input.infixes) < 3 {
+	if checkInfixes {
 		// Maybe someone else came in with stripped infixes
 		if len(input.word) > 2 && input.word[len(input.word)-3] != ' ' &&
 			strings.HasSuffix(input.word, "si") && !strings.HasSuffix(input.word, "usi") &&
