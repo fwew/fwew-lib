@@ -737,7 +737,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 		}
 	}
 
-	if checkInfixes {
+	if checkInfixes && len(input.infixes) < 3 {
 		// Maybe someone else came in with stripped infixes
 		if len(input.word) > 2 && input.word[len(input.word)-3] != ' ' &&
 			strings.HasSuffix(input.word, "si") && !strings.HasSuffix(input.word, "usi") &&
