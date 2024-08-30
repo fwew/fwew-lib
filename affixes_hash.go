@@ -151,8 +151,8 @@ var weirdNounSuffixes = map[string]string{
 }
 
 func isDuplicate(input ConjugationCandidate) bool {
-	for _, a := range candidates {
-		if input.word == a.word && input.insistPOS == a.insistPOS {
+	if a, ok := candidateMap[input.word]; ok {
+		if input.insistPOS == a.insistPOS {
 			if len(input.prefixes) == len(a.prefixes) && len(input.suffixes) == len(a.suffixes) {
 				if len(input.infixes) == len(a.infixes) {
 					return true
