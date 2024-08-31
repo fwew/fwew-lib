@@ -290,7 +290,7 @@ var message_too_big = map[string]string{
 	// TODO
 	"hu": "⛔ (stopped at {count}. 2000 Character limit)", // Hungarian (Magyar)
 	// TODO
-	"ko": "⛔ (stopped at {count}. 2000 Character limit)", // Korean (한국어)
+	"ko": "⛔ 	(출력값 초과: {count} - 최대 2000개의 결과까지 출력 가능합니다.)", // Korean (한국어)
 	// TODO
 	"nl": "⛔ (stopped at {count}. 2000 Character limit)", // Dutch (Nederlands)
 	// TODO

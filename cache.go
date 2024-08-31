@@ -989,13 +989,13 @@ func GetDictSize(lang string) (count string, err error) {
 	if lang == "en" { // English
 		count = "There are " + count + " entries in the dictionary."
 	} else if lang == "de" { // German (Deutsch)
-		count = "There are " + count + " entries in the dictionary." // TODO
+		count = "Es sind " + count + " Einträge im Wörterbuch."
 	} else if lang == "es" { // Spanish (Español)
 		count = "There are " + count + " entries in the dictionary." // TODO
 	} else if lang == "et" { // Estonian (Eesti)
 		count = "There are " + count + " entries in the dictionary." // TODO
 	} else if lang == "fr" { // French (Français)
-		count = "There are " + count + " entries in the dictionary." // TODO
+		count = "Il y a " + count + " définitions dans le dictionnaire."
 	} else if lang == "hu" { // Hungarian (Magyar)
 		count = "There are " + count + " entries in the dictionary." // TODO
 	} else if lang == "ko" { // Korean (한국어)
