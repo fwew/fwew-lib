@@ -291,6 +291,15 @@ func IsVerb(input string, comparator string) (result bool, affixes Word) {
 func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) (steps int, results [][]Word, err error) {
 	i := start
 
+	containsUmlaut := []bool{}
+	for _, a := range allWords {
+		if strings.Contains(a, "ä") {
+			containsUmlaut = append(containsUmlaut, true)
+		} else {
+			containsUmlaut = append(containsUmlaut, false)
+		}
+	}
+
 	// don't crunch more than once
 	crunched := dialectCrunch(allWords, false)
 
@@ -301,13 +310,24 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 	// Find the word
 	a := strings.ReplaceAll(searchNaviWord, "ù", "u")
 
+	tempResults := []Word{}
+
 	if _, ok := dictHash[a]; ok {
 		//bareNaviWord = true
-
 		for _, b := range dictHash[a] {
 			results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], b)
 		}
 	}
+
+	// If one searches kivä, make sure kive doesn't show up
+	for _, a := range results[len(results)-1] {
+		if containsUmlaut[i] && !strings.Contains(a.Navi, "ä") {
+			continue // ä can unstress to e, but not the other way around
+		}
+		tempResults = append(tempResults, a)
+	}
+
+	results[len(results)-1] = tempResults
 
 	foundAlready := false
 
@@ -424,19 +444,37 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 	//}
 
 	if checkFixes {
+		newResults := []Word{}
+
 		if !foundAlready {
 			if len(results) > 0 && len(results[0]) > 0 {
 				if !(strings.ToLower(results[len(results)-1][0].Navi) != searchNaviWord && strings.HasPrefix(strings.ToLower(results[len(results)-1][0].Navi), searchNaviWord)) {
 					// Find all possible unconjugated versions of the word
-					newResults := TestDeconjugations(searchNaviWord)
-					results[len(results)-1] = append(results[len(results)-1], newResults...)
+					newResults = TestDeconjugations(searchNaviWord)
 				}
 			} else {
 				// Find all possible unconjugated versions of the word
-				newResults := TestDeconjugations(searchNaviWord)
-				results[len(results)-1] = append(results[len(results)-1], newResults...)
+				newResults = TestDeconjugations(searchNaviWord)
 			}
 		}
+
+		tempNewResults := []Word{}
+
+		// If one searches for ke, don't search for kä
+		for _, a := range newResults {
+			nucleusCount := 0
+			for _, b := range []string{"a", "ä", "e", "i", "ì", "o", "u", "ù", "ll", "rr"} {
+				nucleusCount += strings.Count(a.Navi, b)
+			}
+			if nucleusCount == 1 {
+				if !containsUmlaut[i] && strings.Contains(a.Navi, "ä") {
+					continue
+				}
+			}
+			tempNewResults = append(tempNewResults, a)
+		}
+
+		results[len(results)-1] = append(results[len(results)-1], tempNewResults...)
 
 		// Check if the word could have more than one word
 		found := false
