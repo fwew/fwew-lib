@@ -18,6 +18,12 @@ func List(args []string, checkDigraphs uint8) (results []Word, err error) {
 		return
 	}
 
+	i := 0
+	for i < len(args) {
+		args[i] = strings.ReplaceAll(args[i], ",", ", ")
+		i++
+	}
+
 	for len(args) >= 3 {
 		// get 3 args and remove 4th
 		simpleArgs := args[0:3]
