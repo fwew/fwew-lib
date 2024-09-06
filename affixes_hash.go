@@ -272,6 +272,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 
 	// Add a way for e to become ä again if we're down to 1 syllable
 	if len([]rune(input.word)) < 8 && (len(input.prefixes) > 0 || len(input.infixes) > 0 || len(input.suffixes) > 0) && strings.Contains(input.word, "e") {
+		// could be tskxäpx (7 letters 1 syllable)
 		newCandidate := candidateDupe(input)
 		newCandidate.word = strings.ReplaceAll(newCandidate.word, "e", "ä")
 		deconjugateHelper(newCandidate, prefixCheck, suffixCheck, unlenite, checkInfixes, "", "")
