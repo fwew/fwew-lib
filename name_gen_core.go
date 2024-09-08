@@ -562,6 +562,8 @@ func SortedWords() (nouns []Word, adjectives []Word, verbs []Word, transitiveVer
 
 // Called on startup to feed and compile dictionary information into the name generator
 func PhonemeDistros() {
+	phonoLock.Lock()
+	defer phonoLock.Unlock()
 	// get the dict
 	words, err := List([]string{}, 0)
 

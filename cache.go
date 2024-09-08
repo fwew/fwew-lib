@@ -60,6 +60,7 @@ var nkxSub = map[string]string{}
 
 // A mutex to ensure requests to
 var universalLock sync.Mutex
+var phonoLock sync.Mutex
 
 // helper for nkx for shortest words first
 func shortestFirst(array []string, input string) []string {
@@ -958,8 +959,7 @@ func runOnFile(f func(word Word) error) error {
 }
 
 func GetFullDict() (allWords []Word, err error) {
-	universalLock.Lock()
-	defer universalLock.Unlock()
+	// No need for the lock because only List() calls it
 	if dictionaryCached {
 		allWords = dictionary
 	} else {

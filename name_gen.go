@@ -373,8 +373,8 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 }
 
 func GetPhonemeDistrosMap(lang string) (allDistros [][][]string) {
-	universalLock.Lock()
-	defer universalLock.Unlock()
+	phonoLock.Lock()
+	defer phonoLock.Unlock()
 	// Non-English ones were pulled out of Google translate unless it says VERIFIED
 	header_row := map[string][]string{
 		"en": {"Onset", "Nucleus", "Coda"},          // English
