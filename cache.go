@@ -977,6 +977,7 @@ func GetDictSizeSimple() (count int) {
 
 // Return a complete sentence
 func GetDictSize(lang string) (count string, err error) {
+	universalLock.Lock()
 	// Count words
 	amount := 0
 	if dictionaryCached {
@@ -987,6 +988,7 @@ func GetDictSize(lang string) (count string, err error) {
 			return nil
 		})
 	}
+	universalLock.Unlock()
 
 	// Put the word count into a complete sentence
 	count = strconv.Itoa(amount)
