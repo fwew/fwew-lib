@@ -641,7 +641,7 @@ func TranslateToNaviHash(searchWord string, langCode string) (results [][]Word) 
 		tempResults = append(tempResults, results[len(results)-1]...)
 		results[len(results)-1] = tempResults
 	}
-	universalLock.Lock()
+	universalLock.Unlock()
 	return
 }
 
