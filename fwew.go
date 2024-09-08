@@ -1332,7 +1332,6 @@ func ReefMe(ipa string, inter bool) []string {
 
 func StartEverything() string {
 	universalLock.Lock()
-	defer universalLock.Unlock()
 	start := time.Now()
 	var errors = []error{
 		AssureDict(),
@@ -1345,6 +1344,7 @@ func StartEverything() string {
 			log.Println(err)
 		}
 	}
+	universalLock.Unlock()
 	PhonemeDistros()
 	elapsed := strconv.FormatFloat(time.Since(start).Seconds(), 'f', -1, 64)
 	return fmt.Sprintln("Everything is cached.  Took " + elapsed + " seconds")
