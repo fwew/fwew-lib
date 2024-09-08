@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -56,6 +57,9 @@ var letterMap = map[rune]int{
 
 var nkx = []string{}
 var nkxSub = map[string]string{}
+
+// A mutex to ensure requests to
+var universalLock sync.Mutex
 
 // helper for nkx for shortest words first
 func shortestFirst(array []string, input string) []string {
@@ -447,6 +451,7 @@ func CacheDict() error {
 	}
 
 	dictionaryCached = true
+
 	return nil
 }
 
@@ -1020,8 +1025,10 @@ func GetDictSize(lang string) (count string, err error) {
 }
 
 // Update the dictionary.txt.
-// Be careful to not do anything with the dict-file, while update is in progress
+// universalLock will hopefully prevent anything from accessing
+// the dict while updating
 func UpdateDict() error {
+	universalLock.Lock()
 	err := DownloadDict("")
 	if err != nil {
 		log.Println(Text("downloadError"))
@@ -1053,6 +1060,7 @@ func UpdateDict() error {
 		log.Printf("Error caching dict after updating ... Cache disabled")
 		return err
 	}
+	universalLock.Unlock()
 
 	return nil
 }
