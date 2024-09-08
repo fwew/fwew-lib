@@ -358,6 +358,8 @@ func convertDialect(word Word, dialect int) string {
 /* Randomly construct a phonotactically valid Na'vi word
  * Dialect codes: 0 is interdialect, 1 is forest, 2 is reef */
 func single_name_gen(syllable_count int, dialect int) (name string) {
+	phonoLock.Lock()
+	defer phonoLock.Unlock()
 	// Sometimes these things might be referenced across loops
 	name = ""
 	onset := ""
