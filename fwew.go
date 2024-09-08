@@ -153,6 +153,7 @@ func clean(searchNaviWords string) (words string) {
 // One Navi-Word can have multiple meanings and words (e.g. synonyms)
 func TranslateFromNaviHash(searchNaviWords string, checkFixes bool) (results [][]Word, err error) {
 	universalLock.Lock()
+	defer universalLock.Unlock()
 	searchNaviWords = clean(searchNaviWords)
 
 	// No Results if empty string after removing sketch chars
@@ -204,7 +205,6 @@ func TranslateFromNaviHash(searchNaviWords string, checkFixes bool) (results [][
 		i += j
 		i++
 	}
-	universalLock.Unlock()
 
 	return
 }
@@ -623,6 +623,7 @@ func SearchNatlangWord(wordmap map[string][]string, searchWord string) (results 
 
 func TranslateToNaviHash(searchWord string, langCode string) (results [][]Word) {
 	universalLock.Lock()
+	defer universalLock.Unlock()
 	searchWord = clean(searchWord)
 
 	results = [][]Word{}
@@ -641,7 +642,6 @@ func TranslateToNaviHash(searchWord string, langCode string) (results [][]Word) 
 		tempResults = append(tempResults, results[len(results)-1]...)
 		results[len(results)-1] = tempResults
 	}
-	universalLock.Unlock()
 	return
 }
 
@@ -885,6 +885,7 @@ func TranslateToNaviHashHelper(searchWord string, langCode string) (results []Wo
 // One Word can have multiple meanings and words (e.g. synonyms)
 func BidirectionalSearch(searchNaviWords string, checkFixes bool, langCode string) (results [][]Word, err error) {
 	universalLock.Lock()
+	defer universalLock.Unlock()
 	searchNaviWords = clean(searchNaviWords)
 
 	// No Results if empty string after removing sketch chars
@@ -924,7 +925,6 @@ func BidirectionalSearch(searchNaviWords string, checkFixes bool, langCode strin
 
 		i++
 	}
-	universalLock.Unlock()
 	return
 }
 
@@ -1330,6 +1330,7 @@ func ReefMe(ipa string, inter bool) []string {
 
 func StartEverything() string {
 	universalLock.Lock()
+	defer universalLock.Unlock()
 	start := time.Now()
 	var errors = []error{
 		AssureDict(),
@@ -1344,6 +1345,5 @@ func StartEverything() string {
 	}
 	PhonemeDistros()
 	elapsed := strconv.FormatFloat(time.Since(start).Seconds(), 'f', -1, 64)
-	universalLock.Unlock()
 	return fmt.Sprintln("Everything is cached.  Took " + elapsed + " seconds")
 }

@@ -978,6 +978,7 @@ func GetDictSizeSimple() (count int) {
 // Return a complete sentence
 func GetDictSize(lang string) (count string, err error) {
 	universalLock.Lock()
+	defer universalLock.Unlock()
 	// Count words
 	amount := 0
 	if dictionaryCached {
@@ -988,7 +989,6 @@ func GetDictSize(lang string) (count string, err error) {
 			return nil
 		})
 	}
-	universalLock.Unlock()
 
 	// Put the word count into a complete sentence
 	count = strconv.Itoa(amount)
@@ -1031,6 +1031,7 @@ func GetDictSize(lang string) (count string, err error) {
 // the dict while updating
 func UpdateDict() error {
 	universalLock.Lock()
+	defer universalLock.Unlock()
 	err := DownloadDict("")
 	if err != nil {
 		log.Println(Text("downloadError"))
@@ -1062,7 +1063,6 @@ func UpdateDict() error {
 		log.Printf("Error caching dict after updating ... Cache disabled")
 		return err
 	}
-	universalLock.Unlock()
 
 	return nil
 }
