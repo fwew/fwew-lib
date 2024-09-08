@@ -966,6 +966,8 @@ func Random(amount int, args []string, checkDigraphs uint8) (results []Word, err
 
 // Get all words with spaces
 func GetMultiwordWords() map[string][][]string {
+	universalLock.Lock()
+	defer universalLock.Unlock()
 	return multiword_words
 }
 

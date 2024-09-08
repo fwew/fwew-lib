@@ -974,6 +974,8 @@ func GetFullDict() (allWords []Word, err error) {
 
 // Just a number
 func GetDictSizeSimple() (count int) {
+	universalLock.Lock()
+	defer universalLock.Unlock()
 	return len(dictionary)
 }
 
