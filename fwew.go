@@ -932,6 +932,8 @@ func BidirectionalSearch(searchNaviWords string, checkFixes bool, langCode strin
 // If args are applied, the dict will be filtered for args before random words are chosen.
 // args will be put into the `List()` algorithm.
 func Random(amount int, args []string, checkDigraphs uint8) (results []Word, err error) {
+	universalLock.Lock()
+	defer universalLock.Unlock()
 	allWords, err := List(args, checkDigraphs)
 
 	if err != nil {

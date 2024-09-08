@@ -958,6 +958,8 @@ func runOnFile(f func(word Word) error) error {
 }
 
 func GetFullDict() (allWords []Word, err error) {
+	universalLock.Lock()
+	defer universalLock.Unlock()
 	if dictionaryCached {
 		allWords = dictionary
 	} else {
