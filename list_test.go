@@ -502,7 +502,7 @@ func TestList(t *testing.T) {
 					PartOfSpeech:   "num.",
 					RU:             "один (число)",
 					SV:             "en, ett",
-					Source:         "NULL",
+					Source:         "https://forum.learnnavi.org/?msg=67090 (2010-01-30)",
 					Stressed:       "1",
 					Syllables:      "'aw",
 					TR:             "bir",

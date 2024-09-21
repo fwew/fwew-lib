@@ -152,6 +152,8 @@ func clean(searchNaviWords string) (words string) {
 // The first word will only contain the query put into the translate command
 // One Navi-Word can have multiple meanings and words (e.g. synonyms)
 func TranslateFromNaviHash(searchNaviWords string, checkFixes bool) (results [][]Word, err error) {
+	universalLock.Lock()
+	defer universalLock.Unlock()
 	searchNaviWords = clean(searchNaviWords)
 
 	// No Results if empty string after removing sketch chars
@@ -620,6 +622,8 @@ func SearchNatlangWord(wordmap map[string][]string, searchWord string) (results 
 }
 
 func TranslateToNaviHash(searchWord string, langCode string) (results [][]Word) {
+	universalLock.Lock()
+	defer universalLock.Unlock()
 	searchWord = clean(searchWord)
 
 	results = [][]Word{}
@@ -638,7 +642,6 @@ func TranslateToNaviHash(searchWord string, langCode string) (results [][]Word) 
 		tempResults = append(tempResults, results[len(results)-1]...)
 		results[len(results)-1] = tempResults
 	}
-
 	return
 }
 
@@ -881,6 +884,8 @@ func TranslateToNaviHashHelper(searchWord string, langCode string) (results []Wo
 // This will return a 2D array of Words, that fit the input text
 // One Word can have multiple meanings and words (e.g. synonyms)
 func BidirectionalSearch(searchNaviWords string, checkFixes bool, langCode string) (results [][]Word, err error) {
+	universalLock.Lock()
+	defer universalLock.Unlock()
 	searchNaviWords = clean(searchNaviWords)
 
 	// No Results if empty string after removing sketch chars
@@ -897,6 +902,7 @@ func BidirectionalSearch(searchNaviWords string, checkFixes bool, langCode strin
 		// Search for Na'vi words
 		j, newWords, error2 := TranslateFromNaviHashHelper(i, allWords, checkFixes)
 		if error2 == nil {
+			results[len(results)-1][0].Navi = newWords[0][0].Navi
 			for _, newWord := range newWords {
 				// Set up receptacle for words
 				results = append(results, []Word{})
@@ -920,7 +926,6 @@ func BidirectionalSearch(searchNaviWords string, checkFixes bool, langCode strin
 
 		i++
 	}
-
 	return
 }
 
@@ -962,6 +967,8 @@ func Random(amount int, args []string, checkDigraphs uint8) (results []Word, err
 
 // Get all words with spaces
 func GetMultiwordWords() map[string][][]string {
+	universalLock.Lock()
+	defer universalLock.Unlock()
 	return multiword_words
 }
 
@@ -1325,6 +1332,7 @@ func ReefMe(ipa string, inter bool) []string {
 }
 
 func StartEverything() string {
+	universalLock.Lock()
 	start := time.Now()
 	var errors = []error{
 		AssureDict(),
@@ -1337,8 +1345,8 @@ func StartEverything() string {
 			log.Println(err)
 		}
 	}
+	universalLock.Unlock()
 	PhonemeDistros()
 	elapsed := strconv.FormatFloat(time.Since(start).Seconds(), 'f', -1, 64)
-
 	return fmt.Sprintln("Everything is cached.  Took " + elapsed + " seconds")
 }

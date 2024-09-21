@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -56,6 +57,12 @@ var letterMap = map[rune]int{
 
 var nkx = []string{}
 var nkxSub = map[string]string{}
+
+// A mutex to ensure concurrent requests to the
+// dictionary and phoneme counts will not cause
+// the program to crash
+var universalLock sync.Mutex
+var phonoLock sync.Mutex
 
 // helper for nkx for shortest words first
 func shortestFirst(array []string, input string) []string {
@@ -447,6 +454,7 @@ func CacheDict() error {
 	}
 
 	dictionaryCached = true
+
 	return nil
 }
 
@@ -953,6 +961,7 @@ func runOnFile(f func(word Word) error) error {
 }
 
 func GetFullDict() (allWords []Word, err error) {
+	// No need for the lock because only List() calls it
 	if dictionaryCached {
 		allWords = dictionary
 	} else {
@@ -967,11 +976,15 @@ func GetFullDict() (allWords []Word, err error) {
 
 // Just a number
 func GetDictSizeSimple() (count int) {
+	universalLock.Lock()
+	defer universalLock.Unlock()
 	return len(dictionary)
 }
 
 // Return a complete sentence
 func GetDictSize(lang string) (count string, err error) {
+	universalLock.Lock()
+	defer universalLock.Unlock()
 	// Count words
 	amount := 0
 	if dictionaryCached {
@@ -1020,8 +1033,11 @@ func GetDictSize(lang string) (count string, err error) {
 }
 
 // Update the dictionary.txt.
-// Be careful to not do anything with the dict-file, while update is in progress
+// universalLock will hopefully prevent anything from accessing
+// the dict while updating
 func UpdateDict() error {
+	universalLock.Lock()
+	defer universalLock.Unlock()
 	err := DownloadDict("")
 	if err != nil {
 		log.Println(Text("downloadError"))

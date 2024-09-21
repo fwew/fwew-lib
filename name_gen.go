@@ -35,6 +35,8 @@ func (s Tuples) Less(i, j int) bool {
  * Name generators
  */
 func SingleNames(name_count int, dialect int, syllable_count int) (output string) {
+	universalLock.Lock()
+	defer universalLock.Unlock()
 	// Make sure the numbers are good
 	if name_count > 50 || name_count <= 0 || syllable_count > 4 || syllable_count < 0 {
 		return "Max name count is 50, max syllable count is 4"
@@ -52,6 +54,8 @@ func SingleNames(name_count int, dialect int, syllable_count int) (output string
 }
 
 func FullNames(ending string, name_count int, dialect int, syllable_count [3]int, two_thousand_limit bool) (output string) {
+	universalLock.Lock()
+	defer universalLock.Unlock()
 	// Make sure the numbers are good
 	if name_count > 50 || name_count <= 0 {
 		return "Max name count is 50, max syllable count is 4"
@@ -138,6 +142,10 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 	allNouns, allAdjectives, allVerbs, allTransitiveVerbs := SortedWords()
 
 	output = ""
+
+	// This isn't at the top because SortedWords calls List, which uses the same lock
+	universalLock.Lock()
+	defer universalLock.Unlock()
 
 	for i := 0; i < name_count; i++ {
 		output += glottal_caps(string(single_name_gen(rand_if_zero(syllable_count), dialect)))
@@ -365,6 +373,8 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 }
 
 func GetPhonemeDistrosMap(lang string) (allDistros [][][]string) {
+	phonoLock.Lock()
+	defer phonoLock.Unlock()
 	// Non-English ones were pulled out of Google translate unless it says VERIFIED
 	header_row := map[string][]string{
 		"en": {"Onset", "Nucleus", "Coda"},          // English
