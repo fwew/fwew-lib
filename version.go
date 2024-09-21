@@ -12,7 +12,7 @@
 //	You should have received a copy of the GNU General Public License
 //	along with Fwew.  If not, see http://gnu.org/licenses/
 
-// Package main contains all the things. version.go handles program version.
+// Package fwew_lib contains all the things. version.go handles program version.
 package fwew_lib
 
 import "fmt"
@@ -26,7 +26,7 @@ type version struct {
 
 // Version is a printable version struct containing program version information
 var Version = version{
-	5, 21, 0,
+	5, 22, 0,
 	"",
 	"Kanua Kenten",
 	"",
