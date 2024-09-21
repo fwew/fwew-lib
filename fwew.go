@@ -902,6 +902,7 @@ func BidirectionalSearch(searchNaviWords string, checkFixes bool, langCode strin
 		// Search for Na'vi words
 		j, newWords, error2 := TranslateFromNaviHashHelper(i, allWords, checkFixes)
 		if error2 == nil {
+			results[len(results)-1][0].Navi = newWords[0][0].Navi
 			for _, newWord := range newWords {
 				// Set up receptacle for words
 				results = append(results, []Word{})
