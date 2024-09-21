@@ -58,7 +58,9 @@ var letterMap = map[rune]int{
 var nkx = []string{}
 var nkxSub = map[string]string{}
 
-// A mutex to ensure requests to
+// A mutex to ensure concurrent requests to the
+// dictionary and phoneme counts will not cause
+// the program to crash
 var universalLock sync.Mutex
 var phonoLock sync.Mutex
 
