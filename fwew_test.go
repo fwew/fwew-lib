@@ -624,6 +624,54 @@ var naviWords = []struct {
 			},
 		},
 	}, // "+" support
+	{
+		name: "a'awnem",
+		args: args{
+			searchNaviText: "a'awnem",
+		},
+		want: []Word{
+			{
+				ID:   "3676",
+				Navi: "'em",
+			},
+		},
+	}, // end-attributed verb with tìftang
+	{
+		name: "aawnem",
+		args: args{
+			searchNaviText: "aawnem",
+		},
+		want: []Word{
+			{
+				ID:   "3676",
+				Navi: "'em",
+			},
+		},
+	}, // end-attributed verb with removed tìftang in reef
+	{
+		name: "fpuse'a",
+		args: args{
+			searchNaviText: "fpuse'a",
+		},
+		want: []Word{
+			{
+				ID:   "420",
+				Navi: "fpe'",
+			},
+		},
+	}, // start-attributed verb with tìftang
+	{
+		name: "fpusea",
+		args: args{
+			searchNaviText: "fpusea",
+		},
+		want: []Word{
+			{
+				ID:   "420",
+				Navi: "fpe'",
+			},
+		},
+	}, // start-attributed verb with removed tìftang in reef
 }
 var englishWords = []struct {
 	name string
