@@ -947,6 +947,19 @@ func TestBidirectionalCached(t *testing.T) {
 		})
 	}
 
+	for _, tt := range naviWords {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := BidirectionalSearch(tt.args.searchNaviText, true, tt.args.languageCode)
+			if err == nil && tt.args.searchNaviText == "" && got != nil {
+				t.Errorf("TranslateFromNaviCached() got = %v, want %v", got, tt.want)
+			} else if err == nil && len(tt.want) == 0 && len(got) > 0 {
+				t.Errorf("TranslateFromNaviCached() got = %v, want %v", got, tt.want)
+			} else if err != nil || len(tt.want) > 0 && len(got) > 0 && !wordSimpleEqual(got[0][1:], tt.want) {
+				t.Errorf("TranslateFromNaviCached() = %v, want %v", got[0][1:], tt.want)
+			}
+		})
+	}
+
 	UncacheHashDict()
 	UncacheHashDict2()
 }
