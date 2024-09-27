@@ -633,6 +633,10 @@ var naviWords = []struct {
 			{
 				ID:   "3676",
 				Navi: "'em",
+				Affixes: affix{
+					Prefix: []string{"a"},
+					Infix:  []string{"awn"},
+				},
 			},
 		},
 	}, // end-attributed verb with tìftang
@@ -645,6 +649,10 @@ var naviWords = []struct {
 			{
 				ID:   "3676",
 				Navi: "'em",
+				Affixes: affix{
+					Prefix: []string{"a"},
+					Infix:  []string{"awn"},
+				},
 			},
 		},
 	}, // end-attributed verb with removed tìftang in reef
@@ -657,6 +665,10 @@ var naviWords = []struct {
 			{
 				ID:   "420",
 				Navi: "fpe'",
+				Affixes: affix{
+					Suffix: []string{"a"},
+					Infix:  []string{"us"},
+				},
 			},
 		},
 	}, // start-attributed verb with tìftang
@@ -669,6 +681,10 @@ var naviWords = []struct {
 			{
 				ID:   "420",
 				Navi: "fpe'",
+				Affixes: affix{
+					Suffix: []string{"a"},
+					Infix:  []string{"us"},
+				},
 			},
 		},
 	}, // start-attributed verb with removed tìftang in reef
