@@ -922,6 +922,35 @@ func TestTranslateToNaviCached(t *testing.T) {
 	UncacheHashDict2()
 }
 
+func TestBidirectionalCached(t *testing.T) {
+	var (
+		err1 error
+		err2 error
+	)
+
+	err1 = CacheDictHash()
+	err2 = CacheDictHash2()
+
+	if err1 != nil {
+		t.Errorf("TranslateToNaviCached() Failed to CacheDictHash")
+	}
+	if err2 != nil {
+		t.Errorf("TranslateToNaviCached() Failed to CacheDictHash2")
+	}
+
+	for _, tt := range englishWords {
+		t.Run(tt.name, func(t *testing.T) {
+			gotResults, _ := BidirectionalSearch(tt.args.searchNaviText, true, tt.args.languageCode)
+			if !wordSimpleEqual(gotResults[0][1:], tt.want) {
+				t.Errorf("TranslateToNavi() = %v, want %v", gotResults[0][1:], tt.want)
+			}
+		})
+	}
+
+	UncacheHashDict()
+	UncacheHashDict2()
+}
+
 func BenchmarkTranslateToNaviBig(b *testing.B) {
 	open, err := os.Open("misc/random_words_english.txt")
 	if err != nil {
