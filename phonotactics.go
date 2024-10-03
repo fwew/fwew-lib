@@ -350,6 +350,7 @@ func IsValidNaviHelper(word string, lang string) string {
 		syllable_forest = strings.ReplaceAll(syllable_forest, "i-ì", "i-yì")
 		syllable_forest = strings.ReplaceAll(syllable_forest, "ì-i", "ì-yi")
 		syllable_forest = strings.ReplaceAll(syllable_forest, "0", "ng")
+		syllable_forest = strings.ReplaceAll(syllable_forest, "ù", "u")
 		syllable_forest = strings.ReplaceAll(message_reef_dialect[lang], "{breakdown}", syllable_forest)
 	}
 

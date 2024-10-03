@@ -1105,6 +1105,12 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 							} else if identicalRunes(rebuiltVerb+"a", rebuiltHyphen) {
 								// v<us>erb-a and v<awn>erb-a
 								results = AppendAndAlphabetize(results, a)
+							} else if rebuiltVerb[0] == '\'' && identicalRunes("a"+rebuiltVerb[1:], rebuiltHyphen) {
+								// a-'<us>em
+								results = AppendAndAlphabetize(results, a)
+							} else if rebuiltVerb[len(rebuiltVerb)-1] == '\'' && identicalRunes(rebuiltVerb[:len(rebuiltVerb)-1]+"a", rebuiltHyphen) {
+								// fp<us>e'a
+								results = AppendAndAlphabetize(results, a)
 							} else if firstInfixes == "us" {
 								if len(results) == 0 {
 									results = AppendAndAlphabetize(results, infixError(searchNaviWord, rebuiltVerbForest, c.IPA))
