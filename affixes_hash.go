@@ -671,6 +671,23 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 		}
 		fallthrough
 	case 5:
+		if input.insistPOS == "any" || input.insistPOS == "n." {
+			for _, oldSuffix := range stemSuffixes {
+				// If it has one of them,
+				if strings.HasSuffix(input.word, oldSuffix) {
+					newString = strings.TrimSuffix(input.word, oldSuffix)
+
+					//candidates = append(candidates, newString)
+					newCandidate := candidateDupe(input)
+					newCandidate.word = newString
+					newCandidate.insistPOS = "n."
+					newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, oldSuffix)
+					deconjugateHelper(newCandidate, newPrefixCheck, 6, unlenite, false, "", oldSuffix)
+				}
+			}
+		}
+		fallthrough
+	case 6:
 		// If it has one of them,
 		if input.insistPOS == "any" || input.insistPOS == "n." {
 			// verb suffixes change things from verbs to nouns, that's why we check for noun status
@@ -690,23 +707,6 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 						newCandidate.word = strings.TrimSuffix(newString, "si") + " si"
 						deconjugateHelper(newCandidate, 10, 10, unlenite, false, "", oldSuffix) // don't allow any other prefixes or suffixes
 					}
-				}
-			}
-		}
-		fallthrough
-	case 6:
-		if input.insistPOS == "any" || input.insistPOS == "n." {
-			for _, oldSuffix := range stemSuffixes {
-				// If it has one of them,
-				if strings.HasSuffix(input.word, oldSuffix) {
-					newString = strings.TrimSuffix(input.word, oldSuffix)
-
-					//candidates = append(candidates, newString)
-					newCandidate := candidateDupe(input)
-					newCandidate.word = newString
-					newCandidate.insistPOS = "n."
-					newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, oldSuffix)
-					deconjugateHelper(newCandidate, newPrefixCheck, 7, unlenite, false, "", oldSuffix)
 				}
 			}
 		}
@@ -894,7 +894,8 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 						rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<2>", "")
 
 						// Does the noun actually contain the verb?
-						if strings.Contains(searchNaviWord, strings.TrimPrefix(rebuiltVerb, "'")) {
+						noTìftang := strings.TrimPrefix(rebuiltVerb, "'")
+						if strings.Contains(searchNaviWord, noTìftang) || strings.Contains(searchNaviWord, strings.ReplaceAll(rebuiltVerb, "ä", "e")) {
 							a := c
 							a.Affixes.Lenition = candidate.lenition
 							a.Affixes.Prefix = candidate.prefixes
