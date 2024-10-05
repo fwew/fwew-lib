@@ -515,7 +515,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 			newCandidate := candidateDupe(input)
 			newCandidate.word = strings.TrimSuffix(newCandidate.word, "sì")
 			newCandidate.suffixes = append(newCandidate.suffixes, "sì")
-			deconjugateHelper(newCandidate, prefixCheck, suffixCheck, unlenite, checkInfixes, "", "sì")
+			deconjugateHelper(newCandidate, newPrefixCheck, 1, unlenite, checkInfixes, "", "sì")
 		}
 		// special case: short genitives of pronouns like "oey" and "ngey"
 		if input.insistPOS == "any" || input.insistPOS == "n." {
