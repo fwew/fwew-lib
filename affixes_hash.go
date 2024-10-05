@@ -955,6 +955,7 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 						}
 
 						looseTì := false
+						tsuk := false
 
 						if len(candidate.prefixes) > 0 {
 							// Reverse search is more likely to find it immediately
@@ -973,6 +974,7 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 												break
 											}
 											infixBan = true
+											tsuk = true
 											break
 										}
 									}
@@ -985,7 +987,7 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 						}
 
 						// Don't want a[verb] and [verb]a
-						if attributed && (len(candidate.infixes) == 0 || infixBan) {
+						if attributed && (len(candidate.infixes) == 0 || infixBan) && !tsuk {
 							continue
 						}
 
