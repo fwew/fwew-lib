@@ -80,7 +80,6 @@ var prefixes1lenition = []string{"pe", "fay",
 var stemPrefixes = []string{"fne", "sna", "munsna"}
 var verbPrefixes = []string{"tsuk", "ketsuk"}
 
-var lastSuffixes = []string{"sì"}
 var adposuffixes = []string{
 	// adpositions that can be mistaken for case endings
 	"pxel",                //"agentive"
@@ -511,18 +510,12 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 
 	switch suffixCheck {
 	case 0:
-		// sì
-		for _, oldSuffix := range lastSuffixes {
-			// If it has one of them,
-			if strings.HasSuffix(input.word, oldSuffix) {
-				newString = strings.TrimSuffix(input.word, oldSuffix)
-
-				newCandidate := candidateDupe(input)
-				newCandidate.word = newString
-				newCandidate.insistPOS = "any"
-				newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, oldSuffix)
-				deconjugateHelper(newCandidate, newPrefixCheck, 1, unlenite, false, "", oldSuffix)
-			}
+		// Made sì its own suffix and no suffixes can come after it
+		if len(input.suffixes) == 0 && strings.HasSuffix(input.word, "sì") {
+			newCandidate := candidateDupe(input)
+			newCandidate.word = strings.TrimSuffix(newCandidate.word, "sì")
+			newCandidate.suffixes = append(newCandidate.suffixes, "sì")
+			deconjugateHelper(newCandidate, newPrefixCheck, 1, unlenite, checkInfixes, "", "sì")
 		}
 		// special case: short genitives of pronouns like "oey" and "ngey"
 		if input.insistPOS == "any" || input.insistPOS == "n." {
@@ -671,6 +664,23 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 		}
 		fallthrough
 	case 5:
+		if input.insistPOS == "any" || input.insistPOS == "n." {
+			for _, oldSuffix := range stemSuffixes {
+				// If it has one of them,
+				if strings.HasSuffix(input.word, oldSuffix) {
+					newString = strings.TrimSuffix(input.word, oldSuffix)
+
+					//candidates = append(candidates, newString)
+					newCandidate := candidateDupe(input)
+					newCandidate.word = newString
+					newCandidate.insistPOS = "n."
+					newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, oldSuffix)
+					deconjugateHelper(newCandidate, newPrefixCheck, 6, unlenite, false, "", oldSuffix)
+				}
+			}
+		}
+		fallthrough
+	case 6:
 		// If it has one of them,
 		if input.insistPOS == "any" || input.insistPOS == "n." {
 			// verb suffixes change things from verbs to nouns, that's why we check for noun status
@@ -690,23 +700,6 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 						newCandidate.word = strings.TrimSuffix(newString, "si") + " si"
 						deconjugateHelper(newCandidate, 10, 10, unlenite, false, "", oldSuffix) // don't allow any other prefixes or suffixes
 					}
-				}
-			}
-		}
-		fallthrough
-	case 6:
-		if input.insistPOS == "any" || input.insistPOS == "n." {
-			for _, oldSuffix := range stemSuffixes {
-				// If it has one of them,
-				if strings.HasSuffix(input.word, oldSuffix) {
-					newString = strings.TrimSuffix(input.word, oldSuffix)
-
-					//candidates = append(candidates, newString)
-					newCandidate := candidateDupe(input)
-					newCandidate.word = newString
-					newCandidate.insistPOS = "n."
-					newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, oldSuffix)
-					deconjugateHelper(newCandidate, newPrefixCheck, 7, unlenite, false, "", oldSuffix)
 				}
 			}
 		}
@@ -894,7 +887,8 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 						rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<2>", "")
 
 						// Does the noun actually contain the verb?
-						if strings.Contains(searchNaviWord, strings.TrimPrefix(rebuiltVerb, "'")) {
+						noTìftang := strings.TrimPrefix(rebuiltVerb, "'")
+						if strings.Contains(searchNaviWord, noTìftang) || strings.Contains(searchNaviWord, strings.ReplaceAll(rebuiltVerb, "ä", "e")) {
 							a := c
 							a.Affixes.Lenition = candidate.lenition
 							a.Affixes.Prefix = candidate.prefixes
@@ -961,6 +955,7 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 						}
 
 						looseTì := false
+						tsuk := false
 
 						if len(candidate.prefixes) > 0 {
 							// Reverse search is more likely to find it immediately
@@ -979,6 +974,7 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 												break
 											}
 											infixBan = true
+											tsuk = true
 											break
 										}
 									}
@@ -991,12 +987,12 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 						}
 
 						// Don't want a[verb] and [verb]a
-						if attributed && (len(candidate.infixes) == 0 || infixBan) {
+						if attributed && (len(candidate.infixes) == 0 || infixBan) && !tsuk {
 							continue
 						}
 
 						// Take action on tsuk-verb-yus and a-verb-tswos
-						if doubleBan || (attributed && infixBan) || looseTì {
+						if doubleBan || (attributed && !tsuk && infixBan) || looseTì {
 							continue
 						}
 
