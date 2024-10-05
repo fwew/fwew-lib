@@ -992,7 +992,7 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 						}
 
 						// Take action on tsuk-verb-yus and a-verb-tswos
-						if doubleBan || (attributed && infixBan) || looseTì {
+						if doubleBan || (attributed && !tsuk && infixBan) || looseTì {
 							continue
 						}
 
