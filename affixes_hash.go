@@ -80,7 +80,6 @@ var prefixes1lenition = []string{"pe", "fay",
 var stemPrefixes = []string{"fne", "sna", "munsna"}
 var verbPrefixes = []string{"tsuk", "ketsuk"}
 
-var lastSuffixes = []string{"sì"}
 var adposuffixes = []string{
 	// adpositions that can be mistaken for case endings
 	"pxel",                //"agentive"
@@ -511,18 +510,12 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 
 	switch suffixCheck {
 	case 0:
-		// sì
-		for _, oldSuffix := range lastSuffixes {
-			// If it has one of them,
-			if strings.HasSuffix(input.word, oldSuffix) {
-				newString = strings.TrimSuffix(input.word, oldSuffix)
-
-				newCandidate := candidateDupe(input)
-				newCandidate.word = newString
-				newCandidate.insistPOS = "any"
-				newCandidate.suffixes = isDuplicateFix(newCandidate.suffixes, oldSuffix)
-				deconjugateHelper(newCandidate, newPrefixCheck, 1, unlenite, false, "", oldSuffix)
-			}
+		// Made sì its own suffix and no suffixes can come after it
+		if len(input.suffixes) == 0 && strings.HasSuffix(input.word, "sì") {
+			newCandidate := candidateDupe(input)
+			newCandidate.word = strings.TrimSuffix(newCandidate.word, "sì")
+			newCandidate.suffixes = append(newCandidate.suffixes, "sì")
+			deconjugateHelper(newCandidate, prefixCheck, suffixCheck, unlenite, checkInfixes, "", "sì")
 		}
 		// special case: short genitives of pronouns like "oey" and "ngey"
 		if input.insistPOS == "any" || input.insistPOS == "n." {
