@@ -168,8 +168,10 @@ func TranslateFromNaviHash(searchNaviWords string, checkFixes bool) (results [][
 	results = [][]Word{}
 
 	for i < len(allWords) {
-		// Skip empty words
-		if len(allWords[i]) == 0 {
+		// Skip empty words or ridiculously long words
+		// 50 was chosen because a quick and dirty program found the max
+		// Na'vi word length is 43 (before adding sì to the end)
+		if len(allWords[i]) == 0 || len([]rune(allWords[i])) > 50 {
 			i++
 			continue
 		}
