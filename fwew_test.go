@@ -374,11 +374,6 @@ var naviWords = []struct {
 		},
 		want: []Word{
 			{
-				ID:      "6156",
-				Navi:    "tìtusaron",
-				Affixes: affix{},
-			},
-			{
 				ID:   "2004",
 				Navi: "taron",
 				Affixes: affix{
