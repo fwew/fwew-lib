@@ -900,23 +900,27 @@ func BidirectionalSearch(searchNaviWords string, checkFixes bool, langCode strin
 	results = [][]Word{}
 	for i < len(allWords) {
 		// Search for Na'vi words
-		foundNavi := false
 		j, newWords, error2 := TranslateFromNaviHashHelper(i, allWords, checkFixes)
+
+		NaviIDs := []string{}
 		if error2 == nil {
 			for _, newWord := range newWords {
 				// Set up receptacle for words
 				results = append(results, []Word{})
 				results[len(results)-1] = append(results[len(results)-1], newWord...)
+				if len(newWord) > 1 {
+					NaviIDs = append(NaviIDs, newWord[1].ID)
+				}
 			}
-
-			results[len(results)-1][0].Navi = newWords[0][0].Navi
-
-			foundNavi = true
 		}
 
 		// Search for natural language words
 		natlangWords := []Word{}
 		for _, a := range TranslateToNaviHashHelper(allWords[i], langCode) {
+			// Do not duplicate if the Na'vi word is in the definition
+			if implContainsAny(NaviIDs, []string{a.ID}) {
+				continue
+			}
 			// We want them alphabetized with their fellow natlang words...
 			natlangWords = AppendAndAlphabetize(natlangWords, a)
 		}
@@ -924,9 +928,7 @@ func BidirectionalSearch(searchNaviWords string, checkFixes bool, langCode strin
 		// ...but not with the Na'vi words
 		results[len(results)-1] = append(results[len(results)-1], natlangWords...)
 
-		if !foundNavi {
-			results[len(results)-1][0].Navi = allWords[i]
-		}
+		results[len(results)-1][0].Navi = allWords[i]
 
 		i += j
 

@@ -688,6 +688,53 @@ var naviWords = []struct {
 			},
 		},
 	}, // start-attributed verb with removed tìftang in reef
+	{
+		name: "tsukruna",
+		args: args{
+			searchNaviText: "tsukruna",
+		},
+		want: []Word{
+			{
+				ID:   "1724",
+				Navi: "run",
+				Affixes: affix{
+					Suffix: []string{"a"},
+					Prefix: []string{"tsuk"},
+				},
+			},
+		},
+	}, // findable
+	{
+		name: "atsukrun",
+		args: args{
+			searchNaviText: "atsukrun",
+		},
+		want: []Word{
+			{
+				ID:   "1724",
+				Navi: "run",
+				Affixes: affix{
+					Prefix: []string{"a", "tsuk"},
+				},
+			},
+		},
+	}, // findable
+	{
+		name: "tìngusä'än",
+		args: args{
+			searchNaviText: "tìngusä'än",
+		},
+		want: []Word{
+			{
+				ID:   "9632",
+				Navi: "ngä'än",
+				Affixes: affix{
+					Prefix: []string{"tì"},
+					Infix:  []string{"us"},
+				},
+			},
+		},
+	}, // suffering
 }
 var englishWords = []struct {
 	name string

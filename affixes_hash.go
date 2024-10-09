@@ -888,7 +888,7 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 
 						// Does the noun actually contain the verb?
 						noTìftang := strings.TrimPrefix(rebuiltVerb, "'")
-						if strings.Contains(searchNaviWord, noTìftang) || strings.Contains(searchNaviWord, strings.ReplaceAll(rebuiltVerb, "ä", "e")) {
+						if strings.Contains(searchNaviWord, noTìftang) || strings.Contains(searchNaviWord, dialectCrunch([]string{rebuiltVerb}, false)[0]) {
 							a := c
 							a.Affixes.Lenition = candidate.lenition
 							a.Affixes.Prefix = candidate.prefixes
