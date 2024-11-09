@@ -514,28 +514,50 @@ func fast_random(wordList []Word) (results Word) {
 	return wordList[rand.Intn(dictLength)]
 }
 
-func nth_rune(word string, n int) (output string) {
-	r := []rune(word)
-	if n < 0 { // negative index
-		n = len(r) + n
+// What is the nth rune of word?
+func nth_rune(word string, n int) string {
+	i := 0
+	for _, r := range word {
+		if i == n {
+			return string(r)
+		}
+		i += 1
 	}
-	if n >= len(r) {
-		return ""
-	}
-	return string(r[n])
+
+	return ""
 }
 
-func has(word string, character string) (output bool) {
+func has(word string, character rune) (output bool) {
 	r := []rune(word)
-	if len(character) == 0 {
-		return false
-	}
-	c := []rune(character)[0]
+
 	for i := 0; i < len(r); i++ {
-		if c == r[i] {
+		if character == r[i] {
 			return true
 		}
 	}
+	return false
+}
+
+// Does ipa contain any character from word as its nth letter?
+func hasAt(word string, ipa string, n int) (output bool) {
+	// negative index
+	if n < 0 {
+		n = len([]rune(ipa)) + n
+	}
+
+	i := 0
+	for _, s := range ipa {
+		if i == n {
+			for _, r := range word {
+				if r == s {
+					return true
+				}
+			}
+			break // save a few compute cycles
+		}
+		i += 1
+	}
+
 	return false
 }
 
@@ -657,7 +679,7 @@ func PhonemeDistros() {
 				if len(syllable) >= 4 && syllable[0:4] == "t͡s" {
 					onset_if_cluster[0] = "ts"
 					//tsp
-					if has("ptk", nth_rune(syllable, 3)) {
+					if hasAt("ptk", syllable, 3) {
 						if nth_rune(syllable, 4) == "'" {
 							// ts + ejective onset
 							cluster_map["ts"][romanization[syllable[4:6]]] = cluster_map["ts"][romanization[syllable[4:6]]] + 1
@@ -671,7 +693,7 @@ func PhonemeDistros() {
 							//roman_syllable += "ts" + romanization[string(syllable[4])]
 							syllable = syllable[5:]
 						}
-					} else if has("lɾmnŋwj", nth_rune(syllable, 3)) {
+					} else if hasAt("lɾmnŋwj", syllable, 3) {
 						// ts + other consonent
 						cluster_map["ts"][romanization[nth_rune(syllable, 3)]] = cluster_map["ts"][romanization[nth_rune(syllable, 3)]] + 1
 						onset_if_cluster[1] = romanization[nth_rune(syllable, 3)]
@@ -683,10 +705,10 @@ func PhonemeDistros() {
 						//roman_syllable += "ts"
 						syllable = syllable[4:]
 					}
-				} else if has("fs", nth_rune(syllable, 0)) {
+				} else if hasAt("fs", syllable, 0) {
 					//
 					onset_if_cluster[0] = string(syllable[0])
-					if has("ptk", nth_rune(syllable, 1)) {
+					if hasAt("ptk", syllable, 1) {
 						if nth_rune(syllable, 2) == "'" {
 							// f/s + ejective onset
 							cluster_map[string(syllable[0])][romanization[syllable[1:3]]] = cluster_map[string(syllable[0])][romanization[syllable[1:3]]] + 1
@@ -700,7 +722,7 @@ func PhonemeDistros() {
 							//roman_syllable += string(syllable[0]) + romanization[string(syllable[1])]
 							syllable = syllable[2:]
 						}
-					} else if has("lɾmnŋwj", nth_rune(syllable, 1)) {
+					} else if hasAt("lɾmnŋwj", syllable, 1) {
 						// f/s + other consonent
 						cluster_map[string(syllable[0])][romanization[nth_rune(syllable, 1)]] = cluster_map[string(syllable[0])][romanization[nth_rune(syllable, 1)]] + 1
 						onset_if_cluster[1] = romanization[nth_rune(syllable, 1)]
@@ -712,7 +734,7 @@ func PhonemeDistros() {
 						//roman_syllable += string(syllable[0])
 						syllable = syllable[1:]
 					}
-				} else if has("ptk", nth_rune(syllable, 0)) {
+				} else if hasAt("ptk", syllable, 0) {
 					if nth_rune(syllable, 1) == "'" {
 						// ejective
 						onset_map[romanization[syllable[0:2]]] = onset_map[romanization[syllable[0:2]]] + 1
@@ -724,12 +746,12 @@ func PhonemeDistros() {
 						//roman_syllable += romanization[string(syllable[0])]
 						syllable = syllable[1:]
 					}
-				} else if has("ʔlɾhmnŋvwjzbdg", nth_rune(syllable, 0)) {
+				} else if hasAt("ʔlɾhmnŋvwjzbdg", syllable, 0) {
 					// other normal onset
 					onset_map[romanization[nth_rune(syllable, 0)]] = onset_map[romanization[nth_rune(syllable, 0)]] + 1
 					//roman_syllable += romanization[nth_rune(syllable, 0)]
 					syllable = syllable[len(nth_rune(syllable, 0)):]
-				} else if has("ʃʒ", nth_rune(syllable, 0)) {
+				} else if hasAt("ʃʒ", syllable, 0) {
 					// one sound representd as a cluster
 					if nth_rune(syllable, 0) == "ʃ" {
 						cluster_map["s"]["y"] = cluster_map["s"]["y"] + 1
@@ -766,12 +788,12 @@ func PhonemeDistros() {
 				/*
 				 * Nucleus
 				 */
-				if len(syllable) > 1 && has("jw", nth_rune(syllable, 1)) {
+				if len(syllable) > 1 && hasAt("jw", syllable, 1) {
 					//diphthong
 					nucleus_map[romanization[syllable[0:len(nth_rune(syllable, 0))+1]]] = nucleus_map[romanization[syllable[0:len(nth_rune(syllable, 0))+1]]] + 1
 					//roman_syllable += romanization[syllable[0:len(nth_rune(syllable, 0))+1]]
 					syllable = string([]rune(syllable)[2:])
-				} else if len(syllable) > 1 && has("lr", nth_rune(syllable, 0)) {
+				} else if len(syllable) > 1 && hasAt("lr", syllable, 0) {
 					nucleus_map[romanization[syllable[0:3]]] = nucleus_map[romanization[syllable[0:3]]] + 1
 					//roman_syllable += romanization[syllable[0:3]]
 					continue

@@ -316,7 +316,7 @@ func RomanizeSecondIPA(IPA string) string {
 				// ts
 				breakdown += "ts"
 				//tsp
-				if has("ptk", nth_rune(syllable, 3)) {
+				if hasAt("ptk", syllable, 3) {
 					if nth_rune(syllable, 4) == "'" {
 						// ts + ejective onset
 						breakdown += romanization2[syllable[4:6]]
@@ -326,7 +326,7 @@ func RomanizeSecondIPA(IPA string) string {
 						breakdown += romanization2[string(syllable[4])]
 						syllable = syllable[5:]
 					}
-				} else if has("lɾmnŋwj", nth_rune(syllable, 3)) {
+				} else if hasAt("lɾmnŋwj", syllable, 3) {
 					// ts + other consonent
 					breakdown += romanization2[nth_rune(syllable, 3)]
 					syllable = syllable[4+len(nth_rune(syllable, 3)):]
@@ -334,10 +334,10 @@ func RomanizeSecondIPA(IPA string) string {
 					// ts without a cluster
 					syllable = syllable[4:]
 				}
-			} else if has("fs", nth_rune(syllable, 0)) {
+			} else if hasAt("fs", syllable, 0) {
 				//
 				breakdown += nth_rune(syllable, 0)
-				if has("ptk", nth_rune(syllable, 1)) {
+				if hasAt("ptk", syllable, 1) {
 					if nth_rune(syllable, 2) == "'" {
 						// f/s + ejective onset
 						breakdown += romanization2[syllable[1:3]]
@@ -347,7 +347,7 @@ func RomanizeSecondIPA(IPA string) string {
 						breakdown += romanization2[string(syllable[1])]
 						syllable = syllable[2:]
 					}
-				} else if has("lɾmnŋwj", nth_rune(syllable, 1)) {
+				} else if hasAt("lɾmnŋwj", syllable, 1) {
 					// f/s + other consonent
 					breakdown += romanization2[nth_rune(syllable, 1)]
 					syllable = syllable[1+len(nth_rune(syllable, 1)):]
@@ -355,7 +355,7 @@ func RomanizeSecondIPA(IPA string) string {
 					// f/s without a cluster
 					syllable = syllable[1:]
 				}
-			} else if has("ptk", nth_rune(syllable, 0)) {
+			} else if hasAt("ptk", syllable, 0) {
 				if nth_rune(syllable, 1) == "'" {
 					// ejective
 					breakdown += romanization2[syllable[0:2]]
@@ -365,11 +365,11 @@ func RomanizeSecondIPA(IPA string) string {
 					breakdown += romanization2[string(syllable[0])]
 					syllable = syllable[1:]
 				}
-			} else if has("ʔlɾhmnŋvwjzbdg", nth_rune(syllable, 0)) {
+			} else if hasAt("ʔlɾhmnŋvwjzbdg", syllable, 0) {
 				// other normal onset
 				breakdown += romanization2[nth_rune(syllable, 0)]
 				syllable = syllable[len(nth_rune(syllable, 0)):]
-			} else if has("ʃʒ", nth_rune(syllable, 0)) {
+			} else if hasAt("ʃʒ", syllable, 0) {
 				// one sound representd as a cluster
 				if nth_rune(syllable, 0) == "ʃ" {
 					breakdown += "sh"
@@ -380,11 +380,11 @@ func RomanizeSecondIPA(IPA string) string {
 			/*
 			 * Nucleus
 			 */
-			if len(syllable) > 1 && has("jw", nth_rune(syllable, 1)) {
+			if len(syllable) > 1 && hasAt("jw", syllable, 1) {
 				//diphthong
 				breakdown += romanization2[syllable[0:len(nth_rune(syllable, 0))+1]]
 				syllable = string([]rune(syllable)[2:])
-			} else if len(syllable) > 1 && has("lr", nth_rune(syllable, 0)) {
+			} else if len(syllable) > 1 && hasAt("lr", syllable, 0) {
 				breakdown += romanization2[syllable[0:3]]
 				continue
 			} else {
