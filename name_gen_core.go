@@ -104,18 +104,18 @@ var max_nucleus = 0
 var max_coda = 0
 
 /* Helper function to find the start of a string */
-func first_rune(word string) (letter string) {
+func first_rune(word string) (letter rune) {
 	r := []rune(word)
-	return string(r[:1])
+	return r[0]
 }
 
 /* Get the nth to last letter of a string */
-func get_last_rune(word string, n int) (letter string) {
+func get_last_rune(word string, n int) (letter rune) {
 	r := []rune(word)
 	if n > len(r) {
 		n = len(r)
 	}
-	return string(r[len(r)-n : len(r)-n+1])
+	return r[len(r)-n]
 }
 
 /* Take n letters off the end of a string */
@@ -223,12 +223,12 @@ func rand_if_zero(n int) (x int) {
 }
 
 /* Is it a vowel? (for when the psuedovowel bool won't work) */
-func is_vowel(letter string) (found bool) {
+func is_vowel(letter rune) (found bool) {
 	// Also arranged from most to least common (not accounting for diphthongs)
-	vowels := []string{"a", "e", "u", "ì", "o", "i", "ä", "ù"}
+	vowels := []rune{'a', 'e', 'u', 'ì', 'o', 'i', 'ä', 'ù'}
 	// Linear search
-	for i := 0; i < 8; i++ {
-		if letter == vowels[i] {
+	for _, a := range vowels {
+		if letter == a {
 			return true
 		}
 	}
@@ -308,15 +308,15 @@ func one_word_verb(verbList []Word) (words Word) {
 }
 
 /* Helper function: turn ejectives into voiced plosives for reef */
-func reef_plosives(letter string) (voiced string) {
-	if letter == "p" {
-		return "b"
-	} else if letter == "t" {
-		return "d"
-	} else if letter == "k" {
-		return "g"
+func reef_plosives(letter rune) (voiced rune) {
+	if letter == 'p' {
+		return 'b'
+	} else if letter == 't' {
+		return 'd'
+	} else if letter == 'k' {
+		return 'g'
 	}
-	return "" // How we know if it's an error
+	return '' // How we know if it's an error
 }
 
 /* Helper function: Replace an ejective with a voiced plosive. */
@@ -324,15 +324,15 @@ func reef_ejective(name string) (reefy_name string) {
 	onset_new := ""
 	last_third := get_last_rune(name, 3)
 
-	if last_third == "x" { // Adjacent ejectives become adjacent voiced plosives, too
-		onset_new += reef_plosives(get_last_rune(name, 4))
-	} else if last_third == "n" && get_last_rune(name, 2) == "k" {
+	if last_third == 'x' { // Adjacent ejectives become adjacent voiced plosives, too
+		onset_new += string(reef_plosives(get_last_rune(name, 4)))
+	} else if last_third == 'n' && get_last_rune(name, 2) == 'k' {
 		onset_new += "-" // disambiguate on-gi vs o-ngi
 	}
 
-	onset_new += reef_plosives(get_last_rune(name, 2))
+	onset_new += string(reef_plosives(get_last_rune(name, 2)))
 
-	if last_third == "x" {
+	if last_third == 'x' {
 		return shave_rune(name, 4) + onset_new
 	}
 
@@ -404,7 +404,7 @@ func single_name_gen(syllable_count int, dialect int) (name string) {
 			psuedovowel = true
 			// Disallow onsets from imitating the psuedovowel
 			if onsetlength > 0 {
-				if get_last_rune(onset, 1) == "l" || get_last_rune(onset, 1) == "r" {
+				if get_last_rune(onset, 1) == 'l' || get_last_rune(onset, 1) == 'r' {
 					onset = "'"
 				}
 				// If no onset, disallow the previous coda from imitating the psuedovowel
@@ -469,18 +469,18 @@ func single_name_gen(syllable_count int, dialect int) (name string) {
 
 		// reef dialect stuff
 		if dialect == 2 && namelength > 1 { // In reef dialect,
-			if get_last_rune(name, 1) == "x" { // if there's an ejective in the onset
+			if get_last_rune(name, 1) == 'x' { // if there's an ejective in the onset
 				if namelength > 2 {
 					// that's not in a cluster,
 					last_rune := get_last_rune(name, 3)
-					if !(last_rune == "s" || last_rune == "f") {
+					if !(last_rune == 's' || last_rune == 'f') {
 						// it becomes a voiced plosive
 						name = reef_ejective(name)
 					}
 				} else {
 					name = reef_ejective(name)
 				}
-			} else if !psuedovowel && get_last_rune(name, 1) == "'" && get_last_rune(name, 2) != first_rune(nucleus) {
+			} else if !psuedovowel && get_last_rune(name, 1) == '\'' && get_last_rune(name, 2) != first_rune(nucleus) {
 				// 'a'aw is optionally 'aaw (the generator leaves it in)
 				if is_vowel(get_last_rune(name, 2)) { // Does kaw'it become kawit in reef?
 					name = shave_rune(name, 1)

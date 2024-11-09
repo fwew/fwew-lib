@@ -1044,7 +1044,7 @@ func dialectCrunch(query []string, guaranteedForest bool) []string {
 			if strings.Contains(a, b) {
 				nucleusCount += strings.Count(a, b)
 				for _, c := range []string{"a", "ä", "e", "i", "ì", "o", "u", "ù", "ll", "rr"} {
-					if is_vowel(b) && is_vowel(c) {
+					if b != "ll" && c != "ll" && b != "rr" && c != "rr" {
 						a = strings.ReplaceAll(a, b+"'"+c, b+c)
 					}
 				}

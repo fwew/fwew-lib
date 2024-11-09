@@ -398,7 +398,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 				deconjugateHelper(newCandidate, 10, 10, -1, false, element, "")
 
 				// check "tsatan", "tan" and "atan"
-				newCandidate.word = get_last_rune(element, 1) + newCandidate.word
+				newCandidate.word = string(get_last_rune(element, 1)) + newCandidate.word
 				deconjugateHelper(newCandidate, 10, 10, -1, false, element, "")
 			}
 		}
@@ -419,7 +419,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 					deconjugateHelper(newCandidate, 3, suffixCheck, -1, false, element, "")
 
 					// check "tsatan", "tan" and "atan"
-					newCandidate.word = get_last_rune(element, 1) + newString
+					newCandidate.word = string(get_last_rune(element, 1)) + newString
 					deconjugateHelper(newCandidate, 3, suffixCheck, -1, false, element, "")
 				}
 			}
@@ -442,7 +442,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 					// Could it be pekoyu (pe + 'ekoyu, not pe + kxoyu)
 					if hasAt(vowels, element, -1) {
 						// check "pxeyktan", "yktan" and "eyktan"
-						newCandidate.word = get_last_rune(element, 1) + newString
+						newCandidate.word = string(get_last_rune(element, 1)) + newString
 						deconjugateHelper(newCandidate, 4, suffixCheck, -1, false, element, "")
 
 						// check "pxeylan", "ylan" and "'eylan"
@@ -488,7 +488,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 					deconjugateHelper(newCandidate, 5, suffixCheck, -1, false, element, "")
 
 					// check "tsatan", "tan" and "atan"
-					newCandidate.word = get_last_rune(element, 1) + newCandidate.word
+					newCandidate.word = string(get_last_rune(element, 1)) + newCandidate.word
 					deconjugateHelper(newCandidate, 5, suffixCheck, -1, false, element, "")
 				}
 			}
@@ -741,7 +741,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 			runes := []rune(input.word)
 			for i, c := range runes {
 				// Infixes can only begin with vowels
-				if has(vowels, c) {
+				if is_vowel(c) {
 					shortString := string(runes[i:])
 					for _, infix := range infixes[c] {
 						if strings.HasPrefix(shortString, infix) {
