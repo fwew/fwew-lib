@@ -150,9 +150,11 @@ func quickReef(input string) string {
 	temp := ""
 	runes := []rune(output)
 
+	vowels := "aäeiìouù"
+
 	for i, a := range runes {
 		if i != 0 && i != len(runes)-1 && a == rune('\'') {
-			if is_vowel(string(runes[i+1])) && is_vowel(string(runes[i-1])) {
+			if hasAt(vowels, output, i+1) && hasAt(vowels, output, i-1) {
 				if runes[i+1] != runes[i-1] {
 					continue
 				}
