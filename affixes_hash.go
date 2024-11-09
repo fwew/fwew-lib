@@ -440,7 +440,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 					newCandidate.insistPOS = "n."
 
 					// Could it be pekoyu (pe + 'ekoyu, not pe + kxoyu)
-					if hasAt("aäeiìou", element, -1) {
+					if hasAt(vowels, element, -1) {
 						// check "pxeyktan", "yktan" and "eyktan"
 						newCandidate.word = get_last_rune(element, 1) + newString
 						deconjugateHelper(newCandidate, 4, suffixCheck, -1, false, element, "")
@@ -741,7 +741,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 			runes := []rune(input.word)
 			for i, c := range runes {
 				// Infixes can only begin with vowels
-				if has("aäeiìou", c) {
+				if has(vowels, c) {
 					shortString := string(runes[i:])
 					for _, infix := range infixes[c] {
 						if strings.HasPrefix(shortString, infix) {
