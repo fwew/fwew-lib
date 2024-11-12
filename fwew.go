@@ -168,8 +168,10 @@ func TranslateFromNaviHash(searchNaviWords string, checkFixes bool) (results [][
 	results = [][]Word{}
 
 	for i < len(allWords) {
-		// Skip empty words
-		if len(allWords[i]) == 0 {
+		// Skip empty words or ridiculously long words
+		// 50 was chosen because a quick and dirty program found the max
+		// Na'vi word length is 43 (before adding sì to the end)
+		if len(allWords[i]) == 0 || len([]rune(allWords[i])) > 50 {
 			i++
 			continue
 		}
@@ -900,23 +902,27 @@ func BidirectionalSearch(searchNaviWords string, checkFixes bool, langCode strin
 	results = [][]Word{}
 	for i < len(allWords) {
 		// Search for Na'vi words
-		foundNavi := false
 		j, newWords, error2 := TranslateFromNaviHashHelper(i, allWords, checkFixes)
+
+		NaviIDs := []string{}
 		if error2 == nil {
 			for _, newWord := range newWords {
 				// Set up receptacle for words
 				results = append(results, []Word{})
 				results[len(results)-1] = append(results[len(results)-1], newWord...)
+				if len(newWord) > 1 {
+					NaviIDs = append(NaviIDs, newWord[1].ID)
+				}
 			}
-
-			results[len(results)-1][0].Navi = newWords[0][0].Navi
-
-			foundNavi = true
 		}
 
 		// Search for natural language words
 		natlangWords := []Word{}
 		for _, a := range TranslateToNaviHashHelper(allWords[i], langCode) {
+			// Do not duplicate if the Na'vi word is in the definition
+			if implContainsAny(NaviIDs, []string{a.ID}) {
+				continue
+			}
 			// We want them alphabetized with their fellow natlang words...
 			natlangWords = AppendAndAlphabetize(natlangWords, a)
 		}
@@ -924,9 +930,7 @@ func BidirectionalSearch(searchNaviWords string, checkFixes bool, langCode strin
 		// ...but not with the Na'vi words
 		results[len(results)-1] = append(results[len(results)-1], natlangWords...)
 
-		if !foundNavi {
-			results[len(results)-1][0].Navi = allWords[i]
-		}
+		results[len(results)-1][0].Navi = allWords[i]
 
 		i += j
 
@@ -1036,11 +1040,11 @@ func dialectCrunch(query []string, guaranteedForest bool) []string {
 
 		nucleusCount := 0
 		// remove reef tìftangs
-		for _, b := range []string{"a", "ä", "e", "i", "ì", "o", "u", "ù", "ll", "rr"} {
+		for i, b := range []string{"a", "ä", "e", "i", "ì", "o", "u", "ù", "ll", "rr"} {
 			if strings.Contains(a, b) {
 				nucleusCount += strings.Count(a, b)
-				for _, c := range []string{"a", "ä", "e", "i", "ì", "o", "u", "ù", "ll", "rr"} {
-					if is_vowel(b) && is_vowel(c) {
+				for j, c := range []string{"a", "ä", "e", "i", "ì", "o", "u", "ù", "ll", "rr"} {
+					if i < 8 && j < 8 {
 						a = strings.ReplaceAll(a, b+"'"+c, b+c)
 					}
 				}
@@ -1194,7 +1198,7 @@ func ReefMe(ipa string, inter bool) []string {
 				// ts
 				breakdown += "ts"
 				//tsp
-				if has("ptk", nth_rune(syllable, 3)) {
+				if hasAt("ptk", syllable, 3) {
 					if nth_rune(syllable, 4) == "'" {
 						// ts + ejective onset
 						breakdown += romanization2[syllable[4:6]]
@@ -1204,7 +1208,7 @@ func ReefMe(ipa string, inter bool) []string {
 						breakdown += romanization2[string(syllable[4])]
 						syllable = syllable[5:]
 					}
-				} else if has("lɾmnŋwj", nth_rune(syllable, 3)) {
+				} else if hasAt("lɾmnŋwj", syllable, 3) {
 					// ts + other consonent
 					breakdown += romanization2[nth_rune(syllable, 3)]
 					syllable = syllable[4+len(nth_rune(syllable, 3)):]
@@ -1212,10 +1216,10 @@ func ReefMe(ipa string, inter bool) []string {
 					// ts without a cluster
 					syllable = syllable[4:]
 				}
-			} else if has("fs", nth_rune(syllable, 0)) {
+			} else if hasAt("fs", syllable, 0) {
 				//
 				breakdown += nth_rune(syllable, 0)
-				if has("ptk", nth_rune(syllable, 1)) {
+				if hasAt("ptk", syllable, 1) {
 					if nth_rune(syllable, 2) == "'" {
 						// f/s + ejective onset
 						breakdown += romanization2[syllable[1:3]]
@@ -1225,7 +1229,7 @@ func ReefMe(ipa string, inter bool) []string {
 						breakdown += romanization2[string(syllable[1])]
 						syllable = syllable[2:]
 					}
-				} else if has("lɾmnŋwj", nth_rune(syllable, 1)) {
+				} else if hasAt("lɾmnŋwj", syllable, 1) {
 					// f/s + other consonent
 					breakdown += romanization2[nth_rune(syllable, 1)]
 					syllable = syllable[1+len(nth_rune(syllable, 1)):]
@@ -1233,7 +1237,7 @@ func ReefMe(ipa string, inter bool) []string {
 					// f/s without a cluster
 					syllable = syllable[1:]
 				}
-			} else if has("ptk", nth_rune(syllable, 0)) {
+			} else if hasAt("ptk", syllable, 0) {
 				if nth_rune(syllable, 1) == "'" {
 					// ejective
 					breakdown += romanization2[syllable[0:2]]
@@ -1243,11 +1247,11 @@ func ReefMe(ipa string, inter bool) []string {
 					breakdown += romanization2[string(syllable[0])]
 					syllable = syllable[1:]
 				}
-			} else if has("ʔlɾhmnŋvwjzbdg", nth_rune(syllable, 0)) {
+			} else if hasAt("ʔlɾhmnŋvwjzbdg", syllable, 0) {
 				// other normal onset
 				breakdown += romanization2[nth_rune(syllable, 0)]
 				syllable = syllable[len(nth_rune(syllable, 0)):]
-			} else if has("ʃʒ", nth_rune(syllable, 0)) {
+			} else if hasAt("ʃʒ", syllable, 0) {
 				// one sound representd as a cluster
 				if nth_rune(syllable, 0) == "ʃ" {
 					breakdown += "sh"
@@ -1258,11 +1262,11 @@ func ReefMe(ipa string, inter bool) []string {
 			/*
 			 * Nucleus
 			 */
-			if len(syllable) > 1 && has("jw", nth_rune(syllable, 1)) {
+			if len(syllable) > 1 && hasAt("jw", syllable, 1) {
 				//diphthong
 				breakdown += romanization2[syllable[0:len(nth_rune(syllable, 0))+1]]
 				syllable = string([]rune(syllable)[2:])
-			} else if len(syllable) > 1 && has("lr", nth_rune(syllable, 0)) {
+			} else if len(syllable) > 1 && hasAt("lr", syllable, 0) {
 				//psuedovowel
 				breakdown += romanization2[syllable[0:3]]
 				continue // psuedovowels can't coda

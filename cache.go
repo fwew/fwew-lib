@@ -206,75 +206,80 @@ func AppendAndAlphabetize(words []Word, word Word) []Word {
 	return newWords
 }
 
+// Helper to find empty definitions
+func NullDef(definition string) bool {
+	return strings.ToUpper(definition) == "NULL" || len(strings.Trim(definition, " ")) < 1
+}
+
 // If a definition is not available in a certain language, default to English
 func EnglishIfNull(word Word) Word {
 	// English
-	if word.EN == "NULL" {
+	if NullDef(word.EN) {
 		word.EN = "(no definition)"
 	}
 
 	// German (Deutsch)
-	if word.DE == "NULL" {
+	if NullDef(word.DE) {
 		word.DE = word.EN
 	}
 
 	// Spanish (Español)
-	if word.ES == "NULL" {
+	if NullDef(word.ES) {
 		word.ES = word.EN
 	}
 
 	// Estonian (Eesti)
-	if word.ET == "NULL" {
+	if NullDef(word.ET) {
 		word.ET = word.EN
 	}
 
 	// French (Français)
-	if word.FR == "NULL" {
+	if NullDef(word.FR) {
 		word.FR = word.EN
 	}
 
 	// Hungarian (Magyar)
-	if word.HU == "NULL" {
+	if NullDef(word.HU) {
 		word.HU = word.EN
 	}
 
 	// Korean (한국어)
-	if word.KO == "NULL" {
+	if NullDef(word.KO) {
 		word.KO = word.EN
 	}
 
 	// Dutch (Nederlands)
-	if word.NL == "NULL" {
+	if NullDef(word.NL) {
 		word.NL = word.EN
 	}
 
 	// Polish (Polski)
-	if word.PL == "NULL" {
+	if NullDef(word.PL) {
 		word.PL = word.EN
 	}
 
 	// Portuguese (Português)
-	if word.PT == "NULL" {
+	if NullDef(word.PT) {
 		word.PT = word.EN
 	}
 
 	// Russian (Русский)
-	if word.RU == "NULL" {
+	if NullDef(word.RU) {
 		word.RU = word.EN
 	}
 
 	// Swedish (Svenska)
-	if word.SV == "NULL" {
+	if NullDef(word.SV) {
 		word.SV = word.EN
 	}
 
 	// Turkish (Türkçe)
-	if word.TR == "NULL" {
+	if NullDef(word.TR) {
 		word.TR = word.EN
 	}
 
 	// Ukrainian (Українська)
-	if word.UK == "NULL" {
+	if NullDef(word.UK) {
 		word.UK = word.EN
 	}
 
@@ -316,7 +321,7 @@ func RomanizeSecondIPA(IPA string) string {
 				// ts
 				breakdown += "ts"
 				//tsp
-				if has("ptk", nth_rune(syllable, 3)) {
+				if hasAt("ptk", syllable, 3) {
 					if nth_rune(syllable, 4) == "'" {
 						// ts + ejective onset
 						breakdown += romanization2[syllable[4:6]]
@@ -326,7 +331,7 @@ func RomanizeSecondIPA(IPA string) string {
 						breakdown += romanization2[string(syllable[4])]
 						syllable = syllable[5:]
 					}
-				} else if has("lɾmnŋwj", nth_rune(syllable, 3)) {
+				} else if hasAt("lɾmnŋwj", syllable, 3) {
 					// ts + other consonent
 					breakdown += romanization2[nth_rune(syllable, 3)]
 					syllable = syllable[4+len(nth_rune(syllable, 3)):]
@@ -334,10 +339,10 @@ func RomanizeSecondIPA(IPA string) string {
 					// ts without a cluster
 					syllable = syllable[4:]
 				}
-			} else if has("fs", nth_rune(syllable, 0)) {
+			} else if hasAt("fs", syllable, 0) {
 				//
 				breakdown += nth_rune(syllable, 0)
-				if has("ptk", nth_rune(syllable, 1)) {
+				if hasAt("ptk", syllable, 1) {
 					if nth_rune(syllable, 2) == "'" {
 						// f/s + ejective onset
 						breakdown += romanization2[syllable[1:3]]
@@ -347,7 +352,7 @@ func RomanizeSecondIPA(IPA string) string {
 						breakdown += romanization2[string(syllable[1])]
 						syllable = syllable[2:]
 					}
-				} else if has("lɾmnŋwj", nth_rune(syllable, 1)) {
+				} else if hasAt("lɾmnŋwj", syllable, 1) {
 					// f/s + other consonent
 					breakdown += romanization2[nth_rune(syllable, 1)]
 					syllable = syllable[1+len(nth_rune(syllable, 1)):]
@@ -355,7 +360,7 @@ func RomanizeSecondIPA(IPA string) string {
 					// f/s without a cluster
 					syllable = syllable[1:]
 				}
-			} else if has("ptk", nth_rune(syllable, 0)) {
+			} else if hasAt("ptk", syllable, 0) {
 				if nth_rune(syllable, 1) == "'" {
 					// ejective
 					breakdown += romanization2[syllable[0:2]]
@@ -365,11 +370,11 @@ func RomanizeSecondIPA(IPA string) string {
 					breakdown += romanization2[string(syllable[0])]
 					syllable = syllable[1:]
 				}
-			} else if has("ʔlɾhmnŋvwjzbdg", nth_rune(syllable, 0)) {
+			} else if hasAt("ʔlɾhmnŋvwjzbdg", syllable, 0) {
 				// other normal onset
 				breakdown += romanization2[nth_rune(syllable, 0)]
 				syllable = syllable[len(nth_rune(syllable, 0)):]
-			} else if has("ʃʒ", nth_rune(syllable, 0)) {
+			} else if hasAt("ʃʒ", syllable, 0) {
 				// one sound representd as a cluster
 				if nth_rune(syllable, 0) == "ʃ" {
 					breakdown += "sh"
@@ -380,11 +385,11 @@ func RomanizeSecondIPA(IPA string) string {
 			/*
 			 * Nucleus
 			 */
-			if len(syllable) > 1 && has("jw", nth_rune(syllable, 1)) {
+			if len(syllable) > 1 && hasAt("jw", syllable, 1) {
 				//diphthong
 				breakdown += romanization2[syllable[0:len(nth_rune(syllable, 0))+1]]
 				syllable = string([]rune(syllable)[2:])
-			} else if len(syllable) > 1 && has("lr", nth_rune(syllable, 0)) {
+			} else if len(syllable) > 1 && hasAt("lr", syllable, 0) {
 				breakdown += romanization2[syllable[0:3]]
 				continue
 			} else {
@@ -707,72 +712,72 @@ func CacheDictHash2Orig(mysql bool) error {
 		}
 
 		// English
-		if word.EN != "NULL" {
+		if !NullDef(word.EN) {
 			dictHash2.EN = AssignWord(dictHash2.EN, word.EN, standardizedWord)
 		}
 
 		// German (Deutsch)
-		if word.DE != "NULL" {
+		if !NullDef(word.DE) {
 			dictHash2.DE = AssignWord(dictHash2.DE, word.DE, standardizedWord)
 		}
 
 		// Spanish (Español)
-		if word.ES != "NULL" {
+		if !NullDef(word.ES) {
 			dictHash2.ES = AssignWord(dictHash2.ES, word.ES, standardizedWord)
 		}
 
 		// Estonian (Eesti)
-		if word.ET != "NULL" {
+		if !NullDef(word.ET) {
 			dictHash2.ET = AssignWord(dictHash2.ET, word.ET, standardizedWord)
 		}
 
 		// French (Français)
-		if word.FR != "NULL" {
+		if !NullDef(word.FR) {
 			dictHash2.FR = AssignWord(dictHash2.FR, word.FR, standardizedWord)
 		}
 
 		// Hungarian (Magyar)
-		if word.HU != "NULL" {
+		if !NullDef(word.HU) {
 			dictHash2.HU = AssignWord(dictHash2.HU, word.HU, standardizedWord)
 		}
 
 		// Korean (한국어)
-		if word.KO != "NULL" {
+		if !NullDef(word.KO) {
 			dictHash2.KO = AssignWord(dictHash2.KO, word.KO, standardizedWord)
 		}
 
 		// Dutch (Nederlands)
-		if word.NL != "NULL" {
+		if !NullDef(word.NL) {
 			dictHash2.NL = AssignWord(dictHash2.NL, word.NL, standardizedWord)
 		}
 
 		// Polish (Polski)
-		if word.PL != "NULL" {
+		if !NullDef(word.PL) {
 			dictHash2.PL = AssignWord(dictHash2.PL, word.PL, standardizedWord)
 		}
 
 		// Portuguese (Português)
-		if word.PT != "NULL" {
+		if !NullDef(word.PT) {
 			dictHash2.PT = AssignWord(dictHash2.PT, word.PT, standardizedWord)
 		}
 
 		// Russian (Русский)
-		if word.RU != "NULL" {
+		if !NullDef(word.RU) {
 			dictHash2.RU = AssignWord(dictHash2.RU, word.RU, standardizedWord)
 		}
 
 		// Swedish (Svenska)
-		if word.SV != "NULL" {
+		if !NullDef(word.SV) {
 			dictHash2.SV = AssignWord(dictHash2.SV, word.SV, standardizedWord)
 		}
 
 		// Turkish (Türkçe)
-		if word.TR != "NULL" {
+		if !NullDef(word.TR) {
 			dictHash2.TR = AssignWord(dictHash2.TR, word.TR, standardizedWord)
 		}
 
 		// Ukrainian (Українська)
-		if word.UK != "NULL" {
+		if !NullDef(word.UK) {
 			dictHash2.UK = AssignWord(dictHash2.UK, word.UK, standardizedWord)
 		}
 		return nil

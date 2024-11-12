@@ -104,18 +104,18 @@ var max_nucleus = 0
 var max_coda = 0
 
 /* Helper function to find the start of a string */
-func first_rune(word string) (letter string) {
+func first_rune(word string) (letter rune) {
 	r := []rune(word)
-	return string(r[:1])
+	return r[0]
 }
 
 /* Get the nth to last letter of a string */
-func get_last_rune(word string, n int) (letter string) {
+func get_last_rune(word string, n int) (letter rune) {
 	r := []rune(word)
 	if n > len(r) {
 		n = len(r)
 	}
-	return string(r[len(r)-n : len(r)-n+1])
+	return r[len(r)-n]
 }
 
 /* Take n letters off the end of a string */
@@ -150,9 +150,11 @@ func quickReef(input string) string {
 	temp := ""
 	runes := []rune(output)
 
+	vowels := "aäeiìouù"
+
 	for i, a := range runes {
 		if i != 0 && i != len(runes)-1 && a == rune('\'') {
-			if is_vowel(string(runes[i+1])) && is_vowel(string(runes[i-1])) {
+			if hasAt(vowels, output, i+1) && hasAt(vowels, output, i-1) {
 				if runes[i+1] != runes[i-1] {
 					continue
 				}
@@ -221,12 +223,12 @@ func rand_if_zero(n int) (x int) {
 }
 
 /* Is it a vowel? (for when the psuedovowel bool won't work) */
-func is_vowel(letter string) (found bool) {
+func is_vowel(letter rune) (found bool) {
 	// Also arranged from most to least common (not accounting for diphthongs)
-	vowels := []string{"a", "e", "u", "ì", "o", "i", "ä", "ù"}
+	vowels := []rune{'a', 'e', 'u', 'ì', 'o', 'i', 'ä', 'ù'}
 	// Linear search
-	for i := 0; i < 8; i++ {
-		if letter == vowels[i] {
+	for _, a := range vowels {
+		if letter == a {
 			return true
 		}
 	}
@@ -306,15 +308,15 @@ func one_word_verb(verbList []Word) (words Word) {
 }
 
 /* Helper function: turn ejectives into voiced plosives for reef */
-func reef_plosives(letter string) (voiced string) {
-	if letter == "p" {
-		return "b"
-	} else if letter == "t" {
-		return "d"
-	} else if letter == "k" {
-		return "g"
+func reef_plosives(letter rune) (voiced rune) {
+	if letter == 'p' {
+		return 'b'
+	} else if letter == 't' {
+		return 'd'
+	} else if letter == 'k' {
+		return 'g'
 	}
-	return "" // How we know if it's an error
+	return '' // How we know if it's an error
 }
 
 /* Helper function: Replace an ejective with a voiced plosive. */
@@ -322,15 +324,15 @@ func reef_ejective(name string) (reefy_name string) {
 	onset_new := ""
 	last_third := get_last_rune(name, 3)
 
-	if last_third == "x" { // Adjacent ejectives become adjacent voiced plosives, too
-		onset_new += reef_plosives(get_last_rune(name, 4))
-	} else if last_third == "n" && get_last_rune(name, 2) == "k" {
+	if last_third == 'x' { // Adjacent ejectives become adjacent voiced plosives, too
+		onset_new += string(reef_plosives(get_last_rune(name, 4)))
+	} else if last_third == 'n' && get_last_rune(name, 2) == 'k' {
 		onset_new += "-" // disambiguate on-gi vs o-ngi
 	}
 
-	onset_new += reef_plosives(get_last_rune(name, 2))
+	onset_new += string(reef_plosives(get_last_rune(name, 2)))
 
-	if last_third == "x" {
+	if last_third == 'x' {
 		return shave_rune(name, 4) + onset_new
 	}
 
@@ -402,7 +404,7 @@ func single_name_gen(syllable_count int, dialect int) (name string) {
 			psuedovowel = true
 			// Disallow onsets from imitating the psuedovowel
 			if onsetlength > 0 {
-				if get_last_rune(onset, 1) == "l" || get_last_rune(onset, 1) == "r" {
+				if get_last_rune(onset, 1) == 'l' || get_last_rune(onset, 1) == 'r' {
 					onset = "'"
 				}
 				// If no onset, disallow the previous coda from imitating the psuedovowel
@@ -467,18 +469,18 @@ func single_name_gen(syllable_count int, dialect int) (name string) {
 
 		// reef dialect stuff
 		if dialect == 2 && namelength > 1 { // In reef dialect,
-			if get_last_rune(name, 1) == "x" { // if there's an ejective in the onset
+			if get_last_rune(name, 1) == 'x' { // if there's an ejective in the onset
 				if namelength > 2 {
 					// that's not in a cluster,
 					last_rune := get_last_rune(name, 3)
-					if !(last_rune == "s" || last_rune == "f") {
+					if !(last_rune == 's' || last_rune == 'f') {
 						// it becomes a voiced plosive
 						name = reef_ejective(name)
 					}
 				} else {
 					name = reef_ejective(name)
 				}
-			} else if !psuedovowel && get_last_rune(name, 1) == "'" && get_last_rune(name, 2) != first_rune(nucleus) {
+			} else if !psuedovowel && get_last_rune(name, 1) == '\'' && get_last_rune(name, 2) != first_rune(nucleus) {
 				// 'a'aw is optionally 'aaw (the generator leaves it in)
 				if is_vowel(get_last_rune(name, 2)) { // Does kaw'it become kawit in reef?
 					name = shave_rune(name, 1)
@@ -514,28 +516,50 @@ func fast_random(wordList []Word) (results Word) {
 	return wordList[rand.Intn(dictLength)]
 }
 
-func nth_rune(word string, n int) (output string) {
-	r := []rune(word)
-	if n < 0 { // negative index
-		n = len(r) + n
+// What is the nth rune of word?
+func nth_rune(word string, n int) string {
+	i := 0
+	for _, r := range word {
+		if i == n {
+			return string(r)
+		}
+		i += 1
 	}
-	if n >= len(r) {
-		return ""
-	}
-	return string(r[n])
+
+	return ""
 }
 
-func has(word string, character string) (output bool) {
+func has(word string, character rune) (output bool) {
 	r := []rune(word)
-	if len(character) == 0 {
-		return false
-	}
-	c := []rune(character)[0]
+
 	for i := 0; i < len(r); i++ {
-		if c == r[i] {
+		if character == r[i] {
 			return true
 		}
 	}
+	return false
+}
+
+// Does ipa contain any character from word as its nth letter?
+func hasAt(word string, ipa string, n int) (output bool) {
+	// negative index
+	if n < 0 {
+		n = len([]rune(ipa)) + n
+	}
+
+	i := 0
+	for _, s := range ipa {
+		if i == n {
+			for _, r := range word {
+				if r == s {
+					return true
+				}
+			}
+			break // save a few compute cycles
+		}
+		i += 1
+	}
+
 	return false
 }
 
@@ -657,7 +681,7 @@ func PhonemeDistros() {
 				if len(syllable) >= 4 && syllable[0:4] == "t͡s" {
 					onset_if_cluster[0] = "ts"
 					//tsp
-					if has("ptk", nth_rune(syllable, 3)) {
+					if hasAt("ptk", syllable, 3) {
 						if nth_rune(syllable, 4) == "'" {
 							// ts + ejective onset
 							cluster_map["ts"][romanization[syllable[4:6]]] = cluster_map["ts"][romanization[syllable[4:6]]] + 1
@@ -671,7 +695,7 @@ func PhonemeDistros() {
 							//roman_syllable += "ts" + romanization[string(syllable[4])]
 							syllable = syllable[5:]
 						}
-					} else if has("lɾmnŋwj", nth_rune(syllable, 3)) {
+					} else if hasAt("lɾmnŋwj", syllable, 3) {
 						// ts + other consonent
 						cluster_map["ts"][romanization[nth_rune(syllable, 3)]] = cluster_map["ts"][romanization[nth_rune(syllable, 3)]] + 1
 						onset_if_cluster[1] = romanization[nth_rune(syllable, 3)]
@@ -683,10 +707,10 @@ func PhonemeDistros() {
 						//roman_syllable += "ts"
 						syllable = syllable[4:]
 					}
-				} else if has("fs", nth_rune(syllable, 0)) {
+				} else if hasAt("fs", syllable, 0) {
 					//
 					onset_if_cluster[0] = string(syllable[0])
-					if has("ptk", nth_rune(syllable, 1)) {
+					if hasAt("ptk", syllable, 1) {
 						if nth_rune(syllable, 2) == "'" {
 							// f/s + ejective onset
 							cluster_map[string(syllable[0])][romanization[syllable[1:3]]] = cluster_map[string(syllable[0])][romanization[syllable[1:3]]] + 1
@@ -700,7 +724,7 @@ func PhonemeDistros() {
 							//roman_syllable += string(syllable[0]) + romanization[string(syllable[1])]
 							syllable = syllable[2:]
 						}
-					} else if has("lɾmnŋwj", nth_rune(syllable, 1)) {
+					} else if hasAt("lɾmnŋwj", syllable, 1) {
 						// f/s + other consonent
 						cluster_map[string(syllable[0])][romanization[nth_rune(syllable, 1)]] = cluster_map[string(syllable[0])][romanization[nth_rune(syllable, 1)]] + 1
 						onset_if_cluster[1] = romanization[nth_rune(syllable, 1)]
@@ -712,7 +736,7 @@ func PhonemeDistros() {
 						//roman_syllable += string(syllable[0])
 						syllable = syllable[1:]
 					}
-				} else if has("ptk", nth_rune(syllable, 0)) {
+				} else if hasAt("ptk", syllable, 0) {
 					if nth_rune(syllable, 1) == "'" {
 						// ejective
 						onset_map[romanization[syllable[0:2]]] = onset_map[romanization[syllable[0:2]]] + 1
@@ -724,12 +748,12 @@ func PhonemeDistros() {
 						//roman_syllable += romanization[string(syllable[0])]
 						syllable = syllable[1:]
 					}
-				} else if has("ʔlɾhmnŋvwjzbdg", nth_rune(syllable, 0)) {
+				} else if hasAt("ʔlɾhmnŋvwjzbdg", syllable, 0) {
 					// other normal onset
 					onset_map[romanization[nth_rune(syllable, 0)]] = onset_map[romanization[nth_rune(syllable, 0)]] + 1
 					//roman_syllable += romanization[nth_rune(syllable, 0)]
 					syllable = syllable[len(nth_rune(syllable, 0)):]
-				} else if has("ʃʒ", nth_rune(syllable, 0)) {
+				} else if hasAt("ʃʒ", syllable, 0) {
 					// one sound representd as a cluster
 					if nth_rune(syllable, 0) == "ʃ" {
 						cluster_map["s"]["y"] = cluster_map["s"]["y"] + 1
@@ -766,12 +790,12 @@ func PhonemeDistros() {
 				/*
 				 * Nucleus
 				 */
-				if len(syllable) > 1 && has("jw", nth_rune(syllable, 1)) {
+				if len(syllable) > 1 && hasAt("jw", syllable, 1) {
 					//diphthong
 					nucleus_map[romanization[syllable[0:len(nth_rune(syllable, 0))+1]]] = nucleus_map[romanization[syllable[0:len(nth_rune(syllable, 0))+1]]] + 1
 					//roman_syllable += romanization[syllable[0:len(nth_rune(syllable, 0))+1]]
 					syllable = string([]rune(syllable)[2:])
-				} else if len(syllable) > 1 && has("lr", nth_rune(syllable, 0)) {
+				} else if len(syllable) > 1 && hasAt("lr", syllable, 0) {
 					nucleus_map[romanization[syllable[0:3]]] = nucleus_map[romanization[syllable[0:3]]] + 1
 					//roman_syllable += romanization[syllable[0:3]]
 					continue

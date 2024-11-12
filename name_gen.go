@@ -110,7 +110,7 @@ func FullNames(ending string, name_count int, dialect int, syllable_count [3]int
 		}
 
 		// In reef dialect, glottal stops between nonidentical vowels are dropped
-		if dialect == 2 && has("aäeìouù", get_last_rune(output, 1)) {
+		if dialect == 2 && hasAt("aäeìouù", output, 1) {
 			ending2 = ending2[1:]
 		}
 
@@ -247,8 +247,7 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 				} else {
 					adj = convertDialect(adj_word, dialect)
 					adjSplit := strings.Split(adj, " ")
-					adj_rune := []rune(adjSplit[0])
-					if has("aeìiä", string(adj_rune[len(adj_rune)-1])) {
+					if hasAt("aeìiä", adjSplit[0], -1) {
 						adjSplit[0] = adjSplit[0] + "yä"
 					} else {
 						adjSplit[0] = adjSplit[0] + "ä"
