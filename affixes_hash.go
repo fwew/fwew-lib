@@ -147,6 +147,7 @@ var weirdNounSuffixes = map[string]string{
 	"päts":         "pätsì",
 	"post":         "postì",
 	"losäntsyeles": "losäntsyelesì",
+	"york":         "yorkì", // For a program called Litxap
 }
 
 func isDuplicate(input ConjugationCandidate) bool {
