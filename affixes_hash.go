@@ -1052,7 +1052,7 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 						firstInfixes := ""
 
 						for _, newInfix := range candidate.Infixes {
-							if _, ok := prefirstMap[newInfix] {
+							if _, ok := prefirstMap[newInfix]; ok {
 								firstInfixes += newInfix
 								rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<0>", firstInfixes)
 								if newInfix == "epeyk" || newInfix == "äpeyk" {
@@ -1076,7 +1076,7 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 						// first position infixes
 						firstInfixes = ""
 						for _, newInfix := range candidate.Infixes {
-							if _, ok := firstMap[newInfix] {
+							if _, ok := firstMap[newInfix]; ok {
 								rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<1>", newInfix)
 								firstInfixes = newInfix
 								if newInfix == "ol" {
@@ -1094,7 +1094,7 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 							if newInfix == "eng" {
 								rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<2>", "äng")
 								break
-							} else if _, ok := secondMap[newInfix] {
+							} else if _, ok := secondMap[newInfix]; ok {
 								rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<2>", newInfix)
 								break
 							}
