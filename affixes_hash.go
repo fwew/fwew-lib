@@ -401,9 +401,9 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 			newCandidate.Word = input.Word[1:]
 			newCandidate.Prefixes = isDuplicateFix(newCandidate.Prefixes, "a")
 			newCandidate.InsistPOS = "adj."
-			deconjugateHelper(newCandidate, 1, suffixCheck, -1, []string{"", "", ""}, "a", "")
-			newCandidate.InsistPOS = "v."
 			deconjugateHelper(newCandidate, 1, suffixCheck, -1, []string{}, "a", "")
+			newCandidate.InsistPOS = "v."
+			deconjugateHelper(newCandidate, 1, suffixCheck, -1, []string{"", "", ""}, "a", "")
 		} else if strings.HasPrefix(input.Word, "nì") {
 			newCandidate := candidateDupe(input)
 			newCandidate.Word = strings.TrimPrefix(input.Word, "nì")
@@ -661,9 +661,9 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 			newCandidate.Word = newString
 			newCandidate.InsistPOS = "adj."
 			newCandidate.Suffixes = isDuplicateFix(newCandidate.Suffixes, "a")
-			deconjugateHelper(newCandidate, newPrefixCheck, 4, unlenite, []string{}, "", "a")
+			deconjugateHelper(newCandidate, newPrefixCheck, 4, unlenite, []string{"", "", ""}, "", "a")
 			newCandidate.InsistPOS = "v."
-			deconjugateHelper(newCandidate, newPrefixCheck, 4, unlenite, []string{}, "", "a")
+			deconjugateHelper(newCandidate, newPrefixCheck, 4, unlenite, []string{"", "", ""}, "", "a")
 		}
 
 		fallthrough
