@@ -232,18 +232,15 @@ func implContainsAny(sl []string, names []string) bool {
 func verifyInfix(existing []string, new string) (bool, []string) {
 	if _, ok := prefirstMap[new]; ok {
 		if existing[0] == "" {
-			existing[0] = new
-			return true, existing
+			return true, []string{new, existing[1], existing[2]}
 		}
 	} else if _, ok := firstMap[new]; ok {
 		if existing[1] == "" {
-			existing[1] = new
-			return true, existing
+			return true, []string{existing[0], new, existing[2]}
 		}
 	} else if _, ok := secondMap[new]; ok {
 		if existing[2] == "" {
-			existing[2] = new
-			return true, existing
+			return true, []string{existing[0], existing[1], new}
 		}
 	}
 
@@ -765,7 +762,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 			newCandidate := candidateDupe(input)
 			newCandidate.Word = strings.TrimSuffix(input.Word, "si") + " si"
 			newCandidate.InsistPOS = "v."
-			deconjugateHelper(newCandidate, newPrefixCheck, suffixCheck, unlenite, []string{"", "", ""}, "", "")
+			deconjugateHelper(newCandidate, newPrefixCheck, suffixCheck, unlenite, infix, "", "")
 		} else { // If there is a "si", we don't need to check for infixes
 			// Check for infixes
 			runes := []rune(input.Word)
