@@ -730,6 +730,18 @@ var naviWords = []struct {
 			},
 		},
 	}, // suffering
+	{
+		name: "LosÄntsyelesì",
+		args: args{
+			searchNaviText: "LosÄntsyelesì",
+		},
+		want: []Word{
+			{
+				ID:   "10152",
+				Navi: "LosÄntsyelesì",
+			},
+		},
+	}, // Los Angeles
 }
 var englishWords = []struct {
 	name string

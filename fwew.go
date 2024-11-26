@@ -325,7 +325,7 @@ func TranslateFromNaviHashHelper(start int, allWords []string, checkFixes bool) 
 
 	// If one searches kivä, make sure kive doesn't show up
 	for _, a := range results[len(results)-1] {
-		if containsUmlaut[i] && !strings.Contains(a.Navi, "ä") {
+		if containsUmlaut[i] && !strings.Contains(strings.ToLower(a.Navi), "ä") {
 			continue // ä can unstress to e, but not the other way around
 		}
 		tempResults = append(tempResults, a)
