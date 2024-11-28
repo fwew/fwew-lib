@@ -631,9 +631,6 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 							deconjugateHelper(newCandidate, newPrefixCheck, 2, unlenite, []string{}, "", "yä")
 						}
 					}
-				} else {
-					newCandidate.Word = strings.TrimSuffix(newString, oldSuffix)
-					deconjugateHelper(newCandidate, newPrefixCheck, 2, unlenite, []string{}, "", oldSuffix)
 				}
 			}
 		}
