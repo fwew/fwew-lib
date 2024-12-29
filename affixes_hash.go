@@ -140,7 +140,8 @@ var weirdNounSuffixes = map[string]string{
 	// For "tsa" with case endings
 	// Canonized in:
 	// https://naviteri.org/2011/08/new-vocabulary-clothing/comment-page-1/#comment-912
-	"tsa": "tsaw",
+	"tsa":   "tsaw",
+	"teyng": "tì'eyng",
 	// The a re-appears when case endings are added (it uses a instead of ì)
 	"oenga": "oeng",
 	// Foreign nouns
