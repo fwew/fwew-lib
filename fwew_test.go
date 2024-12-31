@@ -742,6 +742,21 @@ var naviWords = []struct {
 			},
 		},
 	}, // Los Angeles
+	{
+		name: "teyngteri",
+		args: args{
+			searchNaviText: "teyngteri",
+		},
+		want: []Word{
+			{
+				ID:   "2136",
+				Navi: "tì'eyng",
+				Affixes: affix{
+					Suffix: []string{"teri"},
+				},
+			},
+		},
+	}, // About the answer
 }
 var englishWords = []struct {
 	name string
