@@ -949,6 +949,28 @@ func TestTranslateFromNaviCached(t *testing.T) {
 		t.Errorf("TranslateFromNaviCached() Failed to CacheDictHash2")
 	}
 
+	for _, a := range adposuffixes {
+		word := "tsun" + a
+
+		if newfix, ok := unreefFixes[a]; ok {
+			a = newfix
+		}
+
+		affixes := affix{Suffix: []string{a}}
+		wordWord := Word{Navi: "tsun", ID: "13353", Affixes: affixes}
+		want := []Word{wordWord}
+		t.Run(word, func(t *testing.T) {
+			got, err := TranslateFromNaviHash(word, true)
+			if err == nil && word == "" && got != nil {
+				t.Errorf("TranslateFromNaviCached() got = %v, want %v", got, want)
+			} else if err == nil && len(want) == 0 && len(got) > 0 {
+				t.Errorf("TranslateFromNaviCached() got = %v, want %v", got, want)
+			} else if err != nil || len(want) > 0 && len(got) > 0 && !wordSimpleEqual(got[0][1:], want) {
+				t.Errorf("TranslateFromNaviCached() = %v, want %v", got[0][1:], want)
+			}
+		})
+	}
+
 	for _, tt := range naviWords {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := TranslateFromNaviHash(tt.args.searchNaviText, true)

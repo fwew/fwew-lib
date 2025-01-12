@@ -82,24 +82,24 @@ var verbPrefixes = []string{"tsuk", "ketsuk"}
 
 var adposuffixes = []string{
 	// adpositions that can be mistaken for case endings
-	"pxel",                                       //"agentive"
-	"mungwrr",                                    //"dative"
-	"kxamlä", "ìlä", "wä", "kxamle", "ìle", "we", //"genitive"
+	"pxel",                                                     //"agentive"
+	"mungwrr",                                                  //"dative"
+	"kxamlä", "ìlä", "wä", "nuä", "kxamle", "ìle", "we", "nue", //"genitive"
 	"teri", //"topical"
 	// Case endings
 	"ìl", "l", "it", "ti", "t", "ur", "ru", "r", "yä", "ä", "e", "ye", "ìri", "ri",
 	// Sorted alphabetically by their reverse forms
-	"ftumfa", "nemfa", "rofa", "ka", "fa", "na", "ta", "ya", //-a
+	"ftumfa", "nemfa", "rofa", "ka", "fa", "na", "ta", "ya", "yoa", "krrka", "ftuopa", //-a
 	"lisre", "pxisre", "sre", "luke", "ne", //-e
 	"fpi",          //-i
 	"mì",           //-ì
 	"lok",          //-k
 	"mìkam", "kam", //-m
-	"ken", "sìn", //-n
-	"äo", "eo", "io", "uo", "ro", "to", //-o
+	"ken", "sìn", "talun", //-n
+	"äo", "eo", "io", "uo", "ro", "to", "sko", //-o
 	"tafkip", "takip", "fkip", "kip", //-p
 	"ftu", "hu", //-u
-	"pximaw", "maw", "pxaw", "few", //-w
+	"pximaw", "maw", "pxaw", "few", "raw", //-w
 	"vay", "kay", //-y
 }
 
@@ -137,12 +137,13 @@ var firstMap = map[string]bool{"ay": true, "asy": true, "aly": true, "ary": true
 var secondMap = map[string]bool{"ei": true, "eiy": true, "äng": true, "eng": true, "uy": true, "ats": true}
 
 var unreefFixes = map[string]string{
-	"eng": "äng",
-	"ep":  "äp",
-	"ye":  "yä",
-	"e":   "ä",
-	"we":  "wä",
-	"ìle": "ìlä",
+	"eng":    "äng",
+	"ep":     "äp",
+	"ye":     "yä",
+	"e":      "ä",
+	"we":     "wä",
+	"ìle":    "ìlä",
+	"nue":    "nuä",
 	"kxamle": "kxamlä",
 }
 
