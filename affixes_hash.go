@@ -143,6 +143,7 @@ var unreefFixes = map[string]string{
 	"e":   "ä",
 	"we":  "wä",
 	"ìle": "ìlä",
+	"kxamle": "kxamlä",
 }
 
 var weirdNounSuffixes = map[string]string{
