@@ -757,6 +757,51 @@ var naviWords = []struct {
 			},
 		},
 	}, // About the answer
+	{
+		name: "yaìlä",
+		args: args{
+			searchNaviText: "yaìlä",
+		},
+		want: []Word{
+			{
+				ID:   "2724",
+				Navi: "ya",
+				Affixes: affix{
+					Suffix: []string{"ìlä"},
+				},
+			},
+		},
+	}, // Through the air
+	{
+		name: "yawä",
+		args: args{
+			searchNaviText: "yawä",
+		},
+		want: []Word{
+			{
+				ID:   "2724",
+				Navi: "ya",
+				Affixes: affix{
+					Suffix: []string{"wä"},
+				},
+			},
+		},
+	}, // Against the air
+	{
+		name: "yaftumfa",
+		args: args{
+			searchNaviText: "yaftumfa",
+		},
+		want: []Word{
+			{
+				ID:   "2724",
+				Navi: "ya",
+				Affixes: affix{
+					Suffix: []string{"ftumfa"},
+				},
+			},
+		},
+	}, // Out of the air
 }
 var englishWords = []struct {
 	name string
