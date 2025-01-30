@@ -730,6 +730,78 @@ var naviWords = []struct {
 			},
 		},
 	}, // suffering
+	{
+		name: "LosÄntsyelesì",
+		args: args{
+			searchNaviText: "LosÄntsyelesì",
+		},
+		want: []Word{
+			{
+				ID:   "10152",
+				Navi: "LosÄntsyelesì",
+			},
+		},
+	}, // Los Angeles
+	{
+		name: "teyngteri",
+		args: args{
+			searchNaviText: "teyngteri",
+		},
+		want: []Word{
+			{
+				ID:   "2136",
+				Navi: "tì'eyng",
+				Affixes: affix{
+					Suffix: []string{"teri"},
+				},
+			},
+		},
+	}, // About the answer
+	{
+		name: "yaìlä",
+		args: args{
+			searchNaviText: "yaìlä",
+		},
+		want: []Word{
+			{
+				ID:   "2724",
+				Navi: "ya",
+				Affixes: affix{
+					Suffix: []string{"ìlä"},
+				},
+			},
+		},
+	}, // Through the air
+	{
+		name: "yawä",
+		args: args{
+			searchNaviText: "yawä",
+		},
+		want: []Word{
+			{
+				ID:   "2724",
+				Navi: "ya",
+				Affixes: affix{
+					Suffix: []string{"wä"},
+				},
+			},
+		},
+	}, // Against the air
+	{
+		name: "yaftumfa",
+		args: args{
+			searchNaviText: "yaftumfa",
+		},
+		want: []Word{
+			{
+				ID:   "2724",
+				Navi: "ya",
+				Affixes: affix{
+					Suffix: []string{"ftumfa"},
+				},
+			},
+		},
+	}, // Out of the air
 }
 var englishWords = []struct {
 	name string
@@ -875,6 +947,28 @@ func TestTranslateFromNaviCached(t *testing.T) {
 	}
 	if err2 != nil {
 		t.Errorf("TranslateFromNaviCached() Failed to CacheDictHash2")
+	}
+
+	for _, a := range adposuffixes {
+		word := "tsun" + a
+
+		if newfix, ok := unreefFixes[a]; ok {
+			a = newfix
+		}
+
+		affixes := affix{Suffix: []string{a}}
+		wordWord := Word{Navi: "tsun", ID: "13353", Affixes: affixes}
+		want := []Word{wordWord}
+		t.Run(word, func(t *testing.T) {
+			got, err := TranslateFromNaviHash(word, true)
+			if err == nil && word == "" && got != nil {
+				t.Errorf("TranslateFromNaviCached() got = %v, want %v", got, want)
+			} else if err == nil && len(want) == 0 && len(got) > 0 {
+				t.Errorf("TranslateFromNaviCached() got = %v, want %v", got, want)
+			} else if err != nil || len(want) > 0 && len(got) > 0 && !wordSimpleEqual(got[0][1:], want) {
+				t.Errorf("TranslateFromNaviCached() = %v, want %v", got[0][1:], want)
+			}
+		})
 	}
 
 	for _, tt := range naviWords {

@@ -118,7 +118,7 @@ func FindDictionaryFile() string {
 }
 
 func AlphabetizeHelper(a string, b string) bool {
-	aCompacted := []rune(strings.ReplaceAll(strings.ToLower(a), "-", ""))
+	aCompacted := []rune(strings.ReplaceAll(compress(strings.ToLower(a)), "-", ""))
 
 	// Start in the middle
 	bCompacted := []rune(strings.ReplaceAll(compress(strings.ToLower(b)), "-", ""))

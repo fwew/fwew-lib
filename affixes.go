@@ -801,13 +801,13 @@ func GetShortLenitionTable() [][2]string {
 var thatTable = [9][5]string{
 	{"Case", "Noun", "   Clause Wrapper   ", "", ""},
 	{" ", " ", "Prox.", "Dist.", "Answer "},
-	{"====", "=====", "=====", "======", "======="},
-	{"Sub.", "tsaw", "fwa", "tsawa", "teynga "},
-	{"Agt.", "tsal", "fula", "tsala", "teyngla"},
-	{"Pat.", "tsat", "futa", "tsata", "teyngta"},
-	{"Gen.", "tseyä", "N/A", "N/A", ""},
-	{"Dat.", "tsar", "fura", "tsara", ""},
-	{"Top.", "tsari", "furia", "tsaria", ""},
+	{"====", "=====", "=====", "======", "========"},
+	{"Sub.", "tsaw", "fwa", "tsawa", "teynga  "},
+	{"Agt.", "tsal", "fula", "tsala", "teyngla "},
+	{"Pat.", "tsat", "futa", "tsata", "teyngta "},
+	{"Gen.", "tseyä", "N/A", "N/A", "teyngä  "},
+	{"Dat.", "tsar", "fura", "tsara", "teyngra "},
+	{"Top.", "tsari", "furia", "tsaria", "teyngria"},
 }
 
 func GetThatTable() [][5]string {
