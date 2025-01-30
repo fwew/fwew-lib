@@ -26,7 +26,7 @@ type version struct {
 
 // Version is a printable version struct containing program version information
 var Version = version{
-	5, 22, 3,
+	5, 22, 4,
 	"",
 	"Kanua Kenten",
 	"",
