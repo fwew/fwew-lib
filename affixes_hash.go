@@ -1121,7 +1121,8 @@ func TestDeconjugations(searchNaviWord string) (results []Word) {
 							rebuiltVerb += x
 						}
 
-						if len(candidate.Infixes) == 0 || identicalRunes(rebuiltVerb, strings.ReplaceAll(searchNaviWord, "-", " ")) {
+						searchNaviWordSquish := strings.ReplaceAll(searchNaviWord, "ù", "u")
+						if len(candidate.Infixes) == 0 || identicalRunes(rebuiltVerb, strings.ReplaceAll(searchNaviWordSquish, "-", " ")) {
 							results = AppendAndAlphabetize(results, a)
 						} else if participle {
 							// In case we have a [word]-susi
