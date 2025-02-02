@@ -91,7 +91,7 @@ func filterPos(results []Word, word Word, args []string) []Word {
 	}
 
 	if condMap[cond] {
-		return append(results, word)
+		return AppendAndAlphabetize(results, word)
 	}
 
 	return results
@@ -143,7 +143,7 @@ func filterWord(results []Word, word Word, args []string, checkDigraphs uint8) [
 	}
 
 	if condMap[cond] {
-		return append(results, word)
+		return AppendAndAlphabetize(results, word)
 	}
 
 	return results
@@ -168,7 +168,7 @@ func filterWords(results []Word, word Word, args []string, wordsLen, index int) 
 	}
 
 	if condMap[cond] {
-		filtered = append(results, word)
+		filtered = AppendAndAlphabetize(results, word)
 		return
 	}
 
@@ -218,7 +218,7 @@ func filterNumeric(results []Word, word Word, args []string) (filtered []Word, e
 	}
 
 	if condMap[cond] {
-		filtered = append(results, word)
+		filtered = AppendAndAlphabetize(results, word)
 		return
 	}
 
