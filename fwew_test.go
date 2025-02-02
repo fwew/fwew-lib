@@ -802,6 +802,21 @@ var naviWords = []struct {
 			},
 		},
 	}, // Out of the air
+	{
+		name: "hivùm",
+		args: args{
+			searchNaviText: "hivùm",
+		},
+		want: []Word{
+			{
+				ID:   "588",
+				Navi: "hum",
+				Affixes: affix{
+					Infix: []string{"iv"},
+				},
+			},
+		},
+	}, // Out of the air
 }
 var englishWords = []struct {
 	name string
