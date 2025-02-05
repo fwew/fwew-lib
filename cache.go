@@ -438,7 +438,7 @@ func CacheDict() error {
 
 	UncacheDict()
 	err = runOnDB(func(word Word) error {
-		dictionary = AppendAndAlphabetize(dictionary, word)
+		dictionary = append(dictionary, word)
 		return nil
 	})
 
@@ -447,7 +447,7 @@ func CacheDict() error {
 	} else {
 		UncacheDict()
 		err = runOnFile(func(word Word) error {
-			dictionary = AppendAndAlphabetize(dictionary, word)
+			dictionary = append(dictionary, word)
 			return nil
 		})
 		//fmt.Println("cache 0 loaded (File)")
@@ -971,7 +971,7 @@ func GetFullDict() (allWords []Word, err error) {
 		allWords = dictionary
 	} else {
 		err = runOnFile(func(word Word) error {
-			allWords = AppendAndAlphabetize(allWords, word)
+			allWords = append(allWords, word)
 			return nil
 		})
 		return

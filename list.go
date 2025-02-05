@@ -168,7 +168,7 @@ func filterWords(results []Word, word Word, args []string, wordsLen, index int) 
 	}
 
 	if condMap[cond] {
-		filtered = AppendAndAlphabetize(results, word)
+		filtered = append(results, word)
 		return
 	}
 
