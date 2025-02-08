@@ -117,7 +117,7 @@ var stemSuffixes = []string{"tsyìp", "fkeyk"}
 var verbSuffixes = []string{"tswo", "yu"}
 
 var infixes = map[rune][]string{
-	rune('a'): {"ay", "asy", "aly", "ary", "am", "alm", "arm", "ats", "awn"},
+	rune('a'): {"ay", "asy", "aly", "ary", "am", "alm", "arm", "ats", "awn", "ap", "ang"},
 	rune('ä'): {"äng", "äpeyk", "äp"},
 	rune('e'): {"epeyk", "ep", "eng", "er", "ei", "eiy", "eyk"},
 	rune('i'): {"iv", "ilv", "irv", "imv", "iyev"},
@@ -136,7 +136,7 @@ var firstMap = map[string]bool{"ay": true, "asy": true, "aly": true, "ary": true
 	"ìly": true, "ìry": true, "ol": true, "er": true, "ìm": true, "ìlm": true,
 	"ìrm": true, "am": true, "alm": true, "arm": true, "ìyev": true, "iyev": true,
 	"iv": true, "ilv": true, "irv": true, "imv": true, "us": true, "awn": true}
-var secondMap = map[string]bool{"ei": true, "eiy": true, "äng": true, "uy": true, "ats": true}
+var secondMap = map[string]bool{"ei": true, "eiy": true, "äng": true, "uy": true, "ats": true, "ap": true, "ang": true}
 
 var unreefFixes = map[string]string{
 	"eng":    "äng",
@@ -156,6 +156,8 @@ var unreefFixes = map[string]string{
 	"sin":   "sìn",
 	"il":    "ìl",
 	"iri":   "ìri",
+	"ap":    "äp",
+	"ang":   "äng",
 }
 
 var weirdNounSuffixes = map[string]string{
@@ -1236,7 +1238,7 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 
 						// second position infixes
 						for _, newInfix := range candidate.Infixes {
-							if !strict && newInfix == "eng" {
+							if !strict && (newInfix == "eng" || newInfix == "ang") {
 								rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<2>", "äng")
 								break
 							} else if _, ok := secondMap[newInfix]; ok {
