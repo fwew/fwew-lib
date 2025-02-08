@@ -498,7 +498,7 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 				nucleusCount += strings.Count(a.Navi, b)
 			}
 			if nucleusCount == 1 {
-				if !containsUmlaut[i] && strings.Contains(a.Navi, "ä") {
+				if !containsUmlaut[i] && !strings.Contains(searchNaviWord, "a") && strings.Contains(a.Navi, "ä") {
 					continue
 				}
 			}
@@ -1042,7 +1042,7 @@ func dialectCrunch(query []string, guaranteedForest bool) []string {
 	for _, a := range query {
 		oldQuery := a
 
-		//a = strings.ReplaceAll(a, "ì", "i")
+		a = strings.ReplaceAll(a, "ì", "i")
 		// When caching, we are guaranteed forest words and don't need anything in this block
 		if !guaranteedForest {
 			for i, b := range nkx {
