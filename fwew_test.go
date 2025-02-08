@@ -816,7 +816,19 @@ var naviWords = []struct {
 				},
 			},
 		},
-	}, // Out of the air
+	}, // Leave (subjunctive, reef)
+	{
+		name: "ila",
+		args: args{
+			searchNaviText: "ila",
+		},
+		want: []Word{
+			{
+				ID:   "648",
+				Navi: "ìlä+",
+			},
+		},
+	}, // See if it can search words without diacritics
 }
 var englishWords = []struct {
 	name string
