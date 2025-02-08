@@ -918,41 +918,48 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 		aCount := strings.Count(searchNaviWord, "a")
 		splitString := strings.Split(searchNaviWord, "a")
 
-		aArray := []string{}
-		for range aCount {
-			aArray = append(aArray, "a")
-		}
+		// Prevent a DoS attack with alalalalalalalalal
+		// The most as and äs are ay-sna-{word}-kxamlä
+		// {word} can be tsawlapxangrr, sälätxayn, tawsyuratan,
+		// atanzaw, sä'anla, sängä'än, lanay'ka, lamaytxa,
+		// txantsawtsray, särangal or säkahena
+		if aCount <= 7 {
+			aArray := []string{}
+			for range aCount {
+				aArray = append(aArray, "a")
+			}
 
-		// Count with a and ä like a binary number
-		for i := range int(math.Round(math.Pow(2, float64(aCount)))) {
-			tempI := i
-			for a := range len(aArray) {
-				pow := int(math.Round(math.Pow(2, float64(a+1))))
-				if tempI%pow == 0 {
-					aArray[a] = "a"
-				} else {
-					aArray[a] = "ä"
-					tempI -= int(math.Round(math.Pow(2, float64(a))))
+			// Count with a and ä like a binary number
+			for i := range int(math.Round(math.Pow(2, float64(aCount)))) {
+				tempI := i
+				for a := range len(aArray) {
+					pow := int(math.Round(math.Pow(2, float64(a+1))))
+					if tempI%pow == 0 {
+						aArray[a] = "a"
+					} else {
+						aArray[a] = "ä"
+						tempI -= int(math.Round(math.Pow(2, float64(a))))
+					}
 				}
+				buffer.WriteString(splitString[0])
+				for i, split := range aArray {
+					buffer.WriteString(split)
+					buffer.WriteString(splitString[i+1])
+				}
+
+				newAConfig := dialectCrunch([]string{buffer.String()}, false)[0]
+
+				buffer.Reset()
+
+				if newAConfig == searchNaviWord {
+					continue
+				}
+
+				allAConfigs = append(allAConfigs, newAConfig)
+				newCandidate := ConjugationCandidate{Word: newAConfig}
+				conjugations = append(conjugations, newCandidate)
+				conjugations = append(conjugations, Deconjugate(newAConfig, strict)...)
 			}
-			buffer.WriteString(splitString[0])
-			for i, split := range aArray {
-				buffer.WriteString(split)
-				buffer.WriteString(splitString[i+1])
-			}
-
-			newAConfig := dialectCrunch([]string{buffer.String()}, false)[0]
-
-			buffer.Reset()
-
-			if newAConfig == searchNaviWord {
-				continue
-			}
-
-			allAConfigs = append(allAConfigs, newAConfig)
-			newCandidate := ConjugationCandidate{Word: newAConfig}
-			conjugations = append(conjugations, newCandidate)
-			conjugations = append(conjugations, Deconjugate(newAConfig, strict)...)
 		}
 	}
 
