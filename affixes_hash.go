@@ -907,7 +907,7 @@ func Deconjugate(input string, strict bool) []ConjugationCandidate {
 func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict bool) (results []Word) {
 	conjugations := Deconjugate(searchNaviWord, strict)
 
-	allAConfigs := []string{searchNaviWord}
+	allAConfigs := []string{strings.ReplaceAll(searchNaviWord, "ù", "u")}
 
 	buffer := strings.Builder{}
 
