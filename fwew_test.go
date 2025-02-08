@@ -975,7 +975,7 @@ func TestTranslateFromNaviCached(t *testing.T) {
 		wordWord := Word{Navi: "tsun", ID: "13353", Affixes: affixes}
 		want := []Word{wordWord}
 		t.Run(word, func(t *testing.T) {
-			got, err := TranslateFromNaviHash(word, true)
+			got, err := TranslateFromNaviHash(word, true, false)
 			if err == nil && word == "" && got != nil {
 				t.Errorf("TranslateFromNaviCached() got = %v, want %v", got, want)
 			} else if err == nil && len(want) == 0 && len(got) > 0 {
@@ -988,7 +988,7 @@ func TestTranslateFromNaviCached(t *testing.T) {
 
 	for _, tt := range naviWords {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := TranslateFromNaviHash(tt.args.searchNaviText, true)
+			got, err := TranslateFromNaviHash(tt.args.searchNaviText, true, false)
 			if err == nil && tt.args.searchNaviText == "" && got != nil {
 				t.Errorf("TranslateFromNaviCached() got = %v, want %v", got, tt.want)
 			} else if err == nil && len(tt.want) == 0 && len(got) > 0 {
@@ -1007,7 +1007,7 @@ func BenchmarkTranslateFromNavi(b *testing.B) {
 	for _, bm := range naviWords {
 		b.Run(bm.name, func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				TranslateFromNaviHash(bm.args.searchNaviText, true)
+				TranslateFromNaviHash(bm.args.searchNaviText, true, false)
 			}
 		})
 	}
@@ -1032,7 +1032,7 @@ func BenchmarkTranslateFromNaviBig(b *testing.B) {
 
 		b.Run(line, func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				TranslateFromNaviHash(line, true)
+				TranslateFromNaviHash(line, true, false)
 			}
 		})
 	}

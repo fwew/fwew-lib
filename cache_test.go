@@ -37,7 +37,7 @@ func Test_cacheDict(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error caching Dictionary!!")
 	}
-	entry := dictHash["'ampi"]
+	entry := dictHashLoose["'ampi"]
 	if !word.Equals(entry[0]) {
 		t.Errorf("Read wrong word from cache:\n"+
 			"Id: \"%s\" == \"%s\"\n"+

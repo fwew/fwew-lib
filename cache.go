@@ -17,7 +17,8 @@ import (
 const dictFileName = "dictionary-v2.txt"
 
 var dictionary []Word
-var dictHash map[string][]Word
+var dictHashLoose map[string][]Word
+var dictHashStrict map[string][]Word
 var dictionaryCached bool
 var dictHashCached bool
 var dictHash2 MetaDict
@@ -478,10 +479,11 @@ func CacheDictHash() error {
 // Please call this, if you want to translate multiple words or running infinitely (e.g. CLI-go-prompt, discord-bot)
 func CacheDictHashOrig(mysql bool) error {
 	// dont run if already is cached
-	if len(dictHash) != 0 {
+	if len(dictHashLoose) != 0 {
 		return nil
 	} else {
-		dictHash = make(map[string][]Word)
+		dictHashLoose = make(map[string][]Word)
+		dictHashStrict = make(map[string][]Word)
 	}
 
 	tempHoms := []string{}
@@ -513,30 +515,30 @@ func CacheDictHashOrig(mysql bool) error {
 		}
 
 		standardizedWordArray := dialectCrunch(strings.Split(standardizedWord, " "), true)
-		standardizedWord = ""
+		standardizedWordLoose := ""
 		for i, a := range standardizedWordArray {
 			if i != 0 {
-				standardizedWord += " "
+				standardizedWordLoose += " "
 			}
-			standardizedWord += a
+			standardizedWordLoose += a
 		}
 
 		// If the word appears more than once, record it
-		if _, ok := dictHash[standardizedWord]; ok {
+		if _, ok := dictHashLoose[standardizedWordLoose]; ok {
 			found := false
 			for _, a := range tempHoms {
-				if a == standardizedWord {
+				if a == standardizedWordLoose {
 					found = true
 					break
 				}
 			}
 			if !found {
-				tempHoms = append(tempHoms, standardizedWord)
+				tempHoms = append(tempHoms, standardizedWordLoose)
 			}
 		}
 
-		if strings.Contains(standardizedWord, "é") {
-			noAcute := strings.ReplaceAll(standardizedWord, "é", "e")
+		if strings.Contains(standardizedWordLoose, "é") {
+			noAcute := strings.ReplaceAll(standardizedWordLoose, "é", "e")
 			found := false
 			for _, a := range tempHoms {
 				if a == noAcute {
@@ -546,19 +548,21 @@ func CacheDictHashOrig(mysql bool) error {
 			}
 			if !found {
 				tempHoms = append(tempHoms, noAcute)
-				tempHoms = append(tempHoms, standardizedWord)
+				tempHoms = append(tempHoms, standardizedWordLoose)
 			}
 		}
 
 		word = EnglishIfNull(word)
-		dictHash[standardizedWord] = append(dictHash[standardizedWord], word)
+		dictHashLoose[standardizedWordLoose] = append(dictHashLoose[standardizedWordLoose], word)
+		dictHashStrict[standardizedWord] = append(dictHashStrict[standardizedWord], word)
 
 		//find words with multiple IPAs
 		if strings.Contains(word.IPA, " or ") {
 			multiIPA += word.Navi + " "
 			secondTerm := RomanizeSecondIPA(word.IPA)
 			if secondTerm != standardizedWord {
-				dictHash[secondTerm] = append(dictHash[secondTerm], word)
+				dictHashLoose[secondTerm] = append(dictHashLoose[secondTerm], word)
+				dictHashStrict[secondTerm] = append(dictHashStrict[secondTerm], word)
 			}
 		}
 
@@ -806,7 +810,8 @@ func CacheDictHash2Orig(mysql bool) error {
 
 func UncacheHashDict() {
 	dictHashCached = false
-	dictHash = nil
+	dictHashLoose = nil
+	dictHashStrict = nil
 	homonyms = ""
 	oddballs = ""
 }
