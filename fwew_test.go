@@ -879,35 +879,6 @@ var englishWords = []struct {
 		},
 	},
 	{
-		name: "Tier",
-		args: args{
-			searchNaviText: "Tier",
-			languageCode:   "de",
-		},
-		want: []Word{
-			{
-				ID:   "612",
-				Navi: "ioang",
-			},
-			{
-				ID:   "9460",
-				Navi: "kxänäng",
-			},
-			{
-				ID:   "1440",
-				Navi: "pa'li",
-			},
-			{
-				ID:   "2124",
-				Navi: "tireaioang",
-			},
-			{
-				ID:   "2744",
-				Navi: "yerik",
-			},
-		},
-	},
-	{
 		name: "Zehe",
 		args: args{
 			searchNaviText: "Zehe",
@@ -985,6 +956,90 @@ var englishWords = []struct {
 			{
 				ID:   "11380",
 				Navi: "kxì",
+			},
+		},
+	},
+}
+
+var englishNoParen = []struct {
+	name string
+	args args
+	want []Word
+}{
+	{
+		name: "Tier",
+		args: args{
+			searchNaviText: "Tier",
+			languageCode:   "de",
+		},
+		want: []Word{
+			{
+				ID:   "612",
+				Navi: "ioang",
+			},
+			{
+				ID:   "9460",
+				Navi: "kxänäng",
+			},
+			{
+				ID:   "1440",
+				Navi: "pa'li",
+			},
+			{
+				ID:   "2124",
+				Navi: "tireaioang",
+			},
+			{
+				ID:   "2744",
+				Navi: "yerik",
+			},
+		},
+	},
+}
+
+var englishParen = []struct {
+	name string
+	args args
+	want []Word
+}{
+	{
+		name: "Tier",
+		args: args{
+			searchNaviText: "Tier",
+			languageCode:   "de",
+		},
+		want: []Word{
+			{
+				ID:   "440",
+				Navi: "fpxafaw",
+			},
+			{
+				ID:   "7676",
+				Navi: "fwampop",
+			},
+			{
+				ID:   "612",
+				Navi: "ioang",
+			},
+			{
+				ID:   "9460",
+				Navi: "kxänäng",
+			},
+			{
+				ID:   "1440",
+				Navi: "pa'li",
+			},
+			{
+				ID:   "10704",
+				Navi: "seyto",
+			},
+			{
+				ID:   "2124",
+				Navi: "tireaioang",
+			},
+			{
+				ID:   "2744",
+				Navi: "yerik",
 			},
 		},
 	},
@@ -1111,6 +1166,15 @@ func TestTranslateToNaviCached(t *testing.T) {
 		})
 	}
 
+	for _, tt := range englishParen {
+		t.Run(tt.name, func(t *testing.T) {
+			gotResults := TranslateToNaviHash(tt.args.searchNaviText, tt.args.languageCode)
+			if !wordSimpleEqual(gotResults[0][1:], tt.want) {
+				t.Errorf("TranslateToNavi() = %v, want %v", gotResults[0][1:], tt.want)
+			}
+		})
+	}
+
 	UncacheHashDict()
 	UncacheHashDict2()
 }
@@ -1132,6 +1196,15 @@ func TestBidirectionalCached(t *testing.T) {
 	}
 
 	for _, tt := range englishWords {
+		t.Run(tt.name, func(t *testing.T) {
+			gotResults, _ := BidirectionalSearch(tt.args.searchNaviText, true, tt.args.languageCode)
+			if !wordSimpleEqual(gotResults[0][1:], tt.want) {
+				t.Errorf("TranslateToNavi() = %v, want %v", gotResults[0][1:], tt.want)
+			}
+		})
+	}
+
+	for _, tt := range englishNoParen {
 		t.Run(tt.name, func(t *testing.T) {
 			gotResults, _ := BidirectionalSearch(tt.args.searchNaviText, true, tt.args.languageCode)
 			if !wordSimpleEqual(gotResults[0][1:], tt.want) {

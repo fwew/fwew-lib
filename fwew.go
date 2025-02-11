@@ -642,7 +642,7 @@ func SearchNatlangWord(wordmap map[string][]string, searchWord string) (results 
 	firstResults := wordmap[searchWord]
 
 	for i := 0; i < len(firstResults); i++ {
-		for _, c := range dictHashLoose[firstResults[i]] {
+		for _, c := range dictHashStrict[firstResults[i]] {
 			results = AppendAndAlphabetize(results, c)
 		}
 	}
@@ -663,7 +663,7 @@ func TranslateToNaviHash(searchWord string, langCode string) (results [][]Word) 
 			continue
 		}
 		results = append(results, []Word{})
-		for _, a := range TranslateToNaviHashHelper(word, langCode) {
+		for _, a := range TranslateToNaviHashHelper(&dictHash2Parenthesis, word, langCode) {
 			results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], a)
 		}
 		// Append the query to the front of the list
@@ -674,13 +674,13 @@ func TranslateToNaviHash(searchWord string, langCode string) (results [][]Word) 
 	return
 }
 
-func TranslateToNaviHashHelper(searchWord string, langCode string) (results []Word) {
+func TranslateToNaviHashHelper(dictionary *MetaDict, searchWord string, langCode string) (results []Word) {
 	results = []Word{}
 	switch langCode {
 	case "de": // German
-		for _, a := range SearchNatlangWord(dictHash2.DE, searchWord) {
+		for _, a := range SearchNatlangWord((*dictionary).DE, searchWord) {
 			// Verify the search query is actually in the definition
-			searchWords := SearchTerms(a.DE)
+			searchWords := SearchTerms(a.DE, false)
 			found := false
 			for _, d := range searchWords {
 				if d == searchWord {
@@ -693,9 +693,9 @@ func TranslateToNaviHashHelper(searchWord string, langCode string) (results []Wo
 			}
 		}
 	case "en": // English
-		for _, a := range SearchNatlangWord(dictHash2.EN, searchWord) {
+		for _, a := range SearchNatlangWord((*dictionary).EN, searchWord) {
 			// Verify the search query is actually in the definition
-			searchWords := SearchTerms(a.EN)
+			searchWords := SearchTerms(a.EN, false)
 			found := false
 			for _, d := range searchWords {
 				if d == searchWord {
@@ -708,9 +708,9 @@ func TranslateToNaviHashHelper(searchWord string, langCode string) (results []Wo
 			}
 		}
 	case "es": // Spanish
-		for _, a := range SearchNatlangWord(dictHash2.ES, searchWord) {
+		for _, a := range SearchNatlangWord((*dictionary).ES, searchWord) {
 			// Verify the search query is actually in the definition
-			searchWords := SearchTerms(a.ES)
+			searchWords := SearchTerms(a.ES, false)
 			found := false
 			for _, d := range searchWords {
 				if d == searchWord {
@@ -723,9 +723,9 @@ func TranslateToNaviHashHelper(searchWord string, langCode string) (results []Wo
 			}
 		}
 	case "et": // Estonian
-		for _, a := range SearchNatlangWord(dictHash2.ET, searchWord) {
+		for _, a := range SearchNatlangWord((*dictionary).ET, searchWord) {
 			// Verify the search query is actually in the definition
-			searchWords := SearchTerms(a.ET)
+			searchWords := SearchTerms(a.ET, false)
 			found := false
 			for _, d := range searchWords {
 				if d == searchWord {
@@ -738,9 +738,9 @@ func TranslateToNaviHashHelper(searchWord string, langCode string) (results []Wo
 			}
 		}
 	case "fr": // French
-		for _, a := range SearchNatlangWord(dictHash2.FR, searchWord) {
+		for _, a := range SearchNatlangWord((*dictionary).FR, searchWord) {
 			// Verify the search query is actually in the definition
-			searchWords := SearchTerms(a.FR)
+			searchWords := SearchTerms(a.FR, false)
 			found := false
 			for _, d := range searchWords {
 				if d == searchWord {
@@ -753,9 +753,9 @@ func TranslateToNaviHashHelper(searchWord string, langCode string) (results []Wo
 			}
 		}
 	case "hu": // Hungarian
-		for _, a := range SearchNatlangWord(dictHash2.HU, searchWord) {
+		for _, a := range SearchNatlangWord((*dictionary).HU, searchWord) {
 			// Verify the search query is actually in the definition
-			searchWords := SearchTerms(a.HU)
+			searchWords := SearchTerms(a.HU, false)
 			found := false
 			for _, d := range searchWords {
 				if d == searchWord {
@@ -768,9 +768,9 @@ func TranslateToNaviHashHelper(searchWord string, langCode string) (results []Wo
 			}
 		}
 	case "ko": // Korean
-		for _, a := range SearchNatlangWord(dictHash2.KO, searchWord) {
+		for _, a := range SearchNatlangWord((*dictionary).KO, searchWord) {
 			// Verify the search query is actually in the definition
-			searchWords := SearchTerms(a.KO)
+			searchWords := SearchTerms(a.KO, false)
 			found := false
 			for _, d := range searchWords {
 				if d == searchWord {
@@ -783,9 +783,9 @@ func TranslateToNaviHashHelper(searchWord string, langCode string) (results []Wo
 			}
 		}
 	case "nl": // Dutch
-		for _, a := range SearchNatlangWord(dictHash2.NL, searchWord) {
+		for _, a := range SearchNatlangWord((*dictionary).NL, searchWord) {
 			// Verify the search query is actually in the definition
-			searchWords := SearchTerms(a.NL)
+			searchWords := SearchTerms(a.NL, false)
 			found := false
 			for _, d := range searchWords {
 				if d == searchWord {
@@ -798,9 +798,9 @@ func TranslateToNaviHashHelper(searchWord string, langCode string) (results []Wo
 			}
 		}
 	case "pl": // Polish
-		for _, a := range SearchNatlangWord(dictHash2.PL, searchWord) {
+		for _, a := range SearchNatlangWord((*dictionary).PL, searchWord) {
 			// Verify the search query is actually in the definition
-			searchWords := SearchTerms(a.PL)
+			searchWords := SearchTerms(a.PL, false)
 			found := false
 			for _, d := range searchWords {
 				if d == searchWord {
@@ -813,9 +813,9 @@ func TranslateToNaviHashHelper(searchWord string, langCode string) (results []Wo
 			}
 		}
 	case "pt": // Portuguese
-		for _, a := range SearchNatlangWord(dictHash2.PT, searchWord) {
+		for _, a := range SearchNatlangWord((*dictionary).PT, searchWord) {
 			// Verify the search query is actually in the definition
-			searchWords := SearchTerms(a.PT)
+			searchWords := SearchTerms(a.PT, false)
 			found := false
 			for _, d := range searchWords {
 				if d == searchWord {
@@ -828,9 +828,9 @@ func TranslateToNaviHashHelper(searchWord string, langCode string) (results []Wo
 			}
 		}
 	case "ru": // Russian
-		for _, a := range SearchNatlangWord(dictHash2.RU, searchWord) {
+		for _, a := range SearchNatlangWord((*dictionary).RU, searchWord) {
 			// Verify the search query is actually in the definition
-			searchWords := SearchTerms(a.RU)
+			searchWords := SearchTerms(a.RU, false)
 			found := false
 			for _, d := range searchWords {
 				if d == searchWord {
@@ -843,9 +843,9 @@ func TranslateToNaviHashHelper(searchWord string, langCode string) (results []Wo
 			}
 		}
 	case "sv": // Swedish
-		for _, a := range SearchNatlangWord(dictHash2.SV, searchWord) {
+		for _, a := range SearchNatlangWord((*dictionary).SV, searchWord) {
 			// Verify the search query is actually in the definition
-			searchWords := SearchTerms(a.SV)
+			searchWords := SearchTerms(a.SV, false)
 			found := false
 			for _, d := range searchWords {
 				if d == searchWord {
@@ -858,9 +858,9 @@ func TranslateToNaviHashHelper(searchWord string, langCode string) (results []Wo
 			}
 		}
 	case "tr": // Turkish
-		for _, a := range SearchNatlangWord(dictHash2.TR, searchWord) {
+		for _, a := range SearchNatlangWord((*dictionary).TR, searchWord) {
 			// Verify the search query is actually in the definition
-			searchWords := SearchTerms(a.TR)
+			searchWords := SearchTerms(a.TR, false)
 			found := false
 			for _, d := range searchWords {
 				if d == searchWord {
@@ -873,9 +873,9 @@ func TranslateToNaviHashHelper(searchWord string, langCode string) (results []Wo
 			}
 		}
 	case "uk": // Ukrainian
-		for _, a := range SearchNatlangWord(dictHash2.UK, searchWord) {
+		for _, a := range SearchNatlangWord((*dictionary).UK, searchWord) {
 			// Verify the search query is actually in the definition
-			searchWords := SearchTerms(a.UK)
+			searchWords := SearchTerms(a.UK, false)
 			found := false
 			for _, d := range searchWords {
 				if d == searchWord {
@@ -889,9 +889,9 @@ func TranslateToNaviHashHelper(searchWord string, langCode string) (results []Wo
 		}
 	default:
 		// If we get an odd language code, return English
-		for _, a := range SearchNatlangWord(dictHash2.EN, searchWord) {
+		for _, a := range SearchNatlangWord((*dictionary).EN, searchWord) {
 			// Verify the search query is actually in the definition
-			searchWords := SearchTerms(a.EN)
+			searchWords := SearchTerms(a.EN, false)
 			found := false
 			for _, d := range searchWords {
 				if d == searchWord {
@@ -945,7 +945,7 @@ func BidirectionalSearch(searchNaviWords string, checkFixes bool, langCode strin
 
 		// Search for natural language words
 		natlangWords := []Word{}
-		for _, a := range TranslateToNaviHashHelper(allWords[i], langCode) {
+		for _, a := range TranslateToNaviHashHelper(&dictHash2, allWords[i], langCode) {
 			// Do not duplicate if the Na'vi word is in the definition
 			if implContainsAny(NaviIDs, []string{a.ID}) {
 				continue
