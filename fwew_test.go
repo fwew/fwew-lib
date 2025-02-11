@@ -329,14 +329,14 @@ var naviWords = []struct {
 		},
 	}, // zenke `yu` override
 	{
-		name: "ner",
+		name: "ferfen",
 		args: args{
-			searchNaviText: "ner",
+			searchNaviText: "ferfen",
 		},
 		want: []Word{
 			{
-				ID:   "9116",
-				Navi: "nrr",
+				ID:   "464",
+				Navi: "frrfen",
 				Affixes: affix{
 					Infix: []string{
 						"er",
