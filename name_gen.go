@@ -431,7 +431,7 @@ func GetPhonemeDistrosMap(lang string) (allDistros [][][]string) {
 		onset_tuples = append(onset_tuples, PhonemeTuple{val, key})
 	}
 	slices.SortFunc(Tuples(onset_tuples), func(a, b PhonemeTuple) int {
-		return a.value - b.value
+		return b.value - a.value
 	})
 
 	nucleus_tuples := []PhonemeTuple{}
@@ -439,7 +439,7 @@ func GetPhonemeDistrosMap(lang string) (allDistros [][][]string) {
 		nucleus_tuples = append(nucleus_tuples, PhonemeTuple{val, key})
 	}
 	slices.SortFunc(Tuples(nucleus_tuples), func(a, b PhonemeTuple) int {
-		return a.value - b.value
+		return b.value - a.value
 	})
 
 	coda_tuples := []PhonemeTuple{}
@@ -447,7 +447,7 @@ func GetPhonemeDistrosMap(lang string) (allDistros [][][]string) {
 		coda_tuples = append(coda_tuples, PhonemeTuple{val, key})
 	}
 	slices.SortFunc(Tuples(coda_tuples), func(a, b PhonemeTuple) int {
-		return a.value - b.value
+		return b.value - a.value
 	})
 
 	// Probably not needed but just in case any other number exceeds it
