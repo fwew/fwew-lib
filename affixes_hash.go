@@ -132,8 +132,8 @@ var first = []string{"ay", "asy", "aly", "ary", "ìy", "iy", "ìsy", "ìly", "ì
 var second = []string{"ei", "eiy", "äng", "eng", "uy", "ats"}
 
 var prefirstMap = map[string]bool{"äp": true, "äpeyk": true, "eyk": true, "ep": true, "epeyk": true}
-var firstMap = map[string]bool{"ay": true, "asy": true, "aly": true, "ary": true, "ìy": true, "ìsy": true,
-	"ìly": true, "ìry": true, "ol": true, "er": true, "ìm": true, "ìlm": true,
+var firstMap = map[string]bool{"ay": true, "asy": true, "aly": true, "ary": true, "ìy": true, "iy": true, "ìsy": true,
+	"ìly": true, "ìry": true, "ol": true, "er": true, "ìm": true, "im": true, "ìlm": true,
 	"ìrm": true, "am": true, "alm": true, "arm": true, "ìyev": true, "iyev": true,
 	"iv": true, "ilv": true, "irv": true, "imv": true, "us": true, "awn": true}
 var secondMap = map[string]bool{"ei": true, "eiy": true, "äng": true, "uy": true, "ats": true, "ap": true, "ang": true}
