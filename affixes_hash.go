@@ -120,7 +120,7 @@ var infixes = map[rune][]string{
 	rune('a'): {"ay", "asy", "aly", "ary", "am", "alm", "arm", "ats", "awn", "ap", "ang"},
 	rune('ä'): {"äng", "äpeyk", "äp"},
 	rune('e'): {"epeyk", "ep", "eng", "er", "ei", "eiy", "eyk"},
-	rune('i'): {"iv", "ilv", "irv", "imv", "iyev"},
+	rune('i'): {"iv", "ilv", "irv", "imv", "iyev", "im", "iy"},
 	rune('ì'): {"ìy", "ìsy", "ìly", "ìry", "ìm", "ìlm", "ìrm", "ìyev"},
 	rune('o'): {"ol"},
 	rune('u'): {"us", "uy"},
