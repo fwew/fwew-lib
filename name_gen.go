@@ -3,7 +3,7 @@ package fwew_lib
 import (
 	"fmt"
 	"math/rand"
-	"sort"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -430,19 +430,25 @@ func GetPhonemeDistrosMap(lang string) (allDistros [][][]string) {
 	for key, val := range onset_map {
 		onset_tuples = append(onset_tuples, PhonemeTuple{val, key})
 	}
-	sort.Sort(Tuples(onset_tuples))
+	slices.SortFunc(Tuples(onset_tuples), func(a, b PhonemeTuple) int {
+		return b.value - a.value
+	})
 
 	nucleus_tuples := []PhonemeTuple{}
 	for key, val := range nucleus_map {
 		nucleus_tuples = append(nucleus_tuples, PhonemeTuple{val, key})
 	}
-	sort.Sort(Tuples(nucleus_tuples))
+	slices.SortFunc(Tuples(nucleus_tuples), func(a, b PhonemeTuple) int {
+		return b.value - a.value
+	})
 
 	coda_tuples := []PhonemeTuple{}
 	for key, val := range coda_map {
 		coda_tuples = append(coda_tuples, PhonemeTuple{val, key})
 	}
-	sort.Sort(Tuples(coda_tuples))
+	slices.SortFunc(Tuples(coda_tuples), func(a, b PhonemeTuple) int {
+		return b.value - a.value
+	})
 
 	// Probably not needed but just in case any other number exceeds it
 	max_len := len(onset_tuples)
