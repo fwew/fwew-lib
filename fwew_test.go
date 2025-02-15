@@ -859,6 +859,66 @@ var naviWords = []struct {
 			},
 		},
 	}, // See if it can search words without diacritics
+	{
+		name: "heykìmangheiam",
+		args: args{
+			searchNaviText: "heykìmangheiam",
+		},
+		want: []Word{
+			{
+				ID:   "3716",
+				Navi: "hangham",
+				Affixes: affix{
+					Infix: []string{"eyk", "ìm", "ei"},
+				},
+			},
+		},
+	}, // eyk ìm ei
+	{
+		name: "heykìyangheiam",
+		args: args{
+			searchNaviText: "heykìyangheiam",
+		},
+		want: []Word{
+			{
+				ID:   "3716",
+				Navi: "hangham",
+				Affixes: affix{
+					Infix: []string{"eyk", "ìy", "ei"},
+				},
+			},
+		},
+	}, // eyk ìy ei
+	{
+		name: "lìmu",
+		args: args{
+			searchNaviText: "lìmu",
+		},
+		want: []Word{
+			{
+				ID:   "1044",
+				Navi: "lu",
+				Affixes: affix{
+					Infix: []string{"ìm"},
+				},
+			},
+		},
+	}, // ìm
+	{
+		name: "lìmu",
+		args: args{
+			searchNaviText: "lìmu",
+		},
+		want: []Word{
+			{
+				ID:   "1044",
+				Navi: "lu",
+				Affixes: affix{
+					Infix: []string{"ìm"},
+				},
+			},
+		},
+	}, // ìy
 }
 var englishWords = []struct {
 	name string
