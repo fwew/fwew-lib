@@ -120,20 +120,20 @@ var infixes = map[rune][]string{
 	rune('a'): {"ay", "asy", "aly", "ary", "am", "alm", "arm", "ats", "awn", "ap", "ang"},
 	rune('ä'): {"äng", "äpeyk", "äp"},
 	rune('e'): {"epeyk", "ep", "eng", "er", "ei", "eiy", "eyk"},
-	rune('i'): {"iv", "ilv", "irv", "imv", "iyev"},
+	rune('i'): {"iv", "ilv", "irv", "imv", "iyev", "im", "iy"},
 	rune('ì'): {"ìy", "ìsy", "ìly", "ìry", "ìm", "ìlm", "ìrm", "ìyev"},
 	rune('o'): {"ol"},
 	rune('u'): {"us", "uy"},
 }
 
 var prefirst = []string{"äp", "äpeyk", "eyk", "epeyk", "ep"}
-var first = []string{"ay", "asy", "aly", "ary", "ìy", "ìsy", "ìly", "ìry", "ol", "er", "ìm",
+var first = []string{"ay", "asy", "aly", "ary", "ìy", "iy", "ìsy", "ìly", "ìry", "ol", "er", "ìm", "im",
 	"ìlm", "ìrm", "am", "alm", "arm", "ìyev", "iyev", "iv", "ilv", "irv", "imv", "us", "awn"}
 var second = []string{"ei", "eiy", "äng", "eng", "uy", "ats"}
 
 var prefirstMap = map[string]bool{"äp": true, "äpeyk": true, "eyk": true, "ep": true, "epeyk": true}
-var firstMap = map[string]bool{"ay": true, "asy": true, "aly": true, "ary": true, "ìy": true, "ìsy": true,
-	"ìly": true, "ìry": true, "ol": true, "er": true, "ìm": true, "ìlm": true,
+var firstMap = map[string]bool{"ay": true, "asy": true, "aly": true, "ary": true, "ìy": true, "iy": true, "ìsy": true,
+	"ìly": true, "ìry": true, "ol": true, "er": true, "ìm": true, "im": true, "ìlm": true,
 	"ìrm": true, "am": true, "alm": true, "arm": true, "ìyev": true, "iyev": true,
 	"iv": true, "ilv": true, "irv": true, "imv": true, "us": true, "awn": true}
 var secondMap = map[string]bool{"ei": true, "eiy": true, "äng": true, "uy": true, "ats": true, "ap": true, "ang": true}
@@ -158,6 +158,8 @@ var unreefFixes = map[string]string{
 	"iri":   "ìri",
 	"ap":    "äp",
 	"ang":   "äng",
+	"iy":    "ìy",
+ "im":    "ìm",
 }
 
 var weirdNounSuffixes = map[string]string{
