@@ -302,6 +302,7 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 	i := start
 
 	containsUmlaut := []bool{}
+	containsTìftang := []bool{}
 
 	tempResults := []Word{}
 	searchNaviWord := ""
@@ -313,6 +314,12 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 				containsUmlaut = append(containsUmlaut, true)
 			} else {
 				containsUmlaut = append(containsUmlaut, false)
+			}
+
+			if strings.Contains(a, "'") {
+				containsTìftang = append(containsTìftang, true)
+			} else {
+				containsTìftang = append(containsTìftang, false)
 			}
 		}
 
@@ -336,11 +343,15 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 			if containsUmlaut[i] && !strings.Contains(strings.ToLower(a.Navi), "ä") {
 				continue // ä can unstress to e, but not the other way around
 			}
+			if containsTìftang[i] && !strings.Contains(a.Navi, "'") {
+				continue // make sure tsa'u doesn't return tsa-au
+			}
 			tempResults = append(tempResults, a)
 		}
 	} else {
 		for range len(allWords) {
 			containsUmlaut = append(containsUmlaut, true)
+			containsTìftang = append(containsTìftang, true)
 		}
 
 		searchNaviWord = allWords[i]
@@ -501,6 +512,9 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 				if !containsUmlaut[i] && !strings.Contains(searchNaviWord, "a") && strings.Contains(a.Navi, "ä") {
 					continue
 				}
+			}
+			if containsTìftang[i] && !strings.Contains(a.Navi, "'") {
+				continue // make sure tsa'u doesn't return tsa-au
 			}
 			tempNewResults = append(tempNewResults, a)
 		}
