@@ -316,7 +316,8 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 				containsUmlaut = append(containsUmlaut, false)
 			}
 
-			if strings.Contains(a, "'") {
+			strippedA := strings.TrimPrefix(strings.TrimSuffix(a, "'"), "'")
+			if strings.Contains(strippedA, "'") {
 				containsTìftang = append(containsTìftang, true)
 			} else {
 				containsTìftang = append(containsTìftang, false)
@@ -343,7 +344,14 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 			if containsUmlaut[i] && !strings.Contains(strings.ToLower(a.Navi), "ä") {
 				continue // ä can unstress to e, but not the other way around
 			}
-			if containsTìftang[i] && !strings.Contains(a.Navi, "'") {
+			strippedA := a.Navi
+			if len(a.Affixes.Prefix) == 0 {
+				strippedA = strings.TrimPrefix(strippedA, "'")
+			}
+			if len(a.Affixes.Suffix) == 0 {
+				strippedA = strings.TrimSuffix(strippedA, "'")
+			}
+			if containsTìftang[i] && !strings.Contains(strippedA, "'") {
 				continue // make sure tsa'u doesn't return tsa-au
 			}
 			tempResults = append(tempResults, a)
@@ -513,7 +521,14 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 					continue
 				}
 			}
-			if containsTìftang[i] && !strings.Contains(a.Navi, "'") {
+			strippedA := a.Navi
+			if len(a.Affixes.Prefix) == 0 {
+				strippedA = strings.TrimPrefix(strippedA, "'")
+			}
+			if len(a.Affixes.Suffix) == 0 {
+				strippedA = strings.TrimSuffix(strippedA, "'")
+			}
+			if containsTìftang[i] && !strings.Contains(strippedA, "'") {
 				continue // make sure tsa'u doesn't return tsa-au
 			}
 			tempNewResults = append(tempNewResults, a)
