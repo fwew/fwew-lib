@@ -159,8 +159,8 @@ var unreefFixes = map[string]string{
 	"ap":    "äp",
 	"ang":   "äng",
 	"iy":    "ìy",
- "im":    "ìm",
- "tsyip": "tsyìp",
+	"im":    "ìm",
+	"tsyip": "tsyìp",
 }
 
 var weirdNounSuffixes = map[string]string{
