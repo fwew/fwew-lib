@@ -113,7 +113,7 @@ var vowelSuffixes = map[string][]string{
 	"ìlä": []string{"ì"},
 	"o":   []string{"o"},
 }
-var stemSuffixes = []string{"tsyìp", "fkeyk"}
+var stemSuffixes = []string{"tsyìp", "tsyip", "fkeyk"}
 var verbSuffixes = []string{"tswo", "yu"}
 
 var infixes = map[rune][]string{
@@ -159,7 +159,8 @@ var unreefFixes = map[string]string{
 	"ap":    "äp",
 	"ang":   "äng",
 	"iy":    "ìy",
- "im":    "ìm",
+	"im":    "ìm",
+	"tsyip": "tsyìp",
 }
 
 var weirdNounSuffixes = map[string]string{

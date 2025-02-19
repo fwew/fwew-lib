@@ -525,21 +525,21 @@ func CacheDictHashOrig(mysql bool) error {
 		}
 
 		// If the word appears more than once, record it
-		if _, ok := dictHashLoose[standardizedWordLoose]; ok {
+		if _, ok := dictHashStrict[standardizedWord]; ok {
 			found := false
 			for _, a := range tempHoms {
-				if a == standardizedWordLoose {
+				if a == standardizedWord {
 					found = true
 					break
 				}
 			}
 			if !found {
-				tempHoms = append(tempHoms, standardizedWordLoose)
+				tempHoms = append(tempHoms, standardizedWord)
 			}
 		}
 
-		if strings.Contains(standardizedWordLoose, "é") {
-			noAcute := strings.ReplaceAll(standardizedWordLoose, "é", "e")
+		if strings.Contains(standardizedWord, "é") {
+			noAcute := strings.ReplaceAll(standardizedWord, "é", "e")
 			found := false
 			for _, a := range tempHoms {
 				if a == noAcute {
@@ -549,7 +549,7 @@ func CacheDictHashOrig(mysql bool) error {
 			}
 			if !found {
 				tempHoms = append(tempHoms, noAcute)
-				tempHoms = append(tempHoms, standardizedWordLoose)
+				tempHoms = append(tempHoms, standardizedWord)
 			}
 		}
 

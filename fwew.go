@@ -302,6 +302,7 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 	i := start
 
 	containsUmlaut := []bool{}
+	containsTìftang := []bool{}
 
 	tempResults := []Word{}
 	searchNaviWord := ""
@@ -313,6 +314,13 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 				containsUmlaut = append(containsUmlaut, true)
 			} else {
 				containsUmlaut = append(containsUmlaut, false)
+			}
+
+			strippedA := strings.TrimPrefix(strings.TrimSuffix(a, "'"), "'")
+			if strings.Contains(strippedA, "'") {
+				containsTìftang = append(containsTìftang, true)
+			} else {
+				containsTìftang = append(containsTìftang, false)
 			}
 		}
 
@@ -336,11 +344,22 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 			if containsUmlaut[i] && !strings.Contains(strings.ToLower(a.Navi), "ä") {
 				continue // ä can unstress to e, but not the other way around
 			}
+			strippedA := a.Navi
+			if len(a.Affixes.Prefix) == 0 {
+				strippedA = strings.TrimPrefix(strippedA, "'")
+			}
+			if len(a.Affixes.Suffix) == 0 {
+				strippedA = strings.TrimSuffix(strippedA, "'")
+			}
+			if containsTìftang[i] && !strings.Contains(strippedA, "'") {
+				continue // make sure tsa'u doesn't return tsa-au
+			}
 			tempResults = append(tempResults, a)
 		}
 	} else {
 		for range len(allWords) {
 			containsUmlaut = append(containsUmlaut, true)
+			containsTìftang = append(containsTìftang, true)
 		}
 
 		searchNaviWord = allWords[i]
@@ -501,6 +520,16 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 				if !containsUmlaut[i] && !strings.Contains(searchNaviWord, "a") && strings.Contains(a.Navi, "ä") {
 					continue
 				}
+			}
+			strippedA := a.Navi
+			if len(a.Affixes.Prefix) == 0 {
+				strippedA = strings.TrimPrefix(strippedA, "'")
+			}
+			if len(a.Affixes.Suffix) == 0 {
+				strippedA = strings.TrimSuffix(strippedA, "'")
+			}
+			if containsTìftang[i] && !strings.Contains(strippedA, "'") {
+				continue // make sure tsa'u doesn't return tsa-au
 			}
 			tempNewResults = append(tempNewResults, a)
 		}
