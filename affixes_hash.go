@@ -136,7 +136,7 @@ var firstMap = map[string]bool{"ay": true, "asy": true, "aly": true, "ary": true
 	"ìly": true, "ìry": true, "ol": true, "er": true, "ìm": true, "im": true, "ìlm": true,
 	"ìrm": true, "am": true, "alm": true, "arm": true, "ìyev": true, "iyev": true,
 	"iv": true, "ilv": true, "irv": true, "imv": true, "us": true, "awn": true}
-var secondMap = map[string]bool{"ei": true, "eiy": true, "äng": true, "uy": true, "ats": true, "ap": true, "ang": true}
+var secondMap = map[string]bool{"ei": true, "eiy": true, "äng": true, "uy": true, "ats": true, "ap": true, "ang": true, "eng": true}
 
 var unreefFixes = map[string]string{
 	"eng":    "äng",
