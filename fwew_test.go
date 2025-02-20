@@ -934,6 +934,21 @@ var naviWords = []struct {
 			},
 		},
 	}, // ìy
+	{
+		name: "längu",
+		args: args{
+			searchNaviText: "längu",
+		},
+		want: []Word{
+			{
+				ID:   "1044",
+				Navi: "lu",
+				Affixes: affix{
+					Infix: []string{"äng"},
+				},
+			},
+		},
+	}, // ìy
 }
 var englishWords = []struct {
 	name string
