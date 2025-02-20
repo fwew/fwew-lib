@@ -1045,7 +1045,6 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 									if b[0] == "si" {
 										siVerb = true
 										a := c
-										a.Navi = candidate.Word + " si"
 										a.Affixes.Lenition = candidate.Lenition
 										a.Affixes.Prefix = candidate.Prefixes
 										a.Affixes.Infix = candidate.Infixes
@@ -1057,7 +1056,6 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 							}
 							if !siVerb {
 								a := c
-								a.Navi = candidate.Word
 								a.Affixes.Lenition = candidate.Lenition
 								a.Affixes.Prefix = candidate.Prefixes
 								a.Affixes.Infix = candidate.Infixes
