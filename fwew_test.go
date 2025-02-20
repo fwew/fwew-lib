@@ -948,7 +948,7 @@ var naviWords = []struct {
 				},
 			},
 		},
-	}, // ìy
+	}, // äng
 }
 var englishWords = []struct {
 	name string
