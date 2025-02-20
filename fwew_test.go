@@ -1053,10 +1053,6 @@ var englishNoParen = []struct {
 				Navi: "ioang",
 			},
 			{
-				ID:   "9460",
-				Navi: "kxänäng",
-			},
-			{
 				ID:   "1440",
 				Navi: "pa'li",
 			},
@@ -1095,10 +1091,6 @@ var englishParen = []struct {
 			{
 				ID:   "612",
 				Navi: "ioang",
-			},
-			{
-				ID:   "9460",
-				Navi: "kxänäng",
 			},
 			{
 				ID:   "1440",
