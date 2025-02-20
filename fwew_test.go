@@ -859,6 +859,21 @@ var naviWords = []struct {
 			},
 		},
 	}, // See if it can search words without diacritics
+	{
+		name: "za'utswo",
+		args: args{
+			searchNaviText: "za'utswo",
+		},
+		want: []Word{
+			{
+				ID:   "2792",
+				Navi: "za'u",
+				Affixes: affix{
+					Suffix: []string{"tswo"},
+				},
+			},
+		},
+	}, // See if it can search words without diacritics
 }
 var englishWords = []struct {
 	name string
