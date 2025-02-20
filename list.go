@@ -91,7 +91,7 @@ func filterPos(results []Word, word Word, args []string) []Word {
 	}
 
 	if condMap[cond] {
-		return append(results, word)
+		return AppendAndAlphabetize(results, word)
 	}
 
 	return results
@@ -137,13 +137,13 @@ func filterWord(results []Word, word Word, args []string, checkDigraphs uint8) [
 		Text("c_like-none"):   satisfiesNone(word, cond, spec),
 		Text("c_not-starts"):  !strings.HasPrefix(syllables, spec),
 		Text("c_not-ends"):    !strings.HasSuffix(syllables, spec),
-		Text("c_not-has"):     plus && !strings.Contains(navi, spec) || !strings.HasSuffix(syllables, spec),
+		Text("c_not-has"):     plus && !strings.Contains(navi, spec) || !strings.Contains(syllables, spec),
 		Text("c_not-like"):    !Glob(spec, syllables),
 		Text("c_matches"):     spec != "+" && regexp.MustCompile(spec).MatchString(navi),
 	}
 
 	if condMap[cond] {
-		return append(results, word)
+		return AppendAndAlphabetize(results, word)
 	}
 
 	return results
@@ -218,7 +218,7 @@ func filterNumeric(results []Word, word Word, args []string) (filtered []Word, e
 	}
 
 	if condMap[cond] {
-		filtered = append(results, word)
+		filtered = AppendAndAlphabetize(results, word)
 		return
 	}
 

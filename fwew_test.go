@@ -25,7 +25,7 @@ import (
 
 func TestMain(m *testing.M) {
 	// assure dict, so tests wont fail
-	AssureDict()
+	_ = AssureDict()
 
 	// call flag.Parse() here if TestMain uses flags
 	if testing.CoverMode() != "" {
@@ -873,7 +873,66 @@ var naviWords = []struct {
 				},
 			},
 		},
-	}, // See if it can search words without diacritics
+	}, // tìftangs and suffixes
+		name: "heykìmangheiam",
+		args: args{
+			searchNaviText: "heykìmangheiam",
+		},
+		want: []Word{
+			{
+				ID:   "3716",
+				Navi: "hangham",
+				Affixes: affix{
+					Infix: []string{"eyk", "ìm", "ei"},
+				},
+			},
+		},
+	}, // eyk ìm ei
+	{
+		name: "heykìyangheiam",
+		args: args{
+			searchNaviText: "heykìyangheiam",
+		},
+		want: []Word{
+			{
+				ID:   "3716",
+				Navi: "hangham",
+				Affixes: affix{
+					Infix: []string{"eyk", "ìy", "ei"},
+				},
+			},
+		},
+	}, // eyk ìy ei
+	{
+		name: "lìmu",
+		args: args{
+			searchNaviText: "lìmu",
+		},
+		want: []Word{
+			{
+				ID:   "1044",
+				Navi: "lu",
+				Affixes: affix{
+					Infix: []string{"ìm"},
+				},
+			},
+		},
+	}, // ìm
+	{
+		name: "lìmu",
+		args: args{
+			searchNaviText: "lìmu",
+		},
+		want: []Word{
+			{
+				ID:   "1044",
+				Navi: "lu",
+				Affixes: affix{
+					Infix: []string{"ìm"},
+				},
+			},
+		},
+	}, // ìy
 }
 var englishWords = []struct {
 	name string
@@ -1119,14 +1178,14 @@ func BenchmarkTranslateFromNavi(b *testing.B) {
 	for _, bm := range naviWords {
 		b.Run(bm.name, func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				TranslateFromNaviHash(bm.args.searchNaviText, true, false)
+				_, _ = TranslateFromNaviHash(bm.args.searchNaviText, true, false)
 			}
 		})
 	}
 }
 
 func BenchmarkTranslateFromNaviCached(b *testing.B) {
-	CacheDictHash()
+	_ = CacheDictHash()
 	BenchmarkTranslateFromNavi(b)
 	UncacheHashDict()
 }
@@ -1136,7 +1195,12 @@ func BenchmarkTranslateFromNaviBig(b *testing.B) {
 	if err != nil {
 		return
 	}
-	defer open.Close()
+	defer func(open *os.File) {
+		err := open.Close()
+		if err != nil {
+			panic(err)
+		}
+	}(open)
 
 	scanner := bufio.NewScanner(open)
 	for scanner.Scan() {
@@ -1144,14 +1208,14 @@ func BenchmarkTranslateFromNaviBig(b *testing.B) {
 
 		b.Run(line, func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				TranslateFromNaviHash(line, true, false)
+				_, _ = TranslateFromNaviHash(line, true, false)
 			}
 		})
 	}
 }
 
 func BenchmarkTranslateFromNaviBigCached(b *testing.B) {
-	CacheDictHash()
+	_ = CacheDictHash()
 	BenchmarkTranslateFromNaviBig(b)
 	UncacheHashDict()
 }
@@ -1250,7 +1314,12 @@ func BenchmarkTranslateToNaviBig(b *testing.B) {
 	if err != nil {
 		return
 	}
-	defer open.Close()
+	defer func(open *os.File) {
+		err := open.Close()
+		if err != nil {
+			panic(err)
+		}
+	}(open)
 
 	scanner := bufio.NewScanner(open)
 	for scanner.Scan() {
@@ -1265,7 +1334,7 @@ func BenchmarkTranslateToNaviBig(b *testing.B) {
 }
 
 func BenchmarkTranslateToNaviBigCached(b *testing.B) {
-	CacheDictHash2()
+	_ = CacheDictHash2()
 	BenchmarkTranslateToNaviBig(b)
 	UncacheHashDict2()
 }
@@ -1331,7 +1400,7 @@ func TestRandom(t *testing.T) {
 }
 
 func TestRandomCached(t *testing.T) {
-	CacheDictHash()
+	_ = CacheDictHash()
 	TestRandom(t)
 	UncacheHashDict()
 }
