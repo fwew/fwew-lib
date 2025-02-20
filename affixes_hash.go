@@ -129,7 +129,7 @@ var infixes = map[rune][]string{
 var prefirst = []string{"äp", "äpeyk", "eyk", "epeyk", "ep"}
 var first = []string{"ay", "asy", "aly", "ary", "ìy", "iy", "ìsy", "ìly", "ìry", "ol", "er", "ìm", "im",
 	"ìlm", "ìrm", "am", "alm", "arm", "ìyev", "iyev", "iv", "ilv", "irv", "imv", "us", "awn"}
-var second = []string{"ei", "eiy", "äng", "eng", "uy", "ats"}
+var second = []string{"ei", "eiy", "äng", "eng", "ang", "uy", "ats"}
 
 var prefirstMap = map[string]bool{"äp": true, "äpeyk": true, "eyk": true, "ep": true, "epeyk": true}
 var firstMap = map[string]bool{"ay": true, "asy": true, "aly": true, "ary": true, "ìy": true, "iy": true, "ìsy": true,
