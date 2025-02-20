@@ -874,6 +874,7 @@ var naviWords = []struct {
 			},
 		},
 	}, // tìftangs and suffixes
+	{
 		name: "heykìmangheiam",
 		args: args{
 			searchNaviText: "heykìmangheiam",
