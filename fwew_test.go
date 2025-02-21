@@ -934,6 +934,21 @@ var naviWords = []struct {
 			},
 		},
 	}, // ìy
+	{
+		name: "längu",
+		args: args{
+			searchNaviText: "längu",
+		},
+		want: []Word{
+			{
+				ID:   "1044",
+				Navi: "lu",
+				Affixes: affix{
+					Infix: []string{"äng"},
+				},
+			},
+		},
+	}, // äng
 }
 var englishWords = []struct {
 	name string
@@ -1053,10 +1068,6 @@ var englishNoParen = []struct {
 				Navi: "ioang",
 			},
 			{
-				ID:   "9460",
-				Navi: "kxänäng",
-			},
-			{
 				ID:   "1440",
 				Navi: "pa'li",
 			},
@@ -1095,10 +1106,6 @@ var englishParen = []struct {
 			{
 				ID:   "612",
 				Navi: "ioang",
-			},
-			{
-				ID:   "9460",
-				Navi: "kxänäng",
 			},
 			{
 				ID:   "1440",
