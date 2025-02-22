@@ -359,7 +359,7 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 	} else {
 		for range len(allWords) {
 			containsUmlaut = append(containsUmlaut, true)
-			containsTìftang = append(containsTìftang, true)
+			containsTìftang = append(containsTìftang, false)
 		}
 
 		searchNaviWord = allWords[i]

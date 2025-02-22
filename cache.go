@@ -561,9 +561,8 @@ func CacheDictHashOrig(mysql bool) error {
 		if strings.Contains(word.IPA, " or ") {
 			multiIPA += word.Navi + " "
 			secondTerm := RomanizeSecondIPA(word.IPA)
-			secondTerm = dialectCrunch([]string{secondTerm}, true)[0]
 			if secondTerm != standardizedWord {
-				dictHashLoose[secondTerm] = append(dictHashLoose[secondTerm], word)
+				dictHashLoose[dialectCrunch([]string{secondTerm}, true)[0]] = append(dictHashLoose[dialectCrunch([]string{secondTerm}, true)[0]], word)
 				dictHashStrict[secondTerm] = append(dictHashStrict[secondTerm], word)
 			}
 		}
