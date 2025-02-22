@@ -949,6 +949,108 @@ var naviWords = []struct {
 			},
 		},
 	}, // äng
+	{
+		name: "lìsyek",
+		args: args{
+			searchNaviText: "lìsyek",
+		},
+		want: []Word{
+			{
+				ID:   "3764",
+				Navi: "lek",
+				Affixes: affix{
+					Infix: []string{"ìsy"},
+				},
+			},
+		},
+	}, // ìsy
+	{
+		name: "'ìlmi'a",
+		args: args{
+			searchNaviText: "'ìlmi'a",
+		},
+		want: []Word{
+			{
+				ID:   "3684",
+				Navi: "'i'a",
+				Affixes: affix{
+					Infix: []string{"ìlm"},
+				},
+			},
+		},
+	}, // ìlm
+	{
+		name: "Tsyìmawnun'iyä",
+		args: args{
+			searchNaviText: "Tsyìmawnun'iyä",
+		},
+		want: []Word{
+			{
+				ID:   "13367",
+				Navi: "tìsyìmawnun'i",
+				Affixes: affix{
+					Suffix: []string{"yä"},
+				},
+			},
+		},
+	}, // secondary spellings from IPA with diacritics
+	{
+		name: "pìsyeng",
+		args: args{
+			searchNaviText: "pìsyeng",
+		},
+		want: []Word{
+			{
+				ID:   "1512",
+				Navi: "peng",
+				Affixes: affix{
+					Infix: []string{"ìsy"},
+				},
+			},
+		},
+	}, // ìsy
+	{
+		name: "'ìlmeko",
+		args: args{
+			searchNaviText: "'ìlmeko",
+		},
+		want: []Word{
+			{
+				ID:   "44",
+				Navi: "'eko",
+				Affixes: affix{
+					Infix: []string{"ìlm"},
+				},
+			},
+		},
+	}, // ìlm
+	{
+		name: "tarmìng nari",
+		args: args{
+			searchNaviText: "tarmìng nari",
+		},
+		want: []Word{
+			{
+				ID:   "2184",
+				Navi: "tìng nari",
+				Affixes: affix{
+					Infix: []string{"arm"},
+				},
+			},
+		},
+	}, // arm
+	{
+		name: "ätxäle si",
+		args: args{
+			searchNaviText: "ätxäle si",
+		},
+		want: []Word{
+			{
+				ID:   "248",
+				Navi: "ätxäle si",
+			},
+		},
+	}, // diacritics and multiwords
 }
 var englishWords = []struct {
 	name string
@@ -1135,6 +1237,7 @@ func TestTranslateFromNaviCached(t *testing.T) {
 
 	err1 = CacheDictHash()
 	err2 = CacheDictHash2()
+	PhonemeDistros()
 
 	if err1 != nil {
 		t.Errorf("TranslateFromNaviCached() Failed to CacheDictHash")
@@ -1274,6 +1377,7 @@ func TestBidirectionalCached(t *testing.T) {
 
 	err1 = CacheDictHash()
 	err2 = CacheDictHash2()
+	PhonemeDistros()
 
 	if err1 != nil {
 		t.Errorf("TranslateToNaviCached() Failed to CacheDictHash")

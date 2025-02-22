@@ -120,7 +120,7 @@ var infixes = map[rune][]string{
 	rune('a'): {"ay", "asy", "aly", "ary", "am", "alm", "arm", "ats", "awn", "ap", "ang"},
 	rune('ä'): {"äng", "äpeyk", "äp"},
 	rune('e'): {"epeyk", "ep", "eng", "er", "ei", "eiy", "eyk"},
-	rune('i'): {"iv", "ilv", "irv", "imv", "iyev", "im", "iy"},
+	rune('i'): {"iy", "isy", "ily", "iry", "im", "ilm", "irm", "iyev", "iv", "ilv", "irv", "imv"},
 	rune('ì'): {"ìy", "ìsy", "ìly", "ìry", "ìm", "ìlm", "ìrm", "ìyev"},
 	rune('o'): {"ol"},
 	rune('u'): {"us", "uy"},
@@ -128,14 +128,14 @@ var infixes = map[rune][]string{
 
 var prefirst = []string{"äp", "äpeyk", "eyk", "epeyk", "ep"}
 var first = []string{"ay", "asy", "aly", "ary", "ìy", "iy", "ìsy", "ìly", "ìry", "ol", "er", "ìm", "im",
-	"ìlm", "ìrm", "am", "alm", "arm", "ìyev", "iyev", "iv", "ilv", "irv", "imv", "us", "awn"}
+	"ìlm", "ìrm", "am", "alm", "arm", "ìyev", "iyev", "iv", "ilv", "irv", "imv", "us", "awn", "isy", "ily", "iry", "ilm", "irm"}
 var second = []string{"ei", "eiy", "äng", "eng", "ang", "uy", "ats"}
 
 var prefirstMap = map[string]bool{"äp": true, "äpeyk": true, "eyk": true, "ep": true, "epeyk": true}
 var firstMap = map[string]bool{"ay": true, "asy": true, "aly": true, "ary": true, "ìy": true, "iy": true, "ìsy": true,
 	"ìly": true, "ìry": true, "ol": true, "er": true, "ìm": true, "im": true, "ìlm": true,
 	"ìrm": true, "am": true, "alm": true, "arm": true, "ìyev": true, "iyev": true,
-	"iv": true, "ilv": true, "irv": true, "imv": true, "us": true, "awn": true}
+	"iv": true, "ilv": true, "irv": true, "imv": true, "us": true, "awn": true, "isy": true, "ily": true, "iry": true, "ilm": true, "irm": true}
 var secondMap = map[string]bool{"ei": true, "eiy": true, "äng": true, "uy": true, "ats": true, "ap": true, "ang": true, "eng": true}
 
 var unreefFixes = map[string]string{
@@ -160,6 +160,8 @@ var unreefFixes = map[string]string{
 	"ang":   "äng",
 	"iy":    "ìy",
 	"im":    "ìm",
+	"ilm":   "ìlm",
+	"isy":   "ìsy",
 	"tsyip": "tsyìp",
 }
 
@@ -368,21 +370,8 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 				aPosition = 1
 			}
 
-			for _, pairWordSet := range multiword_words[trimmedWord] {
-				for _, pairWord := range pairWordSet {
-					if pairWord == "si" {
-						found = true
-						break
-					}
-				}
-				if found {
-					break
-				}
-			}
-
-			if !found && aPosition == 0 && strings.HasPrefix(trimmedWord, "a") {
-				noA := strings.TrimPrefix(trimmedWord, "a")
-				for _, pairWordSet := range multiword_words[noA] {
+			if strict {
+				for _, pairWordSet := range multiword_words[trimmedWord] {
 					for _, pairWord := range pairWordSet {
 						if pairWord == "si" {
 							found = true
@@ -390,8 +379,51 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 						}
 					}
 					if found {
-						aPosition = -1
 						break
+					}
+				}
+			} else {
+				for _, pairWordSet := range multiword_words_loose[trimmedWord] {
+					for _, pairWord := range pairWordSet {
+						if pairWord == "si" {
+							found = true
+							break
+						}
+					}
+					if found {
+						break
+					}
+				}
+			}
+
+			if !found && aPosition == 0 && strings.HasPrefix(trimmedWord, "a") {
+				noA := strings.TrimPrefix(trimmedWord, "a")
+
+				if strict {
+					for _, pairWordSet := range multiword_words[noA] {
+						for _, pairWord := range pairWordSet {
+							if pairWord == "si" {
+								found = true
+								break
+							}
+						}
+						if found {
+							aPosition = -1
+							break
+						}
+					}
+				} else {
+					for _, pairWordSet := range multiword_words_loose[noA] {
+						for _, pairWord := range pairWordSet {
+							if pairWord == "si" {
+								found = true
+								break
+							}
+						}
+						if found {
+							aPosition = -1
+							break
+						}
 					}
 				}
 			}
@@ -1040,28 +1072,54 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 					if pos[0] == 'v' {
 						siVerb := false
 						if len(candidate.Infixes) == 0 {
-							if _, ok := multiword_words[candidate.Word]; ok {
-								for _, b := range multiword_words[candidate.Word] {
-									if b[0] == "si" {
-										siVerb = true
-										a := c
-										a.Affixes.Lenition = candidate.Lenition
-										a.Affixes.Prefix = candidate.Prefixes
-										a.Affixes.Infix = candidate.Infixes
-										a.Affixes.Suffix = candidate.Suffixes
-										results = AppendAndAlphabetize(results, a)
-										break
+							if strict {
+								if _, ok := multiword_words[candidate.Word]; ok {
+									for _, b := range multiword_words[candidate.Word] {
+										if b[0] == "si" {
+											siVerb = true
+											a := c
+											a.Affixes.Lenition = candidate.Lenition
+											a.Affixes.Prefix = candidate.Prefixes
+											a.Affixes.Infix = candidate.Infixes
+											a.Affixes.Suffix = candidate.Suffixes
+											results = AppendAndAlphabetize(results, a)
+											break
+										}
 									}
 								}
+								if !siVerb {
+									a := c
+									a.Affixes.Lenition = candidate.Lenition
+									a.Affixes.Prefix = candidate.Prefixes
+									a.Affixes.Infix = candidate.Infixes
+									a.Affixes.Suffix = candidate.Suffixes
+									results = AppendAndAlphabetize(results, a)
+								}
+							} else {
+								if _, ok := multiword_words_loose[candidate.Word]; ok {
+									for _, b := range multiword_words_loose[candidate.Word] {
+										if b[0] == "si" {
+											siVerb = true
+											a := c
+											a.Affixes.Lenition = candidate.Lenition
+											a.Affixes.Prefix = candidate.Prefixes
+											a.Affixes.Infix = candidate.Infixes
+											a.Affixes.Suffix = candidate.Suffixes
+											results = AppendAndAlphabetize(results, a)
+											break
+										}
+									}
+								}
+								if !siVerb {
+									a := c
+									a.Affixes.Lenition = candidate.Lenition
+									a.Affixes.Prefix = candidate.Prefixes
+									a.Affixes.Infix = candidate.Infixes
+									a.Affixes.Suffix = candidate.Suffixes
+									results = AppendAndAlphabetize(results, a)
+								}
 							}
-							if !siVerb {
-								a := c
-								a.Affixes.Lenition = candidate.Lenition
-								a.Affixes.Prefix = candidate.Prefixes
-								a.Affixes.Infix = candidate.Infixes
-								a.Affixes.Suffix = candidate.Suffixes
-								results = AppendAndAlphabetize(results, a)
-							}
+
 						}
 					}
 				} else if gerund {
