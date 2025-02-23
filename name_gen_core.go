@@ -594,6 +594,9 @@ func PhonemeDistros() {
 	// get the dict
 	words, err := List([]string{}, 0)
 
+	clear(multiword_words)
+	clear(multiword_words_loose)
+
 	if err != nil || len(words) == 0 {
 		return
 	}

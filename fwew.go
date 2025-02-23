@@ -592,8 +592,14 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 							// Find all words the second word can represent
 							secondWords := []Word{}
 
+							allWord := allWords[i+j+1]
+
+							if !strict {
+								pairWord = dialectCrunch([]string{pairWord}, false)[0]
+							}
+
 							// First by itself
-							if pairWord == allWords[i+j+1] {
+							if pairWord == allWord {
 								found = true
 								results[0][0].Navi += " " + allWords[i+j+1]
 								continue
