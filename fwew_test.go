@@ -1051,6 +1051,21 @@ var naviWords = []struct {
 			},
 		},
 	}, // diacritics and multiwords
+	{
+		name: "tivìng zekwä",
+		args: args{
+			searchNaviText: "tivìng zekwä",
+		},
+		want: []Word{
+			{
+				ID:   "10524",
+				Navi: "tìng zekwä",
+				Affixes: affix{
+					Infix: []string{"iv"},
+				},
+			},
+		},
+	}, // diacritics and multiwords
 }
 var englishWords = []struct {
 	name string
