@@ -359,7 +359,7 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 	} else {
 		for range len(allWords) {
 			containsUmlaut = append(containsUmlaut, true)
-			containsTìftang = append(containsTìftang, true)
+			containsTìftang = append(containsTìftang, false)
 		}
 
 		searchNaviWord = allWords[i]
@@ -385,9 +385,13 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 	//if !bareNaviWord {
 	found := false
 	// See if it is in the list known to start multiword words
-	if _, ok := multiword_words[searchNaviWord]; ok {
+	multiwords := &multiword_words
+	if !strict {
+		multiwords = &multiword_words_loose
+	}
+	if _, ok := (*multiwords)[searchNaviWord]; ok {
 		// If so, loop through it
-		for _, pairWordSet := range multiword_words[searchNaviWord] {
+		for _, pairWordSet := range (*multiwords)[searchNaviWord] {
 			if foundAlready {
 				break
 			}
@@ -540,11 +544,13 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 		found := false
 		// Find the results words
 
+		multiwords = &multiword_words
+
 		for _, a := range results[len(results)-1] {
 			// See if it is in the list known to start multiword words
-			if _, ok := multiword_words[a.Navi]; ok {
+			if _, ok := (*multiwords)[a.Navi]; ok {
 				// If so, loop through it
-				for _, pairWordSet := range multiword_words[a.Navi] {
+				for _, pairWordSet := range (*multiwords)[a.Navi] {
 					if foundAlready {
 						break
 					}
@@ -586,8 +592,14 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 							// Find all words the second word can represent
 							secondWords := []Word{}
 
+							allWord := allWords[i+j+1]
+
+							if !strict {
+								pairWord = dialectCrunch([]string{pairWord}, false)[0]
+							}
+
 							// First by itself
-							if pairWord == allWords[i+j+1] {
+							if pairWord == allWord {
 								found = true
 								results[0][0].Navi += " " + allWords[i+j+1]
 								continue
@@ -621,6 +633,9 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 
 						results[0] = []Word{results[0][0]}
 						a := strings.ReplaceAll(fullWord, "ù", "u")
+						if !strict {
+							a = dialectCrunch([]string{a}, false)[0]
+						}
 
 						for _, definition := range (*dict)[a] {
 							// Replace the word
@@ -985,8 +1000,6 @@ func BidirectionalSearch(searchNaviWords string, checkFixes bool, langCode strin
 
 		// ...but not with the Na'vi words
 		results[len(results)-1] = append(results[len(results)-1], natlangWords...)
-
-		results[len(results)-1][0].Navi = allWords[i]
 
 		i += j
 
