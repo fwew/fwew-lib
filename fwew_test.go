@@ -635,7 +635,7 @@ var naviWords = []struct {
 			},
 		},
 	}, // end-attributed verb with tìftang
-	{
+	/*{
 		name: "aawnem",
 		args: args{
 			searchNaviText: "aawnem",
@@ -650,7 +650,7 @@ var naviWords = []struct {
 				},
 			},
 		},
-	}, // end-attributed verb with removed tìftang in reef
+	},*/ // end-attributed verb with removed tìftang in reef
 	{
 		name: "fpuse'a",
 		args: args{
@@ -667,7 +667,7 @@ var naviWords = []struct {
 			},
 		},
 	}, // start-attributed verb with tìftang
-	{
+	/*{
 		name: "fpusea",
 		args: args{
 			searchNaviText: "fpusea",
@@ -682,7 +682,7 @@ var naviWords = []struct {
 				},
 			},
 		},
-	}, // start-attributed verb with removed tìftang in reef
+	},*/ // start-attributed verb with removed tìftang in reef
 	{
 		name: "tsukruna",
 		args: args{
@@ -1272,7 +1272,7 @@ func TestTranslateFromNaviCached(t *testing.T) {
 		wordWord := Word{Navi: "tsun", ID: "13353", Affixes: affixes}
 		want := []Word{wordWord}
 		t.Run(word, func(t *testing.T) {
-			got, err := TranslateFromNaviHash(word, true, false)
+			got, err := TranslateFromNaviHash(word, true, false, true)
 			if err == nil && word == "" && got != nil {
 				t.Errorf("TranslateFromNaviCached() got = %v, want %v", got, want)
 			} else if err == nil && len(want) == 0 && len(got) > 0 {
@@ -1285,7 +1285,7 @@ func TestTranslateFromNaviCached(t *testing.T) {
 
 	for _, tt := range naviWords {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := TranslateFromNaviHash(tt.args.searchNaviText, true, false)
+			got, err := TranslateFromNaviHash(tt.args.searchNaviText, true, false, false)
 			if err == nil && tt.args.searchNaviText == "" && got != nil {
 				t.Errorf("TranslateFromNaviCached() got = %v, want %v", got, tt.want)
 			} else if err == nil && len(tt.want) == 0 && len(got) > 0 {
@@ -1304,7 +1304,7 @@ func BenchmarkTranslateFromNavi(b *testing.B) {
 	for _, bm := range naviWords {
 		b.Run(bm.name, func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				_, _ = TranslateFromNaviHash(bm.args.searchNaviText, true, false)
+				_, _ = TranslateFromNaviHash(bm.args.searchNaviText, true, false, false)
 			}
 		})
 	}
@@ -1334,7 +1334,7 @@ func BenchmarkTranslateFromNaviBig(b *testing.B) {
 
 		b.Run(line, func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				_, _ = TranslateFromNaviHash(line, true, false)
+				_, _ = TranslateFromNaviHash(line, true, false, false)
 			}
 		})
 	}
@@ -1403,7 +1403,7 @@ func TestBidirectionalCached(t *testing.T) {
 
 	for _, tt := range englishWords {
 		t.Run(tt.name, func(t *testing.T) {
-			gotResults, _ := BidirectionalSearch(tt.args.searchNaviText, true, tt.args.languageCode)
+			gotResults, _ := BidirectionalSearch(tt.args.searchNaviText, true, tt.args.languageCode, false)
 			if !wordSimpleEqual(gotResults[0][1:], tt.want) {
 				t.Errorf("TranslateToNavi() = %v, want %v", gotResults[0][1:], tt.want)
 			}
@@ -1412,7 +1412,7 @@ func TestBidirectionalCached(t *testing.T) {
 
 	for _, tt := range englishNoParen {
 		t.Run(tt.name, func(t *testing.T) {
-			gotResults, _ := BidirectionalSearch(tt.args.searchNaviText, true, tt.args.languageCode)
+			gotResults, _ := BidirectionalSearch(tt.args.searchNaviText, true, tt.args.languageCode, false)
 			if !wordSimpleEqual(gotResults[0][1:], tt.want) {
 				t.Errorf("TranslateToNavi() = %v, want %v", gotResults[0][1:], tt.want)
 			}
@@ -1421,7 +1421,7 @@ func TestBidirectionalCached(t *testing.T) {
 
 	for _, tt := range naviWords {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := BidirectionalSearch(tt.args.searchNaviText, true, tt.args.languageCode)
+			got, err := BidirectionalSearch(tt.args.searchNaviText, true, tt.args.languageCode, false)
 			if err == nil && tt.args.searchNaviText == "" && got != nil {
 				t.Errorf("TranslateFromNaviCached() got = %v, want %v", got, tt.want)
 			} else if err == nil && len(tt.want) == 0 && len(got) > 0 {

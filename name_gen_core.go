@@ -637,7 +637,7 @@ func PhonemeDistros() {
 		// Piggybacking off of the frequency script to get all words with spaces
 		all_words := strings.Split(strings.ToLower(words[i].Navi), " ")
 		if len(all_words) > 1 {
-			new_words := dialectCrunch(all_words, true)
+			new_words := dialectCrunch(all_words, true, true, false)
 			if _, ok := multiword_words_loose[new_words[0]]; ok {
 				// Ensure no duplicates
 				appended := false
