@@ -515,7 +515,7 @@ func CacheDictHashOrig(mysql bool) error {
 			nkxSub[fakeNG] = standardizedWord
 		}
 
-		standardizedWordArray := dialectCrunch(strings.Split(standardizedWord, " "), true, false, false)
+		standardizedWordArray := dialectCrunch(strings.Split(standardizedWord, " "), true, false, true)
 		standardizedWordLoose := ""
 		for i, a := range standardizedWordArray {
 			if i != 0 {
