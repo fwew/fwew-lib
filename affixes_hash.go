@@ -697,72 +697,74 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 		}
 		fallthrough
 	case 1:
-		for _, oldSuffix := range adposuffixes {
-			// If it has one of them,
-			if strings.HasSuffix(input.Word, oldSuffix) {
-				newString = strings.TrimSuffix(input.Word, oldSuffix)
+		if input.InsistPOS == "any" || input.InsistPOS == "n." {
+			for _, oldSuffix := range adposuffixes {
+				// If it has one of them,
+				if strings.HasSuffix(input.Word, oldSuffix) {
+					newString = strings.TrimSuffix(input.Word, oldSuffix)
 
-				newCandidate := candidateDupe(input)
-				newCandidate.Word = newString
-				newCandidate.InsistPOS = "n."
-				newCandidate.Suffixes, added = isDuplicateFix(newCandidate.Suffixes, oldSuffix, strict, allowReef)
-				if !added {
-					continue
-				}
-				// all set to 2 to avoid mengeyä -> mengo -> me + 'eng + o
-				deconjugateHelper(newCandidate, newPrefixCheck, 2, unlenite, []string{}, "", oldSuffix, strict, allowReef)
+					newCandidate := candidateDupe(input)
+					newCandidate.Word = newString
+					newCandidate.InsistPOS = "n."
+					newCandidate.Suffixes, added = isDuplicateFix(newCandidate.Suffixes, oldSuffix, strict, allowReef)
+					if !added {
+						continue
+					}
+					// all set to 2 to avoid mengeyä -> mengo -> me + 'eng + o
+					deconjugateHelper(newCandidate, newPrefixCheck, 2, unlenite, []string{}, "", oldSuffix, strict, allowReef)
 
-				if oldSuffix == "ä" && !strings.HasSuffix(input.Word, "yä") && strings.HasSuffix(input.Word, "iä") { // Don't make peyä -> yä -> ya (air)
-					// soaiä, tìftiä, etx.
-					newString += "a"
-					newCandidate.Word = newString
-					deconjugateHelper(newCandidate, newPrefixCheck, 2, unlenite, []string{}, "", oldSuffix, strict, allowReef)
-				} else if !strict && oldSuffix == "e" && !strings.HasSuffix(input.Word, "ye") && strings.HasSuffix(input.Word, "ie") {
-					// reef of above
-					newString += "a"
-					newCandidate.Word = newString
-					deconjugateHelper(newCandidate, newPrefixCheck, 2, unlenite, []string{}, "", "ä", strict, allowReef)
-				} else if oldSuffix == "yä" && strings.HasSuffix(newString, "e") {
-					// A one-off
-					if newString == "tse" {
-						newCandidate.Word = "tsaw"
+					if oldSuffix == "ä" && !strings.HasSuffix(input.Word, "yä") && strings.HasSuffix(input.Word, "iä") { // Don't make peyä -> yä -> ya (air)
+						// soaiä, tìftiä, etx.
+						newString += "a"
+						newCandidate.Word = newString
 						deconjugateHelper(newCandidate, newPrefixCheck, 2, unlenite, []string{}, "", oldSuffix, strict, allowReef)
-					}
-					// ngeyä -> nga
-					newCandidate.Word = strings.TrimSuffix(newString, "e") + "a"
-					deconjugateHelper(newCandidate, newPrefixCheck, 2, unlenite, []string{}, "", oldSuffix, strict, allowReef)
-					// oengeyä
-					newCandidate.Word = strings.TrimSuffix(newString, "e")
-					if newCandidate.Word == "oeng" { //no mengeyä -> meng -> me + 'eng
+					} else if !strict && oldSuffix == "e" && !strings.HasSuffix(input.Word, "ye") && strings.HasSuffix(input.Word, "ie") {
+						// reef of above
+						newString += "a"
+						newCandidate.Word = newString
+						deconjugateHelper(newCandidate, newPrefixCheck, 2, unlenite, []string{}, "", "ä", strict, allowReef)
+					} else if oldSuffix == "yä" && strings.HasSuffix(newString, "e") {
+						// A one-off
+						if newString == "tse" {
+							newCandidate.Word = "tsaw"
+							deconjugateHelper(newCandidate, newPrefixCheck, 2, unlenite, []string{}, "", oldSuffix, strict, allowReef)
+						}
+						// ngeyä -> nga
+						newCandidate.Word = strings.TrimSuffix(newString, "e") + "a"
 						deconjugateHelper(newCandidate, newPrefixCheck, 2, unlenite, []string{}, "", oldSuffix, strict, allowReef)
-					}
-					// sneyä -> sno
-					newCandidate.Word = strings.TrimSuffix(newString, "e") + "o"
-					deconjugateHelper(newCandidate, newPrefixCheck, 2, unlenite, []string{}, "", oldSuffix, strict, allowReef)
-				} else if !strict && oldSuffix == "ye" && strings.HasSuffix(newString, "e") {
-					// reef of above
-					if newString == "tse" {
-						newCandidate.Word = "tsaw"
-						deconjugateHelper(newCandidate, newPrefixCheck, 2, unlenite, []string{}, "", "yä", strict, allowReef)
-					}
-					// ngeye -> nga
-					newCandidate.Word = strings.TrimSuffix(newString, "e") + "a"
-					deconjugateHelper(newCandidate, newPrefixCheck, 2, unlenite, []string{}, "", "yä", strict, allowReef)
-					// oengeye
-					newCandidate.Word = strings.TrimSuffix(newString, "e")
-					if newCandidate.Word == "oeng" { //no mengeyä -> meng -> me + 'eng
-						deconjugateHelper(newCandidate, newPrefixCheck, 2, unlenite, []string{}, "", "yä", strict, allowReef)
-					}
-					// sneye -> sno
-					newCandidate.Word = strings.TrimSuffix(newString, "e") + "o"
-					deconjugateHelper(newCandidate, newPrefixCheck, 2, unlenite, []string{}, "", "yä", strict, allowReef)
-				} else if vowels, ok := vowelSuffixes["yä"]; ok {
-					for _, vowel := range vowels {
-						// Make sure zekwä-äo is recognized
-						if strings.HasSuffix(newString, vowel+"-") {
-							newString = strings.TrimSuffix(newString, "-")
-							newCandidate.Word = newString
+						// oengeyä
+						newCandidate.Word = strings.TrimSuffix(newString, "e")
+						if newCandidate.Word == "oeng" { //no mengeyä -> meng -> me + 'eng
+							deconjugateHelper(newCandidate, newPrefixCheck, 2, unlenite, []string{}, "", oldSuffix, strict, allowReef)
+						}
+						// sneyä -> sno
+						newCandidate.Word = strings.TrimSuffix(newString, "e") + "o"
+						deconjugateHelper(newCandidate, newPrefixCheck, 2, unlenite, []string{}, "", oldSuffix, strict, allowReef)
+					} else if !strict && oldSuffix == "ye" && strings.HasSuffix(newString, "e") {
+						// reef of above
+						if newString == "tse" {
+							newCandidate.Word = "tsaw"
 							deconjugateHelper(newCandidate, newPrefixCheck, 2, unlenite, []string{}, "", "yä", strict, allowReef)
+						}
+						// ngeye -> nga
+						newCandidate.Word = strings.TrimSuffix(newString, "e") + "a"
+						deconjugateHelper(newCandidate, newPrefixCheck, 2, unlenite, []string{}, "", "yä", strict, allowReef)
+						// oengeye
+						newCandidate.Word = strings.TrimSuffix(newString, "e")
+						if newCandidate.Word == "oeng" { //no mengeyä -> meng -> me + 'eng
+							deconjugateHelper(newCandidate, newPrefixCheck, 2, unlenite, []string{}, "", "yä", strict, allowReef)
+						}
+						// sneye -> sno
+						newCandidate.Word = strings.TrimSuffix(newString, "e") + "o"
+						deconjugateHelper(newCandidate, newPrefixCheck, 2, unlenite, []string{}, "", "yä", strict, allowReef)
+					} else if vowels, ok := vowelSuffixes["yä"]; ok {
+						for _, vowel := range vowels {
+							// Make sure zekwä-äo is recognized
+							if strings.HasSuffix(newString, vowel+"-") {
+								newString = strings.TrimSuffix(newString, "-")
+								newCandidate.Word = newString
+								deconjugateHelper(newCandidate, newPrefixCheck, 2, unlenite, []string{}, "", "yä", strict, allowReef)
+							}
 						}
 					}
 				}
