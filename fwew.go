@@ -152,10 +152,6 @@ func clean(searchNaviWords string) (words string) {
 // The first word will only contain the query put into the translate command
 // One Navi-Word can have multiple meanings and words (e.g. synonyms)
 func TranslateFromNaviHash(searchNaviWords string, checkFixes bool, strict bool, allowReef bool) (results [][]Word, err error) {
-	if strict && allowReef {
-		return [][]Word{{Word{Navi: "error"}, EnglishIfNull(Word{ID: "-1", Navi: "sänui", EN: "Cannot use strict and reef modes simultaneously", PartOfSpeech: "err."})}}, nil
-	}
-
 	universalLock.Lock()
 	defer universalLock.Unlock()
 	searchNaviWords = clean(searchNaviWords)
@@ -375,6 +371,13 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 		if _, ok := (*dict)[a]; ok {
 			for _, b := range (*dict)[a] {
 				results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], b)
+			}
+		} else if allowReef {
+			noUmlaut := strings.ReplaceAll(a, "ä", "e")
+			if _, ok := (*dict)[noUmlaut]; ok {
+				for _, b := range (*dict)[noUmlaut] {
+					results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], b)
+				}
 			}
 		}
 
@@ -1113,8 +1116,6 @@ func dialectCrunch(query []string, guaranteedForest bool, strict bool, allowReef
 
 		// When caching, we are guaranteed forest words and don't need anything in this block
 		if !guaranteedForest && allowReef {
-			a = strings.ReplaceAll(a, "ì", "i")
-
 			for i, b := range nkx {
 				// make sure words like tìkankxan show up
 				a = strings.ReplaceAll(a, strconv.Itoa(i), "")
