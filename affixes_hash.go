@@ -140,6 +140,7 @@ var secondMap = map[string]bool{"ei": true, "eiy": true, "äng": true, "uy": tru
 
 var unreefFixes = map[string]string{
 	"eng":    "äng",
+	"epeyk":  "äpeyk",
 	"ep":     "äp",
 	"ye":     "yä",
 	"e":      "ä",
@@ -218,7 +219,7 @@ func isDuplicate(input ConjugationCandidate) bool {
 
 func isDuplicateFix(fixes []string, fix string, strict bool, allowReef bool) (newFixes []string, added bool) {
 	if newfix, ok := unreefFixes[fix]; ok {
-		if strict {
+		if strict && !allowReef {
 			// Do not use reef fixes in strict mode
 			return fixes, false
 		}
@@ -718,12 +719,12 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 						newString += "a"
 						newCandidate.Word = newString
 						deconjugateHelper(newCandidate, newPrefixCheck, 2, unlenite, []string{}, "", oldSuffix, strict, allowReef)
-					} else if !strict && oldSuffix == "e" && !strings.HasSuffix(input.Word, "ye") && strings.HasSuffix(input.Word, "ie") {
+					} else if allowReef && oldSuffix == "e" && !strings.HasSuffix(input.Word, "ye") && strings.HasSuffix(input.Word, "ie") {
 						// reef of above
 						newString += "a"
 						newCandidate.Word = newString
 						deconjugateHelper(newCandidate, newPrefixCheck, 2, unlenite, []string{}, "", "ä", strict, allowReef)
-					} else if oldSuffix == "yä" && strings.HasSuffix(newString, "e") {
+					} else if (oldSuffix == "yä" || (allowReef && oldSuffix == "ye")) && strings.HasSuffix(newString, "e") {
 						// A one-off
 						if newString == "tse" {
 							newCandidate.Word = "tsaw"
@@ -1057,6 +1058,10 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 			a += b
 		}
 
+		if allowReef {
+			a = dialectCrunch([]string{a}, false, true, true)[0]
+		}
+
 		for _, c := range (*dict)[a] {
 			for _, pos := range strings.Split(c.PartOfSpeech, ",") {
 				pos = strings.ReplaceAll(pos, " ", "")
@@ -1311,11 +1316,11 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 							if _, ok := prefirstMap[newInfix]; ok {
 								firstInfixes += newInfix
 								rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<0>", firstInfixes)
-								if (!strict && newInfix == "epeyk") || newInfix == "äpeyk" {
+								if (allowReef && newInfix == "epeyk") || newInfix == "äpeyk" {
 									newCandidateInfixes := []string{}
 									for _, newInfix2 := range candidate.Infixes {
 										// äpeyk gets split
-										if (!strict && newInfix2 == "epeyk") || newInfix2 == "äpeyk" {
+										if (allowReef && newInfix2 == "epeyk") || newInfix2 == "äpeyk" {
 											newCandidateInfixes = append(newCandidateInfixes, "äp")
 											newCandidateInfixes = append(newCandidateInfixes, "eyk")
 										} else {
@@ -1368,7 +1373,7 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 
 						rebuiltVerbForest := rebuiltVerb
 						rebuiltVerbArray := strings.Split(rebuiltVerb, " ")
-						if !strict {
+						if !strict || allowReef {
 							rebuiltVerbArray = dialectCrunch(rebuiltVerbArray, false, strict, allowReef)
 						}
 

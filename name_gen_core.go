@@ -97,6 +97,7 @@ var valid_triple_consonants = map[string]map[string]map[string]int{
 
 var multiword_words = map[string][][]string{}
 var multiword_words_loose = map[string][][]string{}
+var multiword_words_reef = map[string][][]string{}
 
 /* Calculated on startup to assist the random number generators and letter selector */
 var max_onset = 0
@@ -596,6 +597,7 @@ func PhonemeDistros() {
 
 	clear(multiword_words)
 	clear(multiword_words_loose)
+	clear(multiword_words_reef)
 
 	if err != nil || len(words) == 0 {
 		return
@@ -638,6 +640,7 @@ func PhonemeDistros() {
 		all_words := strings.Split(strings.ToLower(words[i].Navi), " ")
 		if len(all_words) > 1 {
 			new_words := dialectCrunch(all_words, true, true, false)
+			new_words_reef := dialectCrunch(all_words, true, true, true)
 			if _, ok := multiword_words_loose[new_words[0]]; ok {
 				// Ensure no duplicates
 				appended := false
@@ -658,6 +661,28 @@ func PhonemeDistros() {
 				multiword_words_loose[new_words[0]] = temp
 			} else {
 				multiword_words_loose[new_words[0]] = [][]string{new_words[1:]}
+			}
+
+			if _, ok := multiword_words_reef[new_words_reef[0]]; ok {
+				// Ensure no duplicates
+				appended := false
+
+				// Append in a way that makes the longer words first
+				temp := [][]string{}
+				for _, j := range multiword_words_reef[new_words_reef[0]] {
+					if !appended && len([]rune(new_words_reef[1])) > len([]rune(j[0])) {
+						temp = append(temp, new_words_reef[1:])
+						appended = true
+					}
+					temp = append(temp, j)
+				}
+				if len(temp) <= len(multiword_words_reef[new_words_reef[0]]) {
+					temp = append(temp, new_words_reef[1:])
+				}
+
+				multiword_words_reef[new_words_reef[0]] = temp
+			} else {
+				multiword_words_reef[new_words_reef[0]] = [][]string{new_words_reef[1:]}
 			}
 
 			if _, ok := multiword_words[all_words[0]]; ok {

@@ -171,6 +171,8 @@ func TranslateFromNaviHash(searchNaviWords string, checkFixes bool, strict bool,
 
 	if !allowReef {
 		dict = &dictHashStrict
+	} else if strict {
+		dict = &dictHashStrictReef
 	}
 
 	for i < len(allWords) {
@@ -307,6 +309,10 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 	tempResults := []Word{}
 	searchNaviWord := ""
 
+	if allowReef {
+		allWords = dialectCrunch(allWords, false, strict, allowReef)
+	}
+
 	// don't crunch more than once
 	if !strict {
 		for _, a := range allWords {
@@ -325,7 +331,6 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 		}
 
 		results = [][]Word{{simpleWord(allWords[i])}}
-		allWords = dialectCrunch(allWords, false, strict, allowReef)
 
 		searchNaviWord = allWords[i]
 
@@ -395,6 +400,8 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 	multiwords := &multiword_words
 	if !strict {
 		multiwords = &multiword_words_loose
+	} else if allowReef {
+		multiwords = &multiword_words_reef
 	}
 	if _, ok := (*multiwords)[searchNaviWord]; ok {
 		// If so, loop through it
@@ -568,8 +575,6 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 		// Check if the word could have more than one word
 		found := false
 		// Find the results words
-
-		multiwords = &multiword_words
 
 		for _, a := range results[len(results)-1] {
 			// See if it is in the list known to start multiword words

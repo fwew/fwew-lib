@@ -818,48 +818,6 @@ var naviWords = []struct {
 		},
 	}, // Leave (subjunctive, reef)
 	{
-		name: "ila",
-		args: args{
-			searchNaviText: "ila",
-		},
-		want: []Word{
-			{
-				ID:   "648",
-				Navi: "ìlä+",
-			},
-		},
-	}, // See if it can search words without diacritics
-	{
-		name: "wayila",
-		args: args{
-			searchNaviText: "wayila",
-		},
-		want: []Word{
-			{
-				ID:   "2692",
-				Navi: "way",
-				Affixes: affix{
-					Suffix: []string{"ìlä"},
-				},
-			},
-		},
-	}, // See if it can search words without diacritics
-	{
-		name: "sangi",
-		args: args{
-			searchNaviText: "sangi",
-		},
-		want: []Word{
-			{
-				ID:   "1788",
-				Navi: "si",
-				Affixes: affix{
-					Infix: []string{"äng"},
-				},
-			},
-		},
-	}, // See if it can search words without diacritics
-	{
 		name: "za'utswo",
 		args: args{
 			searchNaviText: "za'utswo",
@@ -965,14 +923,14 @@ var naviWords = []struct {
 		},
 	}, // ìsy
 	{
-		name: "'ìlmi'a",
+		name: "lìlmen",
 		args: args{
-			searchNaviText: "'ìlmi'a",
+			searchNaviText: "lìlmen",
 		},
 		want: []Word{
 			{
-				ID:   "3684",
-				Navi: "'i'a",
+				ID:   "3768",
+				Navi: "len",
 				Affixes: affix{
 					Infix: []string{"ìlm"},
 				},
@@ -1066,6 +1024,54 @@ var naviWords = []struct {
 			},
 		},
 	}, // diacritics and multiwords
+}
+var unstrictNaviWords = []struct {
+	name string
+	args args
+	want []Word
+}{
+	{
+		name: "ila",
+		args: args{
+			searchNaviText: "ila",
+		},
+		want: []Word{
+			{
+				ID:   "648",
+				Navi: "ìlä+",
+			},
+		},
+	}, // See if it can search words without diacritics
+	{
+		name: "wayila",
+		args: args{
+			searchNaviText: "wayila",
+		},
+		want: []Word{
+			{
+				ID:   "2692",
+				Navi: "way",
+				Affixes: affix{
+					Suffix: []string{"ìlä"},
+				},
+			},
+		},
+	}, // See if it can search words without diacritics
+	{
+		name: "sangi",
+		args: args{
+			searchNaviText: "sangi",
+		},
+		want: []Word{
+			{
+				ID:   "1788",
+				Navi: "si",
+				Affixes: affix{
+					Infix: []string{"äng"},
+				},
+			},
+		},
+	}, // See if it can search words without diacritics
 }
 var englishWords = []struct {
 	name string
@@ -1284,6 +1290,28 @@ func TestTranslateFromNaviCached(t *testing.T) {
 	}
 
 	for _, tt := range naviWords {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := TranslateFromNaviHash(tt.args.searchNaviText, true, false, false)
+			if err == nil && tt.args.searchNaviText == "" && got != nil {
+				t.Errorf("TranslateFromNaviCached() got = %v, want %v", got, tt.want)
+			} else if err == nil && len(tt.want) == 0 && len(got) > 0 {
+				t.Errorf("TranslateFromNaviCached() got = %v, want %v", got, tt.want)
+			} else if err != nil || len(tt.want) > 0 && len(got) > 0 && !wordSimpleEqual(got[0][1:], tt.want) {
+				t.Errorf("TranslateFromNaviCached() = %v, want %v", got[0][1:], tt.want)
+			}
+
+			got, err = TranslateFromNaviHash(tt.args.searchNaviText, true, true, true)
+			if err == nil && tt.args.searchNaviText == "" && got != nil {
+				t.Errorf("TranslateFromNaviCached() got = %v, want %v", got, tt.want)
+			} else if err == nil && len(tt.want) == 0 && len(got) > 0 {
+				t.Errorf("TranslateFromNaviCached() got = %v, want %v", got, tt.want)
+			} else if err != nil || len(tt.want) > 0 && len(got) > 0 && !wordSimpleEqual(got[0][1:], tt.want) {
+				t.Errorf("TranslateFromNaviCached() = %v, want %v", got[0][1:], tt.want)
+			}
+		})
+	}
+
+	for _, tt := range unstrictNaviWords {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := TranslateFromNaviHash(tt.args.searchNaviText, true, false, false)
 			if err == nil && tt.args.searchNaviText == "" && got != nil {
