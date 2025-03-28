@@ -1024,6 +1024,21 @@ var naviWords = []struct {
 			},
 		},
 	}, // diacritics and multiwords
+	{
+		name: "flivä",
+		args: args{
+			searchNaviText: "flivä",
+		},
+		want: []Word{
+			{
+				ID:   "384",
+				Navi: "flä",
+				Affixes: affix{
+					Infix: []string{"iv"},
+				},
+			},
+		},
+	}, // ä with affixes
 }
 var unstrictNaviWords = []struct {
 	name string

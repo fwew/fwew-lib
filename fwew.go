@@ -463,7 +463,7 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 					}
 
 					// And then by its possible conjugations
-					for _, b := range TestDeconjugations(dict, allWords[i+j+1], strict, allowReef) {
+					for _, b := range TestDeconjugations(dict, allWords[i+j+1], strict, allowReef, containsUmlaut[i]) {
 						secondWords = AppendAndAlphabetize(secondWords, b)
 					}
 
@@ -518,11 +518,11 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 			if len(results) > 0 && len(results[0]) > 0 {
 				if !(strings.ToLower(results[len(results)-1][0].Navi) != searchNaviWord && strings.HasPrefix(strings.ToLower(results[len(results)-1][0].Navi), searchNaviWord)) {
 					// Find all possible unconjugated versions of the word
-					newResults = TestDeconjugations(dict, searchNaviWord, strict, allowReef)
+					newResults = TestDeconjugations(dict, searchNaviWord, strict, allowReef, containsUmlaut[i])
 				}
 			} else {
 				// Find all possible unconjugated versions of the word
-				newResults = TestDeconjugations(dict, searchNaviWord, strict, allowReef)
+				newResults = TestDeconjugations(dict, searchNaviWord, strict, allowReef, containsUmlaut[i])
 			}
 		}
 
@@ -636,7 +636,7 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 							}
 
 							// And then by its possible conjugations
-							for _, b := range TestDeconjugations(dict, allWords[i+j+1], strict, allowReef) {
+							for _, b := range TestDeconjugations(dict, allWords[i+j+1], strict, allowReef, containsUmlaut[i]) {
 								secondWords = AppendAndAlphabetize(secondWords, b)
 							}
 

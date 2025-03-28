@@ -1016,7 +1016,7 @@ func Deconjugate(input string, strict bool, allowReef bool) []ConjugationCandida
 	return candidates
 }
 
-func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict bool, allowReef bool) (results []Word) {
+func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict bool, allowReef bool, umlaut bool) (results []Word) {
 	conjugations := Deconjugate(searchNaviWord, strict, allowReef)
 
 	searchNaviWord = strings.ReplaceAll(searchNaviWord, "ù", "u")
@@ -1040,6 +1040,20 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 		}
 
 		// For using i to search ì
+	}
+
+	// Reintroduce the umlaut if needed
+	if allowReef && umlaut {
+		for _, a := range conjugations {
+			nucleusCount := 0
+			for _, b := range []string{"a", "ä", "e", "i", "ì", "o", "u", "ù", "ll", "rr"} {
+				nucleusCount += strings.Count(a.Word, b)
+			}
+			if nucleusCount == 1 && strings.Contains(a.Word, "e") {
+				a.Word = strings.ReplaceAll(a.Word, "e", "ä")
+				conjugations = append(conjugations, a)
+			}
+		}
 	}
 
 	for _, candidate := range conjugations {
