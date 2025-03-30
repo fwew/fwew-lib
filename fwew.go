@@ -309,12 +309,8 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 	tempResults := []Word{}
 	searchNaviWord := ""
 
-	if allowReef {
-		allWords = dialectCrunch(allWords, false, strict, allowReef)
-	}
-
 	// don't crunch more than once
-	if !strict {
+	if !strict || allowReef {
 		for _, a := range allWords {
 			if strings.Contains(a, "ä") {
 				containsUmlaut = append(containsUmlaut, true)
@@ -331,6 +327,8 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 		}
 
 		results = [][]Word{{simpleWord(allWords[i])}}
+
+		allWords = dialectCrunch(allWords, false, strict, allowReef)
 
 		searchNaviWord = allWords[i]
 
@@ -624,8 +622,9 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 
 							allWord := allWords[i+j+1]
 
-							if !strict {
+							if !strict || allowReef {
 								pairWord = dialectCrunch([]string{pairWord}, false, strict, allowReef)[0]
+								allWord = dialectCrunch([]string{allWord}, false, strict, allowReef)[0]
 							}
 
 							// First by itself

@@ -3,6 +3,7 @@ package fwew_lib
 import (
 	"math"
 	"strings"
+	//"fmt"
 )
 
 type ConjugationCandidate struct {
@@ -148,10 +149,12 @@ var unreefFixes = map[string]string{
 	"ìle":    "ìlä",
 	"nue":    "nuä",
 	"kxamle": "kxamlä",
+}
+
+var unstrictFixes = map[string]string {
 	// Below this are for diacritic independence of i and ì
 	"fi":    "fì",
 	"ilä":   "ìlä",
-	"ile":   "ìlä",
 	"mi":    "mì",
 	"mikam": "mìkam",
 	"sin":   "sìn",
@@ -164,17 +167,6 @@ var unreefFixes = map[string]string{
 	"ilm":   "ìlm",
 	"isy":   "ìsy",
 	"tsyip": "tsyìp",
-}
-
-var unreefFixesOld = map[string]string{
-	"eng":    "äng",
-	"ep":     "äp",
-	"ye":     "yä",
-	"e":      "ä",
-	"we":     "wä",
-	"ìle":    "ìlä",
-	"nue":    "nuä",
-	"kxamle": "kxamlä",
 }
 
 var weirdNounSuffixes = map[string]string{
@@ -219,16 +211,23 @@ func isDuplicate(input ConjugationCandidate) bool {
 
 func isDuplicateFix(fixes []string, fix string, strict bool, allowReef bool) (newFixes []string, added bool) {
 	if newfix, ok := unreefFixes[fix]; ok {
-		if strict && !allowReef {
-			// Do not use reef fixes in strict mode
+		if !allowReef {
 			return fixes, false
 		}
-		if !allowReef {
-			if _, ok := unreefFixesOld[fix]; ok {
-				return fixes, false
-			}
+		fix = newfix
+	}
+	if newfix, ok := unstrictFixes[fix]; ok {
+		if strict {
+			return fixes, false
 		}
 		fix = newfix
+	}
+	if fix == "ile" {
+		if !strict && allowReef {
+			fix = "ìlä"
+		} else {
+			return fixes, false
+		}
 	}
 	for _, a := range fixes {
 		if fix == a {
@@ -901,7 +900,11 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 						if available && strings.HasPrefix(shortString, newInfix) {
 							newCandidate := candidateDupe(input)
 							newCandidate.Word = string(runes[:i]) + strings.TrimPrefix(shortString, newInfix)
-							newCandidate.Infixes, _ = isDuplicateFix(newCandidate.Infixes, newInfix, strict, allowReef)
+							cont := false
+							newCandidate.Infixes, cont = isDuplicateFix(newCandidate.Infixes, newInfix, strict, allowReef)
+							if !cont {
+								continue
+							}
 							newCandidate.InsistPOS = "v."
 							deconjugateHelper(newCandidate, newPrefixCheck, suffixCheck, unlenite, newInfixes, "", "", strict, allowReef)
 
@@ -1057,6 +1060,9 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 	}
 
 	for _, candidate := range conjugations {
+		if candidate.Word == "kive" && umlaut {
+			continue
+		}
 		a := strings.ReplaceAll(candidate.Word, "ù", "u")
 
 		standardizedWordArray := strings.Split(a, " ")

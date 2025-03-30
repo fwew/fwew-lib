@@ -1287,6 +1287,10 @@ func TestTranslateFromNaviCached(t *testing.T) {
 
 		if newfix, ok := unreefFixes[a]; ok {
 			a = newfix
+		} else if new, ok := unstrictFixes[a]; ok {
+			a = new
+		} else if a == "ile" {
+			a = "ìlä"
 		}
 
 		affixes := affix{Suffix: []string{a}}
