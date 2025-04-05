@@ -151,7 +151,7 @@ func clean(searchNaviWords string) (words string) {
 // This will return a 2D array of Words that fit the input text
 // The first word will only contain the query put into the translate command
 // One Navi-Word can have multiple meanings and words (e.g. synonyms)
-func TranslateFromNaviHash(searchNaviWords string, checkFixes bool, strict bool) (results [][]Word, err error) {
+func TranslateFromNaviHash(searchNaviWords string, checkFixes bool, strict bool, allowReef bool) (results [][]Word, err error) {
 	universalLock.Lock()
 	defer universalLock.Unlock()
 	searchNaviWords = clean(searchNaviWords)
@@ -169,8 +169,10 @@ func TranslateFromNaviHash(searchNaviWords string, checkFixes bool, strict bool)
 
 	dict := &dictHashLoose
 
-	if strict {
+	if !allowReef {
 		dict = &dictHashStrict
+	} else if strict {
+		dict = &dictHashStrictReef
 	}
 
 	for i < len(allWords) {
@@ -181,7 +183,7 @@ func TranslateFromNaviHash(searchNaviWords string, checkFixes bool, strict bool)
 			i++
 			continue
 		}
-		j, newWords, error2 := TranslateFromNaviHashHelper(dict, i, allWords, checkFixes, strict)
+		j, newWords, error2 := TranslateFromNaviHashHelper(dict, i, allWords, checkFixes, strict, allowReef)
 		if error2 == nil {
 			for _, newWord := range newWords {
 				// Set up receptacle for words
@@ -242,10 +244,10 @@ func AppendToFront(words []Word, input Word) []Word {
 }
 
 // Helper for TranslateFromNaviHashHelper
-func IsVerb(dict *map[string][]Word, input string, comparator string, strict bool) (result bool, affixes Word) {
+func IsVerb(dict *map[string][]Word, input string, comparator string, strict bool, allowReef bool) (result bool, affixes Word) {
 	affixes = simpleWord(input)
-	_, possibilities, err := TranslateFromNaviHashHelper(dict, 0, []string{input}, true, strict)
-	_, possibilities2, err2 := TranslateFromNaviHashHelper(dict, 0, []string{comparator}, true, strict)
+	_, possibilities, err := TranslateFromNaviHashHelper(dict, 0, []string{input}, true, strict, allowReef)
+	_, possibilities2, err2 := TranslateFromNaviHashHelper(dict, 0, []string{comparator}, true, strict, allowReef)
 	if err != nil || err2 != nil {
 		return false, affixes
 	}
@@ -298,7 +300,7 @@ func IsVerb(dict *map[string][]Word, input string, comparator string, strict boo
 	return (isRealVerb && pairFound && !unknownInfix), affixes
 }
 
-func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []string, checkFixes bool, strict bool) (steps int, results [][]Word, err error) {
+func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []string, checkFixes bool, strict bool, allowReef bool) (steps int, results [][]Word, err error) {
 	i := start
 
 	containsUmlaut := []bool{}
@@ -308,7 +310,7 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 	searchNaviWord := ""
 
 	// don't crunch more than once
-	if !strict {
+	if !strict || allowReef {
 		for _, a := range allWords {
 			if strings.Contains(a, "ä") {
 				containsUmlaut = append(containsUmlaut, true)
@@ -325,7 +327,8 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 		}
 
 		results = [][]Word{{simpleWord(allWords[i])}}
-		allWords = dialectCrunch(allWords, false)
+
+		allWords = dialectCrunch(allWords, false, strict, allowReef)
 
 		searchNaviWord = allWords[i]
 
@@ -372,6 +375,13 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 			for _, b := range (*dict)[a] {
 				results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], b)
 			}
+		} else if allowReef {
+			noUmlaut := strings.ReplaceAll(a, "ä", "e")
+			if _, ok := (*dict)[noUmlaut]; ok {
+				for _, b := range (*dict)[noUmlaut] {
+					results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], b)
+				}
+			}
 		}
 
 		tempResults = append(tempResults, results[len(results)-1]...)
@@ -388,6 +398,8 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 	multiwords := &multiword_words
 	if !strict {
 		multiwords = &multiword_words_loose
+	} else if allowReef {
+		multiwords = &multiword_words_reef
 	}
 	if _, ok := (*multiwords)[searchNaviWord]; ok {
 		// If so, loop through it
@@ -410,7 +422,7 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 				} else {
 					// For "[word] ke si and [word] rä'ä si"
 					if i+j+2 < len(allWords) && (allWords[i+j+1] == "ke" || allWords[i+j+1] == "rä'ä") {
-						validVerb, itsAffixes := IsVerb(dict, allWords[i+j+2], pairWord, strict)
+						validVerb, itsAffixes := IsVerb(dict, allWords[i+j+2], pairWord, strict, allowReef)
 						if validVerb {
 							extraWord = 1
 							if len(results) == 1 {
@@ -429,7 +441,7 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 					}
 
 					// Verbs don't just come after ke or rä'ä
-					validVerb, itsAffixes := IsVerb(dict, allWords[i+j+1], pairWord, strict)
+					validVerb, itsAffixes := IsVerb(dict, allWords[i+j+1], pairWord, strict, allowReef)
 					if validVerb {
 						found = true
 						foundAlready = true
@@ -449,7 +461,7 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 					}
 
 					// And then by its possible conjugations
-					for _, b := range TestDeconjugations(dict, allWords[i+j+1], strict) {
+					for _, b := range TestDeconjugations(dict, allWords[i+j+1], strict, allowReef, containsUmlaut[i]) {
 						secondWords = AppendAndAlphabetize(secondWords, b)
 					}
 
@@ -504,11 +516,11 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 			if len(results) > 0 && len(results[0]) > 0 {
 				if !(strings.ToLower(results[len(results)-1][0].Navi) != searchNaviWord && strings.HasPrefix(strings.ToLower(results[len(results)-1][0].Navi), searchNaviWord)) {
 					// Find all possible unconjugated versions of the word
-					newResults = TestDeconjugations(dict, searchNaviWord, strict)
+					newResults = TestDeconjugations(dict, searchNaviWord, strict, allowReef, containsUmlaut[i])
 				}
 			} else {
 				// Find all possible unconjugated versions of the word
-				newResults = TestDeconjugations(dict, searchNaviWord, strict)
+				newResults = TestDeconjugations(dict, searchNaviWord, strict, allowReef, containsUmlaut[i])
 			}
 		}
 
@@ -538,13 +550,29 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 			tempNewResults = append(tempNewResults, a)
 		}
 
-		results[len(results)-1] = append(results[len(results)-1], tempNewResults...)
+		// Do not duplicate
+		alreadyHere := results[len(results)-1]
+		for _, a := range tempNewResults {
+			add := true
+			for _, b := range alreadyHere {
+				if b.ID == a.ID {
+					if len(b.Affixes.Prefix) == len(a.Affixes.Prefix) &&
+						len(b.Affixes.Suffix) == len(a.Affixes.Suffix) &&
+						len(b.Affixes.Lenition) == len(a.Affixes.Lenition) &&
+						len(b.Affixes.Infix) == len(a.Affixes.Infix) {
+						add = false
+						break
+					}
+				}
+			}
+			if add {
+				results[len(results)-1] = append(results[len(results)-1], a)
+			}
+		}
 
 		// Check if the word could have more than one word
 		found := false
 		// Find the results words
-
-		multiwords = &multiword_words
 
 		for _, a := range results[len(results)-1] {
 			// See if it is in the list known to start multiword words
@@ -570,7 +598,7 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 						} else {
 							// For "[word] ke si and [word] rä'ä si"
 							if i+j+2 < len(allWords) && (allWords[i+j+1] == "ke" || allWords[i+j+1] == "ree") {
-								validVerb, itsAffixes := IsVerb(dict, allWords[i+j+2], pairWord, strict)
+								validVerb, itsAffixes := IsVerb(dict, allWords[i+j+2], pairWord, strict, allowReef)
 								if validVerb {
 									extraWord = 1
 									if len(results) == 1 {
@@ -594,8 +622,9 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 
 							allWord := allWords[i+j+1]
 
-							if !strict {
-								pairWord = dialectCrunch([]string{pairWord}, false)[0]
+							if !strict || allowReef {
+								pairWord = dialectCrunch([]string{pairWord}, false, strict, allowReef)[0]
+								allWord = dialectCrunch([]string{allWord}, false, strict, allowReef)[0]
 							}
 
 							// First by itself
@@ -606,7 +635,7 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 							}
 
 							// And then by its possible conjugations
-							for _, b := range TestDeconjugations(dict, allWords[i+j+1], strict) {
+							for _, b := range TestDeconjugations(dict, allWords[i+j+1], strict, allowReef, containsUmlaut[i]) {
 								secondWords = AppendAndAlphabetize(secondWords, b)
 							}
 
@@ -634,7 +663,7 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 						results[0] = []Word{results[0][0]}
 						a := strings.ReplaceAll(fullWord, "ù", "u")
 						if !strict {
-							a = dialectCrunch([]string{a}, false)[0]
+							a = dialectCrunch([]string{a}, false, strict, allowReef)[0]
 						}
 
 						for _, definition := range (*dict)[a] {
@@ -956,7 +985,7 @@ func TranslateToNaviHashHelper(dictionary *MetaDict, searchWord string, langCode
 // !! Multiple words are supported !!
 // This will return a 2D array of Words, that fit the input text
 // One Word can have multiple meanings and words (e.g. synonyms)
-func BidirectionalSearch(searchNaviWords string, checkFixes bool, langCode string) (results [][]Word, err error) {
+func BidirectionalSearch(searchNaviWords string, checkFixes bool, langCode string, allowReef bool) (results [][]Word, err error) {
 	universalLock.Lock()
 	defer universalLock.Unlock()
 	searchNaviWords = clean(searchNaviWords)
@@ -970,10 +999,15 @@ func BidirectionalSearch(searchNaviWords string, checkFixes bool, langCode strin
 
 	i := 0
 
+	ourDict := &dictHashLoose
+	if !allowReef {
+		ourDict = &dictHashStrict
+	}
+
 	results = [][]Word{}
 	for i < len(allWords) {
 		// Search for Na'vi words
-		j, newWords, error2 := TranslateFromNaviHashHelper(&dictHashLoose, i, allWords, checkFixes, false)
+		j, newWords, error2 := TranslateFromNaviHashHelper(ourDict, i, allWords, checkFixes, false, allowReef)
 
 		NaviIDs := []string{}
 		if error2 == nil {
@@ -1053,17 +1087,17 @@ func GetMultiwordWords() map[string][][]string {
 
 // Get all words with multiple definitions
 func GetHomonyms() (results [][]Word, err error) {
-	return TranslateFromNaviHash(homonyms, false, false)
+	return TranslateFromNaviHash(homonyms, false, false, false)
 }
 
 // Get all words with non-standard phonotactics
 func GetOddballs() (results [][]Word, err error) {
-	return TranslateFromNaviHash(oddballs, true, false)
+	return TranslateFromNaviHash(oddballs, true, false, false)
 }
 
 // Get all words with multiple definitions
 func GetMultiIPA() (results [][]Word, err error) {
-	return TranslateFromNaviHash(multiIPA, false, false)
+	return TranslateFromNaviHash(multiIPA, false, false, false)
 }
 
 /* Is it a vowel? (for when the psuedovowel bool won't work) */
@@ -1079,14 +1113,13 @@ func is_vowel_ipa(letter string) (found bool) {
 	return false
 }
 
-func dialectCrunch(query []string, guaranteedForest bool) []string {
+func dialectCrunch(query []string, guaranteedForest bool, strict bool, allowReef bool) []string {
 	newQuery := []string{}
 	for _, a := range query {
 		oldQuery := a
 
-		a = strings.ReplaceAll(a, "ì", "i")
 		// When caching, we are guaranteed forest words and don't need anything in this block
-		if !guaranteedForest {
+		if !guaranteedForest && allowReef {
 			for i, b := range nkx {
 				// make sure words like tìkankxan show up
 				a = strings.ReplaceAll(a, strconv.Itoa(i), "")
@@ -1109,27 +1142,30 @@ func dialectCrunch(query []string, guaranteedForest bool) []string {
 			}
 		}
 
-		nucleusCount := 0
-		// remove reef tìftangs
-		for i, b := range []string{"a", "ä", "e", "i", "ì", "o", "u", "ù", "ll", "rr"} {
-			if strings.Contains(a, b) {
-				nucleusCount += strings.Count(a, b)
-				for j, c := range []string{"a", "ä", "e", "i", "ì", "o", "u", "ù", "ll", "rr"} {
-					if i < 8 && j < 8 {
-						a = strings.ReplaceAll(a, b+"'"+c, b+c)
+		if allowReef {
+			nucleusCount := 0
+			// remove reef tìftangs
+			for i, b := range []string{"a", "ä", "e", "i", "ì", "o", "u", "ù", "ll", "rr"} {
+				if strings.Contains(a, b) {
+					nucleusCount += strings.Count(a, b)
+					for j, c := range []string{"a", "ä", "e", "i", "ì", "o", "u", "ù", "ll", "rr"} {
+						if i < 8 && j < 8 {
+							a = strings.ReplaceAll(a, b+"'"+c, b+c)
+						}
 					}
 				}
 			}
-		}
-		if nucleusCount > 1 && strings.Contains(a, "ä") {
-			// and to make sure every ä is possibly an e
-			a = strings.ReplaceAll(a, "ä", "e")
+			if nucleusCount > 1 && strings.Contains(a, "ä") {
+				// and to make sure every ä is possibly an e
+				a = strings.ReplaceAll(a, "ä", "e")
+			}
+
+			// "eo" and "äo" are different, so the distinction must remain
+			if strings.HasSuffix(oldQuery, "äo") || strings.HasSuffix(oldQuery, "ä'o") {
+				a = strings.TrimSuffix(a, "eo") + "äo"
+			}
 		}
 
-		// "eo" and "äo" are different, so the distinction must remain
-		if strings.HasSuffix(oldQuery, "äo") || strings.HasSuffix(oldQuery, "ä'o") {
-			a = strings.TrimSuffix(a, "eo") + "äo"
-		}
 		newQuery = append(newQuery, a)
 	}
 	return newQuery

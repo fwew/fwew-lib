@@ -19,6 +19,7 @@ const dictFileName = "dictionary-v2.txt"
 var dictionary []Word
 var dictHashLoose map[string][]Word
 var dictHashStrict map[string][]Word
+var dictHashStrictReef map[string][]Word
 var dictionaryCached bool
 var dictHashCached bool
 var dictHash2 MetaDict
@@ -485,6 +486,7 @@ func CacheDictHashOrig(mysql bool) error {
 	} else {
 		dictHashLoose = make(map[string][]Word)
 		dictHashStrict = make(map[string][]Word)
+		dictHashStrictReef = make(map[string][]Word)
 	}
 
 	tempHoms := []string{}
@@ -515,13 +517,22 @@ func CacheDictHashOrig(mysql bool) error {
 			nkxSub[fakeNG] = standardizedWord
 		}
 
-		standardizedWordArray := dialectCrunch(strings.Split(standardizedWord, " "), true)
+		standardizedWordArray := dialectCrunch(strings.Split(standardizedWord, " "), true, false, true)
 		standardizedWordLoose := ""
 		for i, a := range standardizedWordArray {
 			if i != 0 {
 				standardizedWordLoose += " "
 			}
 			standardizedWordLoose += a
+		}
+
+		strictReefArray := dialectCrunch(strings.Split(standardizedWord, " "), true, true, true)
+		strictReef := ""
+		for i, a := range strictReefArray {
+			if i != 0 {
+				strictReef += " "
+			}
+			strictReef += a
 		}
 
 		// If the word appears more than once, record it
@@ -555,6 +566,7 @@ func CacheDictHashOrig(mysql bool) error {
 
 		word = EnglishIfNull(word)
 		dictHashLoose[standardizedWordLoose] = append(dictHashLoose[standardizedWordLoose], word)
+		dictHashStrictReef[strictReef] = append(dictHashStrictReef[strictReef], word)
 		dictHashStrict[standardizedWord] = append(dictHashStrict[standardizedWord], word)
 
 		//find words with multiple IPAs
@@ -562,7 +574,8 @@ func CacheDictHashOrig(mysql bool) error {
 			multiIPA += word.Navi + " "
 			secondTerm := RomanizeSecondIPA(word.IPA)
 			if secondTerm != standardizedWord {
-				dictHashLoose[dialectCrunch([]string{secondTerm}, true)[0]] = append(dictHashLoose[dialectCrunch([]string{secondTerm}, true)[0]], word)
+				dictHashLoose[dialectCrunch([]string{secondTerm}, true, false, true)[0]] = append(dictHashLoose[dialectCrunch([]string{secondTerm}, true, false, true)[0]], word)
+				dictHashStrictReef[dialectCrunch([]string{secondTerm}, true, true, true)[0]] = append(dictHashStrictReef[dialectCrunch([]string{secondTerm}, true, true, true)[0]], word)
 				dictHashStrict[secondTerm] = append(dictHashStrict[secondTerm], word)
 			}
 		}
