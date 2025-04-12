@@ -601,7 +601,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 					}
 					if !lenited {
 						newCandidate.Word = newString
-						deconjugateHelper(newCandidate, 3, suffixCheck, -1, []string{}, element, "", strict, allowReef)
+						deconjugateHelper(newCandidate, 4, suffixCheck, -1, []string{}, element, "", strict, allowReef)
 					}
 				}
 			}
