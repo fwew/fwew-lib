@@ -151,7 +151,7 @@ var unreefFixes = map[string]string{
 	"kxamle": "kxamlä",
 }
 
-var unstrictFixes = map[string]string {
+var unstrictFixes = map[string]string{
 	// Below this are for diacritic independence of i and ì
 	"fi":    "fì",
 	"ilä":   "ìlä",
@@ -601,7 +601,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 					}
 					if !lenited {
 						newCandidate.Word = newString
-						deconjugateHelper(newCandidate, 3, suffixCheck, -1, []string{}, element, "", strict, allowReef)
+						deconjugateHelper(newCandidate, 4, suffixCheck, -1, []string{}, element, "", strict, allowReef)
 					}
 				}
 			}
@@ -1037,7 +1037,7 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 		}
 
 		for _, a := range allIAConfigs {
-			newCandidate := ConjugationCandidate{Word: a}
+			newCandidate := ConjugationCandidate{Word: a, InsistPOS: "any"}
 			conjugations = append(conjugations, newCandidate)
 			conjugations = append(conjugations, Deconjugate(a, strict, allowReef)...)
 		}
