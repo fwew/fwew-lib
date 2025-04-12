@@ -151,7 +151,7 @@ var unreefFixes = map[string]string{
 	"kxamle": "kxamlä",
 }
 
-var unstrictFixes = map[string]string {
+var unstrictFixes = map[string]string{
 	// Below this are for diacritic independence of i and ì
 	"fi":    "fì",
 	"ilä":   "ìlä",
@@ -1086,8 +1086,14 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 			for _, pos := range strings.Split(c.PartOfSpeech, ",") {
 				pos = strings.ReplaceAll(pos, " ", "")
 
+				// In case candidate.InsistPOS is '' or something
+				notVerb := false
+				if len(candidate.InsistPOS) > 0 && candidate.InsistPOS[0] != 'v' {
+					notVerb = true
+				}
+
 				// An inter. can act like a noun or an adjective, so it gets special treatment
-				if pos == "inter." && candidate.InsistPOS[0] != 'v' && len(candidate.Infixes) == 0 {
+				if pos == "inter." && notVerb && len(candidate.Infixes) == 0 {
 					dupe := false
 					for _, b := range results {
 						if b.Navi == c.Navi {
