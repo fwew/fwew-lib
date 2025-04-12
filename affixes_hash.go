@@ -1037,7 +1037,7 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 		}
 
 		for _, a := range allIAConfigs {
-			newCandidate := ConjugationCandidate{Word: a}
+			newCandidate := ConjugationCandidate{Word: a, InsistPOS: "any"}
 			conjugations = append(conjugations, newCandidate)
 			conjugations = append(conjugations, Deconjugate(a, strict, allowReef)...)
 		}
@@ -1086,14 +1086,8 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 			for _, pos := range strings.Split(c.PartOfSpeech, ",") {
 				pos = strings.ReplaceAll(pos, " ", "")
 
-				// In case candidate.InsistPOS is '' or something
-				notVerb := false
-				if len(candidate.InsistPOS) > 0 && candidate.InsistPOS[0] != 'v' {
-					notVerb = true
-				}
-
 				// An inter. can act like a noun or an adjective, so it gets special treatment
-				if pos == "inter." && notVerb && len(candidate.Infixes) == 0 {
+				if pos == "inter." && candidate.InsistPOS[0] != 'v' && len(candidate.Infixes) == 0 {
 					dupe := false
 					for _, b := range results {
 						if b.Navi == c.Navi {
