@@ -433,7 +433,7 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 							}
 							found = true
 							foundAlready = true
-							results[0][0].Navi += " " + allWords[i+j+2]
+							revert += " " + allWords[i+j+2]
 							keepAffixes = itsAffixes.Affixes
 							j += 1
 							continue
@@ -445,7 +445,7 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 					if validVerb {
 						found = true
 						foundAlready = true
-						results[0][0].Navi += " " + allWords[i+j+1]
+						revert += " " + allWords[i+j+1]
 						keepAffixes = itsAffixes.Affixes
 						continue
 					}
@@ -456,7 +456,7 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 					// First by itself
 					if pairWord == allWords[i+j+1] {
 						found = true
-						results[0][0].Navi += " " + allWords[i+j+1]
+						revert += " " + allWords[i+j+1]
 						continue
 					}
 
@@ -468,7 +468,7 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 					// Do any of the conjugations work?
 					for _, b := range secondWords {
 						if b.Navi == pairWord {
-							results[0][0].Navi += " " + b.Navi
+							revert += " " + b.Navi
 							found = true
 							keepAffixes = addAffixes(keepAffixes, b.Affixes)
 						}
@@ -476,12 +476,12 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 
 					// Chain is broken.  Exit.
 					if !found {
-						results[0][0].Navi = revert
 						break
 					}
 				}
 			}
 			if found {
+				results[0][0].Navi = revert
 				fullWord := searchNaviWord
 				for _, pairWord := range pairWordSet {
 					fullWord += " " + pairWord
@@ -574,6 +574,8 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 		found := false
 		// Find the results words
 
+		revert := results[0][0].Navi
+
 		for _, a := range results[len(results)-1] {
 			// See if it is in the list known to start multiword words
 			if _, ok := (*multiwords)[a.Navi]; ok {
@@ -609,7 +611,7 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 									}
 									found = true
 									foundAlready = true
-									results[0][0].Navi += " " + allWords[i+j+2]
+									revert += " " + allWords[i+j+2]
 									keepAffixes = itsAffixes.Affixes
 									j += 1
 
@@ -630,7 +632,7 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 							// First by itself
 							if pairWord == allWord {
 								found = true
-								results[0][0].Navi += " " + allWords[i+j+1]
+								revert += " " + allWords[i+j+1]
 								continue
 							}
 
@@ -642,7 +644,7 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 							// Do any of the conjugations work?
 							for _, b := range secondWords {
 								if b.Navi == pairWord {
-									results[0][0].Navi += " " + b.Navi
+									revert += " " + b.Navi
 									found = true
 									keepAffixes = addAffixes(keepAffixes, b.Affixes)
 								}
@@ -655,6 +657,7 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 						}
 					}
 					if found {
+						results[0][0].Navi = revert
 						fullWord := newSearch
 						for _, pairWord := range pairWordSet {
 							fullWord += " " + pairWord
