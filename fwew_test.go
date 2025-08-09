@@ -193,7 +193,10 @@ var naviWords = []struct {
 				Navi: "'eveng",
 				Affixes: affix{
 					Prefix: []string{
-						"pepe",
+						"pe", "pxe",
+					},
+					Lenition: []string{
+						"px→p",
 					},
 				},
 			},
@@ -210,7 +213,10 @@ var naviWords = []struct {
 				Navi: "fil",
 				Affixes: affix{
 					Prefix: []string{
-						"pepe",
+						"pe", "pxe",
+					},
+					Lenition: []string{
+						"px→p",
 					},
 				},
 			},
@@ -219,7 +225,7 @@ var naviWords = []struct {
 				Navi: "pil",
 				Affixes: affix{
 					Prefix: []string{
-						"pepe",
+						"pe", "pxe",
 					},
 					Lenition: []string{
 						"p→f",
@@ -1039,6 +1045,21 @@ var naviWords = []struct {
 			},
 		},
 	}, // ä with affixes
+	{
+		name: "tsaframeikran",
+		args: args{
+			searchNaviText: "tsaframeikran",
+		},
+		want: []Word{
+			{
+				ID:   "604",
+				Navi: "ikran",
+				Affixes: affix{
+					Prefix: []string{"tsa", "fra", "me"},
+				},
+			},
+		},
+	}, // all of those two ikrans
 }
 var unstrictNaviWords = []struct {
 	name string
