@@ -115,7 +115,7 @@ var vowelSuffixes = map[string][]string{
 	"o":   []string{"o"},
 }
 var stemSuffixes = []string{"tsyìp", "tsyip", "fkeyk"}
-var verbSuffixes = []string{"tswo", "yu"}
+var verbSuffixes = []string{"tswo", "yu", "tseng"}
 
 var infixes = map[rune][]string{
 	rune('a'): {"ay", "asy", "aly", "ary", "am", "alm", "arm", "ats", "awn", "ap", "ang"},
