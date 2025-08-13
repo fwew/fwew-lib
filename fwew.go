@@ -653,6 +653,7 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 				}
 			}
 
+			// No tìngyu mikyun
 			if !breakAdding2 {
 				// See if it is in the list known to start multiword words
 				if _, ok := (*multiwords)[a.Navi]; ok {
