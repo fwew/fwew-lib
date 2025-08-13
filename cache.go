@@ -36,6 +36,7 @@ type MetaDict struct {
 	ET map[string][]string
 	FR map[string][]string
 	HU map[string][]string
+	IT map[string][]string
 	KO map[string][]string
 	NL map[string][]string
 	PL map[string][]string
@@ -70,7 +71,7 @@ var phonoLock sync.Mutex
 // helper for nkx for shortest words first
 func shortestFirst(array []string, input string) []string {
 	newArray := []string{}
-	found := false
+	found := false // TODO: Set this to true at some point, or remove.
 	for _, a := range array {
 		if !found && len(a) > len(input) {
 			newArray = append(newArray, input)
@@ -244,6 +245,11 @@ func EnglishIfNull(word Word) Word {
 	// Hungarian (Magyar)
 	if NullDef(word.HU) {
 		word.HU = word.EN
+	}
+
+	// Italian (Italiano)
+	if NullDef(word.IT) {
+		word.IT = word.EN
 	}
 
 	// Korean (한국어)
@@ -709,6 +715,7 @@ func CacheDictHash2Orig(mysql bool) error {
 		dictHash2.ET = make(map[string][]string)
 		dictHash2.FR = make(map[string][]string)
 		dictHash2.HU = make(map[string][]string)
+		dictHash2.IT = make(map[string][]string)
 		dictHash2.KO = make(map[string][]string)
 		dictHash2.NL = make(map[string][]string)
 		dictHash2.PL = make(map[string][]string)
@@ -724,6 +731,7 @@ func CacheDictHash2Orig(mysql bool) error {
 		dictHash2Parenthesis.ET = make(map[string][]string)
 		dictHash2Parenthesis.FR = make(map[string][]string)
 		dictHash2Parenthesis.HU = make(map[string][]string)
+		dictHash2Parenthesis.IT = make(map[string][]string)
 		dictHash2Parenthesis.KO = make(map[string][]string)
 		dictHash2Parenthesis.NL = make(map[string][]string)
 		dictHash2Parenthesis.PL = make(map[string][]string)
@@ -774,6 +782,12 @@ func CacheDictHash2Orig(mysql bool) error {
 		if !NullDef(word.HU) {
 			dictHash2.HU = AssignWord(dictHash2.HU, word.HU, standardizedWord, true)
 			dictHash2Parenthesis.HU = AssignWord(dictHash2Parenthesis.HU, word.HU, standardizedWord, false)
+		}
+
+		// Italian (Italiano)
+		if !NullDef(word.IT) {
+			dictHash2.IT = AssignWord(dictHash2.IT, word.IT, standardizedWord, true)
+			dictHash2Parenthesis.IT = AssignWord(dictHash2Parenthesis.IT, word.IT, standardizedWord, false)
 		}
 
 		// Korean (한국어)
@@ -863,6 +877,7 @@ func UncacheHashDict2() {
 	dictHash2.ET = nil
 	dictHash2.FR = nil
 	dictHash2.HU = nil
+	dictHash2.IT = nil
 	dictHash2.KO = nil
 	dictHash2.NL = nil
 	dictHash2.PL = nil
@@ -878,6 +893,7 @@ func UncacheHashDict2() {
 	dictHash2Parenthesis.ET = nil
 	dictHash2Parenthesis.FR = nil
 	dictHash2Parenthesis.HU = nil
+	dictHash2Parenthesis.IT = nil
 	dictHash2Parenthesis.KO = nil
 	dictHash2Parenthesis.NL = nil
 	dictHash2Parenthesis.PL = nil
@@ -932,6 +948,7 @@ func runOnDB(f func(word Word) error) error {
 		"(SELECT localized FROM fwedit_localizedWords AS l WHERE l.id = m.id AND languageCode = 'et') AS et, " +
 		"(SELECT localized FROM fwedit_localizedWords AS l WHERE l.id = m.id AND languageCode = 'fr') AS fr, " +
 		"(SELECT localized FROM fwedit_localizedWords AS l WHERE l.id = m.id AND languageCode = 'hu') AS hu, " +
+		"(SELECT localized FROM fwedit_localizedWords AS l WHERE l.id = m.id AND languageCode = 'hu') AS it, " +
 		"(SELECT localized FROM fwedit_localizedWords AS l WHERE l.id = m.id AND languageCode = 'ko') AS ko, " +
 		"(SELECT localized FROM fwedit_localizedWords AS l WHERE l.id = m.id AND languageCode = 'nl') AS nl, " +
 		"(SELECT localized FROM fwedit_localizedWords AS l WHERE l.id = m.id AND languageCode = 'pl') AS pl, " +
@@ -949,7 +966,7 @@ func runOnDB(f func(word Word) error) error {
 	}
 
 	var w Word
-	var de, en, es, et, fr, hu, ko, nl, pl, pt, ru, sv, tr, uk []byte
+	var de, en, es, et, fr, hu, it, ko, nl, pl, pt, ru, sv, tr, uk []byte
 
 	for rows.Next() {
 		err = rows.Scan(&w.ID, &w.Navi, &w.IPA, &w.InfixLocations, &w.PartOfSpeech, &w.Source, &w.Stressed,
@@ -965,6 +982,7 @@ func runOnDB(f func(word Word) error) error {
 		w.ET = string(et)
 		w.FR = string(fr)
 		w.HU = string(hu)
+		w.IT = string(it)
 		w.KO = string(ko)
 		w.NL = string(nl)
 		w.PL = string(pl)
