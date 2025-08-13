@@ -411,93 +411,110 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 
 	foundAlready := false
 
-	// Bunch of duplicate code for the edge case of eltur tìtxen si and others like it
-	//if !bareNaviWord {
-	found := false
-	// See if it is in the list known to start multiword words
-	multiwords := &multiword_words
-	if !strict {
-		multiwords = &multiword_words_loose
-	} else if allowReef {
-		multiwords = &multiword_words_reef
-	}
-	if _, ok := (*multiwords)[searchNaviWord]; ok {
-		// If so, loop through it
-		for _, pairWordSet := range (*multiwords)[searchNaviWord] {
-			if foundAlready {
+	breakAdding2 := false
+
+	for _, a := range tempResults {
+		for _, prefix := range verbPrefixes {
+			for _, ourPrefixes := range a.Affixes.Prefix {
+				if prefix == ourPrefixes {
+					breakAdding2 = true
+				}
+			}
+			if breakAdding2 {
 				break
 			}
+		}
 
-			keepAffixes := *new(affix)
-
-			extraWord := 0
-
-			revert := results[0][0].Navi
-			// There could be more than one pair (win säpi and win si for example)
-			for j, pairWord := range pairWordSet {
-				found = false
-				// Don't cause an index out of range error
-				if i+j+1 >= len(allWords) {
+		if !breakAdding2 {
+			for _, suffix := range verbSuffixes {
+				for _, ourSuffixes := range a.Affixes.Suffix {
+					if suffix == ourSuffixes {
+						breakAdding2 = true
+					}
+				}
+				if breakAdding2 {
 					break
-				} else {
-					// For "[word] ke si and [word] rä'ä si"
-					if i+j+2 < len(allWords) && (allWords[i+j+1] == "ke" || allWords[i+j+1] == "rä'ä") {
-						validVerb, itsAffixes := IsVerb(dict, allWords[i+j+2], pairWord, strict, allowReef)
-						if validVerb {
-							extraWord = 1
-							if len(results) == 1 {
-								results = append(results, []Word{simpleWord(allWords[i+j+1])})
-								for _, b := range (*dict)[allWords[i+j+1]] {
-									results[1] = AppendToFront(results[1], b)
+				}
+			}
+		}
+	}
+
+	if !breakAdding2 {
+		// Bunch of duplicate code for the edge case of eltur tìtxen si and others like it
+		//if !bareNaviWord {
+		found := false
+		// See if it is in the list known to start multiword words
+		multiwords := &multiword_words
+		if !strict {
+			multiwords = &multiword_words_loose
+		} else if allowReef {
+			multiwords = &multiword_words_reef
+		}
+		if _, ok := (*multiwords)[searchNaviWord]; ok {
+			// If so, loop through it
+			for _, pairWordSet := range (*multiwords)[searchNaviWord] {
+				if foundAlready {
+					break
+				}
+
+				keepAffixes := *new(affix)
+
+				extraWord := 0
+
+				revert := results[0][0].Navi
+				// There could be more than one pair (win säpi and win si for example)
+				for j, pairWord := range pairWordSet {
+					found = false
+					// Don't cause an index out of range error
+					if i+j+1 >= len(allWords) {
+						break
+					} else {
+						// For "[word] ke si and [word] rä'ä si"
+						if i+j+2 < len(allWords) && (allWords[i+j+1] == "ke" || allWords[i+j+1] == "rä'ä") {
+							validVerb, itsAffixes := IsVerb(dict, allWords[i+j+2], pairWord, strict, allowReef)
+							if validVerb {
+								extraWord = 1
+								if len(results) == 1 {
+									results = append(results, []Word{simpleWord(allWords[i+j+1])})
+									for _, b := range (*dict)[allWords[i+j+1]] {
+										results[1] = AppendToFront(results[1], b)
+									}
 								}
+								found = true
+								foundAlready = true
+								revert += " " + allWords[i+j+2]
+								keepAffixes = itsAffixes.Affixes
+								j += 1
+								continue
 							}
+						}
+
+						// Verbs don't just come after ke or rä'ä
+						validVerb, itsAffixes := IsVerb(dict, allWords[i+j+1], pairWord, strict, allowReef)
+						if validVerb {
 							found = true
 							foundAlready = true
-							revert += " " + allWords[i+j+2]
+							revert += " " + allWords[i+j+1]
 							keepAffixes = itsAffixes.Affixes
-							j += 1
 							continue
 						}
-					}
 
-					// Verbs don't just come after ke or rä'ä
-					validVerb, itsAffixes := IsVerb(dict, allWords[i+j+1], pairWord, strict, allowReef)
-					if validVerb {
-						found = true
-						foundAlready = true
-						revert += " " + allWords[i+j+1]
-						keepAffixes = itsAffixes.Affixes
-						continue
-					}
+						// Find all words the second word can represent
+						secondWords := []Word{}
 
-					// Find all words the second word can represent
-					secondWords := []Word{}
-
-					// First by itself
-					if pairWord == allWords[i+j+1] {
-						found = true
-						revert += " " + allWords[i+j+1]
-						continue
-					}
-
-					// And then by its possible conjugations
-					for _, b := range TestDeconjugations(dict, allWords[i+j+1], strict, allowReef, containsUmlaut[i]) {
-						breakAdding := false
-						for _, prefix := range verbPrefixes {
-							for _, ourPrefixes := range b.Affixes.Prefix {
-								if prefix == ourPrefixes {
-									breakAdding = true
-								}
-							}
-							if breakAdding {
-								break
-							}
+						// First by itself
+						if pairWord == allWords[i+j+1] {
+							found = true
+							revert += " " + allWords[i+j+1]
+							continue
 						}
 
-						if !breakAdding {
-							for _, suffix := range verbSuffixes {
-								for _, ourSuffixes := range b.Affixes.Suffix {
-									if suffix == ourSuffixes {
+						// And then by its possible conjugations
+						for _, b := range TestDeconjugations(dict, allWords[i+j+1], strict, allowReef, containsUmlaut[i]) {
+							breakAdding := false
+							for _, prefix := range verbPrefixes {
+								for _, ourPrefixes := range b.Affixes.Prefix {
+									if prefix == ourPrefixes {
 										breakAdding = true
 									}
 								}
@@ -505,193 +522,11 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 									break
 								}
 							}
-						}
 
-						if breakAdding {
-							continue
-						}
-
-						secondWords = AppendAndAlphabetize(secondWords, b)
-					}
-
-					// Do any of the conjugations work?
-					for _, b := range secondWords {
-
-						if b.Navi == pairWord {
-							revert += " " + b.Navi
-							found = true
-							keepAffixes = addAffixes(keepAffixes, b.Affixes)
-						}
-					}
-
-					// Chain is broken.  Exit.
-					if !found {
-						break
-					}
-				}
-			}
-			if found {
-				results[0][0].Navi = revert
-				fullWord := searchNaviWord
-				for _, pairWord := range pairWordSet {
-					fullWord += " " + pairWord
-				}
-
-				results[0] = []Word{results[0][0]}
-				a := strings.ReplaceAll(fullWord, "ù", "u")
-
-				for _, definition := range (*dict)[a] {
-					// Replace the word
-					if len(results) > 0 && len(results[0]) > 1 && (results[0][1].Navi == "ke" || results[0][1].Navi == "rä'ä") {
-						// Get the query it's looking for
-						results[0][len(results[0])-1].Navi = results[0][1].Navi
-						results[1] = AppendToFront(results[1], definition)
-						results[1][1].Affixes = keepAffixes
-					} else {
-						// Get the query it's looking for
-						results[0] = AppendToFront(results[0], definition)
-						results[0][1].Affixes = keepAffixes
-					}
-				}
-				i += len(pairWordSet) + extraWord
-			}
-		}
-	}
-	//}
-
-	if checkFixes {
-		newResults := []Word{}
-
-		if !foundAlready {
-			if len(results) > 0 && len(results[0]) > 0 {
-				if !(strings.ToLower(results[len(results)-1][0].Navi) != searchNaviWord && strings.HasPrefix(strings.ToLower(results[len(results)-1][0].Navi), searchNaviWord)) {
-					// Find all possible unconjugated versions of the word
-					newResults = TestDeconjugations(dict, searchNaviWord, strict, allowReef, containsUmlaut[i])
-				}
-			} else {
-				// Find all possible unconjugated versions of the word
-				newResults = TestDeconjugations(dict, searchNaviWord, strict, allowReef, containsUmlaut[i])
-			}
-		}
-
-		tempNewResults := []Word{}
-
-		// If one searches for ke, don't search for kä
-		for _, a := range newResults {
-			nucleusCount := 0
-			for _, b := range []string{"a", "ä", "e", "i", "ì", "o", "u", "ù", "ll", "rr"} {
-				nucleusCount += strings.Count(a.Navi, b)
-			}
-			if nucleusCount == 1 {
-				if !containsUmlaut[i] && !strings.Contains(searchNaviWord, "a") && strings.Contains(a.Navi, "ä") {
-					continue
-				}
-			}
-			strippedA := a.Navi
-			if len(a.Affixes.Prefix) == 0 {
-				strippedA = strings.TrimPrefix(strippedA, "'")
-			}
-			if len(a.Affixes.Suffix) == 0 {
-				strippedA = strings.TrimSuffix(strippedA, "'")
-			}
-			if containsTìftang[i] && !strings.Contains(strippedA, "'") {
-				continue // make sure tsa'u doesn't return tsa-au
-			}
-			tempNewResults = append(tempNewResults, a)
-		}
-
-		// Do not duplicate
-		alreadyHere := results[len(results)-1]
-		for _, a := range tempNewResults {
-			add := true
-			for _, b := range alreadyHere {
-				if b.ID == a.ID {
-					if len(b.Affixes.Prefix) == len(a.Affixes.Prefix) &&
-						len(b.Affixes.Suffix) == len(a.Affixes.Suffix) &&
-						len(b.Affixes.Lenition) == len(a.Affixes.Lenition) &&
-						len(b.Affixes.Infix) == len(a.Affixes.Infix) {
-						add = false
-						break
-					}
-				}
-			}
-			if add {
-				results[len(results)-1] = append(results[len(results)-1], a)
-			}
-		}
-
-		// Check if the word could have more than one word
-		found := false
-		// Find the results words
-
-		revert := results[0][0].Navi
-
-		for _, a := range results[len(results)-1] {
-			// See if it is in the list known to start multiword words
-			if _, ok := (*multiwords)[a.Navi]; ok {
-				// If so, loop through it
-				for _, pairWordSet := range (*multiwords)[a.Navi] {
-					if foundAlready {
-						break
-					}
-
-					newSearch := a.Navi
-
-					keepAffixes := *new(affix)
-					keepAffixes = addAffixes(keepAffixes, a.Affixes)
-
-					extraWord := 0
-					// There could be more than one pair (win säpi and win si for example)
-					for j, pairWord := range pairWordSet {
-						found = false
-						// Don't cause an index out of range error
-						if i+j+1 >= len(allWords) {
-							break
-						} else {
-							// For "[word] ke si and [word] rä'ä si"
-							if i+j+2 < len(allWords) && (allWords[i+j+1] == "ke" || allWords[i+j+1] == "ree") {
-								validVerb, itsAffixes := IsVerb(dict, allWords[i+j+2], pairWord, strict, allowReef)
-								if validVerb {
-									extraWord = 1
-									if len(results) == 1 {
-										results = append(results, []Word{simpleWord(allWords[i+j+1])})
-										for _, b := range (*dict)[allWords[i+j+1]] {
-											results[1] = AppendToFront(results[1], b)
-										}
-									}
-									found = true
-									foundAlready = true
-									revert += " " + allWords[i+j+2]
-									keepAffixes = itsAffixes.Affixes
-									j += 1
-
-									continue
-								}
-							}
-
-							// Find all words the second word can represent
-							secondWords := []Word{}
-
-							allWord := allWords[i+j+1]
-
-							if !strict || allowReef {
-								pairWord = dialectCrunch([]string{pairWord}, false, strict, allowReef)[0]
-								allWord = dialectCrunch([]string{allWord}, false, strict, allowReef)[0]
-							}
-
-							// First by itself
-							if pairWord == allWord {
-								found = true
-								revert += " " + allWords[i+j+1]
-								continue
-							}
-
-							// And then by its possible conjugations
-							for _, b := range TestDeconjugations(dict, allWords[i+j+1], strict, allowReef, containsUmlaut[i]) {
-								breakAdding := false
-								for _, prefix := range verbPrefixes {
-									for _, ourPrefixes := range b.Affixes.Prefix {
-										if prefix == ourPrefixes {
+							if !breakAdding {
+								for _, suffix := range verbSuffixes {
+									for _, ourSuffixes := range b.Affixes.Suffix {
+										if suffix == ourSuffixes {
 											breakAdding = true
 										}
 									}
@@ -699,11 +534,193 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 										break
 									}
 								}
+							}
 
-								if !breakAdding {
-									for _, suffix := range verbSuffixes {
-										for _, ourSuffixes := range b.Affixes.Suffix {
-											if suffix == ourSuffixes {
+							if breakAdding {
+								continue
+							}
+
+							secondWords = AppendAndAlphabetize(secondWords, b)
+						}
+
+						// Do any of the conjugations work?
+						for _, b := range secondWords {
+
+							if b.Navi == pairWord {
+								revert += " " + b.Navi
+								found = true
+								keepAffixes = addAffixes(keepAffixes, b.Affixes)
+							}
+						}
+
+						// Chain is broken.  Exit.
+						if !found {
+							break
+						}
+					}
+				}
+				if found {
+					results[0][0].Navi = revert
+					fullWord := searchNaviWord
+					for _, pairWord := range pairWordSet {
+						fullWord += " " + pairWord
+					}
+
+					results[0] = []Word{results[0][0]}
+					a := strings.ReplaceAll(fullWord, "ù", "u")
+
+					for _, definition := range (*dict)[a] {
+						// Replace the word
+						if len(results) > 0 && len(results[0]) > 1 && (results[0][1].Navi == "ke" || results[0][1].Navi == "rä'ä") {
+							// Get the query it's looking for
+							results[0][len(results[0])-1].Navi = results[0][1].Navi
+							results[1] = AppendToFront(results[1], definition)
+							results[1][1].Affixes = keepAffixes
+						} else {
+							// Get the query it's looking for
+							results[0] = AppendToFront(results[0], definition)
+							results[0][1].Affixes = keepAffixes
+						}
+					}
+					i += len(pairWordSet) + extraWord
+				}
+			}
+		}
+		//}
+
+		if checkFixes {
+			newResults := []Word{}
+
+			if !foundAlready {
+				if len(results) > 0 && len(results[0]) > 0 {
+					if !(strings.ToLower(results[len(results)-1][0].Navi) != searchNaviWord && strings.HasPrefix(strings.ToLower(results[len(results)-1][0].Navi), searchNaviWord)) {
+						// Find all possible unconjugated versions of the word
+						newResults = TestDeconjugations(dict, searchNaviWord, strict, allowReef, containsUmlaut[i])
+					}
+				} else {
+					// Find all possible unconjugated versions of the word
+					newResults = TestDeconjugations(dict, searchNaviWord, strict, allowReef, containsUmlaut[i])
+				}
+			}
+
+			tempNewResults := []Word{}
+
+			// If one searches for ke, don't search for kä
+			for _, a := range newResults {
+				nucleusCount := 0
+				for _, b := range []string{"a", "ä", "e", "i", "ì", "o", "u", "ù", "ll", "rr"} {
+					nucleusCount += strings.Count(a.Navi, b)
+				}
+				if nucleusCount == 1 {
+					if !containsUmlaut[i] && !strings.Contains(searchNaviWord, "a") && strings.Contains(a.Navi, "ä") {
+						continue
+					}
+				}
+				strippedA := a.Navi
+				if len(a.Affixes.Prefix) == 0 {
+					strippedA = strings.TrimPrefix(strippedA, "'")
+				}
+				if len(a.Affixes.Suffix) == 0 {
+					strippedA = strings.TrimSuffix(strippedA, "'")
+				}
+				if containsTìftang[i] && !strings.Contains(strippedA, "'") {
+					continue // make sure tsa'u doesn't return tsa-au
+				}
+				tempNewResults = append(tempNewResults, a)
+			}
+
+			// Do not duplicate
+			alreadyHere := results[len(results)-1]
+			for _, a := range tempNewResults {
+				add := true
+				for _, b := range alreadyHere {
+					if b.ID == a.ID {
+						if len(b.Affixes.Prefix) == len(a.Affixes.Prefix) &&
+							len(b.Affixes.Suffix) == len(a.Affixes.Suffix) &&
+							len(b.Affixes.Lenition) == len(a.Affixes.Lenition) &&
+							len(b.Affixes.Infix) == len(a.Affixes.Infix) {
+							add = false
+							break
+						}
+					}
+				}
+				if add {
+					results[len(results)-1] = append(results[len(results)-1], a)
+				}
+			}
+
+			// Check if the word could have more than one word
+			found := false
+			// Find the results words
+
+			revert := results[0][0].Navi
+
+			for _, a := range results[len(results)-1] {
+				// See if it is in the list known to start multiword words
+				if _, ok := (*multiwords)[a.Navi]; ok {
+					// If so, loop through it
+					for _, pairWordSet := range (*multiwords)[a.Navi] {
+						if foundAlready {
+							break
+						}
+
+						newSearch := a.Navi
+
+						keepAffixes := *new(affix)
+						keepAffixes = addAffixes(keepAffixes, a.Affixes)
+
+						extraWord := 0
+						// There could be more than one pair (win säpi and win si for example)
+						for j, pairWord := range pairWordSet {
+							found = false
+							// Don't cause an index out of range error
+							if i+j+1 >= len(allWords) {
+								break
+							} else {
+								// For "[word] ke si and [word] rä'ä si"
+								if i+j+2 < len(allWords) && (allWords[i+j+1] == "ke" || allWords[i+j+1] == "ree") {
+									validVerb, itsAffixes := IsVerb(dict, allWords[i+j+2], pairWord, strict, allowReef)
+									if validVerb {
+										extraWord = 1
+										if len(results) == 1 {
+											results = append(results, []Word{simpleWord(allWords[i+j+1])})
+											for _, b := range (*dict)[allWords[i+j+1]] {
+												results[1] = AppendToFront(results[1], b)
+											}
+										}
+										found = true
+										foundAlready = true
+										revert += " " + allWords[i+j+2]
+										keepAffixes = itsAffixes.Affixes
+										j += 1
+
+										continue
+									}
+								}
+
+								// Find all words the second word can represent
+								secondWords := []Word{}
+
+								allWord := allWords[i+j+1]
+
+								if !strict || allowReef {
+									pairWord = dialectCrunch([]string{pairWord}, false, strict, allowReef)[0]
+									allWord = dialectCrunch([]string{allWord}, false, strict, allowReef)[0]
+								}
+
+								// First by itself
+								if pairWord == allWord {
+									found = true
+									revert += " " + allWords[i+j+1]
+									continue
+								}
+
+								// And then by its possible conjugations
+								for _, b := range TestDeconjugations(dict, allWords[i+j+1], strict, allowReef, containsUmlaut[i]) {
+									breakAdding := false
+									for _, prefix := range verbPrefixes {
+										for _, ourPrefixes := range b.Affixes.Prefix {
+											if prefix == ourPrefixes {
 												breakAdding = true
 											}
 										}
@@ -711,56 +728,69 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 											break
 										}
 									}
+
+									if !breakAdding {
+										for _, suffix := range verbSuffixes {
+											for _, ourSuffixes := range b.Affixes.Suffix {
+												if suffix == ourSuffixes {
+													breakAdding = true
+												}
+											}
+											if breakAdding {
+												break
+											}
+										}
+									}
+
+									if breakAdding {
+										continue
+									}
+									secondWords = AppendAndAlphabetize(secondWords, b)
 								}
 
-								if breakAdding {
-									continue
+								// Do any of the conjugations work?
+								for _, b := range secondWords {
+									if b.Navi == pairWord {
+										revert += " " + b.Navi
+										found = true
+										keepAffixes = addAffixes(keepAffixes, b.Affixes)
+									}
 								}
-								secondWords = AppendAndAlphabetize(secondWords, b)
-							}
 
-							// Do any of the conjugations work?
-							for _, b := range secondWords {
-								if b.Navi == pairWord {
-									revert += " " + b.Navi
-									found = true
-									keepAffixes = addAffixes(keepAffixes, b.Affixes)
+								// Chain is broken.  Exit.
+								if !found {
+									break
 								}
 							}
-
-							// Chain is broken.  Exit.
-							if !found {
-								break
+						}
+						if found {
+							results[0][0].Navi = revert
+							fullWord := newSearch
+							for _, pairWord := range pairWordSet {
+								fullWord += " " + pairWord
 							}
-						}
-					}
-					if found {
-						results[0][0].Navi = revert
-						fullWord := newSearch
-						for _, pairWord := range pairWordSet {
-							fullWord += " " + pairWord
-						}
 
-						results[0] = []Word{results[0][0]}
-						a := strings.ReplaceAll(fullWord, "ù", "u")
-						if !strict {
-							a = dialectCrunch([]string{a}, false, strict, allowReef)[0]
-						}
-
-						for _, definition := range (*dict)[a] {
-							// Replace the word
-							if len(results) > 0 && len(results[0]) > 1 && (results[0][1].Navi == "ke" || results[0][1].Navi == "rä'ä") {
-								// Get the query it's looking for
-								results[0][len(results[0])-1].Navi = results[0][1].Navi
-								results[1] = AppendToFront(results[1], definition)
-								results[1][1].Affixes = keepAffixes
-							} else {
-								// Get the query it's looking for
-								results[0] = AppendToFront(results[0], definition)
-								results[0][1].Affixes = keepAffixes
+							results[0] = []Word{results[0][0]}
+							a := strings.ReplaceAll(fullWord, "ù", "u")
+							if !strict {
+								a = dialectCrunch([]string{a}, false, strict, allowReef)[0]
 							}
+
+							for _, definition := range (*dict)[a] {
+								// Replace the word
+								if len(results) > 0 && len(results[0]) > 1 && (results[0][1].Navi == "ke" || results[0][1].Navi == "rä'ä") {
+									// Get the query it's looking for
+									results[0][len(results[0])-1].Navi = results[0][1].Navi
+									results[1] = AppendToFront(results[1], definition)
+									results[1][1].Affixes = keepAffixes
+								} else {
+									// Get the query it's looking for
+									results[0] = AppendToFront(results[0], definition)
+									results[0][1].Affixes = keepAffixes
+								}
+							}
+							i += len(pairWordSet) + extraWord
 						}
-						i += len(pairWordSet) + extraWord
 					}
 				}
 			}
