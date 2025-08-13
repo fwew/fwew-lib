@@ -263,6 +263,23 @@ func IsVerb(dict *map[string][]Word, input string, comparator string, strict boo
 			if i == 0 {
 				continue
 			}
+
+			for _, prefix := range verbPrefixes {
+				for _, ourPrefixes := range b.Affixes.Prefix {
+					if prefix == ourPrefixes {
+						return false, affixes
+					}
+				}
+			}
+
+			for _, suffix := range verbSuffixes {
+				for _, ourSuffixes := range b.Affixes.Suffix {
+					if suffix == ourSuffixes {
+						return false, affixes
+					}
+				}
+			}
+
 			// Make sure it's a verb
 			if len(b.PartOfSpeech) > 0 && b.PartOfSpeech[0] == 'v' {
 				for _, c := range b.Affixes.Infix {
@@ -465,48 +482,42 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 
 					// And then by its possible conjugations
 					for _, b := range TestDeconjugations(dict, allWords[i+j+1], strict, allowReef, containsUmlaut[i]) {
-						secondWords = AppendAndAlphabetize(secondWords, b)
-					}
+						breakAdding := false
+						for _, prefix := range verbPrefixes {
+							for _, ourPrefixes := range b.Affixes.Prefix {
+								if prefix == ourPrefixes {
+									breakAdding = true
+								}
+							}
+							if breakAdding {
+								break
+							}
+						}
 
-					breakFixCheck := false
-
-					// Do any of the conjugations work?
-					for _, b := range secondWords {
-						if b.Navi == pairWord {
-							// Do not allow unil sitswo or tsawl sluyu
-							for suffix := range b.Affixes.Suffix {
-								for verbSuffix := range verbSuffixes {
-									if verbSuffix == suffix {
-										breakFixCheck = true
-										break
+						if !breakAdding {
+							for _, suffix := range verbSuffixes {
+								for _, ourSuffixes := range b.Affixes.Suffix {
+									if suffix == ourSuffixes {
+										breakAdding = true
 									}
 								}
-								if breakFixCheck {
+								if breakAdding {
 									break
 								}
 							}
+						}
 
-							if breakFixCheck {
-								break
-							} else {
-								// Do not allow unil txopu tsuksleyku or tìpe'ngayt tsukwrrzärìp
-								for prefix := range b.Affixes.Prefix {
-									for verbPrefix := range verbPrefixes {
-										if verbPrefix == prefix {
-											breakFixCheck = true
-											break
-										}
-									}
-									if breakFixCheck {
-										break
-									}
-								}
-							}
+						if breakAdding {
+							continue
+						}
 
-							if breakFixCheck {
-								break
-							}
+						secondWords = AppendAndAlphabetize(secondWords, b)
+					}
 
+					// Do any of the conjugations work?
+					for _, b := range secondWords {
+
+						if b.Navi == pairWord {
 							revert += " " + b.Navi
 							found = true
 							keepAffixes = addAffixes(keepAffixes, b.Affixes)
@@ -677,47 +688,39 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 
 							// And then by its possible conjugations
 							for _, b := range TestDeconjugations(dict, allWords[i+j+1], strict, allowReef, containsUmlaut[i]) {
-								secondWords = AppendAndAlphabetize(secondWords, b)
-							}
-
-							breakFixCheck := false
-
-							// Do any of the conjugations work?
-							for _, b := range secondWords {
-								// Do not allow unil sitswo or tsawl sluyu
-								for suffix := range b.Affixes.Suffix {
-									for verbSuffix := range verbSuffixes {
-										if verbSuffix == suffix {
-											breakFixCheck = true
-											break
+								breakAdding := false
+								for _, prefix := range verbPrefixes {
+									for _, ourPrefixes := range b.Affixes.Prefix {
+										if prefix == ourPrefixes {
+											breakAdding = true
 										}
 									}
-									if breakFixCheck {
+									if breakAdding {
 										break
 									}
 								}
 
-								if breakFixCheck {
-									break
-								} else {
-									// Do not allow unil txopu tsuksleyku or tìpe'ngayt tsukwrrzärìp
-									for prefix := range b.Affixes.Prefix {
-										for verbPrefix := range verbPrefixes {
-											if verbPrefix == prefix {
-												breakFixCheck = true
-												break
+								if !breakAdding {
+									for _, suffix := range verbSuffixes {
+										for _, ourSuffixes := range b.Affixes.Suffix {
+											if suffix == ourSuffixes {
+												breakAdding = true
 											}
 										}
-										if breakFixCheck {
+										if breakAdding {
 											break
 										}
 									}
 								}
 
-								if breakFixCheck {
-									break
+								if breakAdding {
+									continue
 								}
+								secondWords = AppendAndAlphabetize(secondWords, b)
+							}
 
+							// Do any of the conjugations work?
+							for _, b := range secondWords {
 								if b.Navi == pairWord {
 									revert += " " + b.Navi
 									found = true
