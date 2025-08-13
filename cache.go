@@ -1075,6 +1075,8 @@ func GetDictSize(lang string) (count string, err error) {
 		count = "Il y a " + count + " définitions dans le dictionnaire."
 	} else if lang == "hu" { // Hungarian (Magyar)
 		count = "There are " + count + " entries in the dictionary." // TODO
+	} else if lang == "it" {
+		count = "Ci sono " + count + " voci nel dizionario."
 	} else if lang == "ko" { // Korean (한국어)
 		count = "Fwew에는 " + count + "개의 단어가 등록되어 있습니다."
 	} else if lang == "nl" { // Dutch (Nederlands)
