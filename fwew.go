@@ -487,12 +487,12 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 							}
 
 							if breakFixCheck {
-								continue
+								break
 							} else {
 								// Do not allow unil txopu tsuksleyku or tìpe'ngayt tsukwrrzärìp
-								for suffix := range b.Affixes.Prefix {
+								for prefix := range b.Affixes.Prefix {
 									for verbPrefix := range verbPrefixes {
-										if verbPrefix == suffix {
+										if verbPrefix == prefix {
 											breakFixCheck = true
 											break
 										}
@@ -504,7 +504,7 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 							}
 
 							if breakFixCheck {
-								continue
+								break
 							}
 
 							revert += " " + b.Navi
@@ -698,12 +698,12 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 								}
 
 								if breakFixCheck {
-									continue
+									break
 								} else {
 									// Do not allow unil txopu tsuksleyku or tìpe'ngayt tsukwrrzärìp
-									for suffix := range b.Affixes.Prefix {
+									for prefix := range b.Affixes.Prefix {
 										for verbPrefix := range verbPrefixes {
-											if verbPrefix == suffix {
+											if verbPrefix == prefix {
 												breakFixCheck = true
 												break
 											}
@@ -715,7 +715,7 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 								}
 
 								if breakFixCheck {
-									continue
+									break
 								}
 
 								if b.Navi == pairWord {
