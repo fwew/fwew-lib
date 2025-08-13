@@ -468,9 +468,45 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 						secondWords = AppendAndAlphabetize(secondWords, b)
 					}
 
+					breakFixCheck := false
+
 					// Do any of the conjugations work?
 					for _, b := range secondWords {
 						if b.Navi == pairWord {
+							// Do not allow unil sitswo or tsawl sluyu
+							for suffix := range b.Affixes.Suffix {
+								for verbSuffix := range verbSuffixes {
+									if verbSuffix == suffix {
+										breakFixCheck = true
+										break
+									}
+								}
+								if breakFixCheck {
+									break
+								}
+							}
+
+							if breakFixCheck {
+								continue
+							} else {
+								// Do not allow unil txopu tsuksleyku or tìpe'ngayt tsukwrrzärìp
+								for suffix := range b.Affixes.Prefix {
+									for verbPrefix := range verbPrefixes {
+										if verbPrefix == suffix {
+											breakFixCheck = true
+											break
+										}
+									}
+									if breakFixCheck {
+										break
+									}
+								}
+							}
+
+							if breakFixCheck {
+								continue
+							}
+
 							revert += " " + b.Navi
 							found = true
 							keepAffixes = addAffixes(keepAffixes, b.Affixes)
@@ -644,8 +680,44 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 								secondWords = AppendAndAlphabetize(secondWords, b)
 							}
 
+							breakFixCheck := false
+
 							// Do any of the conjugations work?
 							for _, b := range secondWords {
+								// Do not allow unil sitswo or tsawl sluyu
+								for suffix := range b.Affixes.Suffix {
+									for verbSuffix := range verbSuffixes {
+										if verbSuffix == suffix {
+											breakFixCheck = true
+											break
+										}
+									}
+									if breakFixCheck {
+										break
+									}
+								}
+
+								if breakFixCheck {
+									continue
+								} else {
+									// Do not allow unil txopu tsuksleyku or tìpe'ngayt tsukwrrzärìp
+									for suffix := range b.Affixes.Prefix {
+										for verbPrefix := range verbPrefixes {
+											if verbPrefix == suffix {
+												breakFixCheck = true
+												break
+											}
+										}
+										if breakFixCheck {
+											break
+										}
+									}
+								}
+
+								if breakFixCheck {
+									continue
+								}
+
 								if b.Navi == pairWord {
 									revert += " " + b.Navi
 									found = true
