@@ -76,11 +76,29 @@ var lenition = map[string]string{
 	"'":  "",
 }
 
-var prefixes1Nouns = []string{"fì", "tsa", "fra", "fi"}
-var prefixes1lenition = []string{"pe", "fay",
-	"pxe", "pepe", "pay", "ay", "me"}
+var prefixes1Nouns = []string{"fì", "tsa", "fi"}
+var prefixes1NounsLenition = []string{"pay", "fay"}
+var prefixes1lenition = []string{"pxe", "ay", "me"}
 var stemPrefixes = []string{"fne", "sna", "munsna"}
 var verbPrefixes = []string{"tsuk", "ketsuk"}
+var caseEndings = map[string]bool{
+	"ìl":  true,
+	"l":   true,
+	"it":  true,
+	"ti":  true,
+	"t":   true,
+	"ur":  true,
+	"ru":  true,
+	"r":   true,
+	"yä":  true,
+	"ä":   true,
+	"ìri": true,
+	"ri":  true,
+	"ye":  true,
+	"e":   true,
+	"il":  true,
+	"iri": true,
+}
 
 var adposuffixes = []string{
 	// adpositions that can be mistaken for case endings
@@ -115,7 +133,7 @@ var vowelSuffixes = map[string][]string{
 	"o":   []string{"o"},
 }
 var stemSuffixes = []string{"tsyìp", "tsyip", "fkeyk"}
-var verbSuffixes = []string{"tswo", "yu"}
+var verbSuffixes = []string{"tswo", "yu", "tseng"}
 
 var infixes = map[rune][]string{
 	rune('a'): {"ay", "asy", "aly", "ary", "am", "alm", "arm", "ats", "awn", "ap", "ang"},
@@ -292,6 +310,121 @@ func verifyInfix(existing []string, new string) (bool, []string) {
 	}
 
 	return false, existing
+}
+
+func verifyCaseEnding(noun string, ending string) bool {
+	// error prevention
+	if len(noun) == 0 {
+		return false
+	}
+
+	if get_last_rune(noun, 1) == 'i' && (ending == "ä" || ending == "e") {
+		//soaiä, tìftiä
+		return true
+	}
+	// Don't check adpositions
+	if _, ok := caseEndings[ending]; !ok {
+		return true
+	}
+	// Non-standard conjugations
+	if noun == "omatikaya" && ending == "ä" {
+		return true
+	}
+	diphthongs := map[string]bool{
+		"ay": true,
+		"aw": true,
+		"ey": true,
+		"ew": true,
+	}
+	vowels := map[string]bool{
+		"a": true,
+		"ä": true,
+		"e": true,
+		"i": true,
+		"ì": true,
+		"o": true,
+		"u": true,
+		"ù": true,
+	}
+	nounEnding := ""
+	if len(noun) >= 2 {
+		nounEnding = noun[len(noun)-2:]
+	}
+	if _, ok := diphthongs[nounEnding]; ok {
+		nounEnding := noun[len(noun)-2:]
+		//ewur isn't valid
+		if nounEnding == "ew" && ending == "ur" {
+			return false
+		}
+		// Diphthong
+		diphthongEndings := map[string]bool{
+			"ìl": true,
+			"ti": true,
+			"it": true,
+			"ru": true,
+			"ur": true,
+			"ä":  true,
+			"e":  true,
+			"ri": true,
+		}
+		if _, ok := diphthongEndings[ending]; ok {
+			return true
+		} else {
+			lastRune := get_last_rune(noun, 1)
+			switch lastRune {
+			case 'y':
+				// ayt, eyt
+				if ending == "t" {
+					return true
+				}
+			case 'w':
+				// ewr, awr
+				if ending == "r" {
+					return true
+				}
+			}
+		}
+	} else if _, ok := vowels[string(get_last_rune(noun, 1))]; ok {
+		lastVowel := get_last_rune(noun, 1)
+		if lastVowel == 'u' || lastVowel == 'o' {
+			// No oyä or ayä
+			if ending == "yä" || ending == "ye" {
+				return false
+			}
+		}
+		vowelEndings := map[string]bool{
+			"l":  true,
+			"t":  true,
+			"ti": true,
+			"ru": true,
+			"r":  true,
+			"yä": true,
+			"ye": true,
+			"ri": true,
+		}
+		if _, ok := vowelEndings[ending]; ok {
+			return true
+		}
+	} else {
+		// Consonant or psuedovowel
+		otherEndings := map[string]bool{
+			"ìl":  true,
+			"ti":  true,
+			"it":  true,
+			"ur":  true,
+			"ä":   true,
+			"e":   true,
+			"ìri": true,
+		}
+		if _, ok := otherEndings[ending]; ok {
+			return true
+		}
+		//'ri
+		if get_last_rune(noun, 1) == '\'' && ending == "ru" {
+			return true
+		}
+	}
+	return false
 }
 
 func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck int, unlenite int8,
@@ -553,8 +686,128 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 				}
 			}
 		}
+
+		// This one will demand this makes it use lenition
+		for _, element := range prefixes1NounsLenition {
+			// If it has a lenition-causing prefix
+			if strings.HasPrefix(input.Word, element) {
+				lenited := false
+				newString = strings.TrimPrefix(input.Word, element)
+
+				newCandidate := candidateDupe(input)
+				newCandidate.Word = newString
+				newCandidate.Prefixes, added = isDuplicateFix(newCandidate.Prefixes, element, strict, allowReef)
+				if !added {
+					continue
+				}
+				newCandidate.InsistPOS = "n."
+
+				// Could it be pekoyu (pe + 'ekoyu, not pe + kxoyu)
+				if hasAt(vowels, element, -1) {
+					// check "pxeyktan", "yktan" and "eyktan"
+					newCandidate.Word = string(get_last_rune(element, 1)) + newString
+					deconjugateHelper(newCandidate, 5, suffixCheck, -1, []string{}, element, "", strict, allowReef)
+
+					// check "pxeylan", "ylan" and "'eylan"
+					newCandidate.Word = "'" + newCandidate.Word
+					deconjugateHelper(newCandidate, 5, suffixCheck, -1, []string{}, element, "", strict, allowReef)
+				}
+
+				// find out the possible unlenited forms
+				for _, oldPrefix := range unlenitionLetters {
+					// If it has a letter that could have changed for lenition,
+					if strings.HasPrefix(newString, oldPrefix) {
+						// put all possibilities in the candidates
+						lenited = true
+
+						for _, newPrefix := range unlenition[oldPrefix] {
+							newCandidate.Word = newPrefix + strings.TrimPrefix(newString, oldPrefix)
+							if oldPrefix != newPrefix {
+								newCandidate.Lenition = []string{newPrefix + "→" + oldPrefix}
+							}
+							deconjugateHelper(newCandidate, 5, suffixCheck, -1, []string{}, oldPrefix, "", strict, allowReef)
+						}
+						break // We don't want the "ts" to become "txs"
+					}
+				}
+				if !lenited {
+					newCandidate.Word = newString
+					deconjugateHelper(newCandidate, 5, suffixCheck, -1, []string{}, element, "", strict, allowReef)
+				}
+			}
+		}
+
+		if input.InsistPOS == "any" || input.InsistPOS == "n." {
+			// This one will demand this makes it use lenition
+			if strings.HasPrefix(input.Word, "pe") {
+				lenited := false
+				newString = strings.TrimPrefix(input.Word, "pe")
+
+				newCandidate := candidateDupe(input)
+				newCandidate.Word = newString
+				newCandidate.Prefixes, added = isDuplicateFix(newCandidate.Prefixes, "pe", strict, allowReef)
+				if added {
+					newCandidate.InsistPOS = "n."
+
+					// Could it be pekoyu (pe + 'ekoyu, not pe + kxoyu)
+					if hasAt(vowels, "pe", -1) {
+						// check "pxeyktan", "yktan" and "eyktan"
+						newCandidate.Word = string(get_last_rune("pe", 1)) + newString
+						deconjugateHelper(newCandidate, 3, suffixCheck, -1, []string{}, "pe", "", strict, allowReef)
+
+						// check "pxeylan", "ylan" and "'eylan"
+						newCandidate.Word = "'" + newCandidate.Word
+						deconjugateHelper(newCandidate, 3, suffixCheck, -1, []string{}, "pe", "", strict, allowReef)
+					}
+
+					// find out the possible unlenited forms
+					for _, oldPrefix := range unlenitionLetters {
+						// If it has a letter that could have changed for lenition,
+						if strings.HasPrefix(newString, oldPrefix) {
+							// put all possibilities in the candidates
+							lenited = true
+
+							for _, newPrefix := range unlenition[oldPrefix] {
+								newCandidate.Word = newPrefix + strings.TrimPrefix(newString, oldPrefix)
+								if oldPrefix != newPrefix {
+									newCandidate.Lenition = []string{newPrefix + "→" + oldPrefix}
+								}
+								deconjugateHelper(newCandidate, 3, suffixCheck, -1, []string{}, oldPrefix, "", strict, allowReef)
+							}
+							break // We don't want the "ts" to become "txs"
+						}
+					}
+					if !lenited {
+						newCandidate.Word = newString
+						deconjugateHelper(newCandidate, 3, suffixCheck, -1, []string{}, "pe", "", strict, allowReef)
+					}
+				}
+			}
+		}
+
 		fallthrough
 	case 3:
+		if input.InsistPOS == "any" || input.InsistPOS == "n." {
+			// If it has a prefix
+			if strings.HasPrefix(input.Word, "fra") {
+				// remove it
+				newString = strings.TrimPrefix(input.Word, "fra")
+
+				newCandidate := candidateDupe(input)
+				newCandidate.Word = newString
+				newCandidate.InsistPOS = "n."
+				newCandidate.Prefixes, added = isDuplicateFix(newCandidate.Prefixes, "fra", strict, allowReef)
+				if added {
+					deconjugateHelper(newCandidate, 4, suffixCheck, -1, []string{}, "fra", "", strict, allowReef)
+
+					// check "tsatan", "tan" and "atan"
+					newCandidate.Word = string(get_last_rune("fra", 1)) + newString
+					deconjugateHelper(newCandidate, 4, suffixCheck, -1, []string{}, "fra", "", strict, allowReef)
+				}
+			}
+		}
+		fallthrough
+	case 4:
 		if input.InsistPOS == "any" || input.InsistPOS == "n." {
 			// This one will demand this makes it use lenition
 			for _, element := range prefixes1lenition {
@@ -575,11 +828,11 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 					if hasAt(vowels, element, -1) {
 						// check "pxeyktan", "yktan" and "eyktan"
 						newCandidate.Word = string(get_last_rune(element, 1)) + newString
-						deconjugateHelper(newCandidate, 4, suffixCheck, -1, []string{}, element, "", strict, allowReef)
+						deconjugateHelper(newCandidate, 5, suffixCheck, -1, []string{}, element, "", strict, allowReef)
 
 						// check "pxeylan", "ylan" and "'eylan"
 						newCandidate.Word = "'" + newCandidate.Word
-						deconjugateHelper(newCandidate, 4, suffixCheck, -1, []string{}, element, "", strict, allowReef)
+						deconjugateHelper(newCandidate, 5, suffixCheck, -1, []string{}, element, "", strict, allowReef)
 					}
 
 					// find out the possible unlenited forms
@@ -594,20 +847,20 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 								if oldPrefix != newPrefix {
 									newCandidate.Lenition = []string{newPrefix + "→" + oldPrefix}
 								}
-								deconjugateHelper(newCandidate, 4, suffixCheck, -1, []string{}, oldPrefix, "", strict, allowReef)
+								deconjugateHelper(newCandidate, 5, suffixCheck, -1, []string{}, oldPrefix, "", strict, allowReef)
 							}
 							break // We don't want the "ts" to become "txs"
 						}
 					}
 					if !lenited {
 						newCandidate.Word = newString
-						deconjugateHelper(newCandidate, 4, suffixCheck, -1, []string{}, element, "", strict, allowReef)
+						deconjugateHelper(newCandidate, 5, suffixCheck, -1, []string{}, element, "", strict, allowReef)
 					}
 				}
 			}
 		}
 		fallthrough
-	case 4:
+	case 5:
 		if input.InsistPOS == "any" || input.InsistPOS == "n." {
 			for _, element := range stemPrefixes {
 				// If it has a prefix
@@ -620,16 +873,16 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 					if !added {
 						continue
 					}
-					deconjugateHelper(newCandidate, 5, suffixCheck, -1, []string{}, element, "", strict, allowReef)
+					deconjugateHelper(newCandidate, 6, suffixCheck, -1, []string{}, element, "", strict, allowReef)
 
 					// check "tsatan", "tan" and "atan"
 					newCandidate.Word = string(get_last_rune(element, 1)) + newCandidate.Word
-					deconjugateHelper(newCandidate, 5, suffixCheck, -1, []string{}, element, "", strict, allowReef)
+					deconjugateHelper(newCandidate, 6, suffixCheck, -1, []string{}, element, "", strict, allowReef)
 				}
 			}
 		}
 		fallthrough
-	case 5:
+	case 6:
 		if strings.HasPrefix(input.Word, "tì") {
 			if input.InsistPOS == "any" || input.InsistPOS == "n." {
 				// remove it
@@ -702,6 +955,11 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 				// If it has one of them,
 				if strings.HasSuffix(input.Word, oldSuffix) {
 					newString = strings.TrimSuffix(input.Word, oldSuffix)
+
+					// Make sure you're using a valid case ending
+					if !verifyCaseEnding(newString, oldSuffix) {
+						continue
+					}
 
 					newCandidate := candidateDupe(input)
 					newCandidate.Word = newString
