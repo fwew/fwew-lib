@@ -313,6 +313,15 @@ func verifyInfix(existing []string, new string) (bool, []string) {
 }
 
 func verifyCaseEnding(noun string, ending string) bool {
+	// error prevention
+	if len(noun) == 0 {
+		return false
+	}
+
+	if get_last_rune(noun, 1) == 'i' && (ending == "ä" || ending == "e") {
+		//soaiä, tìftiä
+		return true
+	}
 	// Don't check adpositions
 	if _, ok := caseEndings[ending]; !ok {
 		return true
@@ -337,7 +346,11 @@ func verifyCaseEnding(noun string, ending string) bool {
 		"u": true,
 		"ù": true,
 	}
-	if _, ok := diphthongs[noun[len(noun)-2:]]; len(noun) >= 2 && ok {
+	nounEnding := ""
+	if len(noun) >= 2 {
+		nounEnding = noun[len(noun)-2:]
+	}
+	if _, ok := diphthongs[nounEnding]; ok {
 		nounEnding := noun[len(noun)-2:]
 		//ewur isn't valid
 		if nounEnding == "ew" && ending == "ur" {
