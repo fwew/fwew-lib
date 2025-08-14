@@ -38,6 +38,7 @@ type Word struct {
 	ET             string
 	FR             string
 	HU             string
+	IT             string
 	KO             string
 	NL             string
 	PL             string
@@ -85,6 +86,7 @@ func (w Word) String() string {
 		"ET: %s\n"+
 		"FR: %s\n"+
 		"HU: %s\n"+
+		"IT: %s\n"+
 		"KO: %s\n"+
 		"NL: %s\n"+
 		"PL: %s\n"+
@@ -109,6 +111,7 @@ func (w Word) String() string {
 		w.ET,
 		w.FR,
 		w.HU,
+		w.IT,
 		w.KO,
 		w.NL,
 		w.PL,
@@ -146,6 +149,7 @@ func newWord(dataFields []string, order dictPos) Word {
 	word.ET = dataFields[order.etField]
 	word.FR = dataFields[order.frField]
 	word.HU = dataFields[order.huField]
+	word.IT = dataFields[order.itField]
 	word.KO = dataFields[order.koField]
 	word.NL = dataFields[order.nlField]
 	word.PL = dataFields[order.plField]
@@ -190,6 +194,7 @@ func (w *Word) Equals(other Word) bool {
 		w.ET == other.ET &&
 		w.FR == other.FR &&
 		w.HU == other.HU &&
+		w.IT == other.IT &&
 		w.KO == other.KO &&
 		w.NL == other.NL &&
 		w.PL == other.PL &&
@@ -305,6 +310,8 @@ func (w *Word) ToOutputLine(
 		output += w.FR
 	case "hu":
 		output += w.HU
+	case "it":
+		output += w.IT
 	case "ko":
 		output += w.KO
 	case "nl":
@@ -483,6 +490,7 @@ type dictPos struct {
 	etField  int // Estonian definition
 	frField  int // French definition
 	huField  int // Hungarian definition
+	itField  int // Italian definition
 	koField  int // Korean definition
 	nlField  int // Dutch definition
 	plField  int // Polish definition
@@ -528,6 +536,8 @@ func readDictPos(headerFields []string) dictPos {
 			pos.frField = i
 		case "hu":
 			pos.huField = i
+		case "it":
+			pos.itField = i
 		case "ko":
 			pos.koField = i
 		case "nl":

@@ -17,6 +17,7 @@ var message_non_navi_letters = map[string]string{
 	"fr": "**{oldWord}** Has letters not in Na'vi: `{nonNaviLetters}`", // French (Français)
 	// TODO
 	"hu": "**{oldWord}** Has letters not in Na'vi: `{nonNaviLetters}`",       // Hungarian (Magyar)
+	"it": "**{oldWord}** Presenta lettere non in Na'vi: `{nonNaviLetters}`",  // Italian (Italiano)
 	"ko": "**{oldWord}**에는 나비어에 존재하지 않는 낱말이 포함되어 있습니다. - `{nonNaviLetters}`", // Korean (한국어)
 	// TODO
 	"nl": "**{oldWord}** Has letters not in Na'vi: `{nonNaviLetters}`", // Dutch (Nederlands)
@@ -45,8 +46,9 @@ var message_no_nuclei = map[string]string{
 	// TODO
 	"fr": "**{oldWord}** Error: could not find any syllable nuclei", // French (Français)
 	// TODO
-	"hu": "**{oldWord}** Error: could not find any syllable nuclei", // Hungarian (Magyar)
-	"ko": "**{oldWord}**에서 음절핵(중성)에 해당하는 요소를 찾을 수 없습니다.",            // Korean (한국어)
+	"hu": "**{oldWord}** Error: could not find any syllable nuclei",        // Hungarian (Magyar)
+	"it": "**{oldWord}** Errore: non si è trovato alcuno nucleo sillabico", // Italiano (Italian)
+	"ko": "**{oldWord}**에서 음절핵(중성)에 해당하는 요소를 찾을 수 없습니다.",                   // Korean (한국어)
 	// TODO
 	"nl": "**{oldWord}** Error: could not find any syllable nuclei", // Dutch (Nederlands)
 	// TODO
@@ -74,8 +76,9 @@ var message_invalid_consonants = map[string]string{
 	// TODO
 	"fr": "**{oldWord}** Invalid consonant combination: `{badConsonants}`", // French (Français)
 	// TODO
-	"hu": "**{oldWord}** Invalid consonant combination: `{badConsonants}`", // Hungarian (Magyar)
-	"ko": "**{oldWord}**에 유효하지 않은 조합이 발견되었습니다. - `{badConsonants}`",        // Korean (한국어)
+	"hu": "**{oldWord}** Invalid consonant combination: `{badConsonants}`",        // Hungarian (Magyar)
+	"it": "**{oldWord}** Combinazione consonantica non valida: `{badConsonants}`", // Italiano (Italian)
+	"ko": "**{oldWord}**에 유효하지 않은 조합이 발견되었습니다. - `{badConsonants}`",               // Korean (한국어)
 	// TODO
 	"nl": "**{oldWord}** Invalid consonant combination: `{badConsonants}`", // Dutch (Nederlands)
 	// TODO
@@ -104,6 +107,7 @@ var message_needed_vowel = map[string]string{
 	"fr": "**{oldWord}** Needs a vowel, diphthong or psuedovowel here: `{breakdown}`", // French (Français)
 	// TODO
 	"hu": "**{oldWord}** Needs a vowel, diphthong or psuedovowel here: `{breakdown}`",               // Hungarian (Magyar)
+	"it": "**{oldWord}** necessita di una vocale, dittongo o semivocale qui: `{breakdown}`",         // Italiano (Italian)
 	"ko": "**{oldWord}** 에 유효하지 않은 자음 조합이 발견되었습니다. 다음 위치에 모음 또는 준모음(음절자음)을 추가해주세요. - `{breakdown}`", // Korean (한국어)
 	// TODO
 	"nl": "**{oldWord}** Needs a vowel, diphthong or psuedovowel here: `{breakdown}`", // Dutch (Nederlands)
@@ -133,6 +137,7 @@ var message_psuedovowels_cant_coda = map[string]string{
 	"fr": "**{oldWord}** Psuedovowels can't accept codas: `{breakdown}`", // French (Français)
 	// TODO
 	"hu": "**{oldWord}** Psuedovowels can't accept codas: `{breakdown}`",                         // Hungarian (Magyar)
+	"it": "**{oldWord}** Le semivocali non hanno mai coda: `{breakdown}`",                        // Italiano (Italian)
 	"ko": "**{oldWord}**에 유효하지 않은 자음 조합이 발견되었습니다. 준모음(음절자음)은 말음(종성)을 가질 수 없습니다. - `{breakdown}`", // Korean (한국어)
 	// TODO
 	"nl": "**{oldWord}** Psuedovowels can't accept codas: `{breakdown}`", // Dutch (Nederlands)
@@ -162,6 +167,7 @@ var message_psuedovowels_must_onset = map[string]string{
 	"fr": "**{oldWord}** Psuedovowels must have onsets: `{breakdown}`", // French (Français)
 	// TODO
 	"hu": "**{oldWord}** Psuedovowels must have onsets: `{breakdown}`",                           // Hungarian (Magyar)
+	"it": "**{oldWord}** le semivocali devono avere un inizio: `{breakdown}`",                    // Italiano (Italian)
 	"ko": "**{oldWord}**에 유효하지 않은 자음 조합이 발견되었습니다. 준모음(음절자음)은 반드시 두음(초성)이 필요합니다. - `{breakdown}`", // Korean (한국어)
 	// TODO
 	"nl": "**{oldWord}** Psuedovowels must have onsets: `{breakdown}`", // Dutch (Nederlands)
@@ -191,6 +197,7 @@ var message_triple_liquid = map[string]string{
 	"fr": "**{oldWord}** Triple Rs or Ls aren't allowed: `{breakdown}`", // French (Français)
 	// TODO
 	"hu": "**{oldWord}** Triple Rs or Ls aren't allowed: `{breakdown}`", // Hungarian (Magyar)
+	"it": "**{oldWord}** triple R o L non sono ammesse: `{breakdown}`",  // Italiano (Italian)
 	"ko": "**{oldWord}** 연속되는 세개의 R 또는 L은 사용 불가능합니다. - `{breakdown}`",   // Korean (한국어)
 	// TODO
 	"nl": "**{oldWord}** Triple Rs or Ls aren't allowed: `{breakdown}`", // Dutch (Nederlands)
@@ -219,8 +226,9 @@ var message_reef_dialect = map[string]string{
 	// TODO
 	"fr": " (In reef dialect.  Forest dialect {breakdown})", // French (Français)
 	// TODO
-	"hu": " (In reef dialect.  Forest dialect {breakdown})", // Hungarian (Magyar)
-	"ko": " (산호초 방언 한정 - 숲 방언: {breakdown})",                // Korean (한국어)
+	"hu": " (In reef dialect.  Forest dialect {breakdown})",                  // Hungarian (Magyar)
+	"it": " (Nel dialetto del reef. Nel dialetto della foresta {breakdown})", // Italiano (Italian)
+	"ko": " (산호초 방언 한정 - 숲 방언: {breakdown})",                                 // Korean (한국어)
 	// TODO
 	"nl": " (In reef dialect.  Forest dialect {breakdown})", // Dutch (Nederlands)
 	// TODO
@@ -249,6 +257,7 @@ var message_valid = map[string]string{
 	"fr": "**{oldWord}** Valid: `{breakdown}` with {syllable_count} syllables {syllable_forest}", // French (Français)
 	// TODO
 	"hu": "**{oldWord}** Valid: `{breakdown}` with {syllable_count} syllables {syllable_forest}", // Hungarian (Magyar)
+	"it": "**{oldWord}** Valida: `{breakdown}` con {syllable_count} sillabe {syllable_forest}",   // Italiano (Italian)
 	"ko": "**{oldWord}**는 `{breakdown}`의 {syllable_count}음절로 구성된 유효한 단어입니다. {syllable_forest}",   // Korean (한국어)
 	// TODO
 	"nl": "**{oldWord}** Valid: `{breakdown}` with {syllable_count} syllables {syllable_forest}", // Dutch (Nederlands)
@@ -288,7 +297,8 @@ var message_too_big = map[string]string{
 	// TODO
 	"fr": "⛔ (stopped at {count}. 2000 Character limit)", // French (Français)
 	// TODO
-	"hu": "⛔ (stopped at {count}. 2000 Character limit)", // Hungarian (Magyar)
+	"hu": "⛔ (stopped at {count}. 2000 Character limit)",    // Hungarian (Magyar)
+	"it": "⛔ (fermato a {count}. Limite di 2000 caratteri)", // Italiano (Italian)
 	// TODO
 	"ko": "⛔ 	(출력값 초과: {count} - 최대 2000개의 결과까지 출력 가능합니다.)", // Korean (한국어)
 	// TODO
