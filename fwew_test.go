@@ -18,6 +18,7 @@ package fwew_lib
 
 import (
 	"bufio"
+	"fmt"
 	"os"
 	"reflect"
 	"testing"
@@ -1304,6 +1305,9 @@ func TestTranslateFromNaviCached(t *testing.T) {
 	}
 
 	for _, a := range adposuffixes {
+		if !verifyCaseEnding("tsun", a) {
+			continue
+		}
 		word := "tsun" + a
 
 		if newfix, ok := unreefFixes[a]; ok {
@@ -1330,6 +1334,9 @@ func TestTranslateFromNaviCached(t *testing.T) {
 	}
 
 	for _, tt := range naviWords {
+		if tt.name == "pepefil" {
+			fmt.Println("hi")
+		}
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := TranslateFromNaviHash(tt.args.searchNaviText, true, false, false)
 			if err == nil && tt.args.searchNaviText == "" && got != nil {

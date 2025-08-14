@@ -81,6 +81,24 @@ var prefixes1NounsLenition = []string{"pay", "fay"}
 var prefixes1lenition = []string{"pxe", "ay", "me"}
 var stemPrefixes = []string{"fne", "sna", "munsna"}
 var verbPrefixes = []string{"tsuk", "ketsuk"}
+var caseEndings = map[string]bool{
+	"ìl":  true,
+	"l":   true,
+	"it":  true,
+	"ti":  true,
+	"t":   true,
+	"ur":  true,
+	"ru":  true,
+	"r":   true,
+	"yä":  true,
+	"ä":   true,
+	"ìri": true,
+	"ri":  true,
+	"ye":  true,
+	"e":   true,
+	"il":  true,
+	"iri": true,
+}
 
 var adposuffixes = []string{
 	// adpositions that can be mistaken for case endings
@@ -292,6 +310,108 @@ func verifyInfix(existing []string, new string) (bool, []string) {
 	}
 
 	return false, existing
+}
+
+func verifyCaseEnding(noun string, ending string) bool {
+	// Don't check adpositions
+	if _, ok := caseEndings[ending]; !ok {
+		return true
+	}
+	// Non-standard conjugations
+	if noun == "omatikaya" && ending == "ä" {
+		return true
+	}
+	diphthongs := map[string]bool{
+		"ay": true,
+		"aw": true,
+		"ey": true,
+		"ew": true,
+	}
+	vowels := map[string]bool{
+		"a": true,
+		"ä": true,
+		"e": true,
+		"i": true,
+		"ì": true,
+		"o": true,
+		"u": true,
+		"ù": true,
+	}
+	if _, ok := diphthongs[noun[len(noun)-2:]]; len(noun) >= 2 && ok {
+		nounEnding := noun[len(noun)-2:]
+		//ewur isn't valid
+		if nounEnding == "ew" && ending == "ur" {
+			return false
+		}
+		// Diphthong
+		diphthongEndings := map[string]bool{
+			"ìl": true,
+			"ti": true,
+			"it": true,
+			"ru": true,
+			"ur": true,
+			"ä":  true,
+			"e":  true,
+			"ri": true,
+		}
+		if _, ok := diphthongEndings[ending]; ok {
+			return true
+		} else {
+			lastRune := get_last_rune(noun, 1)
+			switch lastRune {
+			case 'y':
+				// ayt, eyt
+				if ending == "t" {
+					return true
+				}
+			case 'w':
+				// ewr, awr
+				if ending == "r" {
+					return true
+				}
+			}
+		}
+	} else if _, ok := vowels[string(get_last_rune(noun, 1))]; ok {
+		lastVowel := get_last_rune(noun, 1)
+		if lastVowel == 'u' || lastVowel == 'o' {
+			// No oyä or ayä
+			if ending == "yä" || ending == "ye" {
+				return false
+			}
+		}
+		vowelEndings := map[string]bool{
+			"l":  true,
+			"t":  true,
+			"ti": true,
+			"ru": true,
+			"r":  true,
+			"yä": true,
+			"ye": true,
+			"ri": true,
+		}
+		if _, ok := vowelEndings[ending]; ok {
+			return true
+		}
+	} else {
+		// Consonant or psuedovowel
+		otherEndings := map[string]bool{
+			"ìl":  true,
+			"ti":  true,
+			"it":  true,
+			"ur":  true,
+			"ä":   true,
+			"e":   true,
+			"ìri": true,
+		}
+		if _, ok := otherEndings[ending]; ok {
+			return true
+		}
+		//'ri
+		if get_last_rune(noun, 1) == '\'' && ending == "ru" {
+			return true
+		}
+	}
+	return false
 }
 
 func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck int, unlenite int8,
@@ -822,6 +942,11 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 				// If it has one of them,
 				if strings.HasSuffix(input.Word, oldSuffix) {
 					newString = strings.TrimSuffix(input.Word, oldSuffix)
+
+					// Make sure you're using a valid case ending
+					if !verifyCaseEnding(newString, oldSuffix) {
+						continue
+					}
 
 					newCandidate := candidateDupe(input)
 					newCandidate.Word = newString
