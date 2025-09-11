@@ -491,7 +491,7 @@ func TestList(t *testing.T) {
 					ET:             "üks",
 					FR:             "1 (un)",
 					HU:             "egy, 1",
-					IT:             "12",
+					IT:             "uno",
 					IPA:            "ʔaw",
 					InfixDots:      "NULL",
 					InfixLocations: "NULL",
