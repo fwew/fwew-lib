@@ -41,6 +41,20 @@ func NoDoubleDiphthongs(syllable_breakdown string) string {
 	return syllable_breakdown
 }
 
+func ResolveFakePsuedovowels(syllable_breakdown string) string {
+	vowels := []string{"a", "ä", "e", "i", "ì", "o", "u", "ù"}
+	replacement := map[string]string{"0": "r-r", "1": "l-l"}
+	for _, psuedovowel := range []string{"0", "1"} {
+		for _, a := range vowels {
+			for _, b := range vowels {
+				syllable_breakdown = strings.ReplaceAll(syllable_breakdown, a+"-"+psuedovowel+"-"+b, a+replacement[psuedovowel]+b)
+			}
+		}
+	}
+
+	return syllable_breakdown
+}
+
 // See if a word is phonotactically valid in Na'vi
 func IsValidNaviHelper(word string, lang string) string {
 	// Protect against odd language values
@@ -274,6 +288,8 @@ func IsValidNaviHelper(word string, lang string) string {
 	// Ensure no diphthong confuses the checker (as in "ewll" becoming "ew-ll" and not "e-wll")
 	syllable_breakdown = NoDoubleDiphthongs(syllable_breakdown)
 
+	syllable_breakdown = ResolveFakePsuedovowels(syllable_breakdown)
+
 	if strings.Contains(syllable_breakdown, "-0-") || strings.Contains(syllable_breakdown, "-1-") ||
 		strings.HasPrefix(syllable_breakdown, "0") || strings.HasPrefix(syllable_breakdown, "1") ||
 		strings.HasSuffix(syllable_breakdown, "-0") || strings.HasSuffix(syllable_breakdown, "-1") {
@@ -301,22 +317,7 @@ func IsValidNaviHelper(word string, lang string) string {
 	}
 	syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "0", "ng")
 
-	// Identical adjacent vowels mean reef Na'vi
-	if !isReef {
-		found := false
-		for _, a := range []string{"a", "ä", "e", "i", "ì", "o", "u", "ù"} {
-			if strings.Contains(syllable_breakdown, a+"-"+a) {
-				isReef = true
-				found = true
-				break
-			}
-		}
-		if !found {
-			if strings.Contains(syllable_breakdown, "i-ì") || strings.Contains(syllable_breakdown, "ì-i") {
-				isReef = true
-			}
-		}
-	}
+	forestWarning := ""
 
 	// So does ù
 	if !isReef {
@@ -341,12 +342,12 @@ func IsValidNaviHelper(word string, lang string) string {
 		syllable_forest = strings.ReplaceAll(syllable_forest, "b", "px")
 		syllable_forest = strings.ReplaceAll(syllable_forest, "d", "tx")
 		syllable_forest = strings.ReplaceAll(syllable_forest, "g", "kx")
-		for _, a := range []string{"a", "ä", "e", "i", "ì", "o", "u", "ù"} {
+		/*for _, a := range []string{"a", "ä", "e", "i", "ì", "o", "u", "ù"} {
 			// First pass: a-a-a-a-a-a is seen as [a-a]-[a-a]-[a-a] and becomes a-ya-a-ya-a-ya
 			syllable_forest = strings.ReplaceAll(syllable_forest, a+"-"+a, a+"-y"+a)
 			// Second pass: a-ya-a-ya-a-ya is seen as a-y[a-a]-y[a-a]-ya and becomes a-ya-ya-ya-ya-ya
 			syllable_forest = strings.ReplaceAll(syllable_forest, a+"-"+a, a+"-y"+a)
-		}
+		}*/
 		syllable_forest = strings.ReplaceAll(syllable_forest, "i-ì", "i-yì")
 		syllable_forest = strings.ReplaceAll(syllable_forest, "ì-i", "ì-yi")
 		syllable_forest = strings.ReplaceAll(syllable_forest, "0", "ng")
@@ -354,11 +355,42 @@ func IsValidNaviHelper(word string, lang string) string {
 		syllable_forest = strings.ReplaceAll(message_reef_dialect[lang], "{breakdown}", syllable_forest)
 	}
 
+	letterCheck := syllable_breakdown
+	if isReef {
+		letterCheck = syllable_forest
+	}
+
+	// Identical adjacent vowels mean reef Na'vi
+	found := false
+	for _, a := range []string{"a", "ä", "e", "i", "ì", "o", "u", "ù", "k", "kx", "l", "m", "n", "ng", "p", "px", "r", "t", "tx"} {
+		if strings.Contains(letterCheck, a+"-"+a) {
+			found = true
+			forestWarning = " (Warning: identical adjacent similar letters are awkward in forest Na'vi)"
+			break
+		}
+	}
+	// px-p, tx-t, kx-k
+	if !found {
+		for _, a := range [][]string{{"kx", "k"}, {"px", "p"}, {"tx", "t"}} {
+			if strings.Contains(letterCheck, a[0]+"-"+a[1]) {
+				found = true
+				forestWarning = " (Warning: identical adjacent similar letters are awkward in forest Na'vi)"
+				break
+			}
+		}
+	}
+	if !found {
+		if strings.Contains(letterCheck, "i-ì") || strings.Contains(letterCheck, "ì-i") {
+			forestWarning = " (Warning: identical adjacent similar letters are awkward in forest Na'vi)"
+		}
+	}
+
 	syllable_count := len(strings.Split(syllable_breakdown, "-"))
 	message := valid_message(syllable_count, lang)
 	message = strings.ReplaceAll(message, "{oldWord}", oldWord)
 	message = strings.ReplaceAll(message, "{breakdown}", syllable_breakdown)
 	message = strings.ReplaceAll(message, "{syllable_forest}", syllable_forest)
+	message = message + forestWarning
 
 	return "✅ " + message
 }
