@@ -23,7 +23,7 @@ func Test_cacheDict(t *testing.T) {
 		ET:             "katsuma, puutuma",
 		FR:             "toucher",
 		HU:             "(meg)érint",
-		IT:             "12",
+		IT:             "toccare",
 		KO:             "만지다",
 		NL:             "aanraken",
 		PL:             "dotykać",
