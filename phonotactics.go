@@ -164,6 +164,7 @@ func IsValidNaviHelper(word string, lang string) string {
 	}
 
 	// Phase 2: Compress digraphs and divide into syllable boundaries
+
 	compressed := compress(tempWord)
 	nuclei := []rune{
 		'a', 'ä', 'e', 'i', 'ì', 'o', 'u', 'ù', // vowels
@@ -276,15 +277,6 @@ func IsValidNaviHelper(word string, lang string) string {
 		syllable_breakdown = MakeSyllableBreakdown(syllables)
 	}
 
-	// Finally, psuedovowels cannot accept codas
-	for _, a := range letters_end {
-		if a != "" && (strings.Contains(syllable_breakdown, "0"+a) || strings.Contains(syllable_breakdown, "1"+a)) {
-			message := strings.ReplaceAll(message_psuedovowels_cant_coda[lang], "{oldWord}", oldWord)
-			message = strings.ReplaceAll(message, "{breakdown}", strings.ToLower(decompress(syllable_breakdown)))
-			return "❌ " + message
-		}
-	}
-
 	// Ensure no diphthong confuses the checker (as in "ewll" becoming "ew-ll" and not "e-wll")
 	syllable_breakdown = NoDoubleDiphthongs(syllable_breakdown)
 
@@ -298,10 +290,19 @@ func IsValidNaviHelper(word string, lang string) string {
 		return "❌ " + message
 	}
 
+	// Finally, psuedovowels cannot accept codas
+	for _, a := range letters_end {
+		if a != "" && (strings.Contains(syllable_breakdown, "0"+a) || strings.Contains(syllable_breakdown, "1"+a)) {
+			message := strings.ReplaceAll(message_psuedovowels_cant_coda[lang], "{oldWord}", oldWord)
+			message = strings.ReplaceAll(message, "{breakdown}", strings.ToLower(decompress(syllable_breakdown)))
+			return "❌ " + message
+		}
+	}
+
+	forestWarning := ""
+
 	if strings.Contains(syllable_breakdown, "0-r") || strings.Contains(syllable_breakdown, "1-l") {
-		message := strings.ReplaceAll(message_triple_liquid[lang], "{oldWord}", oldWord)
-		message = strings.ReplaceAll(message, "{breakdown}", strings.ToLower(decompress(syllable_breakdown)))
-		return "❌ " + message
+		forestWarning = message_psuedovowel_and_consonant[lang]
 	}
 
 	// If you reach here, the word is valid
@@ -316,8 +317,6 @@ func IsValidNaviHelper(word string, lang string) string {
 		isReef = true
 	}
 	syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "0", "ng")
-
-	forestWarning := ""
 
 	// So does ù
 	if !isReef {
@@ -361,27 +360,29 @@ func IsValidNaviHelper(word string, lang string) string {
 	}
 
 	// Identical adjacent vowels mean reef Na'vi
-	found := false
-	for _, a := range []string{"a", "ä", "e", "i", "ì", "o", "u", "ù", "k", "kx", "l", "m", "n", "ng", "p", "px", "r", "t", "tx"} {
-		if strings.Contains(letterCheck, a+"-"+a) {
-			found = true
-			forestWarning = " (Warning: identical adjacent similar letters are awkward in forest Na'vi)"
-			break
-		}
-	}
-	// px-p, tx-t, kx-k
-	if !found {
-		for _, a := range [][]string{{"kx", "k"}, {"px", "p"}, {"tx", "t"}} {
-			if strings.Contains(letterCheck, a[0]+"-"+a[1]) {
+	if forestWarning == "" {
+		found := false
+		for _, a := range []string{"a", "ä", "e", "i", "ì", "o", "u", "ù", "k", "kx", "l", "m", "n", "ng", "p", "px", "r", "t", "tx", "w", "y"} {
+			if strings.Contains(letterCheck, a+"-"+a) {
 				found = true
-				forestWarning = " (Warning: identical adjacent similar letters are awkward in forest Na'vi)"
+				forestWarning = message_identical_adjacent_letters[lang]
 				break
 			}
 		}
-	}
-	if !found {
-		if strings.Contains(letterCheck, "i-ì") || strings.Contains(letterCheck, "ì-i") {
-			forestWarning = " (Warning: identical adjacent similar letters are awkward in forest Na'vi)"
+		// px-p, tx-t, kx-k
+		if !found {
+			for _, a := range [][]string{{"kx", "k"}, {"px", "p"}, {"tx", "t"}} {
+				if strings.Contains(letterCheck, a[0]+"-"+a[1]) {
+					found = true
+					forestWarning = message_identical_adjacent_letters[lang]
+					break
+				}
+			}
+		}
+		if !found {
+			if strings.Contains(letterCheck, "i-ì") || strings.Contains(letterCheck, "ì-i") {
+				forestWarning = message_identical_adjacent_letters[lang]
+			}
 		}
 	}
 

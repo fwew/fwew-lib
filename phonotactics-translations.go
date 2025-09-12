@@ -275,6 +275,66 @@ var message_valid = map[string]string{
 	"uk": "**{oldWord}** Valid: `{breakdown}` with {syllable_count} syllables {syllable_forest}", // Ukrainian (Українська)
 }
 
+var message_identical_adjacent_letters = map[string]string{
+	"en": " (Warning: identical adjacent similar letters are awkward in forest Na'vi)", // English
+	// TODO
+	"de": " (Warning: identical adjacent similar letters are awkward in forest Na'vi)", // German (Deutsch)
+	// TODO
+	"es": " (Warning: identical adjacent similar letters are awkward in forest Na'vi)", // Spanish (Español)
+	// TODO
+	"et": " (Warning: identical adjacent similar letters are awkward in forest Na'vi)", // Estonian (Eesti)
+	// TODO
+	"fr": " (Warning: identical adjacent similar letters are awkward in forest Na'vi)", // French (Français)
+	// TODO
+	"hu": " (Warning: identical adjacent similar letters are awkward in forest Na'vi)", // Hungarian (Magyar)
+	"it": " (Warning: identical adjacent similar letters are awkward in forest Na'vi)", // Italiano (Italian)
+	"ko": " (Warning: identical adjacent similar letters are awkward in forest Na'vi)", // Korean (한국어)
+	// TODO
+	"nl": " (Warning: identical adjacent similar letters are awkward in forest Na'vi)", // Dutch (Nederlands)
+	// TODO
+	"pl": " (Warning: identical adjacent similar letters are awkward in forest Na'vi)", // Polish (Polski)
+	// TODO
+	"pt": " (Warning: identical adjacent similar letters are awkward in forest Na'vi)", // Portuguese (Português)
+	// TODO
+	"ru": " (Warning: identical adjacent similar letters are awkward in forest Na'vi)", // Russian (Русский)
+	// TODO
+	"sv": " (Warning: identical adjacent similar letters are awkward in forest Na'vi)", // Swedish (Svenska)
+	// TODO
+	"tr": " (Warning: identical adjacent similar letters are awkward in forest Na'vi)", // Turkish (Türkçe)
+	// TODO
+	"uk": " (Warning: identical adjacent similar letters are awkward in forest Na'vi)", // Ukrainian (Українська)
+}
+
+var message_psuedovowel_and_consonant = map[string]string{
+	"en": " (Warning: a consonant like the previous psuedovowel is awkward)", // English
+	// TODO
+	"de": " (Warning: a consonant like the previous psuedovowel is awkward)", // German (Deutsch)
+	// TODO
+	"es": " (Warning: a consonant like the previous psuedovowel is awkward)", // Spanish (Español)
+	// TODO
+	"et": " (Warning: a consonant like the previous psuedovowel is awkward)", // Estonian (Eesti)
+	// TODO
+	"fr": " (Warning: a consonant like the previous psuedovowel is awkward)", // French (Français)
+	// TODO
+	"hu": " (Warning: a consonant like the previous psuedovowel is awkward)", // Hungarian (Magyar)
+	"it": " (Warning: a consonant like the previous psuedovowel is awkward)", // Italiano (Italian)
+	"ko": " (Warning: a consonant like the previous psuedovowel is awkward)", // Korean (한국어)
+	// TODO
+	"nl": " (Warning: a consonant like the previous psuedovowel is awkward)", // Dutch (Nederlands)
+	// TODO
+	"pl": " (Warning: a consonant like the previous psuedovowel is awkward)", // Polish (Polski)
+	// TODO
+	"pt": " (Warning: a consonant like the previous psuedovowel is awkward)", // Portuguese (Português)
+	// TODO
+	"ru": " (Warning: a consonant like the previous psuedovowel is awkward)", // Russian (Русский)
+	// TODO
+	"sv": " (Warning: a consonant like the previous psuedovowel is awkward)", // Swedish (Svenska)
+	// TODO
+	"tr": " (Warning: a consonant like the previous psuedovowel is awkward)", // Turkish (Türkçe)
+	// TODO
+	"uk": " (Warning: a consonant like the previous psuedovowel is awkward)", // Ukrainian (Українська)
+}
+
 func valid_message(syllable_count int, lang string) string {
 	if lang == "en" {
 		if syllable_count == 1 {
