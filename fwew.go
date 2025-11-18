@@ -1330,6 +1330,9 @@ func ReefMe(ipa string, inter bool) []string {
 
 		// Ejectives before vowels and diphthongs become voiced plosives regardless of syllable boundaries
 		for _, a := range ejectives {
+			if strings.HasPrefix(ipaReef, a) {
+				ipaReef = soften[a] + strings.TrimPrefix(ipaReef, a)
+			}
 			ipaReef = strings.ReplaceAll(ipaReef, ".ˈ"+a, ".ˈ"+soften[a])
 			ipaReef = strings.ReplaceAll(ipaReef, "."+a, "."+soften[a])
 
