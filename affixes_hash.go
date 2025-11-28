@@ -220,7 +220,7 @@ var forbiddenEyk = [][]string{{}, {"äp", "eyk"}, {}}
 var forbiddenAy = [][]string{{"fay", "tsay", "ay", "pe"}, {}, {}}
 var forbiddenTsyìp = [][]string{{}, {}, {"tsyìp"}}
 var forbiddenTsaw = [][]string{{"fì", "tsa", "fi", "pay", "fay", "pxe", "ay", "me"}, {}, slices.Concat(stemSuffixes,
-	[]string{"ìl", "l", "it", "ti", "t", "ur", "ru", "r", "yä", "ä", "ìri", "ri", "ye", "e", "il", "iri"})}
+	[]string{"ìl", "l", "it", "ti", "t", "ur", "ru", "r", "ä", "ìri", "ri", "e", "il", "iri"})}
 var forbiddenTsat = [][]string{{"fì", "tsa", "fi", "pay", "fay", "pxe", "ay", "me"}, {}, slices.Concat(adposuffixes, stemSuffixes,
 	[]string{"ìl", "l", "it", "ti", "t", "ur", "ru", "r", "yä", "ä", "ìri", "ri", "ye", "e", "il", "iri"})}
 
