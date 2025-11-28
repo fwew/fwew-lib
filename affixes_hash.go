@@ -310,7 +310,7 @@ var productiveCompounds = map[string][][]string{
 	"tsat":           forbiddenTsat,
 	"tsar":           forbiddenTsat,
 	"tsari":          forbiddenTsat,
-	"tseyä":          forbiddenTsat,
+	"tseyä":          forbiddenTsaw,
 }
 
 func isDuplicate(input ConjugationCandidate) bool {
