@@ -195,7 +195,9 @@ var weirdNounSuffixes = map[string]string{
 	"tsa":   "tsaw",
 	"teyng": "tì'eyng",
 	// The a re-appears when case endings are added (it uses a instead of ì)
-	"oenga": "oeng",
+	"oenga":   "oeng",
+	"ayoenga": "ayoeng",
+	"pxoenga": "peoeng",
 	// Foreign nouns
 	"'ìnglìs":      "'ìnglìsì",
 	"'inglis":      "'ìnglìsì",
