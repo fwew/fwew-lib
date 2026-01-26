@@ -2,6 +2,7 @@ package fwew_lib
 
 import (
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"unicode/utf8"
@@ -42,6 +43,10 @@ func List(args []string, checkDigraphs uint8) (results []Word, err error) {
 			break
 		}
 	}
+
+	sort.SliceStable(results, func(i, j int) bool {
+		return AlphabetizeHelper(results[i].Navi, results[j].Navi)
+	})
 
 	return
 }
@@ -91,7 +96,7 @@ func filterPos(results []Word, word Word, args []string) []Word {
 	}
 
 	if condMap[cond] {
-		return AppendAndAlphabetize(results, word)
+		return append(results, word)
 	}
 
 	return results
@@ -143,7 +148,7 @@ func filterWord(results []Word, word Word, args []string, checkDigraphs uint8) [
 	}
 
 	if condMap[cond] {
-		return AppendAndAlphabetize(results, word)
+		return append(results, word)
 	}
 
 	return results
@@ -218,7 +223,7 @@ func filterNumeric(results []Word, word Word, args []string) (filtered []Word, e
 	}
 
 	if condMap[cond] {
-		filtered = AppendAndAlphabetize(results, word)
+		filtered = append(results, word)
 		return
 	}
 

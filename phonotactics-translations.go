@@ -47,7 +47,7 @@ var message_no_nuclei = map[string]string{
 	"fr": "**{oldWord}** Error: could not find any syllable nuclei", // French (Français)
 	// TODO
 	"hu": "**{oldWord}** Error: could not find any syllable nuclei",        // Hungarian (Magyar)
-	"it": "**{oldWord}** Errore: non si è trovato alcuno nucleo sillabico", // Italiano (Italian)
+	"it": "**{oldWord}** Errore: non si è trovato alcuno nucleo sillabico", // Italian (Italiano)
 	"ko": "**{oldWord}**에서 음절핵(중성)에 해당하는 요소를 찾을 수 없습니다.",                   // Korean (한국어)
 	// TODO
 	"nl": "**{oldWord}** Error: could not find any syllable nuclei", // Dutch (Nederlands)
@@ -77,7 +77,7 @@ var message_invalid_consonants = map[string]string{
 	"fr": "**{oldWord}** Invalid consonant combination: `{badConsonants}`", // French (Français)
 	// TODO
 	"hu": "**{oldWord}** Invalid consonant combination: `{badConsonants}`",        // Hungarian (Magyar)
-	"it": "**{oldWord}** Combinazione consonantica non valida: `{badConsonants}`", // Italiano (Italian)
+	"it": "**{oldWord}** Combinazione consonantica non valida: `{badConsonants}`", // Italian (Italiano)
 	"ko": "**{oldWord}**에 유효하지 않은 조합이 발견되었습니다. - `{badConsonants}`",               // Korean (한국어)
 	// TODO
 	"nl": "**{oldWord}** Invalid consonant combination: `{badConsonants}`", // Dutch (Nederlands)
@@ -107,7 +107,7 @@ var message_needed_vowel = map[string]string{
 	"fr": "**{oldWord}** Needs a vowel, diphthong or psuedovowel here: `{breakdown}`", // French (Français)
 	// TODO
 	"hu": "**{oldWord}** Needs a vowel, diphthong or psuedovowel here: `{breakdown}`",               // Hungarian (Magyar)
-	"it": "**{oldWord}** necessita di una vocale, dittongo o semivocale qui: `{breakdown}`",         // Italiano (Italian)
+	"it": "**{oldWord}** necessita di una vocale, dittongo o semivocale qui: `{breakdown}`",         // Italian (Italiano)
 	"ko": "**{oldWord}** 에 유효하지 않은 자음 조합이 발견되었습니다. 다음 위치에 모음 또는 준모음(음절자음)을 추가해주세요. - `{breakdown}`", // Korean (한국어)
 	// TODO
 	"nl": "**{oldWord}** Needs a vowel, diphthong or psuedovowel here: `{breakdown}`", // Dutch (Nederlands)
@@ -137,7 +137,7 @@ var message_psuedovowels_cant_coda = map[string]string{
 	"fr": "**{oldWord}** Psuedovowels can't accept codas: `{breakdown}`", // French (Français)
 	// TODO
 	"hu": "**{oldWord}** Psuedovowels can't accept codas: `{breakdown}`",                         // Hungarian (Magyar)
-	"it": "**{oldWord}** Le semivocali non hanno mai coda: `{breakdown}`",                        // Italiano (Italian)
+	"it": "**{oldWord}** Le semivocali non hanno mai coda: `{breakdown}`",                        // Italian (Italiano)
 	"ko": "**{oldWord}**에 유효하지 않은 자음 조합이 발견되었습니다. 준모음(음절자음)은 말음(종성)을 가질 수 없습니다. - `{breakdown}`", // Korean (한국어)
 	// TODO
 	"nl": "**{oldWord}** Psuedovowels can't accept codas: `{breakdown}`", // Dutch (Nederlands)
@@ -167,7 +167,7 @@ var message_psuedovowels_must_onset = map[string]string{
 	"fr": "**{oldWord}** Psuedovowels must have onsets: `{breakdown}`", // French (Français)
 	// TODO
 	"hu": "**{oldWord}** Psuedovowels must have onsets: `{breakdown}`",                           // Hungarian (Magyar)
-	"it": "**{oldWord}** le semivocali devono avere un inizio: `{breakdown}`",                    // Italiano (Italian)
+	"it": "**{oldWord}** le semivocali devono avere un inizio: `{breakdown}`",                    // Italian (Italiano)
 	"ko": "**{oldWord}**에 유효하지 않은 자음 조합이 발견되었습니다. 준모음(음절자음)은 반드시 두음(초성)이 필요합니다. - `{breakdown}`", // Korean (한국어)
 	// TODO
 	"nl": "**{oldWord}** Psuedovowels must have onsets: `{breakdown}`", // Dutch (Nederlands)
@@ -197,7 +197,7 @@ var message_triple_liquid = map[string]string{
 	"fr": "**{oldWord}** Triple Rs or Ls aren't allowed: `{breakdown}`", // French (Français)
 	// TODO
 	"hu": "**{oldWord}** Triple Rs or Ls aren't allowed: `{breakdown}`", // Hungarian (Magyar)
-	"it": "**{oldWord}** triple R o L non sono ammesse: `{breakdown}`",  // Italiano (Italian)
+	"it": "**{oldWord}** triple R o L non sono ammesse: `{breakdown}`",  // Italian (Italiano)
 	"ko": "**{oldWord}** 연속되는 세개의 R 또는 L은 사용 불가능합니다. - `{breakdown}`",   // Korean (한국어)
 	// TODO
 	"nl": "**{oldWord}** Triple Rs or Ls aren't allowed: `{breakdown}`", // Dutch (Nederlands)
@@ -227,7 +227,7 @@ var message_reef_dialect = map[string]string{
 	"fr": " (In reef dialect.  Forest dialect {breakdown})", // French (Français)
 	// TODO
 	"hu": " (In reef dialect.  Forest dialect {breakdown})",                  // Hungarian (Magyar)
-	"it": " (Nel dialetto del reef. Nel dialetto della foresta {breakdown})", // Italiano (Italian)
+	"it": " (Nel dialetto del reef. Nel dialetto della foresta {breakdown})", // Italian (Italiano)
 	"ko": " (산호초 방언 한정 - 숲 방언: {breakdown})",                                 // Korean (한국어)
 	// TODO
 	"nl": " (In reef dialect.  Forest dialect {breakdown})", // Dutch (Nederlands)
@@ -257,7 +257,7 @@ var message_valid = map[string]string{
 	"fr": "**{oldWord}** Valid: `{breakdown}` with {syllable_count} syllables {syllable_forest}", // French (Français)
 	// TODO
 	"hu": "**{oldWord}** Valid: `{breakdown}` with {syllable_count} syllables {syllable_forest}", // Hungarian (Magyar)
-	"it": "**{oldWord}** Valida: `{breakdown}` con {syllable_count} sillabe {syllable_forest}",   // Italiano (Italian)
+	"it": "**{oldWord}** Valida: `{breakdown}` con {syllable_count} sillabe {syllable_forest}",   // Italian (Italiano)
 	"ko": "**{oldWord}**는 `{breakdown}`의 {syllable_count}음절로 구성된 유효한 단어입니다. {syllable_forest}",   // Korean (한국어)
 	// TODO
 	"nl": "**{oldWord}** Valid: `{breakdown}` with {syllable_count} syllables {syllable_forest}", // Dutch (Nederlands)
@@ -273,6 +273,66 @@ var message_valid = map[string]string{
 	"tr": "**{oldWord}** Valid: `{breakdown}` with {syllable_count} syllables {syllable_forest}", // Turkish (Türkçe)
 	// TODO
 	"uk": "**{oldWord}** Valid: `{breakdown}` with {syllable_count} syllables {syllable_forest}", // Ukrainian (Українська)
+}
+
+var message_identical_adjacent_letters = map[string]string{
+	"en": " (Warning: identical adjacent similar letters are awkward in forest Na'vi)", // English
+	// TODO
+	"de": " (Warning: identical adjacent similar letters are awkward in forest Na'vi)", // German (Deutsch)
+	// TODO
+	"es": " (Warning: identical adjacent similar letters are awkward in forest Na'vi)", // Spanish (Español)
+	// TODO
+	"et": " (Warning: identical adjacent similar letters are awkward in forest Na'vi)", // Estonian (Eesti)
+	// TODO
+	"fr": " (Warning: identical adjacent similar letters are awkward in forest Na'vi)", // French (Français)
+	// TODO
+	"hu": " (Warning: identical adjacent similar letters are awkward in forest Na'vi)", // Hungarian (Magyar)
+	"it": " (Warning: identical adjacent similar letters are awkward in forest Na'vi)", // Italian (Italiano)
+	"ko": " (Warning: identical adjacent similar letters are awkward in forest Na'vi)", // Korean (한국어)
+	// TODO
+	"nl": " (Warning: identical adjacent similar letters are awkward in forest Na'vi)", // Dutch (Nederlands)
+	// TODO
+	"pl": " (Warning: identical adjacent similar letters are awkward in forest Na'vi)", // Polish (Polski)
+	// TODO
+	"pt": " (Warning: identical adjacent similar letters are awkward in forest Na'vi)", // Portuguese (Português)
+	// TODO
+	"ru": " (Warning: identical adjacent similar letters are awkward in forest Na'vi)", // Russian (Русский)
+	// TODO
+	"sv": " (Warning: identical adjacent similar letters are awkward in forest Na'vi)", // Swedish (Svenska)
+	// TODO
+	"tr": " (Warning: identical adjacent similar letters are awkward in forest Na'vi)", // Turkish (Türkçe)
+	// TODO
+	"uk": " (Warning: identical adjacent similar letters are awkward in forest Na'vi)", // Ukrainian (Українська)
+}
+
+var message_psuedovowel_and_consonant = map[string]string{
+	"en": " (Warning: a consonant like the previous psuedovowel is awkward)", // English
+	// TODO
+	"de": " (Warning: a consonant like the previous psuedovowel is awkward)", // German (Deutsch)
+	// TODO
+	"es": " (Warning: a consonant like the previous psuedovowel is awkward)", // Spanish (Español)
+	// TODO
+	"et": " (Warning: a consonant like the previous psuedovowel is awkward)", // Estonian (Eesti)
+	// TODO
+	"fr": " (Warning: a consonant like the previous psuedovowel is awkward)", // French (Français)
+	// TODO
+	"hu": " (Warning: a consonant like the previous psuedovowel is awkward)", // Hungarian (Magyar)
+	"it": " (Warning: a consonant like the previous psuedovowel is awkward)", // Italian (Italiano)
+	"ko": " (Warning: a consonant like the previous psuedovowel is awkward)", // Korean (한국어)
+	// TODO
+	"nl": " (Warning: a consonant like the previous psuedovowel is awkward)", // Dutch (Nederlands)
+	// TODO
+	"pl": " (Warning: a consonant like the previous psuedovowel is awkward)", // Polish (Polski)
+	// TODO
+	"pt": " (Warning: a consonant like the previous psuedovowel is awkward)", // Portuguese (Português)
+	// TODO
+	"ru": " (Warning: a consonant like the previous psuedovowel is awkward)", // Russian (Русский)
+	// TODO
+	"sv": " (Warning: a consonant like the previous psuedovowel is awkward)", // Swedish (Svenska)
+	// TODO
+	"tr": " (Warning: a consonant like the previous psuedovowel is awkward)", // Turkish (Türkçe)
+	// TODO
+	"uk": " (Warning: a consonant like the previous psuedovowel is awkward)", // Ukrainian (Українська)
 }
 
 func valid_message(syllable_count int, lang string) string {
@@ -298,7 +358,7 @@ var message_too_big = map[string]string{
 	"fr": "⛔ (stopped at {count}. 2000 Character limit)", // French (Français)
 	// TODO
 	"hu": "⛔ (stopped at {count}. 2000 Character limit)",    // Hungarian (Magyar)
-	"it": "⛔ (fermato a {count}. Limite di 2000 caratteri)", // Italiano (Italian)
+	"it": "⛔ (fermato a {count}. Limite di 2000 caratteri)", // Italian (Italiano)
 	// TODO
 	"ko": "⛔ 	(출력값 초과: {count} - 최대 2000개의 결과까지 출력 가능합니다.)", // Korean (한국어)
 	// TODO
