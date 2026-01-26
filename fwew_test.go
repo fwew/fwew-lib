@@ -1060,6 +1060,21 @@ var naviWords = []struct {
 			},
 		},
 	}, // all of those two ikrans
+	{
+		name: "pxoengal",
+		args: args{
+			searchNaviText: "pxoengal",
+		},
+		want: []Word{
+			{
+				ID:   "13379",
+				Navi: "pxoeng",
+				Affixes: affix{
+					Suffix: []string{"l"},
+				},
+			},
+		},
+	}, // all of those two ikrans
 }
 var unstrictNaviWords = []struct {
 	name string
