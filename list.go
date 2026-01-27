@@ -2,7 +2,6 @@ package fwew_lib
 
 import (
 	"regexp"
-	"sort"
 	"strconv"
 	"strings"
 	"unicode/utf8"
@@ -43,10 +42,6 @@ func List(args []string, checkDigraphs uint8) (results []Word, err error) {
 			break
 		}
 	}
-
-	sort.SliceStable(results, func(i, j int) bool {
-		return AlphabetizeHelper(results[i].Navi, results[j].Navi)
-	})
 
 	return
 }
