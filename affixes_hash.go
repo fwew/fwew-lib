@@ -500,7 +500,9 @@ func verifyCaseEnding(noun string, ending string) bool {
 			"ru": true,
 			"r":  true,
 			"yä": true,
+			"ä":  true,
 			"ye": true,
+			"e":  true,
 			"ri": true,
 		}
 		if _, ok := vowelEndings[ending]; ok {
