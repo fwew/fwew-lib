@@ -120,7 +120,7 @@ var adposuffixes = []string{
 	"ken", "sìn", "talun", "sin", //-n
 	"äo", "eo", "io", "uo", "ro", "to", "sko", //-o
 	"tafkip", "takip", "fkip", "kip", //-p
-	"ftu", "hu", //-u
+	"ftu", "hu", "sru", //-u
 	"pximaw", "maw", "pxaw", "few", "raw", //-w
 	"vay", "kay", //-y
 }
