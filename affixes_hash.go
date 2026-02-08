@@ -440,7 +440,8 @@ func verifyCaseEnding(noun string, ending string) bool {
 	vowels := map[string]bool{
 		"a": true,
 		"ä": true,
-		"e": true,
+	 "e": true,
+  "é": true,
 		"i": true,
 		"ì": true,
 		"o": true,
