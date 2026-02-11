@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -1045,6 +1046,14 @@ func runOnFile(f func(word Word) error) error {
 func GetFullDict() (allWords []Word, err error) {
 	// No need for the lock because only List() calls it
 	if dictionaryCached {
+		firstWordID, _ := strconv.Atoi(dictionary[0].ID)
+		if firstWordID > 100 {
+			slices.SortFunc(dictionary, func(a, b Word) int {
+				a1, _ := strconv.Atoi(a.ID)
+				b1, _ := strconv.Atoi(b.ID)
+				return b1 - a1
+			})
+		}
 		allWords = dictionary
 	} else {
 		err = runOnFile(func(word Word) error {
