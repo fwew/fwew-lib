@@ -1051,7 +1051,7 @@ func GetFullDict() (allWords []Word, err error) {
 			slices.SortFunc(dictionary, func(a, b Word) int {
 				a1, _ := strconv.Atoi(a.ID)
 				b1, _ := strconv.Atoi(b.ID)
-				return b1 - a1
+				return a1 - b1
 			})
 		}
 		allWords = dictionary
