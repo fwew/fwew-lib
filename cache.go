@@ -60,7 +60,7 @@ var letterMap = map[rune]int{
 	'y': 32, 'z': 33, '-': 34,
 }
 
-var nkx = []string{}
+var nkx []string
 var nkxSub = map[string]string{}
 
 // A mutex to ensure concurrent requests to the
@@ -114,7 +114,7 @@ func FindDictionaryFile() string {
 		}
 	}
 
-	path := filepath.Join(texts["dataDir"], dictFileName)
+	path := filepath.Join(Text("dataDir"), dictFileName)
 	if fileExists(path) {
 		return path
 	}
@@ -1176,7 +1176,7 @@ func AssureDict() error {
 	}
 
 	// if it doesn't, put it in ~/.fwew/
-	path := filepath.Join(texts["dataDir"], dictFileName)
+	path := filepath.Join(Text("dataDir"), dictFileName)
 
 	err := DownloadDict(path)
 	if err != nil {

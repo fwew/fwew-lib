@@ -161,7 +161,7 @@ func DownloadDict(filepath string) error {
 
 	// if still no filepath is given, error out
 	if filepath == "" {
-		return DictionaryNotFound
+		return DictFileNotFoundError
 	}
 
 	// download the new dict

@@ -4,7 +4,6 @@ import (
 	"math"
 	"slices"
 	"strings"
-	//"fmt"
 )
 
 type ConjugationCandidate struct {
@@ -57,24 +56,6 @@ var unlenition = map[string][]string{
 	"o":  {"o", "'o"},
 	"u":  {"u", "'u"},
 	"ù":  {"ù", "'ù"},
-}
-
-var lenitionable = []string{
-	"ts",
-	"px", "tx", "kx",
-	"p", "t", "k",
-	"f", "s", "h",
-	"'",
-}
-var lenition = map[string]string{
-	"px": "p",
-	"tx": "t",
-	"kx": "k",
-	"p":  "f",
-	"t":  "s",
-	"k":  "h",
-	"ts": "s",
-	"'":  "",
 }
 
 var prefixes1Nouns = []string{"fì", "tsa", "fi"}
@@ -380,20 +361,6 @@ func infixError(query string, didYouMean string, ipa string) Word {
 	return d
 }
 
-// fuction to check given string is in array or not
-// modified from https://www.golinuxcloud.com/golang-array-contains/
-func implContainsAny(sl []string, names []string) bool {
-	// iterate over the array and compare given string to each element
-	for _, value := range sl {
-		for _, name := range names {
-			if value == name {
-				return true
-			}
-		}
-	}
-	return false
-}
-
 // Helper for infix detection
 func verifyInfix(existing []string, new string) (bool, []string) {
 	if _, ok := prefirstMap[new]; ok {
@@ -544,7 +511,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 	if allowReef {
 		// fneu checking for fne-'u
 		if len(lastPrefix) > 0 && len(input.Word) > 0 && hasAt(vowels, lastPrefix, -1) && hasAt(vowels, input.Word, 0) {
-			if !implContainsAny(prefixes1lenition, []string{lastPrefix}) { // do not do this for leniting prefixes
+			if !Contains(prefixes1lenition, []string{lastPrefix}) { // do not do this for leniting prefixes
 				newCandidate := candidateDupe(input)
 				newCandidate.Word = "'" + newCandidate.Word
 				deconjugateHelper(newCandidate, prefixCheck, suffixCheck, unlenite, infix, "", "", strict, allowReef)
@@ -571,7 +538,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 		}
 	}
 
-	if len(input.Infixes) > 0 && implContainsAny(input.Infixes, []string{"ats", "uy"}) {
+	if len(input.Infixes) > 0 && Contains(input.Infixes, []string{"ats", "uy"}) {
 		// for the cases of zen<ats>eke and zen<uy>eke
 		// confirmed in here: https://forum.learnnavi.org/index.php?msg=493217
 		if input.Word == "zeneke" {
@@ -1735,7 +1702,7 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 
 						// pre-first position infixes
 						rebuiltVerb := c.InfixLocations
-						if c.InfixLocations == "z<0><1>en<2>ke" && implContainsAny(candidate.Infixes, []string{"ats", "uy"}) {
+						if c.InfixLocations == "z<0><1>en<2>ke" && Contains(candidate.Infixes, []string{"ats", "uy"}) {
 							rebuiltVerb = "z<0><1>en<2>eke"
 						}
 						firstInfixes := ""
@@ -1820,7 +1787,7 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 							searchNaviWordSquish = dialectCrunch([]string{searchNaviWordSquish}, false)[0]
 						}*/
 
-						if len(candidate.Infixes) == 0 || implContainsAny([]string{rebuiltVerb}, allAConfigs) {
+						if len(candidate.Infixes) == 0 || Contains([]string{rebuiltVerb}, allAConfigs) {
 							results = AppendAndAlphabetize(results, a)
 						} else if participle {
 							// In case we have a [word]-susi

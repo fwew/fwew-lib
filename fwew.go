@@ -1135,7 +1135,7 @@ func BidirectionalSearch(searchNaviWords string, checkFixes bool, langCode strin
 		natlangWords := []Word{}
 		for _, a := range TranslateToNaviHashHelper(&dictHash2, allWords[i], langCode) {
 			// Do not duplicate if the Na'vi word is in the definition
-			if implContainsAny(NaviIDs, []string{a.ID}) {
+			if Contains(NaviIDs, []string{a.ID}) {
 				continue
 			}
 			// We want them alphabetized with their fellow natlang words...

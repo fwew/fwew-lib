@@ -1,31 +1,17 @@
-//	This file is part of Fwew.
-//	Fwew is free software: you can redistribute it and/or modify
-// 	it under the terms of the GNU General Public License as published by
-// 	the Free Software Foundation, either version 3 of the License, or
-// 	(at your option) any later version.
-//
-//	Fwew is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//	GNU General Public License for more details.
-//
-//	You should have received a copy of the GNU General Public License
-//	along with Fwew.  If not, see http://gnu.org/licenses/
-
-// Package main contains all the things. txt.go handles program strings.
 package fwew_lib
 
 import (
-	"fmt"
 	"os/user"
 	"path/filepath"
-	"strings"
 )
 
 var usr, _ = user.Current()
 var texts = map[string]string{}
 
 func init() {
+	// main program strings
+	texts["name"] = "fwew"
+
 	// slash-commands Help
 	texts["slashCommandHelp"] = `commands:
 /set [options]
@@ -88,6 +74,34 @@ func init() {
 /exit
   	exit/quit the program (aliases /quit /q /wc)`
 
+	// List
+	texts["/listDesc"] = `list all words that meet given criteria`
+	texts["/listUsage"] = `list <what> <cond> <spec> [and <what> <cond> <spec> ...]
+<what> is any one of: pos, word, words, syllables, stress
+<cond> depends on the <what> used:
+  <what>    | valid <cond>
+  ----------|------------------------------------
+  pos       | any one of: is, has, like
+  word      | any one of: starts, ends, has, like
+  words     | any one of: first, last
+  syllables | any one of: <, <=, =, >=, >
+  stress    | any one of: <, <=, =, >=, >
+<spec> depends on the <cond> used:
+  <cond>                 | valid <spec>
+  -----------------------|----------------------------
+  is, has, starts, ends  | any string of letter(s)
+  <, <=, =, >=, >        | any whole number > 0
+  first, last            | any whole number > 0
+  like                   | any string of letter(s) and
+                         |     wildcard percent-sign(s)`
+	texts["/listExample"] = "list syllables = 3 and pos has vtr."
+
+	// Random
+	texts["/randomDesc"] = "show given <number> of random entries. <what>, <cond>, and <spec> work the same way as with /list"
+	texts["/randomUsage"] = "random <number> [where <what> <cond> <spec> [and <what> <cond> <spec> ...]]"
+	texts["/randomExample"] = "random 5 where pos is n."
+
+	// More List & Random
 	// <what> strings
 	texts["w_pos"] = "pos"
 	texts["w_word"] = "word"
@@ -122,106 +136,10 @@ func init() {
 	texts["c_last"] = "last"
 	texts["c_matches"] = "matches"
 
-	// random
-	texts["n_random"] = "random"
-
-	// prompt suggest strings
-	texts["/setDesc"] = "set option(s)"
-	texts["/unsetDesc"] = "unset option(s)"
-	texts["/listDesc"] = `list all words that meet given criteria`
-	texts["/listUsage"] = `list <what> <cond> <spec> [and <what> <cond> <spec> ...]
-<what> is any one of: pos, word, words, syllables, stress
-<cond> depends on the <what> used:
-  <what>    | valid <cond>
-  ----------|------------------------------------
-  pos       | any one of: is, has, like
-  word      | any one of: starts, ends, has, like
-  words     | any one of: first, last
-  syllables | any one of: <, <=, =, >=, >
-  stress    | any one of: <, <=, =, >=, >
-<spec> depends on the <cond> used:
-  <cond>                 | valid <spec>
-  -----------------------|----------------------------
-  is, has, starts, ends  | any string of letter(s)
-  <, <=, =, >=, >        | any whole number > 0
-  first, last            | any whole number > 0
-  like                   | any string of letter(s) and
-                         |     wildcard percent-sign(s)`
-	texts["/listExample"] = "list syllables = 3 and pos has vtr."
-	texts["/randomUsage"] = "random <number> [where <what> <cond> <spec> [and <what> <cond> <spec> ...]]"
-	texts["/randomDesc"] = "show given <number> of random entries. <what>, <cond>, and <spec> work the same way as with /list"
-	texts["/randomExample"] = "random 5 where pos is n."
-	texts["/updateDesc"] = "update the dictionary data file"
-	texts["/commandsDesc"] = "show commands help"
-	texts["/lenitionDesc"] = "show lenition table"
-	texts["/configDesc"] = "edit configuration file"
-	texts["/versionDesc"] = "show version info"
-	texts["/helpDesc"] = "show usage help"
-	texts["/exitDesc"] = "end program"
-	texts["andDesc"] = "add condition to narrow search"
-	texts["cDesc"] = texts["/configDesc"]
-	texts["l=deDesc"] = "Deutsch"
-	texts["l=engDesc"] = "English"
-	texts["l=esDesc"] = "Español"
-	texts["l=estDesc"] = "Eesti"
-	texts["l=frDesc"] = "Français"
-	texts["l=huDesc"] = "Magyar"
-	texts["l=nlDesc"] = "Nederlands"
-	texts["l=plDesc"] = "Polski"
-	texts["l=ptDesc"] = "Português"
-	texts["l=ruDesc"] = "Русский"
-	texts["l=svDesc"] = "Svenska"
-	texts["l=trDesc"] = "Türkçe"
-	texts["l=ukDesc"] = "Українська"
-	texts["posDesc"] = "part of speech"
-	texts["wordDesc"] = texts["w_word"]
-	texts["wordsDesc"] = texts["w_words"]
-	texts["syllablesDesc"] = texts["w_syllables"]
-	texts["stressDesc"] = "stressed syllable"
-	texts["randomDesc"] = "random number"
-	texts["whereDesc"] = "add condition to random"
-	texts["startsDesc"] = "field starts with"
-	texts["startsAnyDesc"] = "field starts with any of"
-	texts["startsAllDesc"] = "field starts with all of"
-	texts["startsNoneDesc"] = "field starts with none of"
-	texts["endsDesc"] = "field ends with"
-	texts["endsAnyDesc"] = "field ends with any of"
-	texts["endsAllDesc"] = "field ends with all of"
-	texts["endsNoneDesc"] = "field ends with none of"
-	texts["likeDesc"] = "field matches wildcard expression"
-	texts["likeAnyDesc"] = "field matches any wildcard expression of"
-	texts["likeAllDesc"] = "field matches all wildcard expression of"
-	texts["likeNoneDesc"] = "field matches none wildcard expression of"
-	texts["firstDesc"] = "list oldest words"
-	texts["lastDesc"] = "list newest words"
-	texts["hasDesc"] = "all matches of condition"
-	texts["isDesc"] = "exact matches of condition"
-	texts[">=Desc"] = "greater than or equal to"
-	texts[">Desc"] = "greater than"
-	texts["<=Desc"] = "less than or equal to"
-	texts["<Desc"] = "less than"
-	texts["=Desc"] = "equal to"
-	texts["not-startsDesc"] = "field does not start with"
-	texts["not-endsDesc"] = "field does not end with"
-	texts["not-likeDesc"] = "field does not match wildcard expression"
-	texts["not-hasDesc"] = "field does not have"
-	texts["not-isDesc"] = "field is excactly not"
-	texts["!=Desc"] = "not equal to"
-	texts["matchesDesc"] = "field matches regexp"
-	texts["languageDesc"] = "update config file: set language"
-	texts["posFilterDesc"] = "update config file: set part of speech filter"
-	texts["useAffixesDesc"] = "update config file: toggle affix parsing true/false"
-	texts["debugModeDesc"] = "update config file: toggle debug mode true/false"
-	texts["allDesc"] = "update config file: set part of speech filter to show all"
-	texts["trueDesc"] = "update config file: set value to true"
-	texts["falseDesc"] = "update config file: set value to false"
-
 	// file strings
 	texts["homeDir"], _ = filepath.Abs(usr.HomeDir)
 	texts["dataDir"] = filepath.Join(texts["homeDir"], ".fwew")
-	texts["config"] = filepath.Join(texts["dataDir"], "config.json")
 	texts["dictURL"] = "https://tirea.learnnavi.org/dictionarydata/" + dictFileName
-	texts["dlSuccess"] = texts["dictURL"] + "\nsaved to\n" + texts["dictionary"] + "\n"
 
 	// general message strings
 	texts["cset"] = "currently set"
@@ -235,6 +153,7 @@ func init() {
 
 	// error message strings
 	texts["none"] = "no results\n"
+	texts["noTextError"] = "err 0: text not found:"
 	texts["noDataError"] = "err 1: failed to open dictionary file (" + texts["dictionary"] + ")"
 	texts["fileError"] = "err 2: failed to open configuration file (" + texts["config"] + ")"
 	texts["noOptionError"] = "err 3: invalid option"
@@ -251,48 +170,58 @@ func init() {
 	texts["configValueError"] = "err 14: invalid config value for"
 	texts["invalidNumericError"] = "err 15: invalid numeric digits"
 	texts["downloadError"] = "err 16: could not download dictionary update"
-
-	// main program strings
-	texts["name"] = "fwew"
-	texts["tip"] = "type \"/help\" or \"/commands\" for more info"
-	texts["author"] = "Tirea Aean"
-	texts["header"] = fmt.Sprintf("%s\n%s\n", Version, texts["tip"])
-	texts["languages"] = "de, en, es, et, fr, hu, ko, nl, pl, pt, ru, sv, tr, uk"
-	texts["POSFilters"] = "allvtr.n.num.pn.adv.adj.vin.v.inter.part.svin.adp.adv., n.vtrm.vim.conj.pn., sbd.n., intj.intj."
-	texts["POSFilters"] += "vtrm., vtr.part., intj.vin., svin.prop.n.affixvin., intj.dem.dem., n.sbd.n., adv."
-	texts["POSFilters"] += "adj., n.adj., adv.adj., intj.dem., pn.vtr., vin.adv., intj.pn., adv.ph.vin., vtr.adj.,  conj."
-	texts["prompt"] = "~~> "
-
-	// flag strings
-	texts["usage"] = "usage"
-	texts["bin"] = strings.ToLower(texts["name"])
-	texts["options"] = "options"
-	texts["usageV"] = "show program & dictionary version numbers"
-	texts["usageL"] = "use specified language\nsupported languages: " + texts["languages"] + "\n"
-	texts["usageI"] = "display infix location data in bracket notation"
-	texts["usageID"] = "display infix location data in dot notation"
-	texts["usageIPA"] = "display IPA data"
-	texts["usageS"] = "display syllable/stress breakdown"
-	texts["usageSrc"] = "display source data"
-	texts["usageP"] = "search for word(s) with specified part of speech\n"
-	texts["usageR"] = "reverse the lookup direction from Na'vi->local to local->Na'vi"
-	texts["usageA"] = "find all matches by using affixes to match the input word"
-	texts["usageN"] = "convert numbers octal<->decimal"
-	texts["usageM"] = "format output in markdown for bold and italic\n(mostly useful for fwew-discord bot)"
-	texts["usageF"] = "filename of file to read as input"
-	texts["usageC"] = "edit option in configuration file"
-	texts["usageD"] = "enable (insanely verbose) debug mode"
-	texts["defaultFilter"] = "all"
-
-	// lenition table
-	texts["lenTable"] = `lenition:
-px, tx, kx → p,  t,  k
-p,  t,  k  → f,  s,  h
-        ts → s
-        '  → (disappears)`
 }
 
 // Text function is the accessor for []string texts
 func Text(s string) string {
-	return texts[s]
+	if _, ok := texts[s]; ok {
+		return texts[s]
+	}
+	return texts["noTextError"] + " " + s
+}
+
+// table of all the possible lenitions
+var lenitionTable = [8][2]string{
+	{"kx", "k"},
+	{"px", "p"},
+	{"tx", "t"},
+	{"k", "h"},
+	{"p", "f"},
+	{"ts", "s"},
+	{"t", "s"},
+	{"'", ""},
+}
+
+// short table of all the possible lenitions
+var shortLenitionTable = [4][2]string{
+	{"kx, px, tx", "k, p, t"},
+	{"k, p, t", "h, f, s"},
+	{"ts", "s"},
+	{"'", ""},
+}
+
+// table of all the possible translations of "that"
+var thatTable = [9][5]string{
+	{"Case", "Noun", "   Clause Wrapper   ", "", ""},
+	{" ", " ", "Prox.", "Dist.", "Answer "},
+	{"====", "=====", "=====", "======", "========"},
+	{"Sub.", "tsaw", "fwa", "tsawa", "teynga  "},
+	{"Agt.", "tsal", "fula", "tsala", "teyngla "},
+	{"Pat.", "tsat", "futa", "tsata", "teyngta "},
+	{"Gen.", "tseyä", "N/A", "N/A", "teyngä  "},
+	{"Dat.", "tsar", "fura", "tsara", "teyngra "},
+	{"Top.", "tsari", "furia", "tsaria", "teyngria"},
+}
+
+// table of all the possible translations of "that"
+var otherThats = [9][3]string{
+	{"tsa-", "pre.", "that"},
+	{"tsa'u", "n.", "that (thing)"},
+	{"tsakem", "n.", "that (action)"},
+	{"fmawnta", "sbd.", "that news"},
+	{"fayluta", "sbd.", "these words"},
+	{"tsnì", "sbd.", "that (function word)"},
+	{"tsonta", "conj.", "to (with kxìm)"},
+	{"kuma/akum", "conj.", "that (as a result)"},
+	{"a", "part.", "clause level attributive marker"},
 }
