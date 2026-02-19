@@ -359,6 +359,26 @@ func IsValidNaviHelper(word string, lang string) string {
 		letterCheck = syllable_forest
 	}
 
+	// Check for things like 'e-wll-lok or ngrr-ro or tì-kan-nuä
+	for , consonant : range []string{"k", "kx", "l", "m", "n", "ng", "p", "px", "r", "t", "tx", "w", "y"} {
+		boundary := consonant+"-"+consonant
+		if strings.Contains(syllable_breakdown, boundary) {
+			message := strings.ReplaceAll(message_warning[lang], "{oldWord}", oldWord)
+			message = strings.ReplaceAll(message, "{boundary}", boundary)
+			message = strings.ReplaceAll(message, "{breakdown}", syllable_breakdown)
+			return "⚠️ " + message
+		}
+
+		if len([]rune{consonant}) > 1 {
+			if strings.Contains(syllable_breakdown, boundary[:len(boundary)-1]) {
+				message := strings.ReplaceAll(message_warning[lang], "{oldWord}", oldWord)
+				message = strings.ReplaceAll(message, "{boundary}", boundary[:len(boundary)-1])
+				message = strings.ReplaceAll(message, "{breakdown}", syllable_breakdown)
+				return "⚠️ " + message
+			}
+		}
+	}
+
 	// Identical adjacent vowels mean reef Na'vi
 	if forestWarning == "" {
 		found := false

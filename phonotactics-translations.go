@@ -245,6 +245,23 @@ var message_reef_dialect = map[string]string{
 	"uk": " (In reef dialect.  Forest dialect {breakdown})", // Ukrainian (Українська)
 }
 
+var message_warning = map[string]string{
+	"en": "**{oldWord}** Warning: `{breakdown}` `{boundary}` works in a productive compound, but not as a name or root word",    // English
+	"de": "**{oldWord}** 🇩🇪 Warning: `{breakdown}` `{boundary}` works in a productive compound, but not as a name or root word", // German (Deutsch)
+	"es": "**{oldWord}** 🇪🇦 Warning: `{breakdown}` `{boundary}` works in a productive compound, but not as a name or root word", // Spanish (Español)
+	"et": "**{oldWord}** 🇪🇪 Warning: `{breakdown}` `{boundary}` works in a productive compound, but not as a name or root word", // Estonian (Eesti)
+	"fr": "**{oldWord}** 🇫🇷 Warning: `{breakdown}` `{boundary}` works in a productive compound, but not as a name or root word", // French (Français)
+	"hu": "**{oldWord}** 🇭🇺 Warning: `{breakdown}` `{boundary}` works in a productive compound, but not as a name or root word", // Hungarian (Magyar)
+	"ko": "**{oldWord}** 🇰🇷 Warning: `{breakdown}` `{boundary}` works in a productive compound, but not as a name or root word",      // Korean (한국어)
+	"nl": "**{oldWord}** 🇳🇱 Warning: `{breakdown}` `{boundary}` works in a productive compound, but not as a name or root word", // Dutch (Nederlands)
+	"pl": "**{oldWord}** 🇵🇱 Warning: `{breakdown}` `{boundary}` works in a productive compound, but not as a name or root word", // Polish (Polski)
+	"pt": "**{oldWord}** 🇵🇹 Warning: `{breakdown}` `{boundary}` works in a productive compound, but not as a name or root word", // Portuguese (Português)
+	"ru": "**{oldWord}** 🇷🇺 Warning: `{breakdown}` `{boundary}` works in a productive compound, but not as a name or root word", // Russian (Русский)
+	"sv": "**{oldWord}** 🇸🇪 Warning: `{breakdown}` `{boundary}` works in a productive compound, but not as a name or root word", // Swedish (Svenska)
+	"tr": "**{oldWord}** 🇹🇷 Warning: `{breakdown}` `{boundary}` works in a productive compound, but not as a name or root word", // Turkish (Türkçe)
+	"uk": "**{oldWord}** 🇺🇦 Warning: `{breakdown}` `{boundary}` works in a productive compound, but not as a name or root word", // Ukrainian (Українська)
+}
+
 var message_valid = map[string]string{
 	"en": "**{oldWord}** Valid: `{breakdown}` with {syllable_count} syllables {syllable_forest}", // English
 	// TODO
