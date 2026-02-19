@@ -360,7 +360,7 @@ func IsValidNaviHelper(word string, lang string) string {
 	}
 
 	// Check for things like 'e-wll-lok or ngrr-ro or tì-kan-nuä
-	for _, consonant : range []string{"k", "kx", "l", "m", "n", "ng", "p", "px", "r", "t", "tx", "w", "y"} {
+	for _, consonant := range []string{"k", "kx", "l", "m", "n", "ng", "p", "px", "r", "t", "tx", "w", "y"} {
 		boundary := consonant+"-"+consonant
 		if strings.Contains(syllable_breakdown, boundary) {
 			message := strings.ReplaceAll(message_warning[lang], "{oldWord}", oldWord)
