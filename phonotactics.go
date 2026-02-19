@@ -13,6 +13,9 @@ var letters_start = []string{"", "p", "t", "k", "b", "d", "q", "'",
 	"f", "v", "s", "z", "c", "h", "B", "D", "G"}
 var letters_end = []string{"", "p", "t", "k", "b", "d", "q", "'",
 	"m", "n", "l", "r", "g"}
+var to_umlaut_a = []rune("àáâåæ")
+var to_lax_i = []rune("íîï")
+var to_reef_lax_u = []rune("úûü")
 
 var letters_map = map[string]string{}
 
@@ -86,6 +89,17 @@ func IsValidNaviHelper(word string, lang string) string {
 	word = strings.ReplaceAll(word, "•", "")
 	word = strings.ReplaceAll(word, "·", "")
 	word = strings.TrimSuffix(word, "+")
+
+	// Normalize diacritics
+	for _, rune_a := range to_umlaut_a {
+		word = strings.ReplaceAll(word, rune_a, "ä")
+	}
+	for _, rune_i := range to_lax_i {
+		word = strings.ReplaceAll(word, rune_i, "ì")
+	}
+	for _, rune_u := range to_reef_lax_u {
+		word = strings.ReplaceAll(word, rune_u, "ù")
+	}
 
 	// Make sure it doesn't have any invalid letters
 	// It used unicode values to ensure it has nothing invalid
