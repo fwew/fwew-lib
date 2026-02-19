@@ -13,9 +13,9 @@ var letters_start = []string{"", "p", "t", "k", "b", "d", "q", "'",
 	"f", "v", "s", "z", "c", "h", "B", "D", "G"}
 var letters_end = []string{"", "p", "t", "k", "b", "d", "q", "'",
 	"m", "n", "l", "r", "g"}
-var to_umlaut_a = []rune("àáâåæ")
-var to_lax_i = []rune("íîï")
-var to_reef_lax_u = []rune("úûü")
+var to_umlaut_a = []string{"à", "á", "â", "å", "æ", "ã", "ā"}
+var to_lax_i = []string{"í", "î", "ï", "į", "ī"}
+var to_reef_lax_u = []string{"ú", "û", "ü", "ů", "ū"}
 
 var letters_map = map[string]string{}
 
