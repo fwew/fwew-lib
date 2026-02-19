@@ -92,13 +92,13 @@ func IsValidNaviHelper(word string, lang string) string {
 
 	// Normalize diacritics
 	for _, rune_a := range to_umlaut_a {
-		word = strings.ReplaceAll(word, rune_a, "ä")
+		word = strings.ReplaceAll(word, string(rune_a), "ä")
 	}
 	for _, rune_i := range to_lax_i {
-		word = strings.ReplaceAll(word, rune_i, "ì")
+		word = strings.ReplaceAll(word, string(rune_i), "ì")
 	}
 	for _, rune_u := range to_reef_lax_u {
-		word = strings.ReplaceAll(word, rune_u, "ù")
+		word = strings.ReplaceAll(word, string(rune_u), "ù")
 	}
 
 	// Make sure it doesn't have any invalid letters
