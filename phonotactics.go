@@ -370,7 +370,7 @@ func IsValidNaviHelper(word string, lang string) string {
 		}
 
 		if len([]rune{consonant}) > 1 {
-			if strings.Contains(syllable_breakdown, boundary[:len(boundary)-1]) {
+			if strings.Contains(syllable_breakdown, boundary[:len([]rune(boundary))-1]) {
 				message := strings.ReplaceAll(message_warning[lang], "{oldWord}", oldWord)
 				message = strings.ReplaceAll(message, "{boundary}", boundary[:len(boundary)-1])
 				message = strings.ReplaceAll(message, "{breakdown}", syllable_breakdown)
