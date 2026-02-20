@@ -7,8 +7,10 @@ import (
 
 // Errors raised by package fwew_lib
 const (
+	FailedToCloseDatabase = constError("failed to close database connection")
 	FailedToCloseDictFile = constError("failed to close dictionary file")
 	FailedToDownload      = constError("failed to download dictionary update")
+	FailedToOpenDatabase  = constError("failed to open database connection")
 	FailedToOpenDictFile  = constError("failed to open dictionary file")
 
 	InvalidNumber  = constError("invalid numeric digits")

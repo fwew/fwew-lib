@@ -68,18 +68,17 @@ var universalLock sync.Mutex
 var phonoLock sync.Mutex
 
 // helper for nkx for shortest words first
+// TODO: revisit implementation after removing always-false boolean var
 func shortestFirst(array []string, input string) []string {
-	newArray := []string{}
-	found := false // TODO: Set this to true at some point, or remove.
+	var newArray []string
 	for _, a := range array {
-		if !found && len(a) > len(input) {
+		if len(a) > len(input) {
 			newArray = append(newArray, input)
 		}
 		newArray = append(newArray, a)
 	}
-	if !found {
-		newArray = append(newArray, input)
-	}
+	newArray = append(newArray, input)
+
 	return newArray
 }
 
@@ -94,6 +93,7 @@ func fileExists(filepath string) bool {
 	return !fileStat.IsDir()
 }
 
+// FindDictionaryFile returns the location of the dictionary file
 // the dictionary file can be places into:
 // - <workingDir>/dictionary.txt
 // - <workingDir>/.fwew/dictionary.txt
@@ -161,7 +161,7 @@ func AppendAndAlphabetize(words []Word, word Word) []Word {
 	case 0:
 		return []Word{word}
 	case 1:
-		var newWords = []Word{}
+		var newWords []Word
 		if AlphabetizeHelper(words[0].Syllables, word.Syllables) {
 			newWords = []Word{words[0], word}
 		} else {
@@ -169,7 +169,7 @@ func AppendAndAlphabetize(words []Word, word Word) []Word {
 		}
 		return newWords
 	case 2:
-		var newWords = []Word{}
+		var newWords []Word
 		if AlphabetizeHelper(word.Syllables, words[0].Syllables) {
 			newWords = []Word{word, words[0], words[1]}
 		} else if AlphabetizeHelper(words[1].Syllables, word.Syllables) {
@@ -209,12 +209,12 @@ func AppendAndAlphabetize(words []Word, word Word) []Word {
 	return newWords
 }
 
-// Helper to find empty definitions
+// NullDef is a helper to find empty definitions
 func NullDef(definition string) bool {
 	return strings.ToUpper(definition) == "NULL" || len(strings.Trim(definition, " ")) < 1
 }
 
-// If a definition is not available in a certain language, default to English
+// EnglishIfNull defaults a word to English if a definition is not available in a certain language
 func EnglishIfNull(word Word) Word {
 	// English
 	if NullDef(word.EN) {
@@ -294,7 +294,7 @@ func EnglishIfNull(word Word) Word {
 	return word
 }
 
-// Helper function to get phonetic transcriptions of secondary pronunciations
+// RomanizeSecondIPA is a helper function to get phonetic transcriptions of secondary pronunciations
 // Only multiple IPA words will call this function
 func RomanizeSecondIPA(IPA string) string {
 	// now Romanize the IPA
@@ -482,19 +482,18 @@ func CacheDictHash() error {
 	return err
 }
 
-// This will cache the whole dictionary (Na'vi to natural language).
+// CacheDictHashOrig will cache the whole dictionary (Na'vi to natural language).
 // Please call this, if you want to translate multiple words or running infinitely (e.g. CLI-go-prompt, discord-bot)
 func CacheDictHashOrig(mysql bool) error {
 	// dont run if already is cached
 	if len(dictHashLoose) != 0 {
 		return nil
-	} else {
-		dictHashLoose = make(map[string][]Word)
-		dictHashStrict = make(map[string][]Word)
-		dictHashStrictReef = make(map[string][]Word)
 	}
+	dictHashLoose = make(map[string][]Word)
+	dictHashStrict = make(map[string][]Word)
+	dictHashStrictReef = make(map[string][]Word)
 
-	tempHoms := []string{}
+	var tempHoms []string
 
 	//Clear to avoid duplicates
 	multiIPA = ""
@@ -632,13 +631,13 @@ func CacheDictHashOrig(mysql bool) error {
 	return nil
 }
 
-// Turn a definition into its searchable terms
+// SearchTerms turns a definition into its searchable terms
 func SearchTerms(input string, excludeParen bool) []string {
 	badChars := `~@#$%^&*()[]{}<>_/.,;:!?|+\"„“”«»`
 
 	input = strings.ReplaceAll(input, "(", " (")
 
-	// remove anything in parenthesis to avoid clogging search results
+	// remove anything in parentheses to avoid clogging search results
 	tempString := ""
 	parenthesis := false
 	for _, c := range input {
@@ -672,26 +671,26 @@ func SearchTerms(input string, excludeParen bool) []string {
 	return strings.Split(input, " ")
 }
 
-// Helper function for CacheDictHash2
-func AssignWord(wordmap map[string][]string, natlangWords string, naviWord string, excludeParen bool) (result map[string][]string) {
+// AssignWord is a helper function for CacheDictHash2
+func AssignWord(wordMap map[string][]string, natlangWords string, naviWord string, excludeParen bool) (result map[string][]string) {
 	newWords := SearchTerms(natlangWords, excludeParen)
 
 	for i := 0; i < len(newWords); i++ {
 		duplicate := false
-		for j := 0; j < len(wordmap[newWords[i]]); j++ {
-			if wordmap[newWords[i]][j] == naviWord {
+		for j := 0; j < len(wordMap[newWords[i]]); j++ {
+			if wordMap[newWords[i]][j] == naviWord {
 				duplicate = true
 				break
 			}
 		}
 		if !duplicate {
-			wordmap[newWords[i]] = append(wordmap[newWords[i]], naviWord)
+			wordMap[newWords[i]] = append(wordMap[newWords[i]], naviWord)
 		}
 	}
-	return wordmap
+	return wordMap
 }
 
-// Natural languages to Na'vi
+// CacheDictHash2 caches Natural languages to Na'vi
 func CacheDictHash2() error {
 	err := CacheDictHash2Orig(true)
 	if err == nil {
@@ -707,39 +706,39 @@ func CacheDictHash2Orig(mysql bool) error {
 	// dont run if already is cached
 	if len(dictHash2.EN) != 0 {
 		return nil
-	} else {
-		dictHash2.EN = make(map[string][]string)
-		dictHash2.DE = make(map[string][]string)
-		dictHash2.ES = make(map[string][]string)
-		dictHash2.ET = make(map[string][]string)
-		dictHash2.FR = make(map[string][]string)
-		dictHash2.HU = make(map[string][]string)
-		dictHash2.IT = make(map[string][]string)
-		dictHash2.KO = make(map[string][]string)
-		dictHash2.NL = make(map[string][]string)
-		dictHash2.PL = make(map[string][]string)
-		dictHash2.PT = make(map[string][]string)
-		dictHash2.RU = make(map[string][]string)
-		dictHash2.SV = make(map[string][]string)
-		dictHash2.TR = make(map[string][]string)
-		dictHash2.UK = make(map[string][]string)
-
-		dictHash2Parenthesis.EN = make(map[string][]string)
-		dictHash2Parenthesis.DE = make(map[string][]string)
-		dictHash2Parenthesis.ES = make(map[string][]string)
-		dictHash2Parenthesis.ET = make(map[string][]string)
-		dictHash2Parenthesis.FR = make(map[string][]string)
-		dictHash2Parenthesis.HU = make(map[string][]string)
-		dictHash2Parenthesis.IT = make(map[string][]string)
-		dictHash2Parenthesis.KO = make(map[string][]string)
-		dictHash2Parenthesis.NL = make(map[string][]string)
-		dictHash2Parenthesis.PL = make(map[string][]string)
-		dictHash2Parenthesis.PT = make(map[string][]string)
-		dictHash2Parenthesis.RU = make(map[string][]string)
-		dictHash2Parenthesis.SV = make(map[string][]string)
-		dictHash2Parenthesis.TR = make(map[string][]string)
-		dictHash2Parenthesis.UK = make(map[string][]string)
 	}
+
+	dictHash2.EN = make(map[string][]string)
+	dictHash2.DE = make(map[string][]string)
+	dictHash2.ES = make(map[string][]string)
+	dictHash2.ET = make(map[string][]string)
+	dictHash2.FR = make(map[string][]string)
+	dictHash2.HU = make(map[string][]string)
+	dictHash2.IT = make(map[string][]string)
+	dictHash2.KO = make(map[string][]string)
+	dictHash2.NL = make(map[string][]string)
+	dictHash2.PL = make(map[string][]string)
+	dictHash2.PT = make(map[string][]string)
+	dictHash2.RU = make(map[string][]string)
+	dictHash2.SV = make(map[string][]string)
+	dictHash2.TR = make(map[string][]string)
+	dictHash2.UK = make(map[string][]string)
+
+	dictHash2Parenthesis.EN = make(map[string][]string)
+	dictHash2Parenthesis.DE = make(map[string][]string)
+	dictHash2Parenthesis.ES = make(map[string][]string)
+	dictHash2Parenthesis.ET = make(map[string][]string)
+	dictHash2Parenthesis.FR = make(map[string][]string)
+	dictHash2Parenthesis.HU = make(map[string][]string)
+	dictHash2Parenthesis.IT = make(map[string][]string)
+	dictHash2Parenthesis.KO = make(map[string][]string)
+	dictHash2Parenthesis.NL = make(map[string][]string)
+	dictHash2Parenthesis.PL = make(map[string][]string)
+	dictHash2Parenthesis.PT = make(map[string][]string)
+	dictHash2Parenthesis.RU = make(map[string][]string)
+	dictHash2Parenthesis.SV = make(map[string][]string)
+	dictHash2Parenthesis.TR = make(map[string][]string)
+	dictHash2Parenthesis.UK = make(map[string][]string)
 
 	// Set up the whole thing
 
@@ -903,7 +902,7 @@ func UncacheHashDict2() {
 	dictHash2Parenthesis.UK = nil
 }
 
-// This will run the function `f` inside the cache or the file directly.
+// RunOnDict will run the function `f` inside the cache or the file directly.
 // Use this to get words out of the dictionary
 // function `f` is called on every single line in the dictionary!
 func RunOnDict(f func(word Word) error) (err error) {
@@ -933,11 +932,17 @@ func runOnDB(f func(word Word) error) error {
 	host := os.Getenv("FW_HOST")
 	name := os.Getenv("FW_DB")
 	dataSourceName := fmt.Sprintf("%s:%s@tcp(%s)/%s", user, pass, host, name)
+
 	db, err := sql.Open("mysql", dataSourceName)
 	if err != nil {
-		return err
+		return FailedToOpenDatabase.wrap(err)
 	}
-	defer db.Close()
+	defer func(db *sql.DB) {
+		err := db.Close()
+		if err != nil {
+			log.Printf(FailedToCloseDatabase.wrap(err).Error())
+		}
+	}(db)
 
 	rows, err1 := db.Query("SELECT " +
 		"m.id, m.navi, m.ipa, m.infixes, m.partOfSpeech, s.source, b.stressed, b.syllables, b.infixDots, " +
@@ -963,6 +968,12 @@ func runOnDB(f func(word Word) error) error {
 	if err1 != nil {
 		return err1
 	}
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			log.Printf(FailedToCloseDatabase.wrap(err).Error())
+		}
+	}(rows)
 
 	var w Word
 	var de, en, es, et, fr, hu, it, ko, nl, pl, pt, ru, sv, tr, uk []byte
@@ -1009,10 +1020,15 @@ func runOnFile(f func(word Word) error) error {
 
 	file, err := os.Open(dictionaryFile)
 	if err != nil {
-		log.Printf("Error opening the dictionary file %s", err)
-		return err
+		log.Printf(FailedToOpenDictFile.wrap(err).Error())
+		return FailedToOpenDictFile.wrap(err)
 	}
-	defer file.Close()
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+			log.Printf(FailedToCloseDictFile.wrap(err).Error())
+		}
+	}(file)
 
 	scanner := bufio.NewScanner(file)
 
@@ -1063,14 +1079,14 @@ func GetFullDict() (allWords []Word, err error) {
 	return
 }
 
-// Just a number
+// GetDictSizeSimple returns dictionary size as a number
 func GetDictSizeSimple() (count int) {
 	universalLock.Lock()
 	defer universalLock.Unlock()
 	return len(dictionary)
 }
 
-// Return a complete sentence
+// GetDictSize returns dictionary size as a complete sentence
 func GetDictSize(lang string) (count string, err error) {
 	universalLock.Lock()
 	defer universalLock.Unlock()
@@ -1123,7 +1139,7 @@ func GetDictSize(lang string) (count string, err error) {
 	return
 }
 
-// Update the dictionary.txt.
+// UpdateDict updates the dictionary file.
 // universalLock will hopefully prevent anything from accessing
 // the dict while updating
 func UpdateDict() error {
