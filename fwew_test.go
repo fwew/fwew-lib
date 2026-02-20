@@ -1320,10 +1320,10 @@ func TestTranslateFromNaviCached(t *testing.T) {
 		}
 		word := "tsun" + a
 
-		if newfix, ok := unreefFixes[a]; ok {
-			a = newfix
-		} else if new, ok := unstrictFixes[a]; ok {
-			a = new
+		if newFix, ok := unreefFixes[a]; ok {
+			a = newFix
+		} else if newFix2, ok := unstrictFixes[a]; ok {
+			a = newFix2
 		} else if a == "ile" {
 			a = "ìlä"
 		}

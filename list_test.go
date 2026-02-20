@@ -7,12 +7,25 @@ import (
 )
 
 func TestList(t *testing.T) {
-	CacheDict()
-	CacheDictHash()
-	CacheDictHash2()
+	err := CacheDict()
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = CacheDictHash()
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = CacheDictHash2()
+	if err != nil {
+		t.Error(err)
+	}
+
 	type args struct {
 		args []string
 	}
+
 	tests := []struct {
 		name        string
 		args        args

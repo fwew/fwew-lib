@@ -940,7 +940,7 @@ func runOnDB(f func(word Word) error) error {
 	defer func(db *sql.DB) {
 		err := db.Close()
 		if err != nil {
-			log.Printf(FailedToCloseDatabase.wrap(err).Error())
+			log.Println(FailedToCloseDatabase.wrap(err).Error())
 		}
 	}(db)
 
@@ -971,7 +971,7 @@ func runOnDB(f func(word Word) error) error {
 	defer func(rows *sql.Rows) {
 		err := rows.Close()
 		if err != nil {
-			log.Printf(FailedToCloseDatabase.wrap(err).Error())
+			log.Println(FailedToCloseDatabase.wrap(err).Error())
 		}
 	}(rows)
 
@@ -1020,13 +1020,13 @@ func runOnFile(f func(word Word) error) error {
 
 	file, err := os.Open(dictionaryFile)
 	if err != nil {
-		log.Printf(FailedToOpenDictFile.wrap(err).Error())
+		log.Println(FailedToOpenDictFile.wrap(err).Error())
 		return FailedToOpenDictFile.wrap(err)
 	}
 	defer func(file *os.File) {
 		err := file.Close()
 		if err != nil {
-			log.Printf(FailedToCloseDictFile.wrap(err).Error())
+			log.Println(FailedToCloseDictFile.wrap(err).Error())
 		}
 	}(file)
 
