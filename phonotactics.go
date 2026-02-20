@@ -13,8 +13,8 @@ var letters_start = []string{"", "p", "t", "k", "b", "d", "q", "'",
 	"f", "v", "s", "z", "c", "h", "B", "D", "G"}
 var letters_end = []string{"", "p", "t", "k", "b", "d", "q", "'",
 	"m", "n", "l", "r", "g"}
-var to_umlaut_a = []string{"à", "á", "â", "å", "æ", "ã", "ā"}
-var to_lax_i = []string{"í", "î", "ï", "į", "ī"}
+var to_umlaut_a = []string{"à", "á", "â", "å", "æ", "ã", "ā", "ă"}
+var to_lax_i = []string{"í", "î", "ï", "į", "ī", "ị", "ı"}
 var to_reef_lax_u = []string{"ú", "û", "ü", "ů", "ū"}
 
 var letters_map = map[string]string{}
@@ -91,14 +91,26 @@ func IsValidNaviHelper(word string, lang string) string {
 	word = strings.TrimSuffix(word, "+")
 
 	// Normalize diacritics
-	for _, rune_a := range to_umlaut_a {
-		word = strings.ReplaceAll(word, string(rune_a), "ä")
+	for _, a := range to_umlaut_a {
+		if strings.Contains(word, a) {
+			message := strings.ReplaceAll(message_non_navi_letters[lang], "{oldWord}", oldWord)
+			message = strings.ReplaceAll(message, "{nonNaviLetters}", a)
+			return "❌ " + message + " " + strings.ReplaceAll(use_this_diacritic[lang], "{letter}", "ä")
+		}
 	}
-	for _, rune_i := range to_lax_i {
-		word = strings.ReplaceAll(word, string(rune_i), "ì")
+	for _, i := range to_lax_i {
+		if strings.Contains(word, i) {
+			message := strings.ReplaceAll(message_non_navi_letters[lang], "{oldWord}", oldWord)
+			message = strings.ReplaceAll(message, "{nonNaviLetters}", i)
+			return "❌ " + message + " " + strings.ReplaceAll(use_this_diacritic[lang], "{letter}", "ì")
+		}
 	}
-	for _, rune_u := range to_reef_lax_u {
-		word = strings.ReplaceAll(word, string(rune_u), "ù")
+	for _, u := range to_reef_lax_u {
+		if strings.Contains(word, u) {
+			message := strings.ReplaceAll(message_non_navi_letters[lang], "{oldWord}", oldWord)
+			message = strings.ReplaceAll(message, "{nonNaviLetters}", u)
+			return "❌ " + message + " " + strings.ReplaceAll(use_this_diacritic[lang], "{letter}", "ù")
+		}
 	}
 
 	// Make sure it doesn't have any invalid letters
@@ -375,7 +387,7 @@ func IsValidNaviHelper(word string, lang string) string {
 
 	// Check for things like 'e-wll-lok or ngrr-ro or tì-kan-nuä
 	for _, consonant := range []string{"k", "kx", "l", "m", "n", "ng", "p", "px", "r", "t", "tx", "w", "y"} {
-		boundary := consonant+"-"+consonant
+		boundary := consonant + "-" + consonant
 		if strings.Contains(syllable_breakdown, boundary) {
 			message := strings.ReplaceAll(message_warning[lang], "{oldWord}", oldWord)
 			message = strings.ReplaceAll(message, "{boundary}", boundary)
