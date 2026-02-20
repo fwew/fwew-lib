@@ -386,7 +386,7 @@ func verifyCaseEnding(noun string, ending string) bool {
 		return false
 	}
 
-	if get_last_rune(noun, 1) == 'i' && (ending == "ä" || ending == "e") {
+	if getLastRune(noun, 1) == 'i' && (ending == "ä" || ending == "e") {
 		//soaiä, tìftiä
 		return true
 	}
@@ -439,7 +439,7 @@ func verifyCaseEnding(noun string, ending string) bool {
 		if _, ok := diphthongEndings[ending]; ok {
 			return true
 		} else {
-			lastRune := get_last_rune(noun, 1)
+			lastRune := getLastRune(noun, 1)
 			switch lastRune {
 			case 'y':
 				// ayt, eyt
@@ -453,8 +453,8 @@ func verifyCaseEnding(noun string, ending string) bool {
 				}
 			}
 		}
-	} else if _, ok := vowels[string(get_last_rune(noun, 1))]; ok {
-		lastVowel := get_last_rune(noun, 1)
+	} else if _, ok := vowels[string(getLastRune(noun, 1))]; ok {
+		lastVowel := getLastRune(noun, 1)
 		if lastVowel == 'u' || lastVowel == 'o' {
 			// No oyä or ayä
 			if ending == "yä" || ending == "ye" {
@@ -491,7 +491,7 @@ func verifyCaseEnding(noun string, ending string) bool {
 			return true
 		}
 		//'ri
-		if get_last_rune(noun, 1) == '\'' && ending == "ru" {
+		if getLastRune(noun, 1) == '\'' && ending == "ru" {
 			return true
 		}
 	}
@@ -591,7 +591,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 			}
 
 			if strict {
-				for _, pairWordSet := range multiword_words[trimmedWord] {
+				for _, pairWordSet := range multiwordWords[trimmedWord] {
 					for _, pairWord := range pairWordSet {
 						if pairWord == "si" {
 							found = true
@@ -603,7 +603,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 					}
 				}
 			} else {
-				for _, pairWordSet := range multiword_words_loose[trimmedWord] {
+				for _, pairWordSet := range multiwordWordsLoose[trimmedWord] {
 					for _, pairWord := range pairWordSet {
 						if pairWord == "si" {
 							found = true
@@ -620,7 +620,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 				noA := strings.TrimPrefix(trimmedWord, "a")
 
 				if strict {
-					for _, pairWordSet := range multiword_words[noA] {
+					for _, pairWordSet := range multiwordWords[noA] {
 						for _, pairWord := range pairWordSet {
 							if pairWord == "si" {
 								found = true
@@ -633,7 +633,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 						}
 					}
 				} else {
-					for _, pairWordSet := range multiword_words_loose[noA] {
+					for _, pairWordSet := range multiwordWordsLoose[noA] {
 						for _, pairWord := range pairWordSet {
 							if pairWord == "si" {
 								found = true
@@ -728,7 +728,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 				deconjugateHelper(newCandidate, 10, 10, -1, []string{}, element, "", strict, allowReef)
 
 				// check "tsatan", "tan" and "atan"
-				newCandidate.Word = string(get_last_rune(element, 1)) + newCandidate.Word
+				newCandidate.Word = string(getLastRune(element, 1)) + newCandidate.Word
 				deconjugateHelper(newCandidate, 10, 10, -1, []string{}, element, "", strict, allowReef)
 			}
 		}
@@ -752,7 +752,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 					deconjugateHelper(newCandidate, 3, suffixCheck, -1, []string{}, element, "", strict, allowReef)
 
 					// check "tsatan", "tan" and "atan"
-					newCandidate.Word = string(get_last_rune(element, 1)) + newString
+					newCandidate.Word = string(getLastRune(element, 1)) + newString
 					deconjugateHelper(newCandidate, 3, suffixCheck, -1, []string{}, element, "", strict, allowReef)
 				}
 			}
@@ -776,7 +776,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 				// Could it be pekoyu (pe + 'ekoyu, not pe + kxoyu)
 				if hasAt(vowels, element, -1) {
 					// check "pxeyktan", "yktan" and "eyktan"
-					newCandidate.Word = string(get_last_rune(element, 1)) + newString
+					newCandidate.Word = string(getLastRune(element, 1)) + newString
 					deconjugateHelper(newCandidate, 5, suffixCheck, -1, []string{}, element, "", strict, allowReef)
 
 					// check "pxeylan", "ylan" and "'eylan"
@@ -823,7 +823,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 					// Could it be pekoyu (pe + 'ekoyu, not pe + kxoyu)
 					if hasAt(vowels, "pe", -1) {
 						// check "pxeyktan", "yktan" and "eyktan"
-						newCandidate.Word = string(get_last_rune("pe", 1)) + newString
+						newCandidate.Word = string(getLastRune("pe", 1)) + newString
 						deconjugateHelper(newCandidate, 3, suffixCheck, -1, []string{}, "pe", "", strict, allowReef)
 
 						// check "pxeylan", "ylan" and "'eylan"
@@ -872,7 +872,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 					deconjugateHelper(newCandidate, 4, suffixCheck, -1, []string{}, "fra", "", strict, allowReef)
 
 					// check "tsatan", "tan" and "atan"
-					newCandidate.Word = string(get_last_rune("fra", 1)) + newString
+					newCandidate.Word = string(getLastRune("fra", 1)) + newString
 					deconjugateHelper(newCandidate, 4, suffixCheck, -1, []string{}, "fra", "", strict, allowReef)
 				}
 			}
@@ -898,7 +898,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 					// Could it be pekoyu (pe + 'ekoyu, not pe + kxoyu)
 					if hasAt(vowels, element, -1) {
 						// check "pxeyktan", "yktan" and "eyktan"
-						newCandidate.Word = string(get_last_rune(element, 1)) + newString
+						newCandidate.Word = string(getLastRune(element, 1)) + newString
 						deconjugateHelper(newCandidate, 5, suffixCheck, -1, []string{}, element, "", strict, allowReef)
 
 						// check "pxeylan", "ylan" and "'eylan"
@@ -947,7 +947,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 					deconjugateHelper(newCandidate, 6, suffixCheck, -1, []string{}, element, "", strict, allowReef)
 
 					// check "tsatan", "tan" and "atan"
-					newCandidate.Word = string(get_last_rune(element, 1)) + newCandidate.Word
+					newCandidate.Word = string(getLastRune(element, 1)) + newCandidate.Word
 					deconjugateHelper(newCandidate, 6, suffixCheck, -1, []string{}, element, "", strict, allowReef)
 				}
 			}
@@ -1222,7 +1222,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 			runes := []rune(input.Word)
 			for i, c := range runes {
 				// Infixes can only begin with vowels
-				if is_vowel(c) {
+				if isVowel(c) {
 					shortString := string(runes[i:])
 					for _, newInfix := range infixes[c] {
 						available, newInfixes := verifyInfix(infix, newInfix)
@@ -1516,8 +1516,8 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 						siVerb := false
 						if len(candidate.Infixes) == 0 {
 							if strict {
-								if _, ok := multiword_words[candidate.Word]; ok {
-									for _, b := range multiword_words[candidate.Word] {
+								if _, ok := multiwordWords[candidate.Word]; ok {
+									for _, b := range multiwordWords[candidate.Word] {
 										if b[0] == "si" {
 											siVerb = true
 											a := c
@@ -1539,8 +1539,8 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 									results = AppendAndAlphabetize(results, a)
 								}
 							} else {
-								if _, ok := multiword_words_loose[candidate.Word]; ok {
-									for _, b := range multiword_words_loose[candidate.Word] {
+								if _, ok := multiwordWordsLoose[candidate.Word]; ok {
+									for _, b := range multiwordWordsLoose[candidate.Word] {
 										if b[0] == "si" {
 											siVerb = true
 											a := c

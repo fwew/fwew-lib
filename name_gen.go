@@ -31,14 +31,12 @@ func (s Tuples) Less(i, j int) bool {
 	return s[i].value > s[j].value
 }
 
-/*
- * Name generators
- */
-func SingleNames(name_count int, dialect int, syllable_count int) (output string) {
+// SingleNames generates a single given names
+func SingleNames(nameCount int, dialect int, syllableCount int) (output string) {
 	universalLock.Lock()
 	defer universalLock.Unlock()
 	// Make sure the numbers are good
-	if name_count > 50 || name_count <= 0 || syllable_count > 4 || syllable_count < 0 {
+	if nameCount > 50 || nameCount <= 0 || syllableCount > 4 || syllableCount < 0 {
 		return "Max name count is 50, max syllable count is 4"
 	}
 
@@ -46,23 +44,24 @@ func SingleNames(name_count int, dialect int, syllable_count int) (output string
 	output = ""
 
 	// Fill the chart with names
-	for i := 0; i < name_count; i++ {
-		output += glottal_caps(string(single_name_gen(rand_if_zero(syllable_count), dialect))) + "\n"
+	for i := 0; i < nameCount; i++ {
+		output += glottalCaps(singleNameGen(randIfZero(syllableCount), dialect)) + "\n"
 	}
 
 	return output
 }
 
-func FullNames(ending string, name_count int, dialect int, syllable_count [3]int, two_thousand_limit bool) (output string) {
+// FullNames generates full Na'vi names
+func FullNames(ending string, nameCount int, dialect int, syllableCount [3]int, twoThousandLimit bool) (output string) {
 	universalLock.Lock()
 	defer universalLock.Unlock()
 	// Make sure the numbers are good
-	if name_count > 50 || name_count <= 0 {
+	if nameCount > 50 || nameCount <= 0 {
 		return "Max name count is 50, max syllable count is 4"
 	}
 
 	for i := 0; i < 3; i++ {
-		if syllable_count[i] > 4 || syllable_count[i] < 0 {
+		if syllableCount[i] > 4 || syllableCount[i] < 0 {
 			return "Max name count is 50, max syllable count is 4"
 		}
 	}
@@ -83,13 +82,13 @@ func FullNames(ending string, name_count int, dialect int, syllable_count [3]int
 	}
 
 	// Fill the chart with names
-	for i := 0; i < name_count; i++ {
+	for i := 0; i < nameCount; i++ {
 		// Fill it with three names
-		output += glottal_caps(string(single_name_gen(rand_if_zero(syllable_count[0]), dialect)))
+		output += glottalCaps(singleNameGen(randIfZero(syllableCount[0]), dialect))
 		output += " te "
-		output += glottal_caps(string(single_name_gen(rand_if_zero(syllable_count[1]), dialect)))
+		output += glottalCaps(singleNameGen(randIfZero(syllableCount[1]), dialect))
 		output += " "
-		output += glottal_caps(string(single_name_gen(rand_if_zero(syllable_count[2]), dialect)))
+		output += glottalCaps(singleNameGen(randIfZero(syllableCount[2]), dialect))
 
 		ending2 := ending
 		if randomize {
@@ -116,8 +115,8 @@ func FullNames(ending string, name_count int, dialect int, syllable_count [3]int
 
 		// Add the ending
 		output += ending2 + "\n"
-		if two_thousand_limit && len([]rune(output)) > 1914 {
-			// (stopped at {count}. 2000 Character limit)
+		if twoThousandLimit && len([]rune(output)) > 1914 {
+			// (stopped at {count}. 2000-Character limit)
 			output += strings.ReplaceAll(messageTooBig["en"], "{count}", strconv.Itoa(i+1))
 			break
 		}
@@ -132,9 +131,10 @@ func FullNames(ending string, name_count int, dialect int, syllable_count [3]int
 	return output
 }
 
-func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj_mode int) (output string) {
+// NameAlu generates <name> alu <noun> <adjective> names
+func NameAlu(nameCount int, dialect int, syllableCount int, nounMode int, adjMode int) (output string) {
 	// Make sure the numbers are good
-	if name_count > 50 || name_count <= 0 || syllable_count > 4 || syllable_count < 0 {
+	if nameCount > 50 || nameCount <= 0 || syllableCount > 4 || syllableCount < 0 {
 		return "Max name count is 50, max syllable count is 4"
 	}
 
@@ -147,12 +147,12 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 	universalLock.Lock()
 	defer universalLock.Unlock()
 
-	for i := 0; i < name_count; i++ {
-		output += glottal_caps(string(single_name_gen(rand_if_zero(syllable_count), dialect)))
+	for i := 0; i < nameCount; i++ {
+		output += glottalCaps(singleNameGen(randIfZero(syllableCount), dialect))
 
 		/* Noun */
 		nmode := 0
-		if noun_mode != 1 && noun_mode != 2 {
+		if nounMode != 1 && nounMode != 2 {
 			nmode = rand.Intn(5) // 80% chance of normal noun
 			if nmode == 4 {
 				nmode = 2
@@ -160,40 +160,38 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 				nmode = 1
 			}
 		} else {
-			nmode = noun_mode
+			nmode = nounMode
 		}
 
-		two_word_noun := false
+		twoWordNoun := false
 
 		noun := ""
 		switch nmode {
 		case 1:
-			noun_word := fast_random(allNouns)
-			noun += strings.ReplaceAll(convertDialect(noun_word, dialect), "-", "")
-		case 2:
-			verb := fast_random(allVerbs)
+			nounWord := fastRandom(allNouns)
+			noun += strings.ReplaceAll(convertDialect(nounWord, dialect), "-", "")
+		default: // case 2:
+			verb := fastRandom(allVerbs)
 			a := strings.Split(convertDialect(verb, dialect), " ")
 			for k := 0; k < len(a); k++ {
 				noun += a[k]
 			}
 			noun = strings.ReplaceAll(noun, "-", "")
 			noun += "yu"
-		default:
-			return "Error: unknown noun type"
 		}
 
 		output += " alu"
 
 		if len(strings.Split(noun, " ")) > 1 {
-			two_word_noun = true
+			twoWordNoun = true
 		} else {
-			output += " " + glottal_caps(noun)
+			output += " " + glottalCaps(noun)
 		}
 
-		if adj_mode != 1 {
+		if adjMode != 1 {
 			// Adjective
 			amode := 0
-			if adj_mode == 0 {
+			if adjMode == 0 {
 				// "something" mode
 				amode = rand.Intn(8) - 1
 				if amode <= 2 {
@@ -203,37 +201,37 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 					// Verb participles get two sides of the die
 					amode = 5
 				}
-			} else if adj_mode == -1 {
+			} else if adjMode == -1 {
 				// "any" mode
 				amode = rand.Intn(5) + 1
 			} else {
-				amode = adj_mode
+				amode = adjMode
 			}
 
 			adj := ""
 			switch amode {
 			// no case 1 (no adjective)
-			case 2: //nomal adjective
-				adj_word := fast_random(allAdjectives)
-				adj = convertDialect(adj_word, dialect)
+			case 2: // normal adjective
+				adjWord := fastRandom(allAdjectives)
+				adj = convertDialect(adjWord, dialect)
 				adj = strings.ReplaceAll(adj, "-", "")
 
 				// If the adj starts with a in forest, we don't need another a
-				if !two_word_noun && (strings.ToLower(string(adj[0])) != "a" || dialect != 1) {
+				if !twoWordNoun && (strings.ToLower(string(adj[0])) != "a" || dialect != 1) {
 					if (adj[:2] == "le" && adj != "ler" && adj != "leyr" && adj != "lewnga'") || adj == "lafyon" {
-						adj = glottal_caps(adj) // le-adjectives
+						adj = glottalCaps(adj) // le-adjectives
 					} else {
-						adj = "a" + glottal_caps(adj)
+						adj = "a" + glottalCaps(adj)
 					}
-				} else if two_word_noun && (adj[len(adj)-1] != 'a' || dialect != 1) {
-					adj = glottal_caps(adj) + "a"
+				} else if twoWordNoun && (adj[len(adj)-1] != 'a' || dialect != 1) {
+					adj = glottalCaps(adj) + "a"
 				} else {
-					adj = glottal_caps(adj) // forest dialect a-adjectives like axpa or alaksi
+					adj = glottalCaps(adj) // forest dialect a-adjectives like axpa or alaksi
 				}
 			case 3: //genitive noun
-				adj_word := fast_random(allNouns)
+				adjWord := fastRandom(allNouns)
 
-				adj = strings.ToLower(adj_word.Navi)
+				adj = strings.ToLower(adjWord.Navi)
 				if adj == "tsko swizaw" {
 					adj = "Tsko Swizawyä"
 				} else if adj == "toruk makto" || adj == "torùk makto" {
@@ -245,7 +243,7 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 				} else if adj == "mo a fngä'" {
 					adj = "Moä a Fgnä'"
 				} else {
-					adj = convertDialect(adj_word, dialect)
+					adj = convertDialect(adjWord, dialect)
 					adjSplit := strings.Split(adj, " ")
 					if hasAt("aeìiä", adjSplit[0], -1) {
 						adjSplit[0] = adjSplit[0] + "yä"
@@ -254,15 +252,15 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 					}
 					adj = ""
 					for _, a := range adjSplit {
-						adj += glottal_caps(a) + " "
+						adj += glottalCaps(a) + " "
 					}
 					adj = strings.TrimSuffix(adj, " ")
 				}
 
 				adj = strings.ReplaceAll(adj, "-", "")
 			case 4: //origin noun
-				adj_word := fast_random(allNouns)
-				adj = strings.ToLower(adj_word.Navi)
+				adjWord := fastRandom(allNouns)
+				adj = strings.ToLower(adjWord.Navi)
 				if adj == "tsko swizaw" {
 					adj = "ta Tsko Swizaw"
 				} else if adj == "toruk makto" || adj == "torùk makto" {
@@ -274,80 +272,80 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 				} else if adj == "mo a fngä'" {
 					adj = "ta Mo a Fgnä'"
 				} else {
-					adj = convertDialect(adj_word, dialect)
-					if two_word_noun {
-						adj = glottal_caps(adj) + "ta"
+					adj = convertDialect(adjWord, dialect)
+					if twoWordNoun {
+						adj = glottalCaps(adj) + "ta"
 					} else {
-						adj = "ta " + glottal_caps(adj)
+						adj = "ta " + glottalCaps(adj)
 					}
 				}
 
 				adj = strings.ReplaceAll(adj, "-", "")
 			case 5: //participle verb
 				infix := "us"
-				find_verb := one_word_verb(allVerbs)
+				findVerb := oneWordVerb(allVerbs)
 				// If it's transitive, 50% chance of <awn>
-				if find_verb.PartOfSpeech[2] == 'r' && rand.Intn(2) == 0 {
+				if findVerb.PartOfSpeech[2] == 'r' && rand.Intn(2) == 0 {
 					infix = "awn"
 				}
-				adj = find_verb.InfixDots
+				adj = findVerb.InfixDots
 				switch dialect {
 				case 2: // reef
 					adj = quickReef(adj)
 					fallthrough
 				case 0: // interdialect
-					adj = specialU(adj, find_verb.IPA)
+					adj = specialU(adj, findVerb.IPA)
 				}
 
-				adj = insert_infix(strings.Split(adj, " "), infix, dialect)
+				adj = insertInfix(strings.Split(adj, " "), infix)
 				// If the adj starts with a in forest, we don't need another a
-				if !two_word_noun && (adj[0] != 'a' || dialect != 1) {
-					adj = "a" + glottal_caps(adj)
-				} else if two_word_noun && (adj[len(adj)-1] != 'a' || dialect != 1) {
-					adj = glottal_caps(adj) + "a"
+				if !twoWordNoun && (adj[0] != 'a' || dialect != 1) {
+					adj = "a" + glottalCaps(adj)
+				} else if twoWordNoun && (adj[len(adj)-1] != 'a' || dialect != 1) {
+					adj = glottalCaps(adj) + "a"
 				} else {
-					adj = glottal_caps(adj)
+					adj = glottalCaps(adj)
 				}
 			case 6: //active participle verb
-				find_verb := one_word_verb(allVerbs)
-				adj = find_verb.InfixDots
+				findVerb := oneWordVerb(allVerbs)
+				adj = findVerb.InfixDots
 				switch dialect {
 				case 2: // reef
 					adj = quickReef(adj)
 					fallthrough
 				case 0: // interdialect
-					adj = specialU(adj, find_verb.IPA)
+					adj = specialU(adj, findVerb.IPA)
 				}
 
-				adj = insert_infix(strings.Split(adj, " "), "us", dialect)
+				adj = insertInfix(strings.Split(adj, " "), "us")
 
 				// If the adj starts with a in forest, we don't need another a
-				if !two_word_noun && (adj[0] != 'a' || dialect != 1) {
-					adj = "a" + glottal_caps(adj)
-				} else if two_word_noun && (adj[len(adj)-1] != 'a' || dialect != 1) {
-					adj = glottal_caps(adj) + "a"
+				if !twoWordNoun && (adj[0] != 'a' || dialect != 1) {
+					adj = "a" + glottalCaps(adj)
+				} else if twoWordNoun && (adj[len(adj)-1] != 'a' || dialect != 1) {
+					adj = glottalCaps(adj) + "a"
 				} else {
-					adj = glottal_caps(adj)
+					adj = glottalCaps(adj)
 				}
 			case 7: //passive participle verb
-				find_verb := one_word_verb(allTransitiveVerbs)
-				adj = find_verb.InfixDots
+				findVerb := oneWordVerb(allTransitiveVerbs)
+				adj = findVerb.InfixDots
 				switch dialect {
 				case 2: // reef
 					adj = quickReef(adj)
 					fallthrough
 				case 0: // interdialect
-					adj = specialU(adj, find_verb.IPA)
+					adj = specialU(adj, findVerb.IPA)
 				}
 
-				adj = insert_infix(strings.Split(adj, " "), "awn", dialect)
+				adj = insertInfix(strings.Split(adj, " "), "awn")
 				// If the adj starts with a in forest, we don't need another a
-				if !two_word_noun && (adj[0] != 'a' || dialect != 1) {
-					adj = "a" + glottal_caps(adj)
-				} else if two_word_noun && (adj[len(adj)-1] != 'a' || dialect != 1) {
-					adj = glottal_caps(adj) + "a"
+				if !twoWordNoun && (adj[0] != 'a' || dialect != 1) {
+					adj = "a" + glottalCaps(adj)
+				} else if twoWordNoun && (adj[len(adj)-1] != 'a' || dialect != 1) {
+					adj = glottalCaps(adj) + "a"
 				} else {
-					adj = glottal_caps(adj)
+					adj = glottalCaps(adj)
 				}
 			}
 
@@ -356,11 +354,11 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 			}
 		}
 
-		if two_word_noun {
+		if twoWordNoun {
 			output += " "
-			noun_words := strings.Split(noun, " ")
-			for _, a := range noun_words {
-				output += glottal_caps(a) + " "
+			nounWords := strings.Split(noun, " ")
+			for _, a := range nounWords {
+				output += glottalCaps(a) + " "
 			}
 			output = output[:len(output)-1]
 		}
@@ -374,8 +372,8 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 func GetPhonemeDistrosMap(lang string) (allDistros [][][]string) {
 	phonoLock.Lock()
 	defer phonoLock.Unlock()
-	// Non-English ones were pulled out of Google translate unless it says VERIFIED
-	header_row := map[string][]string{
+	// Non-English ones were pulled out of Google Translate unless it says VERIFIED
+	headerRow := map[string][]string{
 		"en": {"Onset", "Nucleus", "Coda"},          // English
 		"de": {"Beginn", "Kern", "Coda"},            // German (Deutsch)
 		"es": {"Inicio", "Núcleo", "Coda"},          // Spanish (Español)
@@ -393,7 +391,7 @@ func GetPhonemeDistrosMap(lang string) (allDistros [][][]string) {
 		"uk": {"Початок", "Ядро", "Кода"},           // Ukrainian (Українська)
 	}
 
-	cluster_name := map[string]string{
+	clusterName := map[string]string{
 		"en": "Consonant Clusters",        // English
 		"de": "Konsonantengruppen",        // German (Deutsch)
 		"es": "Grupos de consonantes",     // Spanish (Español)
@@ -412,75 +410,75 @@ func GetPhonemeDistrosMap(lang string) (allDistros [][][]string) {
 	}
 
 	// Default to English
-	header_lang := []string{"Onset", "Nucleus", "Coda"}
-	cluster_lang := "Consonant Clusters"
+	headerLang := []string{"Onset", "Nucleus", "Coda"}
+	clusterLang := "Consonant Clusters"
 
-	if a, ok := header_row[lang]; ok {
-		header_lang = a
+	if a, ok := headerRow[lang]; ok {
+		headerLang = a
 	}
-	if a, ok := cluster_name[lang]; ok {
-		cluster_lang = a
+	if a, ok := clusterName[lang]; ok {
+		clusterLang = a
 	}
 
 	allDistros = [][][]string{
-		{header_lang},
-		{{cluster_lang, "f", "s", "ts"}},
+		{headerLang},
+		{{clusterLang, "f", "s", "ts"}},
 	}
 
 	// Convert them to tuples for sorting
-	onset_tuples := []PhonemeTuple{}
-	for key, val := range onset_map {
-		onset_tuples = append(onset_tuples, PhonemeTuple{val, key})
+	var onsetTuples []PhonemeTuple
+	for key, val := range onsetMap {
+		onsetTuples = append(onsetTuples, PhonemeTuple{val, key})
 	}
-	slices.SortFunc(Tuples(onset_tuples), func(a, b PhonemeTuple) int {
+	slices.SortFunc(Tuples(onsetTuples), func(a, b PhonemeTuple) int {
 		return b.value - a.value
 	})
 
-	nucleus_tuples := []PhonemeTuple{}
-	for key, val := range nucleus_map {
-		nucleus_tuples = append(nucleus_tuples, PhonemeTuple{val, key})
+	var nucleusTuples []PhonemeTuple
+	for key, val := range nucleusMap {
+		nucleusTuples = append(nucleusTuples, PhonemeTuple{val, key})
 	}
-	slices.SortFunc(Tuples(nucleus_tuples), func(a, b PhonemeTuple) int {
+	slices.SortFunc(Tuples(nucleusTuples), func(a, b PhonemeTuple) int {
 		return b.value - a.value
 	})
 
-	coda_tuples := []PhonemeTuple{}
-	for key, val := range coda_map {
-		coda_tuples = append(coda_tuples, PhonemeTuple{val, key})
+	var codaTuples []PhonemeTuple
+	for key, val := range codaMap {
+		codaTuples = append(codaTuples, PhonemeTuple{val, key})
 	}
-	slices.SortFunc(Tuples(coda_tuples), func(a, b PhonemeTuple) int {
+	slices.SortFunc(Tuples(codaTuples), func(a, b PhonemeTuple) int {
 		return b.value - a.value
 	})
 
 	// Probably not needed but just in case any other number exceeds it
-	max_len := len(onset_tuples)
-	if len(nucleus_tuples) > max_len {
-		max_len = len(nucleus_tuples)
+	maxLen := len(onsetTuples)
+	if len(nucleusTuples) > maxLen {
+		maxLen = len(nucleusTuples)
 	}
-	if len(coda_tuples) > max_len {
-		max_len = len(coda_tuples)
+	if len(codaTuples) > maxLen {
+		maxLen = len(codaTuples)
 	}
 
 	// Put them into a 2d string array
 	i := 0
-	for i < max_len {
+	for i < maxLen {
 		allDistros[0] = append(allDistros[0], []string{})
 		c := len(allDistros[0]) - 1
 
-		if i < len(onset_tuples) {
-			allDistros[0][c] = append(allDistros[0][c], onset_tuples[i].letter+" "+strconv.Itoa(onset_tuples[i].value))
+		if i < len(onsetTuples) {
+			allDistros[0][c] = append(allDistros[0][c], onsetTuples[i].letter+" "+strconv.Itoa(onsetTuples[i].value))
 		} else {
 			allDistros[0][c] = append(allDistros[0][c], "")
 		}
 
-		if i < len(nucleus_tuples) {
-			allDistros[0][c] = append(allDistros[0][c], nucleus_tuples[i].letter+" "+strconv.Itoa(nucleus_tuples[i].value))
+		if i < len(nucleusTuples) {
+			allDistros[0][c] = append(allDistros[0][c], nucleusTuples[i].letter+" "+strconv.Itoa(nucleusTuples[i].value))
 		} else {
 			allDistros[0][c] = append(allDistros[0][c], "")
 		}
 
-		if i < len(coda_tuples) {
-			allDistros[0][c] = append(allDistros[0][c], coda_tuples[i].letter+" "+strconv.Itoa(coda_tuples[i].value))
+		if i < len(codaTuples) {
+			allDistros[0][c] = append(allDistros[0][c], codaTuples[i].letter+" "+strconv.Itoa(codaTuples[i].value))
 		} else {
 			allDistros[0][c] = append(allDistros[0][c], "")
 		}
@@ -488,15 +486,15 @@ func GetPhonemeDistrosMap(lang string) (allDistros [][][]string) {
 	}
 
 	// Cluster time
-	cluster_1 := []string{"f", "s", "ts"}
-	cluster_2 := []string{"k", "kx", "l", "m", "n", "ng", "p",
+	cluster1Full := []string{"f", "s", "ts"}
+	cluster2Full := []string{"k", "kx", "l", "m", "n", "ng", "p",
 		"px", "t", "tx", "r", "w", "y"}
 
-	for _, a := range cluster_2 {
+	for _, a := range cluster2Full {
 		allDistros[1] = append(allDistros[1], []string{a})
 		c := len(allDistros[1]) - 1
-		for _, b := range cluster_1 {
-			allDistros[1][c] = append(allDistros[1][c], strconv.Itoa(cluster_map[b][a]))
+		for _, b := range cluster1Full {
+			allDistros[1][c] = append(allDistros[1][c], strconv.Itoa(clusterMap[b][a]))
 		}
 	}
 

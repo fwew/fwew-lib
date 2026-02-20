@@ -372,11 +372,11 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 	//if !bareNaviWord {
 	found := false
 	// See if it is in the list known to start multiword words
-	multiwords := &multiword_words
+	multiwords := &multiwordWords
 	if !strict {
-		multiwords = &multiword_words_loose
+		multiwords = &multiwordWordsLoose
 	} else if allowReef {
-		multiwords = &multiword_words_reef
+		multiwords = &multiwordWordsReef
 	}
 	if _, ok := (*multiwords)[searchNaviWord]; ok {
 		// If so, loop through it
@@ -1149,7 +1149,7 @@ func Random(amount int, args []string, checkDigraphs uint8) (results []Word, err
 func GetMultiwordWords() map[string][][]string {
 	universalLock.Lock()
 	defer universalLock.Unlock()
-	return multiword_words
+	return multiwordWords
 }
 
 // GetHomonyms returns all words with multiple definitions
@@ -1376,7 +1376,7 @@ func ReefMe(ipa string, inter bool) []string {
 				breakdown += "ts"
 				//tsp
 				if hasAt("ptk", syllable, 3) {
-					if nth_rune(syllable, 4) == "'" {
+					if nthRune(syllable, 4) == "'" {
 						// ts + ejective onset
 						breakdown += romanization2[syllable[4:6]]
 						syllable = syllable[6:]
@@ -1387,17 +1387,17 @@ func ReefMe(ipa string, inter bool) []string {
 					}
 				} else if hasAt("lɾmnŋwj", syllable, 3) {
 					// ts + other consonent
-					breakdown += romanization2[nth_rune(syllable, 3)]
-					syllable = syllable[4+len(nth_rune(syllable, 3)):]
+					breakdown += romanization2[nthRune(syllable, 3)]
+					syllable = syllable[4+len(nthRune(syllable, 3)):]
 				} else {
 					// ts without a cluster
 					syllable = syllable[4:]
 				}
 			} else if hasAt("fs", syllable, 0) {
 				//
-				breakdown += nth_rune(syllable, 0)
+				breakdown += nthRune(syllable, 0)
 				if hasAt("ptk", syllable, 1) {
-					if nth_rune(syllable, 2) == "'" {
+					if nthRune(syllable, 2) == "'" {
 						// f/s + ejective onset
 						breakdown += romanization2[syllable[1:3]]
 						syllable = syllable[3:]
@@ -1408,14 +1408,14 @@ func ReefMe(ipa string, inter bool) []string {
 					}
 				} else if hasAt("lɾmnŋwj", syllable, 1) {
 					// f/s + other consonent
-					breakdown += romanization2[nth_rune(syllable, 1)]
-					syllable = syllable[1+len(nth_rune(syllable, 1)):]
+					breakdown += romanization2[nthRune(syllable, 1)]
+					syllable = syllable[1+len(nthRune(syllable, 1)):]
 				} else {
 					// f/s without a cluster
 					syllable = syllable[1:]
 				}
 			} else if hasAt("ptk", syllable, 0) {
-				if nth_rune(syllable, 1) == "'" {
+				if nthRune(syllable, 1) == "'" {
 					// ejective
 					breakdown += romanization2[syllable[0:2]]
 					syllable = syllable[2:]
@@ -1426,14 +1426,14 @@ func ReefMe(ipa string, inter bool) []string {
 				}
 			} else if hasAt("ʔlɾhmnŋvwjzbdg", syllable, 0) {
 				// other normal onset
-				breakdown += romanization2[nth_rune(syllable, 0)]
-				syllable = syllable[len(nth_rune(syllable, 0)):]
+				breakdown += romanization2[nthRune(syllable, 0)]
+				syllable = syllable[len(nthRune(syllable, 0)):]
 			} else if hasAt("ʃʒ", syllable, 0) {
 				// one sound representd as a cluster
-				if nth_rune(syllable, 0) == "ʃ" {
+				if nthRune(syllable, 0) == "ʃ" {
 					breakdown += "sh"
 				}
-				syllable = syllable[len(nth_rune(syllable, 0)):]
+				syllable = syllable[len(nthRune(syllable, 0)):]
 			}
 
 			/*
@@ -1441,7 +1441,7 @@ func ReefMe(ipa string, inter bool) []string {
 			 */
 			if len(syllable) > 1 && hasAt("jw", syllable, 1) {
 				//diphthong
-				breakdown += romanization2[syllable[0:len(nth_rune(syllable, 0))+1]]
+				breakdown += romanization2[syllable[0:len(nthRune(syllable, 0))+1]]
 				syllable = string([]rune(syllable)[2:])
 			} else if len(syllable) > 1 && hasAt("lr", syllable, 0) {
 				//psuedovowel
@@ -1449,7 +1449,7 @@ func ReefMe(ipa string, inter bool) []string {
 				continue // psuedovowels can't coda
 			} else {
 				//vowel
-				breakdown += romanization2[nth_rune(syllable, 0)]
+				breakdown += romanization2[nthRune(syllable, 0)]
 				syllable = string([]rune(syllable)[1:])
 			}
 
@@ -1457,7 +1457,7 @@ func ReefMe(ipa string, inter bool) []string {
 			 * Coda
 			 */
 			if len(syllable) > 0 {
-				if nth_rune(syllable, 0) == "s" {
+				if nthRune(syllable, 0) == "s" {
 					breakdown += "sss" //oìsss only
 				} else {
 					if syllable == "k̚" {
