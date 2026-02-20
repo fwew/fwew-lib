@@ -350,14 +350,9 @@ func (w *Word) doUnderline(input string, markdown bool) (string, error) {
 		return syllables, nil
 	}
 
-	//var err error
 	mdUnderline := "__"
 	shUnderlineA := "\033[4m"
 	shUnderlineB := "\033[0m"
-	//dashed := syllables
-	/*dSlice := strings.FieldsFunc(dashed, func(r rune) bool {
-		return r == '-' || r == ' '
-	})*/
 
 	// get it from the IPA
 	var stressed []bool
@@ -400,30 +395,6 @@ func (w *Word) doUnderline(input string, markdown bool) (string, error) {
 	underlined = strings.TrimSuffix(underlined, " ")
 	underlined = strings.ReplaceAll(underlined, " -", " ")
 
-	/*stressedIndex, err := strconv.Atoi(w.Stressed)
-	if err != nil {
-		return "", InvalidNumber.wrap(err)
-	}
-	stressedSyllable := dSlice[stressedIndex-1]
-
-	if strings.Contains(stressedSyllable, " ") {
-		tmp := strings.Split(stressedSyllable, " ")
-		if markdown {
-			tmp[0] = mdUnderline + tmp[0] + mdUnderline
-		} else {
-			tmp[0] = shUnderlineA + tmp[0] + shUnderlineB
-		}
-		stressedSyllable = strings.Join(tmp, " ")
-		dSlice[stressedIndex-1] = stressedSyllable
-		return strings.Join(dSlice, "-"), nil
-	} else {
-		if markdown {
-			dSlice[stressedIndex-1] = mdUnderline + stressedSyllable + mdUnderline
-		} else {
-			dSlice[stressedIndex-1] = shUnderlineA + stressedSyllable + shUnderlineB
-		}
-		return strings.Join(dSlice, "-"), nil
-	}*/
 	return underlined, nil
 }
 
