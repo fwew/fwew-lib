@@ -182,7 +182,7 @@ var numTableRegexp = [][]string{
 	},
 }
 
-// Translate a Na'vi number word to the actual integer.
+// NaviToNumber translates a Na'vi number word to the actual integer.
 // Na'vi numbers are octal values, so the integer is defined as octal number, and can easily be displayed as decimal number.
 // If no translation is found, `NoTranslation` is returned as error!
 func NaviToNumber(input string) (int, error) {
@@ -204,7 +204,7 @@ func NaviToNumber(input string) (int, error) {
 	}
 
 	// build regexp for all other numbers
-	// regex for big values
+	// regexp for big values
 	var regexpString string
 	for _, digit := range numTableRegexp {
 		regexpString += "("
@@ -233,7 +233,7 @@ func NaviToNumber(input string) (int, error) {
 	return n, nil
 }
 
-// Translate an octal-integer into the Na'vi number word.
+// NumberToNavi translates an octal-integer into the Na'vi number word.
 func NumberToNavi(input int) (string, error) {
 	// check if inside max-min
 	if input < 0 {
@@ -268,13 +268,13 @@ func NumberToNavi(input int) (string, error) {
 				future := naviVocab[2][n] + naviVocab[3][i]
 
 				// override to add `l` to vo, if at second digit and last digit is 0|1
-				if i == 1 && n != 0 && (previousDigit == 0 || previousDigit == 1) {
+				if i == 1 && (previousDigit == 0 || previousDigit == 1) {
 					future = future + "l"
 				}
 
 				// override to add `m` to za
 				// only run if at third digit and second digit is not 0|1, also run when digits are x00|x01
-				if i == 2 && n != 0 && ((previousDigit != 0 && previousDigit != 1) || (previousDigit == 0 && (firstDigit == 0 || firstDigit == 1))) {
+				if i == 2 && ((previousDigit != 0 && previousDigit != 1) || (previousDigit == 0 && (firstDigit == 0 || firstDigit == 1))) {
 					future = future + "m"
 				}
 
