@@ -107,30 +107,28 @@ var adposuffixes = []string{
 }
 
 var vowelSuffixes = map[string][]string{
-	"äo":  []string{"ä", "e"},
-	"eo":  []string{"e"},
-	"io":  []string{"i"},
-	"uo":  []string{"u"},
-	"ìlä": []string{"ì"},
-	"o":   []string{"o"},
+	"äo":  {"ä", "e"},
+	"eo":  {"e"},
+	"io":  {"i"},
+	"uo":  {"u"},
+	"ìlä": {"ì"},
+	"o":   {"o"},
 }
 var stemSuffixes = []string{"tsyìp", "tsyip", "fkeyk"}
 var verbSuffixes = []string{"tswo", "yu", "tseng"}
 
 var infixes = map[rune][]string{
-	rune('a'): {"ay", "asy", "aly", "ary", "am", "alm", "arm", "ats", "awn", "ap", "ang"},
-	rune('ä'): {"äng", "äpeyk", "äp"},
-	rune('e'): {"epeyk", "ep", "eng", "er", "ei", "eiy", "eyk"},
-	rune('i'): {"iy", "isy", "ily", "iry", "im", "ilm", "irm", "iyev", "iv", "ilv", "irv", "imv"},
-	rune('ì'): {"ìy", "ìsy", "ìly", "ìry", "ìm", "ìlm", "ìrm", "ìyev"},
-	rune('o'): {"ol"},
-	rune('u'): {"us", "uy"},
+	'a': {"ay", "asy", "aly", "ary", "am", "alm", "arm", "ats", "awn", "ap", "ang"},
+	'ä': {"äng", "äpeyk", "äp"},
+	'e': {"epeyk", "ep", "eng", "er", "ei", "eiy", "eyk"},
+	'i': {"iy", "isy", "ily", "iry", "im", "ilm", "irm", "iyev", "iv", "ilv", "irv", "imv"},
+	'ì': {"ìy", "ìsy", "ìly", "ìry", "ìm", "ìlm", "ìrm", "ìyev"},
+	'o': {"ol"},
+	'u': {"us", "uy"},
 }
 
-var prefirst = []string{"äp", "äpeyk", "eyk", "epeyk", "ep"}
 var first = []string{"ay", "asy", "aly", "ary", "ìy", "iy", "ìsy", "ìly", "ìry", "ol", "er", "ìm", "im",
 	"ìlm", "ìrm", "am", "alm", "arm", "ìyev", "iyev", "iv", "ilv", "irv", "imv", "us", "awn", "isy", "ily", "iry", "ilm", "irm"}
-var second = []string{"ei", "eiy", "äng", "eng", "ang", "uy", "ats"}
 
 var prefirstMap = map[string]bool{"äp": true, "äpeyk": true, "eyk": true, "ep": true, "epeyk": true}
 var firstMap = map[string]bool{"ay": true, "asy": true, "aly": true, "ary": true, "ìy": true, "iy": true, "ìsy": true,
@@ -201,7 +199,7 @@ var weirdNounSuffixes = map[string]string{
 var forbiddenTsa = [][]string{{"fì", "tsa", "fay", "tsay", "ay", "pe"}, {}, {"pe"}}
 var forbiddenEyk = [][]string{{}, {"äp", "eyk"}, {}}
 var forbiddenAy = [][]string{{"fay", "tsay", "ay", "pe"}, {}, {}}
-var forbiddenTsyìp = [][]string{{}, {}, {"tsyìp"}}
+var forbiddenTsyip = [][]string{{}, {}, {"tsyìp"}}
 var forbiddenTsaw = [][]string{{"fì", "tsa", "fi", "pay", "fay", "pxe", "ay", "me"}, {}, slices.Concat(stemSuffixes,
 	[]string{"ìl", "it", "t", "ur", "r", "ä", "ìri", "e", "il", "iri"})}
 var forbiddenTsat = [][]string{{"fì", "tsa", "fi", "pay", "fay", "pxe", "ay", "me"}, {}, slices.Concat(adposuffixes, stemSuffixes,
@@ -242,31 +240,31 @@ var productiveCompounds = map[string][][]string{
 	"fìtrr":          forbiddenTsa,
 	"fìtxon":         forbiddenTsa,
 	"ayu":            forbiddenAy,
-	"'itetsyìp":      forbiddenTsyìp,
-	"sa'nutsyìp":     forbiddenTsyìp,
-	"säspxintsyìp":   forbiddenTsyìp,
-	"utraltsyìp":     forbiddenTsyìp,
-	"puktsyìp":       forbiddenTsyìp,
-	"tswintsyìp":     forbiddenTsyìp,
-	"taronyutsyìp":   forbiddenTsyìp,
-	"oetsyìp":        forbiddenTsyìp,
-	"ngatsyìp":       forbiddenTsyìp,
-	"txeptsyìp":      forbiddenTsyìp,
-	"tìpängkxotsyìp": forbiddenTsyìp,
-	"ramtsyìp":       forbiddenTsyìp,
-	"swawtsyìp":      forbiddenTsyìp,
-	"skxirtsyìp":     forbiddenTsyìp,
-	"tsongtsyìp":     forbiddenTsyìp,
+	"'itetsyìp":      forbiddenTsyip,
+	"sa'nutsyìp":     forbiddenTsyip,
+	"säspxintsyìp":   forbiddenTsyip,
+	"utraltsyìp":     forbiddenTsyip,
+	"puktsyìp":       forbiddenTsyip,
+	"tswintsyìp":     forbiddenTsyip,
+	"taronyutsyìp":   forbiddenTsyip,
+	"oetsyìp":        forbiddenTsyip,
+	"ngatsyìp":       forbiddenTsyip,
+	"txeptsyìp":      forbiddenTsyip,
+	"tìpängkxotsyìp": forbiddenTsyip,
+	"ramtsyìp":       forbiddenTsyip,
+	"swawtsyìp":      forbiddenTsyip,
+	"skxirtsyìp":     forbiddenTsyip,
+	"tsongtsyìp":     forbiddenTsyip,
 	"reykol":         forbiddenEyk,
-	"srungtsyìp":     forbiddenTsyìp,
+	"srungtsyìp":     forbiddenTsyip,
 	"vezeyko":        forbiddenEyk,
 	"zeyko":          forbiddenEyk,
-	"ingyentsyìp":    forbiddenTsyìp,
+	"ingyentsyìp":    forbiddenTsyip,
 	"späpeng":        forbiddenEyk,
-	"tsyeytsyìp":     forbiddenTsyìp,
-	"nantangtsyìp":   forbiddenTsyìp,
-	"vultsyìp":       forbiddenTsyìp,
-	"'opinvultsyìp":  forbiddenTsyìp,
+	"tsyeytsyìp":     forbiddenTsyip,
+	"nantangtsyìp":   forbiddenTsyip,
+	"vultsyìp":       forbiddenTsyip,
+	"'opinvultsyìp":  forbiddenTsyip,
 	"pela'a":         forbiddenTsa,
 	"la'ape":         forbiddenTsa,
 	"pelìmsim":       forbiddenTsa,
@@ -274,20 +272,20 @@ var productiveCompounds = map[string][][]string{
 	"aysupe":         forbiddenTsa,
 	"pxesupe":        forbiddenTsa,
 	"tutepe":         forbiddenTsa,
-	"tstunkemtsyìp":  forbiddenTsyìp,
+	"tstunkemtsyìp":  forbiddenTsyip,
 	"leykek":         forbiddenEyk,
 	"penunyol":       forbiddenTsa,
 	"nunyolpe":       forbiddenTsa,
 	"pengimpup":      forbiddenTsa,
 	"ngimpuppe":      forbiddenTsa,
-	"säfleltsyìp":    forbiddenTsyìp,
-	"mawuptsyìp":     forbiddenTsyìp,
-	"trrpxìvitsyìp":  forbiddenTsyìp,
+	"säfleltsyìp":    forbiddenTsyip,
+	"mawuptsyìp":     forbiddenTsyip,
+	"trrpxìvitsyìp":  forbiddenTsyip,
 	"pesrrpxì":       forbiddenTsa,
 	"trrpxìpe":       forbiddenTsa,
 	"pehrrlik":       forbiddenTsa,
 	"krrlikpe":       forbiddenTsa,
-	"pamtsyìp":       forbiddenTsyìp,
+	"pamtsyìp":       forbiddenTsyip,
 	"tsaw":           forbiddenTsaw,
 	"tsal":           forbiddenTsat,
 	"tsat":           forbiddenTsat,
@@ -438,19 +436,18 @@ func verifyCaseEnding(noun string, ending string) bool {
 		}
 		if _, ok := diphthongEndings[ending]; ok {
 			return true
-		} else {
-			lastRune := getLastRune(noun, 1)
-			switch lastRune {
-			case 'y':
-				// ayt, eyt
-				if ending == "t" {
-					return true
-				}
-			case 'w':
-				// ewr, awr
-				if ending == "r" {
-					return true
-				}
+		}
+		lastRune := getLastRune(noun, 1)
+		switch lastRune {
+		case 'y':
+			// ayt, eyt
+			if ending == "t" {
+				return true
+			}
+		case 'w':
+			// ewr, awr
+			if ending == "r" {
+				return true
 			}
 		}
 	} else if _, ok := vowels[string(getLastRune(noun, 1))]; ok {
@@ -674,7 +671,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 		}
 	}
 
-	// Make sure that the first set of prefices (a, nì, ke) aren't combined with suffixes
+	// Make sure that the first set of prefixes (a, nì, ke) aren't combined with suffixes
 	newPrefixCheck := prefixCheck
 	if newPrefixCheck == 0 {
 		newPrefixCheck = 1
@@ -1281,7 +1278,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 }
 
 // Helper for TestDeconjugations
-func allIConfigs(input string, discrimRune rune, replaceRune rune, strict bool, allowReef bool) []string {
+func allIConfigs(input string, discrimRune rune, replaceRune rune, allowReef bool) []string {
 	discrim := string(discrimRune)
 	replace := string(replaceRune)
 	cCount := strings.Count(input, discrim)
@@ -1297,7 +1294,7 @@ func allIConfigs(input string, discrimRune rune, replaceRune rune, strict bool, 
 		return results
 	}
 
-	aArray := []string{}
+	var aArray []string
 	for range cCount {
 		aArray = append(aArray, discrim)
 	}
@@ -1354,15 +1351,15 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 	searchNaviWord = strings.ReplaceAll(searchNaviWord, "ù", "u")
 
 	allAConfigs := []string{searchNaviWord}
-	allIAConfigs := []string{}
+	var allIAConfigs []string
 
-	//For using a to search ä
+	// For using a to search ä
 	if !strict {
-		allAConfigs = append(allAConfigs, allIConfigs(searchNaviWord, 'a', 'ä', strict, allowReef)...)
+		allAConfigs = append(allAConfigs, allIConfigs(searchNaviWord, 'a', 'ä', allowReef)...)
 
 		for _, config := range allAConfigs {
 			allIAConfigs = append(allIAConfigs, config)
-			allIAConfigs = append(allIAConfigs, allIConfigs(config, 'i', 'ì', strict, allowReef)...)
+			allIAConfigs = append(allIAConfigs, allIConfigs(config, 'i', 'ì', allowReef)...)
 		}
 
 		for _, a := range allIAConfigs {
@@ -1573,8 +1570,8 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 						rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<2>", "")
 
 						// Does the noun actually contain the verb?
-						noTìftang := strings.TrimPrefix(rebuiltVerb, "'")
-						if strings.Contains(searchNaviWord, noTìftang) || strings.Contains(searchNaviWord, dialectCrunch([]string{rebuiltVerb}, false, allowReef)[0]) {
+						noGlottalStop := strings.TrimPrefix(rebuiltVerb, "'")
+						if strings.Contains(searchNaviWord, noGlottalStop) || strings.Contains(searchNaviWord, dialectCrunch([]string{rebuiltVerb}, false, allowReef)[0]) {
 							a := c
 							a.Affixes.Lenition = candidate.Lenition
 							a.Affixes.Prefix = candidate.Prefixes
@@ -1640,7 +1637,7 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 							}
 						}
 
-						looseTì := false
+						looseTi := false
 						tsuk := false
 
 						if len(candidate.Prefixes) > 0 {
@@ -1650,7 +1647,7 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 									attributed = true
 								} else if candidate.Prefixes[i] == "tì" {
 									// we found gerunds up top, so this isn't needed
-									looseTì = true
+									looseTi = true
 									break
 								} else {
 									for _, j := range verbPrefixes {
@@ -1666,7 +1663,7 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 									}
 								}
 
-								if infixBan || doubleBan || looseTì {
+								if infixBan || doubleBan {
 									break
 								}
 							}
@@ -1678,7 +1675,7 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 						}
 
 						// Take action on tsuk-verb-yus and a-verb-tswos
-						if doubleBan || (attributed && !tsuk && infixBan) || looseTì {
+						if doubleBan || (attributed && !tsuk && infixBan) || looseTi {
 							continue
 						}
 
@@ -1712,7 +1709,7 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 								firstInfixes += newInfix
 								rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<0>", firstInfixes)
 								if (allowReef && newInfix == "epeyk") || newInfix == "äpeyk" {
-									newCandidateInfixes := []string{}
+									var newCandidateInfixes []string
 									for _, newInfix2 := range candidate.Infixes {
 										// äpeyk gets split
 										if (allowReef && newInfix2 == "epeyk") || newInfix2 == "äpeyk" {
@@ -1809,10 +1806,11 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 									results = AppendAndAlphabetize(results, infixError(searchNaviWord, rebuiltVerbForest, c.IPA))
 								}
 							}
-						} else if gerund { // ti is needed to weed out non-productive tì-verbs
-							if len(results) == 0 {
-								results = AppendAndAlphabetize(results, infixError(searchNaviWord, rebuiltVerbForest, c.IPA))
-							}
+							// TODO: This code is unreachable because it is deep nested after 'else if gerund else if...'
+							//} else if gerund { // ti is needed to weed out non-productive tì-verbs
+							//	if len(results) == 0 {
+							//		results = AppendAndAlphabetize(results, infixError(searchNaviWord, rebuiltVerbForest, c.IPA))
+							//	}
 						} else {
 							if len(results) == 0 {
 								results = AppendAndAlphabetize(results, infixError(searchNaviWord, rebuiltVerbForest, c.IPA))
