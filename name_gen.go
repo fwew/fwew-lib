@@ -118,7 +118,7 @@ func FullNames(ending string, name_count int, dialect int, syllable_count [3]int
 		output += ending2 + "\n"
 		if two_thousand_limit && len([]rune(output)) > 1914 {
 			// (stopped at {count}. 2000 Character limit)
-			output += strings.ReplaceAll(message_too_big["en"], "{count}", strconv.Itoa(i+1))
+			output += strings.ReplaceAll(messageTooBig["en"], "{count}", strconv.Itoa(i+1))
 			break
 		}
 

@@ -5,60 +5,60 @@ import (
 	"strings"
 )
 
-var cluster_1 = []string{"f", "s", "c"}
-var cluster_2 = []string{"k", "q", "l", "m", "n", "g", "p",
+var cluster1 = []string{"f", "s", "c"}
+var cluster2 = []string{"k", "q", "l", "m", "n", "g", "p",
 	"b", "t", "d", "r", "w", "y"}
-var letters_start = []string{"", "p", "t", "k", "b", "d", "q", "'",
+var lettersStart = []string{"", "p", "t", "k", "b", "d", "q", "'",
 	"m", "n", "g", "r", "l", "w", "y",
 	"f", "v", "s", "z", "c", "h", "B", "D", "G"}
-var letters_end = []string{"", "p", "t", "k", "b", "d", "q", "'",
+var lettersEnd = []string{"", "p", "t", "k", "b", "d", "q", "'",
 	"m", "n", "l", "r", "g"}
 
-var letters_map = map[string]string{}
+var lettersMap = map[string]string{}
 
 func MakeSyllableBreakdown(syllables []string) string {
-	syllable_breakdown_temp := ""
+	syllableBreakdownTemp := ""
 	for i, a := range syllables {
 		if i != len(syllables)-1 && i != 0 {
-			syllable_breakdown_temp += "-"
+			syllableBreakdownTemp += "-"
 		}
-		syllable_breakdown_temp += a
+		syllableBreakdownTemp += a
 	}
-	return syllable_breakdown_temp
+	return syllableBreakdownTemp
 }
 
-// Turns things like maw-ey into ma-wey, so the checker knows
+// NoDoubleDiphthongs turns things like maw-ey into ma-wey, so the checker knows
 // mawll is valid as ma-wll and not mistaken for maw-ll (invalid)
-func NoDoubleDiphthongs(syllable_breakdown string) string {
-	syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "2-0", "a-w0")
-	syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "2-1", "a-w1")
-	syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "3-0", "a-y0")
-	syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "3-1", "a-y1")
-	syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "4-0", "e-w0")
-	syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "4-1", "e-w1")
-	syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "5-0", "e-y0")
-	syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "5-1", "e-y1")
-	return syllable_breakdown
+func NoDoubleDiphthongs(syllableBreakdown string) string {
+	syllableBreakdown = strings.ReplaceAll(syllableBreakdown, "2-0", "a-w0")
+	syllableBreakdown = strings.ReplaceAll(syllableBreakdown, "2-1", "a-w1")
+	syllableBreakdown = strings.ReplaceAll(syllableBreakdown, "3-0", "a-y0")
+	syllableBreakdown = strings.ReplaceAll(syllableBreakdown, "3-1", "a-y1")
+	syllableBreakdown = strings.ReplaceAll(syllableBreakdown, "4-0", "e-w0")
+	syllableBreakdown = strings.ReplaceAll(syllableBreakdown, "4-1", "e-w1")
+	syllableBreakdown = strings.ReplaceAll(syllableBreakdown, "5-0", "e-y0")
+	syllableBreakdown = strings.ReplaceAll(syllableBreakdown, "5-1", "e-y1")
+	return syllableBreakdown
 }
 
-func ResolveFakePsuedovowels(syllable_breakdown string) string {
+func ResolveFakePsuedovowels(syllableBreakdown string) string {
 	vowels := []string{"a", "ä", "e", "i", "ì", "o", "u", "ù"}
 	replacement := map[string]string{"0": "r-r", "1": "l-l"}
-	for _, psuedovowel := range []string{"0", "1"} {
+	for _, pseudovowel := range []string{"0", "1"} {
 		for _, a := range vowels {
 			for _, b := range vowels {
-				syllable_breakdown = strings.ReplaceAll(syllable_breakdown, a+"-"+psuedovowel+"-"+b, a+replacement[psuedovowel]+b)
+				syllableBreakdown = strings.ReplaceAll(syllableBreakdown, a+"-"+pseudovowel+"-"+b, a+replacement[pseudovowel]+b)
 			}
 		}
 	}
 
-	return syllable_breakdown
+	return syllableBreakdown
 }
 
-// See if a word is phonotactically valid in Na'vi
+// IsValidNaviHelper see if a word is phonotactically valid in Na'vi
 func IsValidNaviHelper(word string, lang string) string {
 	// Protect against odd language values
-	if _, ok := message_valid[lang]; !ok {
+	if _, ok := messageValid[lang]; !ok {
 		lang = "en" // default to English
 	}
 
@@ -88,32 +88,32 @@ func IsValidNaviHelper(word string, lang string) string {
 	word = strings.TrimSuffix(word, "+")
 
 	// Make sure it doesn't have any invalid letters
-	// It used unicode values to ensure it has nothing invalid
+	// It used Unicode values to ensure it has nothing invalid
 	// We don't have to worry about uppercase letters because it handled them already
 	nonNaviLetters := ""
 	for _, a := range []rune(word) {
-		if int(a) > int(rune('ù')) {
+		if int(a) > int('ù') {
 			nonNaviLetters += string(a)
-		} else if int(a) < int(rune('ù')) && int(a) > int(rune('ì')) {
+		} else if int(a) < int('ù') && int(a) > int('ì') {
 			nonNaviLetters += string(a)
-		} else if int(a) < int(rune('ì')) && int(a) > int(rune('ä')) {
+		} else if int(a) < int('ì') && int(a) > int('ä') {
 			nonNaviLetters += string(a)
-		} else if int(a) < int(rune('ä')) && int(a) > int(rune('z')) {
+		} else if int(a) < int('ä') && int(a) > int('z') {
 			nonNaviLetters += string(a)
-		} else if int(a) < int(rune('a')) && int(a) > int(rune('G')) {
+		} else if int(a) < int('a') && int(a) > int('G') {
 			nonNaviLetters += string(a)
-		} else if int(a) < int(rune('G')) && int(a) > int(rune('>')) {
+		} else if int(a) < int('G') && int(a) > int('>') {
 			nonNaviLetters += string(a)
-		} else if int(a) < int(rune('>')) && int(a) > int(rune('\'')) {
+		} else if int(a) < int('>') && int(a) > int('\'') {
 			nonNaviLetters += string(a)
-		} else if int(a) < int(rune('\'')) {
+		} else if int(a) < int('\'') {
 			nonNaviLetters += string(a)
 		}
 	}
 
 	// ERROR 1a: letters not in Na'vi
 	if len(nonNaviLetters) > 0 {
-		message := strings.ReplaceAll(message_non_navi_letters[lang], "{oldWord}", oldWord)
+		message := strings.ReplaceAll(messageNonNaviLetters[lang], "{oldWord}", oldWord)
 		message = strings.ReplaceAll(message, "{nonNaviLetters}", nonNaviLetters)
 		return "❌ " + message
 	}
@@ -137,8 +137,8 @@ func IsValidNaviHelper(word string, lang string) string {
 	tempWord := ""
 	for _, a := range []rune(word) {
 		found := false
-		if voiced_plosive, ok := firstCheckLetters[a]; ok {
-			if voiced_plosive {
+		if voicedPlosive, ok := firstCheckLetters[a]; ok {
+			if voicedPlosive {
 				found = true
 				tempWord += strings.ToUpper(string(a))
 			} else {
@@ -158,7 +158,7 @@ func IsValidNaviHelper(word string, lang string) string {
 
 	// ERROR 1b: letters not in Na'vi
 	if badLetters != "" {
-		message := strings.ReplaceAll(message_non_navi_letters[lang], "{oldWord}", oldWord)
+		message := strings.ReplaceAll(messageNonNaviLetters[lang], "{oldWord}", oldWord)
 		message = strings.ReplaceAll(message, "{nonNaviLetters}", badLetters)
 		return "❌ " + message
 	}
@@ -171,53 +171,53 @@ func IsValidNaviHelper(word string, lang string) string {
 		'0', '1', '2', '3', '4', '5', // diphthongs and psuedovowels
 	}
 
-	syllable_boundaries := ""
-	word_nuclei := []rune{}
+	syllableBoundaries := ""
+	var wordNuclei []rune
 	for _, a := range []rune(compressed) {
 		found := false
 		for _, b := range nuclei {
 			if a == b {
 				found = true
-				word_nuclei = append(word_nuclei, a)
+				wordNuclei = append(wordNuclei, a)
 				break
 			}
 		}
 		if !found {
-			syllable_boundaries = syllable_boundaries + string(a)
+			syllableBoundaries = syllableBoundaries + string(a)
 		} else {
-			syllable_boundaries = syllable_boundaries + " ."
+			syllableBoundaries = syllableBoundaries + " ."
 		}
 	}
 
 	// ERROR 2: No syllable nuclei
-	if len(word_nuclei) == 0 {
-		message := strings.ReplaceAll(message_no_nuclei[lang], "{oldWord}", oldWord)
+	if len(wordNuclei) == 0 {
+		message := strings.ReplaceAll(messageNoNuclei[lang], "{oldWord}", oldWord)
 		return "❌ " + message
 	}
 
 	// Phase 2.1: Go through syllable boundaries
-	syllable_breakdown := ""
+	syllableBreakdown := ""
 
-	for i, a := range strings.Split(syllable_boundaries, ".") {
+	for i, a := range strings.Split(syllableBoundaries, ".") {
 		a = strings.ReplaceAll(a, " ", "")
-		if b, ok := letters_map[a]; ok {
-			syllable_breakdown = syllable_breakdown + b
+		if b, ok := lettersMap[a]; ok {
+			syllableBreakdown = syllableBreakdown + b
 		} else { // ERROR 3: Invalid consonant combination
-			message := strings.ReplaceAll(message_invalid_consonants[lang], "{oldWord}", oldWord)
+			message := strings.ReplaceAll(messageInvalidConsonants[lang], "{oldWord}", oldWord)
 			message = strings.ReplaceAll(message, "{badConsonants}", strings.ToLower(decompress(a)))
 			return "❌ " + message
 		}
-		if i < len(word_nuclei) {
-			syllable_breakdown = syllable_breakdown + string(word_nuclei[i])
+		if i < len(wordNuclei) {
+			syllableBreakdown = syllableBreakdown + string(wordNuclei[i])
 		}
 	}
 
-	syllable_breakdown = strings.ReplaceAll(syllable_breakdown, " ", "")
-	syllable_breakdown = strings.TrimPrefix(syllable_breakdown, "-")
-	syllable_breakdown = strings.TrimSuffix(syllable_breakdown, "-")
+	syllableBreakdown = strings.ReplaceAll(syllableBreakdown, " ", "")
+	syllableBreakdown = strings.TrimPrefix(syllableBreakdown, "-")
+	syllableBreakdown = strings.TrimSuffix(syllableBreakdown, "-")
 
 	// Phase 3: Clean up the word and do final checks
-	syllables := strings.Split(syllable_breakdown, "-")
+	syllables := strings.Split(syllableBreakdown, "-")
 	contains := []bool{false, false}
 	for _, a := range nuclei {
 		if strings.Contains(syllables[0], string(a)) {
@@ -231,96 +231,96 @@ func IsValidNaviHelper(word string, lang string) string {
 	// ERROR 4a: Incomplete syllables
 	if !contains[0] {
 		syllables[0] += "•"
-		syllable_breakdown_2 := MakeSyllableBreakdown(syllables)
-		syllable_breakdown_2 = NoDoubleDiphthongs(syllable_breakdown_2)
-		message := strings.ReplaceAll(message_needed_vowel[lang], "{oldWord}", oldWord)
-		message = strings.ReplaceAll(message, "{breakdown}", strings.ToLower(decompress(syllable_breakdown_2)))
+		syllableBreakdown2 := MakeSyllableBreakdown(syllables)
+		syllableBreakdown2 = NoDoubleDiphthongs(syllableBreakdown2)
+		message := strings.ReplaceAll(messageNeededVowel[lang], "{oldWord}", oldWord)
+		message = strings.ReplaceAll(message, "{breakdown}", strings.ToLower(decompress(syllableBreakdown2)))
 		return "❌ " + message
 	}
 
 	if !contains[1] {
-		can_end_a_word := false
-		for _, a := range letters_end {
-			if syllables[len(syllables)-1] == string(a) {
-				can_end_a_word = true
+		canEndAWord := false
+		for _, a := range lettersEnd {
+			if syllables[len(syllables)-1] == a {
+				canEndAWord = true
 				break
 			}
 		}
 
-		if !can_end_a_word {
+		if !canEndAWord {
 			syllables[len(syllables)-1] += "•"
-			syllable_breakdown_2 := MakeSyllableBreakdown(syllables)
-			syllable_breakdown_2 = NoDoubleDiphthongs(syllable_breakdown_2)
-			message := strings.ReplaceAll(message_needed_vowel[lang], "{oldWord}", oldWord)
-			message = strings.ReplaceAll(message, "{breakdown}", strings.ToLower(decompress(syllable_breakdown_2)))
+			syllableBreakdown2 := MakeSyllableBreakdown(syllables)
+			syllableBreakdown2 = NoDoubleDiphthongs(syllableBreakdown2)
+			message := strings.ReplaceAll(messageNeededVowel[lang], "{oldWord}", oldWord)
+			message = strings.ReplaceAll(message, "{breakdown}", strings.ToLower(decompress(syllableBreakdown2)))
 			return "❌ " + message
 		}
 
-		can_coda := false
+		canCoda := false
 
 		for _, a := range nuclei {
 			if strings.HasSuffix(syllables[len(syllables)-2], string(a)) {
-				can_coda = true
+				canCoda = true
 				break
 			}
 		}
 
-		if !can_coda {
+		if !canCoda {
 			syllables[len(syllables)-1] += "•"
-			syllable_breakdown_2 := MakeSyllableBreakdown(syllables)
-			syllable_breakdown_2 = NoDoubleDiphthongs(syllable_breakdown_2)
-			message := strings.ReplaceAll(message_needed_vowel[lang], "{oldWord}", oldWord)
-			message = strings.ReplaceAll(message, "{breakdown}", strings.ToLower(decompress(syllable_breakdown_2)))
+			syllableBreakdown2 := MakeSyllableBreakdown(syllables)
+			syllableBreakdown2 = NoDoubleDiphthongs(syllableBreakdown2)
+			message := strings.ReplaceAll(messageNeededVowel[lang], "{oldWord}", oldWord)
+			message = strings.ReplaceAll(message, "{breakdown}", strings.ToLower(decompress(syllableBreakdown2)))
 			return "❌ " + message
 		}
 
-		syllable_breakdown = MakeSyllableBreakdown(syllables)
+		syllableBreakdown = MakeSyllableBreakdown(syllables)
 	}
 
 	// Ensure no diphthong confuses the checker (as in "ewll" becoming "ew-ll" and not "e-wll")
-	syllable_breakdown = NoDoubleDiphthongs(syllable_breakdown)
+	syllableBreakdown = NoDoubleDiphthongs(syllableBreakdown)
 
-	syllable_breakdown = ResolveFakePsuedovowels(syllable_breakdown)
+	syllableBreakdown = ResolveFakePsuedovowels(syllableBreakdown)
 
-	if strings.Contains(syllable_breakdown, "-0-") || strings.Contains(syllable_breakdown, "-1-") ||
-		strings.HasPrefix(syllable_breakdown, "0") || strings.HasPrefix(syllable_breakdown, "1") ||
-		strings.HasSuffix(syllable_breakdown, "-0") || strings.HasSuffix(syllable_breakdown, "-1") {
-		message := strings.ReplaceAll(message_psuedovowels_must_onset[lang], "{oldWord}", oldWord)
-		message = strings.ReplaceAll(message, "{breakdown}", strings.ToLower(decompress(syllable_breakdown)))
+	if strings.Contains(syllableBreakdown, "-0-") || strings.Contains(syllableBreakdown, "-1-") ||
+		strings.HasPrefix(syllableBreakdown, "0") || strings.HasPrefix(syllableBreakdown, "1") ||
+		strings.HasSuffix(syllableBreakdown, "-0") || strings.HasSuffix(syllableBreakdown, "-1") {
+		message := strings.ReplaceAll(messagePsuedovowelsMustOnset[lang], "{oldWord}", oldWord)
+		message = strings.ReplaceAll(message, "{breakdown}", strings.ToLower(decompress(syllableBreakdown)))
 		return "❌ " + message
 	}
 
 	// Finally, psuedovowels cannot accept codas
-	for _, a := range letters_end {
-		if a != "" && (strings.Contains(syllable_breakdown, "0"+a) || strings.Contains(syllable_breakdown, "1"+a)) {
-			message := strings.ReplaceAll(message_psuedovowels_cant_coda[lang], "{oldWord}", oldWord)
-			message = strings.ReplaceAll(message, "{breakdown}", strings.ToLower(decompress(syllable_breakdown)))
+	for _, a := range lettersEnd {
+		if a != "" && (strings.Contains(syllableBreakdown, "0"+a) || strings.Contains(syllableBreakdown, "1"+a)) {
+			message := strings.ReplaceAll(messagePsuedovowelsCantCoda[lang], "{oldWord}", oldWord)
+			message = strings.ReplaceAll(message, "{breakdown}", strings.ToLower(decompress(syllableBreakdown)))
 			return "❌ " + message
 		}
 	}
 
 	forestWarning := ""
 
-	if strings.Contains(syllable_breakdown, "0-r") || strings.Contains(syllable_breakdown, "1-l") {
-		forestWarning = message_psuedovowel_and_consonant[lang]
+	if strings.Contains(syllableBreakdown, "0-r") || strings.Contains(syllableBreakdown, "1-l") {
+		forestWarning = messagePsuedovowelAndConsonant[lang]
 	}
 
 	// If you reach here, the word is valid
-	syllable_breakdown = strings.ToLower(decompress(syllable_breakdown))
+	syllableBreakdown = strings.ToLower(decompress(syllableBreakdown))
 
-	syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "ng", "0")
+	syllableBreakdown = strings.ReplaceAll(syllableBreakdown, "ng", "0")
 
 	isReef := false
-	if strings.ContainsAny(syllable_breakdown, "bdg") || strings.Contains(oldWord, "ch") || strings.Contains(oldWord, "sh") {
-		syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "tsy", "ch")
-		syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "sy", "sh")
+	if strings.ContainsAny(syllableBreakdown, "bdg") || strings.Contains(oldWord, "ch") || strings.Contains(oldWord, "sh") {
+		syllableBreakdown = strings.ReplaceAll(syllableBreakdown, "tsy", "ch")
+		syllableBreakdown = strings.ReplaceAll(syllableBreakdown, "sy", "sh")
 		isReef = true
 	}
-	syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "0", "ng")
+	syllableBreakdown = strings.ReplaceAll(syllableBreakdown, "0", "ng")
 
 	// So does ù
 	if !isReef {
-		if strings.Contains(syllable_breakdown, "ù") {
+		if strings.Contains(syllableBreakdown, "ù") {
 			isReef = true
 		}
 	}
@@ -328,35 +328,35 @@ func IsValidNaviHelper(word string, lang string) string {
 	// Double diphthongs are usually not genuine in Na'vi
 	// For example, mawey is ma-wey (not maw-ey) and kxeyey is kxe-yey (not kxey-ey)
 	for _, a := range []rune{'a', 'ä', 'e', 'i', 'ì', 'o', 'u', 'ù'} {
-		syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "w-"+string(a), "-w"+string(a))
-		syllable_breakdown = strings.ReplaceAll(syllable_breakdown, "y-"+string(a), "-y"+string(a))
+		syllableBreakdown = strings.ReplaceAll(syllableBreakdown, "w-"+string(a), "-w"+string(a))
+		syllableBreakdown = strings.ReplaceAll(syllableBreakdown, "y-"+string(a), "-y"+string(a))
 	}
 
 	// If reef dialect is present, show what forest looks like
-	syllable_forest := ""
+	syllableForest := ""
 	if isReef {
-		syllable_forest = strings.ReplaceAll(syllable_breakdown, "sh", "sy")
-		syllable_forest = strings.ReplaceAll(syllable_forest, "ng", "0")
-		syllable_forest = strings.ReplaceAll(syllable_forest, "ch", "tsy")
-		syllable_forest = strings.ReplaceAll(syllable_forest, "b", "px")
-		syllable_forest = strings.ReplaceAll(syllable_forest, "d", "tx")
-		syllable_forest = strings.ReplaceAll(syllable_forest, "g", "kx")
+		syllableForest = strings.ReplaceAll(syllableBreakdown, "sh", "sy")
+		syllableForest = strings.ReplaceAll(syllableForest, "ng", "0")
+		syllableForest = strings.ReplaceAll(syllableForest, "ch", "tsy")
+		syllableForest = strings.ReplaceAll(syllableForest, "b", "px")
+		syllableForest = strings.ReplaceAll(syllableForest, "d", "tx")
+		syllableForest = strings.ReplaceAll(syllableForest, "g", "kx")
 		/*for _, a := range []string{"a", "ä", "e", "i", "ì", "o", "u", "ù"} {
 			// First pass: a-a-a-a-a-a is seen as [a-a]-[a-a]-[a-a] and becomes a-ya-a-ya-a-ya
 			syllable_forest = strings.ReplaceAll(syllable_forest, a+"-"+a, a+"-y"+a)
 			// Second pass: a-ya-a-ya-a-ya is seen as a-y[a-a]-y[a-a]-ya and becomes a-ya-ya-ya-ya-ya
 			syllable_forest = strings.ReplaceAll(syllable_forest, a+"-"+a, a+"-y"+a)
 		}*/
-		syllable_forest = strings.ReplaceAll(syllable_forest, "i-ì", "i-yì")
-		syllable_forest = strings.ReplaceAll(syllable_forest, "ì-i", "ì-yi")
-		syllable_forest = strings.ReplaceAll(syllable_forest, "0", "ng")
-		syllable_forest = strings.ReplaceAll(syllable_forest, "ù", "u")
-		syllable_forest = strings.ReplaceAll(message_reef_dialect[lang], "{breakdown}", syllable_forest)
+		syllableForest = strings.ReplaceAll(syllableForest, "i-ì", "i-yì")
+		syllableForest = strings.ReplaceAll(syllableForest, "ì-i", "ì-yi")
+		syllableForest = strings.ReplaceAll(syllableForest, "0", "ng")
+		syllableForest = strings.ReplaceAll(syllableForest, "ù", "u")
+		syllableForest = strings.ReplaceAll(messageReefDialect[lang], "{breakdown}", syllableForest)
 	}
 
-	letterCheck := syllable_breakdown
+	letterCheck := syllableBreakdown
 	if isReef {
-		letterCheck = syllable_forest
+		letterCheck = syllableForest
 	}
 
 	// Identical adjacent vowels mean reef Na'vi
@@ -365,7 +365,7 @@ func IsValidNaviHelper(word string, lang string) string {
 		for _, a := range []string{"a", "ä", "e", "i", "ì", "o", "u", "ù", "k", "kx", "l", "m", "n", "ng", "p", "px", "r", "t", "tx", "w", "y"} {
 			if strings.Contains(letterCheck, a+"-"+a) {
 				found = true
-				forestWarning = message_identical_adjacent_letters[lang]
+				forestWarning = messageIdenticalAdjacentLetters[lang]
 				break
 			}
 		}
@@ -374,43 +374,43 @@ func IsValidNaviHelper(word string, lang string) string {
 			for _, a := range [][]string{{"kx", "k"}, {"px", "p"}, {"tx", "t"}} {
 				if strings.Contains(letterCheck, a[0]+"-"+a[1]) {
 					found = true
-					forestWarning = message_identical_adjacent_letters[lang]
+					forestWarning = messageIdenticalAdjacentLetters[lang]
 					break
 				}
 			}
 		}
 		if !found {
 			if strings.Contains(letterCheck, "i-ì") || strings.Contains(letterCheck, "ì-i") {
-				forestWarning = message_identical_adjacent_letters[lang]
+				forestWarning = messageIdenticalAdjacentLetters[lang]
 			}
 		}
 	}
 
-	syllable_count := len(strings.Split(syllable_breakdown, "-"))
-	message := valid_message(syllable_count, lang)
+	syllableCount := len(strings.Split(syllableBreakdown, "-"))
+	message := validMessage(syllableCount, lang)
 	message = strings.ReplaceAll(message, "{oldWord}", oldWord)
-	message = strings.ReplaceAll(message, "{breakdown}", syllable_breakdown)
-	message = strings.ReplaceAll(message, "{syllable_forest}", syllable_forest)
+	message = strings.ReplaceAll(message, "{breakdown}", syllableBreakdown)
+	message = strings.ReplaceAll(message, "{syllable_forest}", syllableForest)
 	message = message + forestWarning
 
 	return "✅ " + message
 }
 
-func IsValidNavi(word string, lang string, two_thousand_limit bool) string {
+func IsValidNavi(word string, lang string, twoThousandLimit bool) string {
 	// Let it know of valid syllable boundaries
-	if len(letters_map) == 0 {
-		for _, a := range letters_end {
-			for _, b := range letters_start {
+	if len(lettersMap) == 0 {
+		for _, a := range lettersEnd {
+			for _, b := range lettersStart {
 				// Do not assume a thing comes at the end of a word if it doesn't have to
 				if !(a != "" && b == "") {
-					letters_map[a+b] = a + "-" + b
+					lettersMap[a+b] = a + "-" + b
 				}
 			}
-			for _, b := range cluster_1 {
-				for _, c := range cluster_2 {
+			for _, b := range cluster1 {
+				for _, c := range cluster2 {
 					// Do not assume a thing comes at the end of a word if it doesn't have to
 					if !(a != "" && b == "") {
-						letters_map[a+b+c] = a + "-" + b + c
+						lettersMap[a+b+c] = a + "-" + b + c
 					}
 				}
 			}
@@ -420,7 +420,7 @@ func IsValidNavi(word string, lang string, two_thousand_limit bool) string {
 		for _, a := range []string{"B", "D", "G"} {
 			for _, b := range []string{"B", "D", "G"} {
 				if a != b {
-					letters_map[a+b] = a + "-" + b
+					lettersMap[a+b] = a + "-" + b
 				}
 			}
 		}
@@ -428,9 +428,9 @@ func IsValidNavi(word string, lang string, two_thousand_limit bool) string {
 	results := ""
 	for i, a := range strings.Split(word, " ") {
 		newLine := IsValidNaviHelper(a, lang) + "\n"
-		if two_thousand_limit && len([]rune(results))+len([]rune(newLine)) > 1914 {
-			// (stopped at {count}. 2000 Character limit)
-			results += strings.ReplaceAll(message_too_big[lang], "{count}", strconv.Itoa(i+1))
+		if twoThousandLimit && len([]rune(results))+len([]rune(newLine)) > 1914 {
+			// (stopped at {count}. 2000-Character limit)
+			results += strings.ReplaceAll(messageTooBig[lang], "{count}", strconv.Itoa(i+1))
 			break
 		}
 		results += newLine
