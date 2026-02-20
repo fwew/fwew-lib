@@ -184,7 +184,7 @@ var numTableRegexp = [][]string{
 
 // Translate a Na'vi number word to the actual integer.
 // Na'vi numbers are octal values, so the integer is defined as octal number, and can easily be displayed as decimal number.
-// If no translation is found, `NoTranslationFound` is returned as error!
+// If no translation is found, `NoTranslation` is returned as error!
 func NaviToNumber(input string) (int, error) {
 	input = strings.ToLower(input)
 	input = strings.TrimPrefix(input, "a")
@@ -228,7 +228,7 @@ func NaviToNumber(input string) (int, error) {
 			n += numTable[i][v]
 		}
 	} else {
-		return 0, NoTranslationFound
+		return 0, NoTranslation
 	}
 	return n, nil
 }

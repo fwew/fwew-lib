@@ -8,92 +8,74 @@ import (
 var usr, _ = user.Current()
 var texts = map[string]string{}
 
+const dictFileName = "dictionary-v2.txt"
+
 func init() {
 	// main program strings
 	texts["name"] = "fwew"
 
-	// slash-commands Help
-	texts["slashCommandHelp"] = `commands:
-/set [options]
-  	set given options (separated by space) or show currently set options
-  	type "/help" for valid options (use without the '-' prefix)
-  	notes:
-  	c is a function and is implemented as /config (see below)
-  	v is a function and is implemented as /version (see below)
-  	f is a function not supported in interactive mode
-/unset [options]
-  	alias for /set [options]
-/<option>
-  	shortcut alias for /set <option>
-/list <what> <cond> <spec> [and <what> <cond> <spec> ...]
-  	list all words that meet given criteria
-  	<what> is any one of: pos, word, words, syllables, stress
-  	<cond> depends on the <what> used:
-  	  <what>    | valid <cond>
-  	  ----------|------------------------------------
-  	  pos       | any one of: is, has, like
-  	  word      | any one of: starts, ends, has, like
-  	  words     | any one of: first, last
-  	  syllables | any one of: <, <=, =, >=, >
-	  stress    | any one of: <, <=, =, >=, >
-  	<spec> depends on the <cond> used:
-  	  <cond>                       | valid <spec>
-  	  -----------------------------|----------------------------
-  	  is, has, starts, ends        | any string of letter(s)
-  	  <, <=, =, >=, >, first, last | any whole number > 0
-  	  like                         | any string of letter(s) and
-  	                               |     wildcard percent-sign(s)
-/random <number>
-/random <number> where <what> <cond> <spec> [and <what> <cond> <spec> ...]
-  	show given <number> of random entries
-  	<what>, <cond>, and <spec> work the same way as with /list
-/random random
-/random random where <what> <cond> <spec> [and <what> <cond> <spec> ...]
-  	show random number of random entries
-  	<what>, <cond>, and <spec> work the same way as with /list
-/lenition
-  	display the lenition table
-/len
-  	shortcut alias for /lenition
-/update
-  	download and update the dictionary file
-/config <option> <value>
-/config [option=value ...]
-  	update the default options in the config file
-  	type "/config" to see valid options and their current default values
-  	valid values are "true" or "false" for all except Language and PosFilter
-  	Language: type "/help" for supported language codes
-  	PosFilter: any part of speech abbreviation (including '.' at the end)
-  	<option> and <value> are not case-sensitive
-/commands
-  	show this commands help text
-/help
-  	show main help text
-/version
-  	show version information
-/exit
-  	exit/quit the program (aliases /quit /q /wc)`
-
 	// List
+	texts["listHelpEN"] = `Help for /list Command aka Fwew List Filter Expressions (LFEs)
+
+Part of Speech
+want a list of nouns? verbs? adjectives?
+
+  pos <condition> <your_text>
+
+  <condition>:
+    starts not-starts
+    ends   not-ends
+    is     not-is 
+    has    not-has
+    like   not-like
+
+Word Characteristics
+want words that start/end with or have certain letters?
+
+  word <condition> <your_text>
+
+  <condition>: 
+    starts starts-any starts-all starts-none
+    ends   ends-any   ends-all   ends-none
+    has    has-any    has-all    has-none
+    like   like-any   like-all   like-none
+
+    not-starts   matches
+    not-ends
+    not-has
+    not-like
+
+Chronology
+want the last 20 words that came out? the first 10 words that came out?
+
+  words first <your_number>
+  words last <your_number>
+
+Syllable Count
+want 1-syllable words? words with more than 2?
+
+  syllables <comparison> <your_number>
+
+Stressed Syllable Location
+want words that are stressed on the first syllable? last? 3rd one?
+
+  stress <comparison> <your_number>
+
+Word Length
+want 5-letter words? note: "kx", "ng", etc. each count as 1 "Na'vi letter"
+
+  length <comparison> <your_number>
+
+<comparison>:
+  <  (less than)
+  <= (less than or equal to)
+  =  (equal to)
+  >= (greater than or equal to)
+  >  (greater than)
+  != (not equal to)`
+
 	texts["/listDesc"] = `list all words that meet given criteria`
-	texts["/listUsage"] = `list <what> <cond> <spec> [and <what> <cond> <spec> ...]
-<what> is any one of: pos, word, words, syllables, stress
-<cond> depends on the <what> used:
-  <what>    | valid <cond>
-  ----------|------------------------------------
-  pos       | any one of: is, has, like
-  word      | any one of: starts, ends, has, like
-  words     | any one of: first, last
-  syllables | any one of: <, <=, =, >=, >
-  stress    | any one of: <, <=, =, >=, >
-<spec> depends on the <cond> used:
-  <cond>                 | valid <spec>
-  -----------------------|----------------------------
-  is, has, starts, ends  | any string of letter(s)
-  <, <=, =, >=, >        | any whole number > 0
-  first, last            | any whole number > 0
-  like                   | any string of letter(s) and
-                         |     wildcard percent-sign(s)`
+	texts["/listUsage"] = texts["listHelpEN"]
 	texts["/listExample"] = "list syllables = 3 and pos has vtr."
 
 	// Random
@@ -142,34 +124,7 @@ func init() {
 	texts["dictURL"] = "https://tirea.learnnavi.org/dictionarydata/" + dictFileName
 
 	// general message strings
-	texts["cset"] = "currently set"
-	texts["set"] = "set"
-	texts["unset"] = "unset"
-	texts["pre"] = "Prefixes"
-	texts["inf"] = "Infixes"
-	texts["suf"] = "Suffixes"
 	texts["src"] = "source"
-	texts["configSaved"] = "config file successfully updated\n"
-
-	// error message strings
-	texts["none"] = "no results\n"
-	texts["noTextError"] = "err 0: text not found:"
-	texts["noDataError"] = "err 1: failed to open dictionary file (" + texts["dictionary"] + ")"
-	texts["fileError"] = "err 2: failed to open configuration file (" + texts["config"] + ")"
-	texts["noOptionError"] = "err 3: invalid option"
-	texts["invalidIntError"] = "err 4: input must be a decimal integer in range 0 <= n <= 32767 or octal integer in range 0 <= n <= 77777"
-	texts["invalidOctalError"] = "err 5: invalid octal integer"
-	texts["invalidDecimalError"] = "err 6: invalid decimal integer"
-	texts["invalidLanguageError"] = "err 7: invalid language option"
-	texts["invalidPOSFilterError"] = "err 8: invalid part of speech filter"
-	texts["dictCloseError"] = "err 9: failed to close dictionary file (" + texts["dictionary"] + ")"
-	texts["noFileError"] = "err 10: failed to open file"
-	texts["fileCloseError"] = "err 11: failed to close input file"
-	texts["configSyntaxError"] = "err 12: invalid syntax for config"
-	texts["configOptionError"] = "err 13: invalid config option"
-	texts["configValueError"] = "err 14: invalid config value for"
-	texts["invalidNumericError"] = "err 15: invalid numeric digits"
-	texts["downloadError"] = "err 16: could not download dictionary update"
 }
 
 // Text function is the accessor for []string texts
@@ -177,7 +132,7 @@ func Text(s string) string {
 	if _, ok := texts[s]; ok {
 		return texts[s]
 	}
-	return texts["noTextError"] + " " + s
+	return TextNotFound.Error() + ": " + s
 }
 
 // table of all the possible lenitions

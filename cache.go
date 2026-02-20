@@ -15,8 +15,6 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-const dictFileName = "dictionary-v2.txt"
-
 var dictionary []Word
 var dictHashLoose map[string][]Word
 var dictHashStrict map[string][]Word
@@ -1006,7 +1004,7 @@ func runOnDB(f func(word Word) error) error {
 func runOnFile(f func(word Word) error) error {
 	dictionaryFile := FindDictionaryFile()
 	if dictionaryFile == "" {
-		return DictionaryNotFound
+		return NoDictionary
 	}
 
 	file, err := os.Open(dictionaryFile)
@@ -1133,8 +1131,7 @@ func UpdateDict() error {
 	defer universalLock.Unlock()
 	err := DownloadDict("")
 	if err != nil {
-		log.Println(Text("downloadError"))
-		return err
+		return FailedToDownload.wrap(err)
 	}
 
 	err = CacheDict()
