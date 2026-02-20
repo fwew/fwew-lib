@@ -27,10 +27,6 @@ func TestMain(m *testing.M) {
 	// assure dict, so tests wont fail
 	_ = AssureDict()
 
-	// call flag.Parse() here if TestMain uses flags
-	if testing.CoverMode() != "" {
-		debugMode = true
-	}
 	os.Exit(m.Run())
 }
 

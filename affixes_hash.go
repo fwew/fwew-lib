@@ -1322,7 +1322,7 @@ func allIConfigs(input string, discrimRune rune, replaceRune rune, strict bool, 
 			buffer.WriteString(splitString[i+1])
 		}
 
-		newAConfig := dialectCrunch([]string{buffer.String()}, false, strict, allowReef)[0]
+		newAConfig := dialectCrunch([]string{buffer.String()}, false, allowReef)[0]
 
 		buffer.Reset()
 
@@ -1442,7 +1442,7 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 
 		standardizedWordArray := strings.Split(a, " ")
 		if !strict {
-			standardizedWordArray = dialectCrunch(standardizedWordArray, false, strict, allowReef)
+			standardizedWordArray = dialectCrunch(standardizedWordArray, false, allowReef)
 		}
 
 		a = ""
@@ -1454,7 +1454,7 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 		}
 
 		if allowReef {
-			a = dialectCrunch([]string{a}, false, true, true)[0]
+			a = dialectCrunch([]string{a}, false, true)[0]
 		}
 
 		for _, c := range (*dict)[a] {
@@ -1574,7 +1574,7 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 
 						// Does the noun actually contain the verb?
 						noTìftang := strings.TrimPrefix(rebuiltVerb, "'")
-						if strings.Contains(searchNaviWord, noTìftang) || strings.Contains(searchNaviWord, dialectCrunch([]string{rebuiltVerb}, false, strict, allowReef)[0]) {
+						if strings.Contains(searchNaviWord, noTìftang) || strings.Contains(searchNaviWord, dialectCrunch([]string{rebuiltVerb}, false, allowReef)[0]) {
 							a := c
 							a.Affixes.Lenition = candidate.Lenition
 							a.Affixes.Prefix = candidate.Prefixes
@@ -1769,7 +1769,7 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 						rebuiltVerbForest := rebuiltVerb
 						rebuiltVerbArray := strings.Split(rebuiltVerb, " ")
 						if !strict || allowReef {
-							rebuiltVerbArray = dialectCrunch(rebuiltVerbArray, false, strict, allowReef)
+							rebuiltVerbArray = dialectCrunch(rebuiltVerbArray, false, allowReef)
 						}
 
 						rebuiltVerb = ""

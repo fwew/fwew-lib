@@ -522,7 +522,7 @@ func CacheDictHashOrig(mysql bool) error {
 			nkxSub[fakeNG] = standardizedWord
 		}
 
-		standardizedWordArray := dialectCrunch(strings.Split(standardizedWord, " "), true, false, true)
+		standardizedWordArray := dialectCrunch(strings.Split(standardizedWord, " "), true, true)
 		standardizedWordLoose := ""
 		for i, a := range standardizedWordArray {
 			if i != 0 {
@@ -531,7 +531,7 @@ func CacheDictHashOrig(mysql bool) error {
 			standardizedWordLoose += a
 		}
 
-		strictReefArray := dialectCrunch(strings.Split(standardizedWord, " "), true, true, true)
+		strictReefArray := dialectCrunch(strings.Split(standardizedWord, " "), true, true)
 		strictReef := ""
 		for i, a := range strictReefArray {
 			if i != 0 {
@@ -579,8 +579,8 @@ func CacheDictHashOrig(mysql bool) error {
 			multiIPA += word.Navi + " "
 			secondTerm := RomanizeSecondIPA(word.IPA)
 			if secondTerm != standardizedWord {
-				dictHashLoose[dialectCrunch([]string{secondTerm}, true, false, true)[0]] = append(dictHashLoose[dialectCrunch([]string{secondTerm}, true, false, true)[0]], word)
-				dictHashStrictReef[dialectCrunch([]string{secondTerm}, true, true, true)[0]] = append(dictHashStrictReef[dialectCrunch([]string{secondTerm}, true, true, true)[0]], word)
+				dictHashLoose[dialectCrunch([]string{secondTerm}, true, true)[0]] = append(dictHashLoose[dialectCrunch([]string{secondTerm}, true, true)[0]], word)
+				dictHashStrictReef[dialectCrunch([]string{secondTerm}, true, true)[0]] = append(dictHashStrictReef[dialectCrunch([]string{secondTerm}, true, true)[0]], word)
 				dictHashStrict[secondTerm] = append(dictHashStrict[secondTerm], word)
 			}
 		}

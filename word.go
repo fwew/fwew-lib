@@ -17,7 +17,6 @@ package fwew_lib
 
 import (
 	"fmt"
-	"reflect"
 	"strings"
 )
 
@@ -68,7 +67,7 @@ func addAffixes(a affix, z affix) (w affix) {
 	return z
 }
 
-func (w Word) String() string {
+func (w *Word) String() string {
 	// this string only doesn't get translated or called from Text() because they're var names
 	return fmt.Sprintf(""+
 		"Id: %s\n"+
@@ -159,51 +158,6 @@ func newWord(dataFields []string, order dictPos) Word {
 	word.TR = dataFields[order.trField]
 	word.UK = dataFields[order.ukField]
 	return word
-}
-
-// CloneWordStruct is basically a copy constructor for Word struct
-// Basically not needed, cause go copies things by itself.
-// Only string arrays in Affixes are pointers and therefore need manual copy.
-func (w *Word) CloneWordStruct() Word {
-	// Copy struct to new instance
-	nw := *w
-
-	// copy the arrays manually
-	copy(nw.Affixes.Prefix, w.Affixes.Prefix)
-	copy(nw.Affixes.Infix, w.Affixes.Infix)
-	copy(nw.Affixes.Suffix, w.Affixes.Suffix)
-	copy(nw.Affixes.Lenition, w.Affixes.Lenition)
-	copy(nw.Affixes.Comment, w.Affixes.Comment)
-
-	return nw
-}
-
-func (w *Word) Equals(other Word) bool {
-	return w.ID == other.ID &&
-		w.Navi == other.Navi &&
-		w.IPA == other.IPA &&
-		w.InfixLocations == other.InfixLocations &&
-		w.PartOfSpeech == other.PartOfSpeech &&
-		w.Source == other.Source &&
-		w.Stressed == other.Stressed &&
-		w.Syllables == other.Syllables &&
-		w.InfixDots == other.InfixDots &&
-		w.DE == other.DE &&
-		w.EN == other.EN &&
-		w.ES == other.ES &&
-		w.ET == other.ET &&
-		w.FR == other.FR &&
-		w.HU == other.HU &&
-		w.IT == other.IT &&
-		w.KO == other.KO &&
-		w.NL == other.NL &&
-		w.PL == other.PL &&
-		w.PT == other.PT &&
-		w.RU == other.RU &&
-		w.SV == other.SV &&
-		w.TR == other.TR &&
-		w.UK == other.UK &&
-		reflect.DeepEqual(w.Affixes, other.Affixes)
 }
 
 func (w *Word) SyllableCount() int {
@@ -406,7 +360,7 @@ func (w *Word) doUnderline(input string, markdown bool) (string, error) {
 	})*/
 
 	// get it from the IPA
-	stressed := []bool{}
+	var stressed []bool
 	for _, a := range strings.Split(w.IPA, " ") {
 		if a == "or" {
 			break

@@ -7,31 +7,17 @@ import (
 
 // Errors raised by package fwew_lib
 const (
-	FailedToCloseDictFile  = constError("failed to close dictionary file")
-	FailedToCloseFile      = constError("failed to close file")
-	FailedToDownload       = constError("failed to download dictionary update")
-	FailedToOpenConfigFile = constError("failed to open configuration file")
-	FailedToOpenDictFile   = constError("failed to open dictionary file")
-	FailedToOpenFile       = constError("failed to open file")
+	FailedToCloseDictFile = constError("failed to close dictionary file")
+	FailedToDownload      = constError("failed to download dictionary update")
+	FailedToOpenDictFile  = constError("failed to open dictionary file")
 
-	InvalidConfigSyntax = constError("invalid config syntax")
-	InvalidConfigOption = constError("invalid config option")
-	InvalidConfigValue  = constError("invalid config value for")
-	InvalidOctal        = constError("invalid octal integer")
-	InvalidOption       = constError("invalid option")
-	InvalidDecimal      = constError("invalid decimal integer")
-	InvalidFilter       = constError("invalid part of speech filter")
-	InvalidInt          = constError("input must be a decimal integer in range 0 <= n <= 32767 or octal integer in range 0 <= n <= 77777")
-	InvalidLanguage     = constError("invalid language option")
-	InvalidNumber       = constError("invalid numeric digits")
-
+	InvalidNumber  = constError("invalid numeric digits")
 	NegativeNumber = constError("negative numbers not allowed")
+	NumberTooBig   = constError("number too big")
 
 	NoDictionary  = constError("no dictionary found")
 	NoResults     = constError("no results\n")
 	NoTranslation = constError("no translation found")
-
-	NumberTooBig = constError("number too big")
 
 	TextNotFound = constError("text not found")
 )
@@ -70,12 +56,12 @@ func (err wrapError) Error() string {
 	return err.msg
 }
 
-// Make it possible to Unwrap a wrapped error again.
+// Unwrap makes it possible to Unwrap a wrapped error again.
 func (err wrapError) Unwrap() error {
 	return err.err
 }
 
-// Implement newer Is method to check unwrapped error
+// Is method to check unwrapped error
 func (err wrapError) Is(target error) bool {
 	return constError(err.msg).Is(target)
 }

@@ -11,7 +11,7 @@
 //	You should have received a copy of the GNU General Public License
 //	along with Fwew.  If not, see http://gnu.org/licenses/
 
-// Package main contains all the things
+// Package fwew_lib contains all the things
 package fwew_lib
 
 import (
@@ -28,8 +28,6 @@ const (
 	space string = " "
 )
 
-var debugMode bool
-
 /* To help deduce phonemes */
 var romanization2 = map[string]string{
 	// Vowels
@@ -41,7 +39,7 @@ var romanization2 = map[string]string{
 	"aj": "ay", "ɛw": "ew",
 	// Psuedovowels
 	"ṛ": "rr", "ḷ": "ll",
-	// Consonents
+	// Consonants
 	"t": "t", "p": "p", "ʔ": "'",
 	"n": "n", "k": "k", "l": "l",
 	"s": "s", "ɾ": "r", "j": "y",
@@ -54,49 +52,6 @@ var romanization2 = map[string]string{
 	"ʃ": "sh", "tʃ": "ch", "ʊ": "ù",
 	// mistakes and rarities
 	"ʒ": "ch", "": "", " ": ""}
-
-func intersection(a, b string) (c string) {
-	m := make(map[rune]bool)
-	for _, r := range a {
-		m[r] = true
-	}
-	for _, r := range b {
-		if _, ok := m[r]; ok {
-			c += string(r)
-		}
-	}
-	return
-}
-
-func (w *Word) similarity(other string) float64 {
-	if w.Navi == other {
-		return 1.0
-	}
-	if len(w.Navi) > len(other)+1 {
-		return 0.0
-	}
-	if w.Navi == "nga" && other == "ngey" {
-		return 1.0
-	}
-	if w.Navi == "'ia" && strings.HasSuffix(other, "ì'usiä") {
-		return 1.0
-	}
-	vowels := "aäeiìoulr"
-	w0v := intersection(w.Navi, vowels)
-	w1v := intersection(other, vowels)
-	wis := intersection(w.Navi, other)
-	wav := intersection(w0v, other)
-	if len(w0v) > len(w1v) {
-		return 0.0
-	}
-	if len(wav) == 0 {
-		return 0.0
-	}
-	scc := len(wis)
-	iratio := float64(scc) / float64(len(w.Navi))
-	lratio := float64(len(w.Navi)) / float64(len(other))
-	return (iratio + lratio) / 2
-}
 
 func identicalRunes(first string, second string) bool {
 	a := []rune(first)
@@ -149,10 +104,10 @@ func clean(searchNaviWords string) (words string) {
 	return searchNaviWords
 }
 
-// Translate some navi text.
+// TranslateFromNaviHash Translate some navi text.
 // !! Multiple words are supported !!
 // This will return a 2D array of Words that fit the input text
-// The first word will only contain the query put into the translate command
+// The first word will only contain the query put into the "translate" command
 // One Navi-Word can have multiple meanings and words (e.g. synonyms)
 func TranslateFromNaviHash(searchNaviWords string, checkFixes bool, strict bool, allowReef bool) (results [][]Word, err error) {
 	universalLock.Lock()
@@ -222,7 +177,7 @@ func TranslateFromNaviHash(searchNaviWords string, checkFixes bool, strict bool,
 	return
 }
 
-// Helper for TranslateFromNaviHashHelper
+// AppendToFront is a helper for TranslateFromNaviHashHelper
 func AppendToFront(words []Word, input Word) []Word {
 	// Ensure it's not a duplicate
 	for i, a := range words {
@@ -246,7 +201,7 @@ func AppendToFront(words []Word, input Word) []Word {
 	return dummyWord
 }
 
-// Helper for TranslateFromNaviHashHelper
+// IsVerb is a helper for TranslateFromNaviHashHelper
 func IsVerb(dict *map[string][]Word, input string, comparator string, strict bool, allowReef bool) (result bool, affixes Word) {
 	affixes = simpleWord(input)
 	_, possibilities, err := TranslateFromNaviHashHelper(dict, 0, []string{input}, true, strict, allowReef)
@@ -317,16 +272,16 @@ func IsVerb(dict *map[string][]Word, input string, comparator string, strict boo
 			}
 		}
 	}
-	return (isRealVerb && pairFound && !unknownInfix), affixes
+	return isRealVerb && pairFound && !unknownInfix, affixes
 }
 
 func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []string, checkFixes bool, strict bool, allowReef bool) (steps int, results [][]Word, err error) {
 	i := start
 
-	containsUmlaut := []bool{}
-	containsTìftang := []bool{}
+	var containsUmlaut []bool
+	var containsGlottalStop []bool
 
-	tempResults := []Word{}
+	var tempResults []Word
 	searchNaviWord := ""
 
 	// don't crunch more than once
@@ -340,15 +295,15 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 
 			strippedA := strings.TrimPrefix(strings.TrimSuffix(a, "'"), "'")
 			if strings.Contains(strippedA, "'") {
-				containsTìftang = append(containsTìftang, true)
+				containsGlottalStop = append(containsGlottalStop, true)
 			} else {
-				containsTìftang = append(containsTìftang, false)
+				containsGlottalStop = append(containsGlottalStop, false)
 			}
 		}
 
 		results = [][]Word{{simpleWord(allWords[i])}}
 
-		allWords = dialectCrunch(allWords, false, strict, allowReef)
+		allWords = dialectCrunch(allWords, false, allowReef)
 
 		searchNaviWord = allWords[i]
 
@@ -374,7 +329,7 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 			if len(a.Affixes.Suffix) == 0 {
 				strippedA = strings.TrimSuffix(strippedA, "'")
 			}
-			if containsTìftang[i] && !strings.Contains(strippedA, "'") {
+			if containsGlottalStop[i] && !strings.Contains(strippedA, "'") {
 				continue // make sure tsa'u doesn't return tsa-au
 			}
 			tempResults = append(tempResults, a)
@@ -382,7 +337,7 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 	} else {
 		for range len(allWords) {
 			containsUmlaut = append(containsUmlaut, true)
-			containsTìftang = append(containsTìftang, false)
+			containsGlottalStop = append(containsGlottalStop, false)
 		}
 
 		searchNaviWord = allWords[i]
@@ -395,14 +350,16 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 			for _, b := range (*dict)[a] {
 				results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], b)
 			}
-		} else if allowReef {
-			noUmlaut := strings.ReplaceAll(a, "ä", "e")
-			if _, ok := (*dict)[noUmlaut]; ok {
-				for _, b := range (*dict)[noUmlaut] {
-					results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], b)
-				}
-			}
 		}
+		//else if allowReef {
+		//	// TODO: this is unreachable code because allowReef will always be false by this point.
+		//	noUmlaut := strings.ReplaceAll(a, "ä", "e")
+		//	if _, ok := (*dict)[noUmlaut]; ok {
+		//		for _, b := range (*dict)[noUmlaut] {
+		//			results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], b)
+		//		}
+		//	}
+		//}
 
 		tempResults = append(tempResults, results[len(results)-1]...)
 	}
@@ -471,7 +428,7 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 					}
 
 					// Find all words the second word can represent
-					secondWords := []Word{}
+					var secondWords []Word
 
 					// First by itself
 					if pairWord == allWords[i+j+1] {
@@ -560,7 +517,7 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 	//}
 
 	if checkFixes {
-		newResults := []Word{}
+		var newResults []Word
 
 		if !foundAlready {
 			if len(results) > 0 && len(results[0]) > 0 {
@@ -574,7 +531,7 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 			}
 		}
 
-		tempNewResults := []Word{}
+		var tempNewResults []Word
 
 		// If one searches for ke, don't search for kä
 		for _, a := range newResults {
@@ -594,7 +551,7 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 			if len(a.Affixes.Suffix) == 0 {
 				strippedA = strings.TrimSuffix(strippedA, "'")
 			}
-			if containsTìftang[i] && !strings.Contains(strippedA, "'") {
+			if containsGlottalStop[i] && !strings.Contains(strippedA, "'") {
 				continue // make sure tsa'u doesn't return tsa-au
 			}
 			tempNewResults = append(tempNewResults, a)
@@ -698,13 +655,13 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 								}
 
 								// Find all words the second word can represent
-								secondWords := []Word{}
+								var secondWords []Word
 
 								allWord := allWords[i+j+1]
 
 								if !strict || allowReef {
-									pairWord = dialectCrunch([]string{pairWord}, false, strict, allowReef)[0]
-									allWord = dialectCrunch([]string{allWord}, false, strict, allowReef)[0]
+									pairWord = dialectCrunch([]string{pairWord}, false, allowReef)[0]
+									allWord = dialectCrunch([]string{allWord}, false, allowReef)[0]
 								}
 
 								// First by itself
@@ -772,7 +729,7 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 							results[0] = []Word{results[0][0]}
 							a := strings.ReplaceAll(fullWord, "ù", "u")
 							if !strict {
-								a = dialectCrunch([]string{a}, false, strict, allowReef)[0]
+								a = dialectCrunch([]string{a}, false, allowReef)[0]
 							}
 
 							for _, definition := range (*dict)[a] {
@@ -1091,7 +1048,7 @@ func TranslateToNaviHashHelper(dictionary *MetaDict, searchWord string, langCode
 	return
 }
 
-// Translate some text.  The language context is with Eywa now :ipu:
+// BidirectionalSearch Search in both directions.  The language context is with Eywa now :ipu:
 // !! Multiple words are supported !!
 // This will return a 2D array of Words, that fit the input text
 // One Word can have multiple meanings and words (e.g. synonyms)
@@ -1119,7 +1076,7 @@ func BidirectionalSearch(searchNaviWords string, checkFixes bool, langCode strin
 		// Search for Na'vi words
 		j, newWords, error2 := TranslateFromNaviHashHelper(ourDict, i, allWords, checkFixes, false, allowReef)
 
-		NaviIDs := []string{}
+		var NaviIDs []string
 		if error2 == nil {
 			for _, newWord := range newWords {
 				// Set up receptacle for words
@@ -1132,7 +1089,7 @@ func BidirectionalSearch(searchNaviWords string, checkFixes bool, langCode strin
 		}
 
 		// Search for natural language words
-		natlangWords := []Word{}
+		var natlangWords []Word
 		for _, a := range TranslateToNaviHashHelper(&dictHash2, allWords[i], langCode) {
 			// Do not duplicate if the Na'vi word is in the definition
 			if Contains(NaviIDs, []string{a.ID}) {
@@ -1152,7 +1109,7 @@ func BidirectionalSearch(searchNaviWords string, checkFixes bool, langCode strin
 	return
 }
 
-// Get random words out of the dictionary.
+// Random returns random words from the dictionary.
 // If args are applied, the dict will be filtered for args before random words are chosen.
 // args will be put into the `List()` algorithm.
 func Random(amount int, args []string, checkDigraphs uint8) (results []Word, err error) {
@@ -1188,30 +1145,30 @@ func Random(amount int, args []string, checkDigraphs uint8) (results []Word, err
 	return
 }
 
-// Get all words with spaces
+// GetMultiwordWords returns all words with spaces
 func GetMultiwordWords() map[string][][]string {
 	universalLock.Lock()
 	defer universalLock.Unlock()
 	return multiword_words
 }
 
-// Get all words with multiple definitions
+// GetHomonyms returns all words with multiple definitions
 func GetHomonyms() (results [][]Word, err error) {
 	return TranslateFromNaviHash(homonyms, false, false, false)
 }
 
-// Get all words with non-standard phonotactics
+// GetOddballs returns all words with non-standard phonotactics
 func GetOddballs() (results [][]Word, err error) {
 	return TranslateFromNaviHash(oddballs, true, false, false)
 }
 
-// Get all words with multiple definitions
+// GetMultiIPA returns all words with multiple definitions
 func GetMultiIPA() (results [][]Word, err error) {
 	return TranslateFromNaviHash(multiIPA, false, false, false)
 }
 
-/* Is it a vowel? (for when the psuedovowel bool won't work) */
-func is_vowel_ipa(letter string) (found bool) {
+/* Is it a vowel? (for when the pseudovowel bool won't work) */
+func isVowelIpa(letter string) (found bool) {
 	// Also arranged from most to least common (not accounting for diphthongs)
 	vowels := []string{"a", "ɛ", "ɪ", "o", "u", "i", "æ", "ʊ"}
 	// Linear search
@@ -1223,8 +1180,8 @@ func is_vowel_ipa(letter string) (found bool) {
 	return false
 }
 
-func dialectCrunch(query []string, guaranteedForest bool, strict bool, allowReef bool) []string {
-	newQuery := []string{}
+func dialectCrunch(query []string, guaranteedForest bool, allowReef bool) []string {
+	var newQuery []string
 	for _, a := range query {
 		oldQuery := a
 
@@ -1238,7 +1195,7 @@ func dialectCrunch(query []string, guaranteedForest bool, strict bool, allowReef
 			// don't accidentally make every ng into nkx
 			a = strings.ReplaceAll(a, "?", "")
 			a = strings.ReplaceAll(a, "ng", "?")
-			// unsoften ejectives
+			// un-soften ejectives
 			a = strings.ReplaceAll(a, "b", "px")
 			a = strings.ReplaceAll(a, "d", "tx")
 			a = strings.ReplaceAll(a, "g", "kx")
@@ -1294,19 +1251,19 @@ func ReefMe(ipa string, inter bool) []string {
 	ipa = strings.ReplaceAll(ipa, " ", "*.")
 
 	// Unstressed ä becomes e
-	ipa_syllables := strings.Split(ipa, ".")
-	if len(ipa_syllables) > 1 {
-		new_ipa := ""
-		for _, a := range ipa_syllables {
-			new_ipa += "."
+	ipaSyllables := strings.Split(ipa, ".")
+	if len(ipaSyllables) > 1 {
+		newIpa := ""
+		for _, a := range ipaSyllables {
+			newIpa += "."
 			if !strings.Contains(a, "ˈ") {
-				new_ipa += strings.ReplaceAll(a, "æ", "ɛ")
+				newIpa += strings.ReplaceAll(a, "æ", "ɛ")
 			} else {
-				new_ipa += a
+				newIpa += a
 			}
 		}
 
-		ipa = new_ipa
+		ipa = newIpa
 	}
 
 	breakdown := ""
@@ -1352,19 +1309,19 @@ func ReefMe(ipa string, inter bool) []string {
 		for i, a := range runes {
 			if i != 0 && i != len(runes)-1 && a == 'ʔ' {
 				if runes[i-1] == '.' && i > 1 {
-					if is_vowel_ipa(string(runes[i+1])) && is_vowel_ipa(string(runes[i-2])) {
+					if isVowelIpa(string(runes[i+1])) && isVowelIpa(string(runes[i-2])) {
 						if runes[i+1] != runes[i-2] {
 							continue
 						}
 					}
 				} else if runes[i+1] == '.' {
-					if is_vowel_ipa(string(runes[i+2])) && is_vowel_ipa(string(runes[i-1])) {
+					if isVowelIpa(string(runes[i+2])) && isVowelIpa(string(runes[i-1])) {
 						if runes[i+2] != runes[i-1] {
 							continue
 						}
 					}
 				} else if runes[i-1] == 'ˈ' && i > 2 {
-					if is_vowel_ipa(string(runes[i+1])) && is_vowel_ipa(string(runes[i-3])) {
+					if isVowelIpa(string(runes[i+1])) && isVowelIpa(string(runes[i-3])) {
 						if runes[i+1] != runes[i-3] {
 							continue
 						}
@@ -1537,12 +1494,12 @@ func ReefMe(ipa string, inter bool) []string {
 	for _, a := range []string{"a", "ɛ", "ɪ", "o", "u", "i", "æ", "ʊ"} {
 		if strings.Contains(shortString, a+"ʔ"+a) {
 			// fix IPA
-			noTìftangIPA := strings.ReplaceAll(ipaReef, a+".ˈʔ"+a, a+".ˈ"+a)
-			noTìftangIPA = strings.ReplaceAll(noTìftangIPA, a+".ʔ"+a, a+"."+a)
-			noTìftangIPA = strings.ReplaceAll(noTìftangIPA, a+"ʔ."+a, a+"."+a)
-			noTìftangIPA = strings.ReplaceAll(noTìftangIPA, a+"ʔ.ˈ"+a, a+".ˈ"+a)
+			noGlottalStopIPA := strings.ReplaceAll(ipaReef, a+".ˈʔ"+a, a+".ˈ"+a)
+			noGlottalStopIPA = strings.ReplaceAll(noGlottalStopIPA, a+".ʔ"+a, a+"."+a)
+			noGlottalStopIPA = strings.ReplaceAll(noGlottalStopIPA, a+"ʔ."+a, a+"."+a)
+			noGlottalStopIPA = strings.ReplaceAll(noGlottalStopIPA, a+"ʔ.ˈ"+a, a+".ˈ"+a)
 
-			ipaReef += "] or [" + noTìftangIPA
+			ipaReef += "] or [" + noGlottalStopIPA
 		}
 	}
 
@@ -1550,10 +1507,10 @@ func ReefMe(ipa string, inter bool) []string {
 	shortString = strings.ReplaceAll(breakdown, "-", "")
 	for _, a := range []string{"a", "e", "ì", "o", "u", "i", "ä", "ù"} {
 		if strings.Contains(shortString, a+"'"+a) {
-			noTìftangBreakdown := strings.ReplaceAll(breakdown, a+"-'"+a, a+"-"+a)
-			noTìftangBreakdown = strings.ReplaceAll(noTìftangBreakdown, a+"'-"+a, a+"-"+a)
+			noGlottalStopBreakdown := strings.ReplaceAll(breakdown, a+"-'"+a, a+"-"+a)
+			noGlottalStopBreakdown = strings.ReplaceAll(noGlottalStopBreakdown, a+"'-"+a, a+"-"+a)
 
-			breakdown += " or " + noTìftangBreakdown
+			breakdown += " or " + noGlottalStopBreakdown
 		}
 
 	}

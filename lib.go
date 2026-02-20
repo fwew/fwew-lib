@@ -12,7 +12,7 @@
 //	You should have received a copy of the GNU General Public License
 //	along with Fwew.  If not, see http://gnu.org/licenses/
 
-// Package main contains all the things. lib.go handles common functions.
+// Package fwew_lib contains all the things. lib.go handles common functions.
 package fwew_lib
 
 import (
@@ -24,7 +24,6 @@ import (
 	"os"
 	"path"
 	"strings"
-	"unicode"
 )
 
 // Contains returns true if anything in q is also in s
@@ -42,113 +41,6 @@ func Contains(s []string, q []string) bool {
 	return false
 }
 
-// ContainsStr returns true if q is in s
-func ContainsStr(s []string, q string) bool {
-	if len(q) == 0 || len(s) == 0 {
-		return false
-	}
-	for _, x := range s {
-		if q == x {
-			return true
-		}
-	}
-	return false
-}
-
-// ContainsStrArr returns true if anything in q is in s
-func HasPrefixStrArr(s string, q []string) bool {
-	if len(q) == 0 || len(s) == 0 {
-		return false
-	}
-	for _, x := range q {
-		if strings.HasPrefix(s, x) {
-			return true
-		}
-	}
-	return false
-}
-
-// ArrCount returns the number of occurrences of q in s
-func ArrCount(s []string, q string) int {
-	dict := make(map[string]int)
-	for _, x := range s {
-		dict[x]++
-	}
-	return dict[q]
-}
-
-// DeleteElement "deletes" all occurrences of q in s
-// actually returns a new string slice containing the original minus all q
-func DeleteElement(s []string, q string) []string {
-	if len(s) == 0 {
-		return s
-	}
-	var r []string
-	for _, str := range s {
-		if str != q {
-			r = append(r, str)
-		}
-	}
-	return r
-}
-
-// DeleteEmpty "deletes" all empty string entries in s
-// actually returns a new string slice containing all non-empty strings in s
-func DeleteEmpty(s []string) []string {
-	return DeleteElement(s, "")
-}
-
-// Index return the index of q in s
-func Index(s []string, q string) int {
-	for i, v := range s {
-		if v == q {
-			return i
-		}
-	}
-	return -1
-}
-
-// IndexStr return the index of q in s
-func IndexStr(s string, q rune) int {
-	for i, v := range s {
-		if v == q {
-			return i
-		}
-	}
-	return -1
-}
-
-// IsLetter returns true if s is an alphabet character or apostrophe
-func IsLetter(s string) bool {
-	for _, r := range s {
-		if unicode.IsLetter(r) || r == '\'' || r == '‘' {
-			return true
-		}
-	}
-	return false
-}
-
-// Reverse returns the reversed version of s
-func Reverse(s string) string {
-	n := len(s)
-	runes := make([]rune, n)
-	for _, r := range s {
-		n--
-		runes[n] = r
-	}
-	return string(runes[n:])
-}
-
-// StripChars strips all the characters in chr out of str
-func StripChars(str, chr string) string {
-	return strings.Map(func(r rune) rune {
-		if !strings.ContainsRune(chr, r) {
-			return r
-		}
-		return -1
-	}, str)
-}
-
 // DownloadDict downloads the latest released version of the dictionary file and saves it to the given filepath.
 // You can give an empty string as filepath param, to update the found dictionary file.
 func DownloadDict(filepath string) error {
@@ -161,21 +53,33 @@ func DownloadDict(filepath string) error {
 
 	// if still no filepath is given, error out
 	if filepath == "" {
-		return DictFileNotFoundError
+		return NoDictionary
 	}
 
 	// download the new dict
 	resp, err := http.Get(url)
 	if err != nil {
-		return err
+		return FailedToDownload.wrap(err)
 	}
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			return
+		}
+	}(resp.Body)
 
 	// create new file, this will remove the old file, if it exists
 	err = os.Mkdir(path.Dir(filepath), 0755)
 	out, err := os.Create(filepath)
 	if err != nil {
-		return err
+		return FailedToDownload.wrap(err)
 	}
+	defer func(out *os.File) {
+		err := out.Close()
+		if err != nil {
+			return
+		}
+	}(out)
 
 	// save downloaded dict to the opened file
 	_, err = io.Copy(out, resp.Body)
@@ -255,9 +159,14 @@ func Glob(pattern, subj string) bool {
 func SHA1Hash(filename string) string {
 	f, err := os.Open(filename)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(FailedToOpenDictFile.wrap(err))
 	}
-	defer f.Close()
+	defer func(f *os.File) {
+		err := f.Close()
+		if err != nil {
+			log.Fatal(FailedToCloseDictFile.wrap(err))
+		}
+	}(f)
 	h := sha1.New()
 	if _, err := io.Copy(h, f); err != nil {
 		log.Fatal(err)
