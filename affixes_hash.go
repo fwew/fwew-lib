@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-type ConjugationCandidate struct {
+type conjugationCandidate struct {
 	Word      string
 	Lenition  []string
 	Prefixes  []string
@@ -15,8 +15,8 @@ type ConjugationCandidate struct {
 	InsistPOS string
 }
 
-func candidateDupe(candidate ConjugationCandidate) (c ConjugationCandidate) {
-	a := ConjugationCandidate{}
+func candidateDupe(candidate conjugationCandidate) (c conjugationCandidate) {
+	a := conjugationCandidate{}
 	a.Word = candidate.Word
 	a.Lenition = candidate.Lenition
 	a.Prefixes = candidate.Prefixes
@@ -26,8 +26,8 @@ func candidateDupe(candidate ConjugationCandidate) (c ConjugationCandidate) {
 	return a
 }
 
-var candidates []ConjugationCandidate
-var candidateMap = map[string]ConjugationCandidate{}
+var candidates []conjugationCandidate
+var candidateMap = map[string]conjugationCandidate{}
 var unlenitionLetters = []string{
 	"ts", "kx", "tx", "px", // traps digraphs because they cannot unlenite
 	"f", "p", "h", "k", "s",
@@ -294,7 +294,7 @@ var productiveCompounds = map[string][][]string{
 	"tseyä":          forbiddenTsaw,
 }
 
-func isDuplicate(input ConjugationCandidate) bool {
+func isDuplicate(input conjugationCandidate) bool {
 	if a, ok := candidateMap[input.Word]; ok {
 		if input.InsistPOS == a.InsistPOS {
 			if len(input.Prefixes) == len(a.Prefixes) && len(input.Suffixes) == len(a.Suffixes) {
@@ -495,8 +495,8 @@ func verifyCaseEnding(noun string, ending string) bool {
 	return false
 }
 
-func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck int, unlenite int8,
-	infix []string, lastPrefix string, lastSuffix string, strict bool, allowReef bool) []ConjugationCandidate {
+func deconjugateHelper(input conjugationCandidate, prefixCheck int, suffixCheck int, unlenite int8,
+	infix []string, lastPrefix string, lastSuffix string, strict bool, allowReef bool) []conjugationCandidate {
 	if isDuplicate(input) {
 		return candidates
 	}
@@ -508,7 +508,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 	if allowReef {
 		// fneu checking for fne-'u
 		if len(lastPrefix) > 0 && len(input.Word) > 0 && hasAt(vowels, lastPrefix, -1) && hasAt(vowels, input.Word, 0) {
-			if !Contains(prefixes1lenition, []string{lastPrefix}) { // do not do this for leniting prefixes
+			if !contains(prefixes1lenition, []string{lastPrefix}) { // do not do this for leniting prefixes
 				newCandidate := candidateDupe(input)
 				newCandidate.Word = "'" + newCandidate.Word
 				deconjugateHelper(newCandidate, prefixCheck, suffixCheck, unlenite, infix, "", "", strict, allowReef)
@@ -535,7 +535,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 		}
 	}
 
-	if len(input.Infixes) > 0 && Contains(input.Infixes, []string{"ats", "uy"}) {
+	if len(input.Infixes) > 0 && contains(input.Infixes, []string{"ats", "uy"}) {
 		// for the cases of zen<ats>eke and zen<uy>eke
 		// confirmed in here: https://forum.learnnavi.org/index.php?msg=493217
 		if input.Word == "zeneke" {
@@ -1277,7 +1277,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 	return candidates
 }
 
-// Helper for TestDeconjugations
+// Helper for testDeconjugations
 func allIConfigs(input string, discrimRune rune, replaceRune rune, allowReef bool) []string {
 	discrim := string(discrimRune)
 	replace := string(replaceRune)
@@ -1333,10 +1333,10 @@ func allIConfigs(input string, discrimRune rune, replaceRune rune, allowReef boo
 	return results
 }
 
-func Deconjugate(input string, strict bool, allowReef bool) []ConjugationCandidate {
-	candidates = []ConjugationCandidate{} //empty array of strings
-	candidateMap = map[string]ConjugationCandidate{}
-	newCandidate := ConjugationCandidate{}
+func deconjugate(input string, strict bool, allowReef bool) []conjugationCandidate {
+	candidates = []conjugationCandidate{} //empty array of strings
+	candidateMap = map[string]conjugationCandidate{}
+	newCandidate := conjugationCandidate{}
 	newCandidate.Word = input
 	newCandidate.InsistPOS = "any"
 	deconjugateHelper(newCandidate, 0, 0, 0, []string{"", "", ""}, "", "", strict, allowReef)
@@ -1345,8 +1345,8 @@ func Deconjugate(input string, strict bool, allowReef bool) []ConjugationCandida
 	return candidates
 }
 
-func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict bool, allowReef bool, umlaut bool) (results []Word) {
-	conjugations := Deconjugate(searchNaviWord, strict, allowReef)
+func testDeconjugations(dict *map[string][]Word, searchNaviWord string, strict bool, allowReef bool, umlaut bool) (results []Word) {
+	conjugations := deconjugate(searchNaviWord, strict, allowReef)
 
 	searchNaviWord = strings.ReplaceAll(searchNaviWord, "ù", "u")
 
@@ -1363,9 +1363,9 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 		}
 
 		for _, a := range allIAConfigs {
-			newCandidate := ConjugationCandidate{Word: a, InsistPOS: "any"}
+			newCandidate := conjugationCandidate{Word: a, InsistPOS: "any"}
 			conjugations = append(conjugations, newCandidate)
-			conjugations = append(conjugations, Deconjugate(a, strict, allowReef)...)
+			conjugations = append(conjugations, deconjugate(a, strict, allowReef)...)
 		}
 
 		// For using i to search ì
@@ -1473,7 +1473,7 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 						a.Affixes.Prefix = candidate.Prefixes
 						a.Affixes.Infix = candidate.Infixes
 						a.Affixes.Suffix = candidate.Suffixes
-						results = AppendAndAlphabetize(results, a)
+						results = appendAndAlphabetize(results, a)
 						continue
 					}
 				}
@@ -1522,7 +1522,7 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 											a.Affixes.Prefix = candidate.Prefixes
 											a.Affixes.Infix = candidate.Infixes
 											a.Affixes.Suffix = candidate.Suffixes
-											results = AppendAndAlphabetize(results, a)
+											results = appendAndAlphabetize(results, a)
 											break
 										}
 									}
@@ -1533,7 +1533,7 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 									a.Affixes.Prefix = candidate.Prefixes
 									a.Affixes.Infix = candidate.Infixes
 									a.Affixes.Suffix = candidate.Suffixes
-									results = AppendAndAlphabetize(results, a)
+									results = appendAndAlphabetize(results, a)
 								}
 							} else {
 								if _, ok := multiwordWordsLoose[candidate.Word]; ok {
@@ -1545,7 +1545,7 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 											a.Affixes.Prefix = candidate.Prefixes
 											a.Affixes.Infix = candidate.Infixes
 											a.Affixes.Suffix = candidate.Suffixes
-											results = AppendAndAlphabetize(results, a)
+											results = appendAndAlphabetize(results, a)
 											break
 										}
 									}
@@ -1556,7 +1556,7 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 									a.Affixes.Prefix = candidate.Prefixes
 									a.Affixes.Infix = candidate.Infixes
 									a.Affixes.Suffix = candidate.Suffixes
-									results = AppendAndAlphabetize(results, a)
+									results = appendAndAlphabetize(results, a)
 								}
 							}
 
@@ -1577,9 +1577,9 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 							a.Affixes.Prefix = candidate.Prefixes
 							a.Affixes.Infix = candidate.Infixes
 							a.Affixes.Suffix = candidate.Suffixes
-							results = AppendAndAlphabetize(results, a)
+							results = appendAndAlphabetize(results, a)
 						} else if len(results) == 0 {
-							results = AppendAndAlphabetize(results, infixError(searchNaviWord, "tì"+rebuiltVerb, c.IPA))
+							results = appendAndAlphabetize(results, infixError(searchNaviWord, "tì"+rebuiltVerb, c.IPA))
 						}
 					}
 				} else if candidate.InsistPOS == "n." {
@@ -1590,7 +1590,7 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 							a.Affixes.Lenition = candidate.Lenition
 							a.Affixes.Prefix = candidate.Prefixes
 							a.Affixes.Suffix = candidate.Suffixes
-							results = AppendAndAlphabetize(results, a)
+							results = appendAndAlphabetize(results, a)
 						}
 					}
 				} else if candidate.InsistPOS == "pn." {
@@ -1600,7 +1600,7 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 						a.Affixes.Lenition = candidate.Lenition
 						a.Affixes.Prefix = candidate.Prefixes
 						a.Affixes.Suffix = candidate.Suffixes
-						results = AppendAndAlphabetize(results, a)
+						results = appendAndAlphabetize(results, a)
 					}
 				} else if candidate.InsistPOS == "adj." {
 					posNoun := pos
@@ -1609,7 +1609,7 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 						a.Affixes.Lenition = candidate.Lenition
 						a.Affixes.Prefix = candidate.Prefixes
 						a.Affixes.Suffix = candidate.Suffixes
-						results = AppendAndAlphabetize(results, a)
+						results = appendAndAlphabetize(results, a)
 					}
 				} else if candidate.InsistPOS == "v." {
 					posNoun := pos
@@ -1689,7 +1689,7 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 							if len(candidate.Infixes) > 0 {
 								continue // No nonsense here
 							} else {
-								results = AppendAndAlphabetize(results, a)
+								results = appendAndAlphabetize(results, a)
 							}
 						}
 
@@ -1699,7 +1699,7 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 
 						// pre-first position infixes
 						rebuiltVerb := c.InfixLocations
-						if c.InfixLocations == "z<0><1>en<2>ke" && Contains(candidate.Infixes, []string{"ats", "uy"}) {
+						if c.InfixLocations == "z<0><1>en<2>ke" && contains(candidate.Infixes, []string{"ats", "uy"}) {
 							rebuiltVerb = "z<0><1>en<2>eke"
 						}
 						firstInfixes := ""
@@ -1784,36 +1784,36 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 							searchNaviWordSquish = dialectCrunch([]string{searchNaviWordSquish}, false)[0]
 						}*/
 
-						if len(candidate.Infixes) == 0 || Contains([]string{rebuiltVerb}, allAConfigs) {
-							results = AppendAndAlphabetize(results, a)
+						if len(candidate.Infixes) == 0 || contains([]string{rebuiltVerb}, allAConfigs) {
+							results = appendAndAlphabetize(results, a)
 						} else if participle {
 							// In case we have a [word]-susi
 							rebuiltHyphen := strings.ReplaceAll(searchNaviWord, "-", " ")
 							if identicalRunes("a"+rebuiltVerb, rebuiltHyphen) {
 								// a-v<us>erb and a-v<awn>erb
-								results = AppendAndAlphabetize(results, a)
+								results = appendAndAlphabetize(results, a)
 							} else if identicalRunes(rebuiltVerb+"a", rebuiltHyphen) {
 								// v<us>erb-a and v<awn>erb-a
-								results = AppendAndAlphabetize(results, a)
+								results = appendAndAlphabetize(results, a)
 							} else if rebuiltVerb[0] == '\'' && identicalRunes("a"+rebuiltVerb[1:], rebuiltHyphen) {
 								// a-'<us>em
-								results = AppendAndAlphabetize(results, a)
+								results = appendAndAlphabetize(results, a)
 							} else if rebuiltVerb[len(rebuiltVerb)-1] == '\'' && identicalRunes(rebuiltVerb[:len(rebuiltVerb)-1]+"a", rebuiltHyphen) {
 								// fp<us>e'a
-								results = AppendAndAlphabetize(results, a)
+								results = appendAndAlphabetize(results, a)
 							} else if firstInfixes == "us" {
 								if len(results) == 0 {
-									results = AppendAndAlphabetize(results, infixError(searchNaviWord, rebuiltVerbForest, c.IPA))
+									results = appendAndAlphabetize(results, infixError(searchNaviWord, rebuiltVerbForest, c.IPA))
 								}
 							}
 							// TODO: This code is unreachable because it is deep nested after 'else if gerund else if...'
 							//} else if gerund { // ti is needed to weed out non-productive tì-verbs
 							//	if len(results) == 0 {
-							//		results = AppendAndAlphabetize(results, infixError(searchNaviWord, rebuiltVerbForest, c.IPA))
+							//		results = appendAndAlphabetize(results, infixError(searchNaviWord, rebuiltVerbForest, c.IPA))
 							//	}
 						} else {
 							if len(results) == 0 {
-								results = AppendAndAlphabetize(results, infixError(searchNaviWord, rebuiltVerbForest, c.IPA))
+								results = appendAndAlphabetize(results, infixError(searchNaviWord, rebuiltVerbForest, c.IPA))
 							}
 						}
 					}
@@ -1824,14 +1824,14 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 						a.Affixes.Lenition = candidate.Lenition
 						a.Affixes.Prefix = candidate.Prefixes
 						a.Affixes.Suffix = candidate.Suffixes
-						results = AppendAndAlphabetize(results, a)
+						results = appendAndAlphabetize(results, a)
 					}
 				} else if len(candidate.Infixes) == 0 {
 					a := c
 					a.Affixes.Lenition = candidate.Lenition
 					a.Affixes.Prefix = candidate.Prefixes
 					a.Affixes.Suffix = candidate.Suffixes
-					results = AppendAndAlphabetize(results, a)
+					results = appendAndAlphabetize(results, a)
 				}
 			}
 		}

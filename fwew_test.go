@@ -1287,15 +1287,15 @@ func TestTranslateFromNaviCached(t *testing.T) {
 		err2 error
 	)
 
-	err1 = CacheDictHash()
-	err2 = CacheDictHash2()
+	err1 = cacheDictHash()
+	err2 = cacheDictHash2()
 	PhonemeDistros()
 
 	if err1 != nil {
-		t.Errorf("TranslateFromNaviCached() Failed to CacheDictHash")
+		t.Errorf("TranslateFromNaviCached() Failed to cacheDictHash")
 	}
 	if err2 != nil {
-		t.Errorf("TranslateFromNaviCached() Failed to CacheDictHash2")
+		t.Errorf("TranslateFromNaviCached() Failed to cacheDictHash2")
 	}
 
 	for _, a := range adposuffixes {
@@ -1362,8 +1362,8 @@ func TestTranslateFromNaviCached(t *testing.T) {
 		})
 	}
 
-	UncacheHashDict()
-	UncacheHashDict2()
+	uncacheHashDict()
+	uncacheHashDict2()
 }
 
 func BenchmarkTranslateFromNavi(b *testing.B) {
@@ -1377,9 +1377,9 @@ func BenchmarkTranslateFromNavi(b *testing.B) {
 }
 
 func BenchmarkTranslateFromNaviCached(b *testing.B) {
-	_ = CacheDictHash()
+	_ = cacheDictHash()
 	BenchmarkTranslateFromNavi(b)
-	UncacheHashDict()
+	uncacheHashDict()
 }
 
 func BenchmarkTranslateFromNaviBig(b *testing.B) {
@@ -1407,9 +1407,9 @@ func BenchmarkTranslateFromNaviBig(b *testing.B) {
 }
 
 func BenchmarkTranslateFromNaviBigCached(b *testing.B) {
-	_ = CacheDictHash()
+	_ = cacheDictHash()
 	BenchmarkTranslateFromNaviBig(b)
-	UncacheHashDict()
+	uncacheHashDict()
 }
 
 func TestTranslateToNaviCached(t *testing.T) {
@@ -1418,14 +1418,14 @@ func TestTranslateToNaviCached(t *testing.T) {
 		err2 error
 	)
 
-	err1 = CacheDictHash()
-	err2 = CacheDictHash2()
+	err1 = cacheDictHash()
+	err2 = cacheDictHash2()
 
 	if err1 != nil {
-		t.Errorf("TranslateToNaviCached() Failed to CacheDictHash")
+		t.Errorf("TranslateToNaviCached() Failed to cacheDictHash")
 	}
 	if err2 != nil {
-		t.Errorf("TranslateToNaviCached() Failed to CacheDictHash2")
+		t.Errorf("TranslateToNaviCached() Failed to cacheDictHash2")
 	}
 
 	for _, tt := range englishWords {
@@ -1446,8 +1446,8 @@ func TestTranslateToNaviCached(t *testing.T) {
 		})
 	}
 
-	UncacheHashDict()
-	UncacheHashDict2()
+	uncacheHashDict()
+	uncacheHashDict2()
 }
 
 func TestBidirectionalCached(t *testing.T) {
@@ -1456,15 +1456,15 @@ func TestBidirectionalCached(t *testing.T) {
 		err2 error
 	)
 
-	err1 = CacheDictHash()
-	err2 = CacheDictHash2()
+	err1 = cacheDictHash()
+	err2 = cacheDictHash2()
 	PhonemeDistros()
 
 	if err1 != nil {
-		t.Errorf("TranslateToNaviCached() Failed to CacheDictHash")
+		t.Errorf("TranslateToNaviCached() Failed to cacheDictHash")
 	}
 	if err2 != nil {
-		t.Errorf("TranslateToNaviCached() Failed to CacheDictHash2")
+		t.Errorf("TranslateToNaviCached() Failed to cacheDictHash2")
 	}
 
 	for _, tt := range englishWords {
@@ -1498,8 +1498,8 @@ func TestBidirectionalCached(t *testing.T) {
 		})
 	}
 
-	UncacheHashDict()
-	UncacheHashDict2()
+	uncacheHashDict()
+	uncacheHashDict2()
 }
 
 func BenchmarkTranslateToNaviBig(b *testing.B) {
@@ -1527,9 +1527,9 @@ func BenchmarkTranslateToNaviBig(b *testing.B) {
 }
 
 func BenchmarkTranslateToNaviBigCached(b *testing.B) {
-	_ = CacheDictHash2()
+	_ = cacheDictHash2()
 	BenchmarkTranslateToNaviBig(b)
-	UncacheHashDict2()
+	uncacheHashDict2()
 }
 
 func TestRandom(t *testing.T) {
@@ -1593,7 +1593,7 @@ func TestRandom(t *testing.T) {
 }
 
 func TestRandomCached(t *testing.T) {
-	_ = CacheDictHash()
+	_ = cacheDictHash()
 	TestRandom(t)
-	UncacheHashDict()
+	uncacheHashDict()
 }

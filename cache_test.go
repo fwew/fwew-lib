@@ -12,7 +12,7 @@ func Test_cacheDict(t *testing.T) {
 		Navi: "'ampi",
 	}
 
-	err := CacheDictHash()
+	err := cacheDictHash()
 	if err != nil {
 		t.Fatalf("Error caching Dictionary!!")
 	}

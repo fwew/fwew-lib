@@ -21,14 +21,14 @@ var dictHashStrict map[string][]Word
 var dictHashStrictReef map[string][]Word
 var dictionaryCached bool
 var dictHashCached bool
-var dictHash2 MetaDict
-var dictHash2Parenthesis MetaDict
+var dictHash2 metaDict
+var dictHash2Parenthesis metaDict
 var dictHash2Cached bool
 var homonyms string
 var oddballs string
 var multiIPA string
 
-type MetaDict struct {
+type metaDict struct {
 	EN map[string][]string
 	DE map[string][]string
 	ES map[string][]string
@@ -93,12 +93,12 @@ func fileExists(filepath string) bool {
 	return !fileStat.IsDir()
 }
 
-// FindDictionaryFile returns the location of the dictionary file
+// findDictionaryFile returns the location of the dictionary file
 // the dictionary file can be places into:
 // - <workingDir>/dictionary.txt
 // - <workingDir>/.fwew/dictionary.txt
 // - <homeDir>/.fwew/dictionary.txt
-func FindDictionaryFile() string {
+func findDictionaryFile() string {
 	wd, err := os.Getwd()
 	if err == nil {
 		path := filepath.Join(wd, ".fwew", dictFileName)
@@ -144,7 +144,7 @@ func AlphabetizeHelper(a string, b string) bool {
 	return len(aCompacted) < len(bCompacted)
 }
 
-func AppendAndAlphabetize(words []Word, word Word) []Word {
+func appendAndAlphabetize(words []Word, word Word) []Word {
 	// Ensure it's not a duplicate
 	for _, a := range words {
 		if word.ID == a.ID {
@@ -194,13 +194,13 @@ func AppendAndAlphabetize(words []Word, word Word) []Word {
 	// compare an individual word
 	if AlphabetizeHelper(word.Syllables, words[halfway].Syllables) {
 		// Copy the first half
-		newWords = AppendAndAlphabetize(newWords, word)
+		newWords = appendAndAlphabetize(newWords, word)
 
 		// Join them
 		newWords = append(newWords, oldWords...)
 	} else {
 		// Copy the second half
-		oldWords = AppendAndAlphabetize(oldWords, word)
+		oldWords = appendAndAlphabetize(oldWords, word)
 
 		// Join them
 		newWords = append(newWords, oldWords...)
@@ -209,94 +209,94 @@ func AppendAndAlphabetize(words []Word, word Word) []Word {
 	return newWords
 }
 
-// NullDef is a helper to find empty definitions
-func NullDef(definition string) bool {
+// hasNullDef is a helper to find empty definitions
+func hasNullDef(definition string) bool {
 	return strings.ToUpper(definition) == "NULL" || len(strings.Trim(definition, " ")) < 1
 }
 
-// EnglishIfNull defaults a word to English if a definition is not available in a certain language
-func EnglishIfNull(word Word) Word {
+// englishIfNull defaults a word to English if a definition is not available in a certain language
+func englishIfNull(word Word) Word {
 	// English
-	if NullDef(word.EN) {
+	if hasNullDef(word.EN) {
 		word.EN = "(no definition)"
 	}
 
 	// German (Deutsch)
-	if NullDef(word.DE) {
+	if hasNullDef(word.DE) {
 		word.DE = word.EN
 	}
 
 	// Spanish (Español)
-	if NullDef(word.ES) {
+	if hasNullDef(word.ES) {
 		word.ES = word.EN
 	}
 
 	// Estonian (Eesti)
-	if NullDef(word.ET) {
+	if hasNullDef(word.ET) {
 		word.ET = word.EN
 	}
 
 	// French (Français)
-	if NullDef(word.FR) {
+	if hasNullDef(word.FR) {
 		word.FR = word.EN
 	}
 
 	// Hungarian (Magyar)
-	if NullDef(word.HU) {
+	if hasNullDef(word.HU) {
 		word.HU = word.EN
 	}
 
 	// Italian (Italiano)
-	if NullDef(word.IT) {
+	if hasNullDef(word.IT) {
 		word.IT = word.EN
 	}
 
 	// Korean (한국어)
-	if NullDef(word.KO) {
+	if hasNullDef(word.KO) {
 		word.KO = word.EN
 	}
 
 	// Dutch (Nederlands)
-	if NullDef(word.NL) {
+	if hasNullDef(word.NL) {
 		word.NL = word.EN
 	}
 
 	// Polish (Polski)
-	if NullDef(word.PL) {
+	if hasNullDef(word.PL) {
 		word.PL = word.EN
 	}
 
 	// Portuguese (Português)
-	if NullDef(word.PT) {
+	if hasNullDef(word.PT) {
 		word.PT = word.EN
 	}
 
 	// Russian (Русский)
-	if NullDef(word.RU) {
+	if hasNullDef(word.RU) {
 		word.RU = word.EN
 	}
 
 	// Swedish (Svenska)
-	if NullDef(word.SV) {
+	if hasNullDef(word.SV) {
 		word.SV = word.EN
 	}
 
 	// Turkish (Türkçe)
-	if NullDef(word.TR) {
+	if hasNullDef(word.TR) {
 		word.TR = word.EN
 	}
 
 	// Ukrainian (Українська)
-	if NullDef(word.UK) {
+	if hasNullDef(word.UK) {
 		word.UK = word.EN
 	}
 
 	return word
 }
 
-// RomanizeSecondIPA is a helper function to get phonetic transcriptions of secondary pronunciations
+// romanizeSecondIPA is a helper function to get phonetic transcriptions of secondary pronunciations
 // Only multiple IPA words will call this function
-func RomanizeSecondIPA(IPA string) string {
+func romanizeSecondIPA(IPA string) string {
 	// now Romanize the IPA
 	IPA = strings.ReplaceAll(IPA, "ʊ", "u")
 	IPA = strings.ReplaceAll(IPA, "õ", "o") // vonvä' as võvä' only
@@ -436,15 +436,15 @@ func RomanizeSecondIPA(IPA string) string {
 	return strings.TrimSuffix(breakdown, " ")
 }
 
-func UncacheDict() {
+func uncacheDict() {
 	dictionaryCached = false
 	dictionary = []Word{}
 }
 
-func CacheDict() error {
+func cacheDict() error {
 	var err error
 
-	UncacheDict()
+	uncacheDict()
 	err = runOnDB(func(word Word) error {
 		dictionary = append(dictionary, word)
 		return nil
@@ -453,7 +453,7 @@ func CacheDict() error {
 	if err == nil {
 		fmt.Println("cache 0 loaded (SQL)")
 	} else {
-		UncacheDict()
+		uncacheDict()
 		err = runOnFile(func(word Word) error {
 			dictionary = append(dictionary, word)
 			return nil
@@ -462,7 +462,7 @@ func CacheDict() error {
 	}
 
 	if err != nil {
-		UncacheDict()
+		uncacheDict()
 		return err
 	}
 
@@ -471,20 +471,20 @@ func CacheDict() error {
 	return nil
 }
 
-func CacheDictHash() error {
-	err := CacheDictHashOrig(true)
+func cacheDictHash() error {
+	err := cacheDictHashOrig(true)
 	if err == nil {
 		fmt.Println("cache 1 loaded (SQL)")
 	} else {
-		err = CacheDictHashOrig(false)
+		err = cacheDictHashOrig(false)
 		//fmt.Println("cache 1 loaded (File)")
 	}
 	return err
 }
 
-// CacheDictHashOrig will cache the whole dictionary (Na'vi to natural language).
+// cacheDictHashOrig will cache the whole dictionary (Na'vi to natural language).
 // Please call this, if you want to translate multiple words or running infinitely (e.g. CLI-go-prompt, discord-bot)
-func CacheDictHashOrig(mysql bool) error {
+func cacheDictHashOrig(mysql bool) error {
 	// dont run if already is cached
 	if len(dictHashLoose) != 0 {
 		return nil
@@ -568,7 +568,7 @@ func CacheDictHashOrig(mysql bool) error {
 			}
 		}
 
-		word = EnglishIfNull(word)
+		word = englishIfNull(word)
 		dictHashLoose[standardizedWordLoose] = append(dictHashLoose[standardizedWordLoose], word)
 		dictHashStrictReef[strictReef] = append(dictHashStrictReef[strictReef], word)
 		dictHashStrict[standardizedWord] = append(dictHashStrict[standardizedWord], word)
@@ -576,7 +576,7 @@ func CacheDictHashOrig(mysql bool) error {
 		//find words with multiple IPAs
 		if strings.Contains(word.IPA, " or ") {
 			multiIPA += word.Navi + " "
-			secondTerm := RomanizeSecondIPA(word.IPA)
+			secondTerm := romanizeSecondIPA(word.IPA)
 			if secondTerm != standardizedWord {
 				dictHashLoose[dialectCrunch([]string{secondTerm}, true, true)[0]] = append(dictHashLoose[dialectCrunch([]string{secondTerm}, true, true)[0]], word)
 				dictHashStrictReef[dialectCrunch([]string{secondTerm}, true, true)[0]] = append(dictHashStrictReef[dialectCrunch([]string{secondTerm}, true, true)[0]], word)
@@ -604,14 +604,14 @@ func CacheDictHashOrig(mysql bool) error {
 	if mysql {
 		err = runOnDB(f)
 		if err != nil {
-			UncacheHashDict()
+			uncacheHashDict()
 			return err
 		}
 	} else {
 		err = runOnFile(f)
 		if err != nil {
 			log.Printf("Error caching dictionary: %s", err)
-			UncacheHashDict()
+			uncacheHashDict()
 			return err
 		}
 	}
@@ -631,8 +631,8 @@ func CacheDictHashOrig(mysql bool) error {
 	return nil
 }
 
-// SearchTerms turns a definition into its searchable terms
-func SearchTerms(input string, excludeParen bool) []string {
+// searchTerms turns a definition into its searchable terms
+func searchTerms(input string, excludeParen bool) []string {
 	badChars := `~@#$%^&*()[]{}<>_/.,;:!?|+\"„“”«»`
 
 	input = strings.ReplaceAll(input, "(", " (")
@@ -671,9 +671,9 @@ func SearchTerms(input string, excludeParen bool) []string {
 	return strings.Split(input, " ")
 }
 
-// AssignWord is a helper function for CacheDictHash2
-func AssignWord(wordMap map[string][]string, natlangWords string, naviWord string, excludeParen bool) (result map[string][]string) {
-	newWords := SearchTerms(natlangWords, excludeParen)
+// assignWord is a helper function for cacheDictHash2
+func assignWord(wordMap map[string][]string, natlangWords string, naviWord string, excludeParen bool) (result map[string][]string) {
+	newWords := searchTerms(natlangWords, excludeParen)
 
 	for i := 0; i < len(newWords); i++ {
 		duplicate := false
@@ -690,19 +690,19 @@ func AssignWord(wordMap map[string][]string, natlangWords string, naviWord strin
 	return wordMap
 }
 
-// CacheDictHash2 caches Natural languages to Na'vi
-func CacheDictHash2() error {
-	err := CacheDictHash2Orig(true)
+// cacheDictHash2 caches Natural languages to Na'vi
+func cacheDictHash2() error {
+	err := cacheDictHash2Orig(true)
 	if err == nil {
 		fmt.Println("cache 2 loaded (SQL)")
 	} else {
-		err = CacheDictHash2Orig(false)
+		err = cacheDictHash2Orig(false)
 		//fmt.Println("cache 2 loaded (File)")
 	}
 	return err
 }
 
-func CacheDictHash2Orig(mysql bool) error {
+func cacheDictHash2Orig(mysql bool) error {
 	// dont run if already is cached
 	if len(dictHash2.EN) != 0 {
 		return nil
@@ -747,93 +747,93 @@ func CacheDictHash2Orig(mysql bool) error {
 		standardizedWord = strings.ReplaceAll(standardizedWord, "+", "")
 
 		// English
-		if !NullDef(word.EN) {
-			dictHash2.EN = AssignWord(dictHash2.EN, word.EN, standardizedWord, true)
-			dictHash2Parenthesis.EN = AssignWord(dictHash2Parenthesis.EN, word.EN, standardizedWord, false)
+		if !hasNullDef(word.EN) {
+			dictHash2.EN = assignWord(dictHash2.EN, word.EN, standardizedWord, true)
+			dictHash2Parenthesis.EN = assignWord(dictHash2Parenthesis.EN, word.EN, standardizedWord, false)
 		}
 
 		// German (Deutsch)
-		if !NullDef(word.DE) {
-			dictHash2.DE = AssignWord(dictHash2.DE, word.DE, standardizedWord, true)
-			dictHash2Parenthesis.DE = AssignWord(dictHash2Parenthesis.DE, word.DE, standardizedWord, false)
+		if !hasNullDef(word.DE) {
+			dictHash2.DE = assignWord(dictHash2.DE, word.DE, standardizedWord, true)
+			dictHash2Parenthesis.DE = assignWord(dictHash2Parenthesis.DE, word.DE, standardizedWord, false)
 		}
 
 		// Spanish (Español)
-		if !NullDef(word.ES) {
-			dictHash2.ES = AssignWord(dictHash2.ES, word.ES, standardizedWord, true)
-			dictHash2Parenthesis.ES = AssignWord(dictHash2Parenthesis.ES, word.ES, standardizedWord, false)
+		if !hasNullDef(word.ES) {
+			dictHash2.ES = assignWord(dictHash2.ES, word.ES, standardizedWord, true)
+			dictHash2Parenthesis.ES = assignWord(dictHash2Parenthesis.ES, word.ES, standardizedWord, false)
 		}
 
 		// Estonian (Eesti)
-		if !NullDef(word.ET) {
-			dictHash2.ET = AssignWord(dictHash2.ET, word.ET, standardizedWord, true)
-			dictHash2Parenthesis.ET = AssignWord(dictHash2Parenthesis.ET, word.ET, standardizedWord, false)
+		if !hasNullDef(word.ET) {
+			dictHash2.ET = assignWord(dictHash2.ET, word.ET, standardizedWord, true)
+			dictHash2Parenthesis.ET = assignWord(dictHash2Parenthesis.ET, word.ET, standardizedWord, false)
 		}
 
 		// French (Français)
-		if !NullDef(word.FR) {
-			dictHash2.FR = AssignWord(dictHash2.FR, word.FR, standardizedWord, true)
-			dictHash2Parenthesis.FR = AssignWord(dictHash2Parenthesis.FR, word.FR, standardizedWord, false)
+		if !hasNullDef(word.FR) {
+			dictHash2.FR = assignWord(dictHash2.FR, word.FR, standardizedWord, true)
+			dictHash2Parenthesis.FR = assignWord(dictHash2Parenthesis.FR, word.FR, standardizedWord, false)
 		}
 
 		// Hungarian (Magyar)
-		if !NullDef(word.HU) {
-			dictHash2.HU = AssignWord(dictHash2.HU, word.HU, standardizedWord, true)
-			dictHash2Parenthesis.HU = AssignWord(dictHash2Parenthesis.HU, word.HU, standardizedWord, false)
+		if !hasNullDef(word.HU) {
+			dictHash2.HU = assignWord(dictHash2.HU, word.HU, standardizedWord, true)
+			dictHash2Parenthesis.HU = assignWord(dictHash2Parenthesis.HU, word.HU, standardizedWord, false)
 		}
 
 		// Italian (Italiano)
-		if !NullDef(word.IT) {
-			dictHash2.IT = AssignWord(dictHash2.IT, word.IT, standardizedWord, true)
-			dictHash2Parenthesis.IT = AssignWord(dictHash2Parenthesis.IT, word.IT, standardizedWord, false)
+		if !hasNullDef(word.IT) {
+			dictHash2.IT = assignWord(dictHash2.IT, word.IT, standardizedWord, true)
+			dictHash2Parenthesis.IT = assignWord(dictHash2Parenthesis.IT, word.IT, standardizedWord, false)
 		}
 
 		// Korean (한국어)
-		if !NullDef(word.KO) {
-			dictHash2.KO = AssignWord(dictHash2.KO, word.KO, standardizedWord, true)
-			dictHash2Parenthesis.KO = AssignWord(dictHash2Parenthesis.KO, word.KO, standardizedWord, false)
+		if !hasNullDef(word.KO) {
+			dictHash2.KO = assignWord(dictHash2.KO, word.KO, standardizedWord, true)
+			dictHash2Parenthesis.KO = assignWord(dictHash2Parenthesis.KO, word.KO, standardizedWord, false)
 		}
 
 		// Dutch (Nederlands)
-		if !NullDef(word.NL) {
-			dictHash2.NL = AssignWord(dictHash2.NL, word.NL, standardizedWord, true)
-			dictHash2Parenthesis.NL = AssignWord(dictHash2Parenthesis.NL, word.NL, standardizedWord, false)
+		if !hasNullDef(word.NL) {
+			dictHash2.NL = assignWord(dictHash2.NL, word.NL, standardizedWord, true)
+			dictHash2Parenthesis.NL = assignWord(dictHash2Parenthesis.NL, word.NL, standardizedWord, false)
 		}
 
 		// Polish (Polski)
-		if !NullDef(word.PL) {
-			dictHash2.PL = AssignWord(dictHash2.PL, word.PL, standardizedWord, true)
-			dictHash2Parenthesis.PL = AssignWord(dictHash2Parenthesis.PL, word.PL, standardizedWord, false)
+		if !hasNullDef(word.PL) {
+			dictHash2.PL = assignWord(dictHash2.PL, word.PL, standardizedWord, true)
+			dictHash2Parenthesis.PL = assignWord(dictHash2Parenthesis.PL, word.PL, standardizedWord, false)
 		}
 
 		// Portuguese (Português)
-		if !NullDef(word.PT) {
-			dictHash2.PT = AssignWord(dictHash2.PT, word.PT, standardizedWord, true)
-			dictHash2Parenthesis.PT = AssignWord(dictHash2Parenthesis.PT, word.PT, standardizedWord, false)
+		if !hasNullDef(word.PT) {
+			dictHash2.PT = assignWord(dictHash2.PT, word.PT, standardizedWord, true)
+			dictHash2Parenthesis.PT = assignWord(dictHash2Parenthesis.PT, word.PT, standardizedWord, false)
 		}
 
 		// Russian (Русский)
-		if !NullDef(word.RU) {
-			dictHash2.RU = AssignWord(dictHash2.RU, word.RU, standardizedWord, true)
-			dictHash2Parenthesis.RU = AssignWord(dictHash2Parenthesis.RU, word.RU, standardizedWord, false)
+		if !hasNullDef(word.RU) {
+			dictHash2.RU = assignWord(dictHash2.RU, word.RU, standardizedWord, true)
+			dictHash2Parenthesis.RU = assignWord(dictHash2Parenthesis.RU, word.RU, standardizedWord, false)
 		}
 
 		// Swedish (Svenska)
-		if !NullDef(word.SV) {
-			dictHash2.SV = AssignWord(dictHash2.SV, word.SV, standardizedWord, true)
-			dictHash2Parenthesis.SV = AssignWord(dictHash2Parenthesis.SV, word.SV, standardizedWord, false)
+		if !hasNullDef(word.SV) {
+			dictHash2.SV = assignWord(dictHash2.SV, word.SV, standardizedWord, true)
+			dictHash2Parenthesis.SV = assignWord(dictHash2Parenthesis.SV, word.SV, standardizedWord, false)
 		}
 
 		// Turkish (Türkçe)
-		if !NullDef(word.TR) {
-			dictHash2.TR = AssignWord(dictHash2.TR, word.TR, standardizedWord, true)
-			dictHash2Parenthesis.TR = AssignWord(dictHash2Parenthesis.TR, word.TR, standardizedWord, false)
+		if !hasNullDef(word.TR) {
+			dictHash2.TR = assignWord(dictHash2.TR, word.TR, standardizedWord, true)
+			dictHash2Parenthesis.TR = assignWord(dictHash2Parenthesis.TR, word.TR, standardizedWord, false)
 		}
 
 		// Ukrainian (Українська)
-		if !NullDef(word.UK) {
-			dictHash2.UK = AssignWord(dictHash2.UK, word.UK, standardizedWord, true)
-			dictHash2Parenthesis.UK = AssignWord(dictHash2Parenthesis.UK, word.UK, standardizedWord, false)
+		if !hasNullDef(word.UK) {
+			dictHash2.UK = assignWord(dictHash2.UK, word.UK, standardizedWord, true)
+			dictHash2Parenthesis.UK = assignWord(dictHash2Parenthesis.UK, word.UK, standardizedWord, false)
 		}
 		return nil
 	}
@@ -842,14 +842,14 @@ func CacheDictHash2Orig(mysql bool) error {
 	if mysql {
 		err = runOnDB(setUpTheWholeThing)
 		if err != nil {
-			UncacheHashDict2()
+			uncacheHashDict2()
 			return err
 		}
 	} else {
 		err = runOnFile(setUpTheWholeThing)
 		if err != nil {
 			log.Printf("Error caching dictionary: %s", err)
-			UncacheHashDict2()
+			uncacheHashDict2()
 			return err
 		}
 	}
@@ -859,7 +859,7 @@ func CacheDictHash2Orig(mysql bool) error {
 	return nil
 }
 
-func UncacheHashDict() {
+func uncacheHashDict() {
 	dictHashCached = false
 	dictHashLoose = nil
 	dictHashStrict = nil
@@ -867,7 +867,7 @@ func UncacheHashDict() {
 	oddballs = ""
 }
 
-func UncacheHashDict2() {
+func uncacheHashDict2() {
 	dictHash2Cached = false
 	dictHash2.EN = nil
 	dictHash2.DE = nil
@@ -900,30 +900,6 @@ func UncacheHashDict2() {
 	dictHash2Parenthesis.SV = nil
 	dictHash2Parenthesis.TR = nil
 	dictHash2Parenthesis.UK = nil
-}
-
-// RunOnDict will run the function `f` inside the cache or the file directly.
-// Use this to get words out of the dictionary
-// function `f` is called on every single line in the dictionary!
-func RunOnDict(f func(word Word) error) (err error) {
-	if dictionaryCached {
-		for _, word := range dictionary {
-			err = f(word)
-			if err != nil {
-				return
-			}
-		}
-	} else {
-		err = runOnFile(func(word Word) error {
-			err = f(word)
-			if err != nil {
-				return err
-			}
-			return nil
-		})
-	}
-
-	return
 }
 
 func runOnDB(f func(word Word) error) error {
@@ -1013,7 +989,7 @@ func runOnDB(f func(word Word) error) error {
 }
 
 func runOnFile(f func(word Word) error) error {
-	dictionaryFile := FindDictionaryFile()
+	dictionaryFile := findDictionaryFile()
 	if dictionaryFile == "" {
 		return NoDictionary
 	}
@@ -1145,32 +1121,32 @@ func GetDictSize(lang string) (count string, err error) {
 func UpdateDict() error {
 	universalLock.Lock()
 	defer universalLock.Unlock()
-	err := DownloadDict("")
+	err := downloadDict("")
 	if err != nil {
 		return FailedToDownload.wrap(err)
 	}
 
-	err = CacheDict()
+	err = cacheDict()
 	if err != nil {
-		log.Printf("Error caching dict after updatig ... Cache disabled")
+		log.Printf("Error caching dict after updating ... Cache disabled")
 		return err
 	}
 
 	if dictHashCached {
-		UncacheHashDict()
+		uncacheHashDict()
 	}
 
-	err = CacheDictHash()
+	err = cacheDictHash()
 	if err != nil {
 		log.Printf("Error caching dict after updating ... Cache disabled")
 		return err
 	}
 
 	if dictHash2Cached {
-		UncacheHashDict2()
+		uncacheHashDict2()
 	}
 
-	err = CacheDictHash2()
+	err = cacheDictHash2()
 	if err != nil {
 		log.Printf("Error caching dict after updating ... Cache disabled")
 		return err
@@ -1183,7 +1159,7 @@ func UpdateDict() error {
 // If no dictionary is found, it will be downloaded next of the executable.
 func AssureDict() error {
 	// check if dict already exists
-	file := FindDictionaryFile()
+	file := findDictionaryFile()
 	if file != "" {
 		return nil
 	}
@@ -1191,7 +1167,7 @@ func AssureDict() error {
 	// if it doesn't, put it in ~/.fwew/
 	path := filepath.Join(Text("dataDir"), dictFileName)
 
-	err := DownloadDict(path)
+	err := downloadDict(path)
 	if err != nil {
 		return err
 	}

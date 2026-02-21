@@ -7,17 +7,17 @@ import (
 )
 
 func TestList(t *testing.T) {
-	err := CacheDict()
+	err := cacheDict()
 	if err != nil {
 		t.Error(err)
 	}
 
-	err = CacheDictHash()
+	err = cacheDictHash()
 	if err != nil {
 		t.Error(err)
 	}
 
-	err = CacheDictHash2()
+	err = cacheDictHash2()
 	if err != nil {
 		t.Error(err)
 	}

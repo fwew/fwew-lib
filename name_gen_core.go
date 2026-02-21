@@ -27,7 +27,7 @@ var romanization = map[string]string{
 	"aj": "ay", "ɛw": "ew",
 	// Psuedovowels
 	"ṛ": "rr", "ḷ": "ll",
-	// Consonents
+	// Consonants
 	"t": "t", "p": "p", "ʔ": "'",
 	"n": "n", "k": "k", "l": "l",
 	"s": "s", "ɾ": "r", "j": "y",
@@ -554,8 +554,8 @@ func hasAt(word string, ipa string, n int) (output bool) {
 	return false
 }
 
-// SortedWords is a helper function for name-alu
-func SortedWords() (nouns []Word, adjectives []Word, verbs []Word, transitiveVerbs []Word) {
+// sortedWords is a helper function for name-alu
+func sortedWords() (nouns []Word, adjectives []Word, verbs []Word, transitiveVerbs []Word) {
 	words, err := List([]string{}, 0)
 
 	if err != nil || len(words) == 0 {
@@ -893,11 +893,11 @@ func PhonemeDistros() {
 	}
 
 	// Show the phoneme map sorted
-	/*syllable_tuples := []PhonemeTuple{}
+	/*syllable_tuples := []phonemeTuple{}
 	for key, val := range syllable_map {
-		syllable_tuples = append(syllable_tuples, PhonemeTuple{val, key})
+		syllable_tuples = append(syllable_tuples, phonemeTuple{val, key})
 	}
-	sort.Sort(Tuples(syllable_tuples))
+	sort.Sort(tuples(syllable_tuples))
 
 	for _, a := range syllable_tuples {
 		fmt.Println(a)

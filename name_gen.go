@@ -8,30 +8,30 @@ import (
 	"strings"
 )
 
-type PhonemeTuple struct {
+type phonemeTuple struct {
 	value  int
 	letter string
 }
 
-type Tuples []PhonemeTuple
+type tuples []phonemeTuple
 
-func (s Tuples) Len() int {
-	return len(s)
+func (t tuples) Len() int {
+	return len(t)
 }
 
-func (s Tuples) Swap(i, j int) {
-	s[i], s[j] = s[j], s[i]
+func (t tuples) Swap(i, j int) {
+	t[i], t[j] = t[j], t[i]
 }
 
-func (s Tuples) Less(i, j int) bool {
+func (t tuples) Less(i, j int) bool {
 	// bigger values first here
-	if s[i].value == s[j].value {
-		return AlphabetizeHelper(s[i].letter, s[j].letter)
+	if t[i].value == t[j].value {
+		return AlphabetizeHelper(t[i].letter, t[j].letter)
 	}
-	return s[i].value > s[j].value
+	return t[i].value > t[j].value
 }
 
-// SingleNames generates a single given names
+// SingleNames generates single given names
 func SingleNames(nameCount int, dialect int, syllableCount int) (output string) {
 	universalLock.Lock()
 	defer universalLock.Unlock()
@@ -139,11 +139,11 @@ func NameAlu(nameCount int, dialect int, syllableCount int, nounMode int, adjMod
 	}
 
 	// A single function that allows all these to be acquired with only one dictionary search
-	allNouns, allAdjectives, allVerbs, allTransitiveVerbs := SortedWords()
+	allNouns, allAdjectives, allVerbs, allTransitiveVerbs := sortedWords()
 
 	output = ""
 
-	// This isn't at the top because SortedWords calls List, which uses the same lock
+	// This isn't at the top because sortedWords calls List, which uses the same lock
 	universalLock.Lock()
 	defer universalLock.Unlock()
 
@@ -426,27 +426,27 @@ func GetPhonemeDistrosMap(lang string) (allDistros [][][]string) {
 	}
 
 	// Convert them to tuples for sorting
-	var onsetTuples []PhonemeTuple
+	var onsetTuples []phonemeTuple
 	for key, val := range onsetMap {
-		onsetTuples = append(onsetTuples, PhonemeTuple{val, key})
+		onsetTuples = append(onsetTuples, phonemeTuple{val, key})
 	}
-	slices.SortFunc(Tuples(onsetTuples), func(a, b PhonemeTuple) int {
+	slices.SortFunc(tuples(onsetTuples), func(a, b phonemeTuple) int {
 		return b.value - a.value
 	})
 
-	var nucleusTuples []PhonemeTuple
+	var nucleusTuples []phonemeTuple
 	for key, val := range nucleusMap {
-		nucleusTuples = append(nucleusTuples, PhonemeTuple{val, key})
+		nucleusTuples = append(nucleusTuples, phonemeTuple{val, key})
 	}
-	slices.SortFunc(Tuples(nucleusTuples), func(a, b PhonemeTuple) int {
+	slices.SortFunc(tuples(nucleusTuples), func(a, b phonemeTuple) int {
 		return b.value - a.value
 	})
 
-	var codaTuples []PhonemeTuple
+	var codaTuples []phonemeTuple
 	for key, val := range codaMap {
-		codaTuples = append(codaTuples, PhonemeTuple{val, key})
+		codaTuples = append(codaTuples, phonemeTuple{val, key})
 	}
-	slices.SortFunc(Tuples(codaTuples), func(a, b PhonemeTuple) int {
+	slices.SortFunc(tuples(codaTuples), func(a, b phonemeTuple) int {
 		return b.value - a.value
 	})
 

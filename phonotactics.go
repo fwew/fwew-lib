@@ -16,7 +16,7 @@ var lettersEnd = []string{"", "p", "t", "k", "b", "d", "q", "'",
 
 var lettersMap = map[string]string{}
 
-func MakeSyllableBreakdown(syllables []string) string {
+func makeSyllableBreakdown(syllables []string) string {
 	syllableBreakdownTemp := ""
 	for i, a := range syllables {
 		if i != len(syllables)-1 && i != 0 {
@@ -27,9 +27,9 @@ func MakeSyllableBreakdown(syllables []string) string {
 	return syllableBreakdownTemp
 }
 
-// NoDoubleDiphthongs turns things like maw-ey into ma-wey, so the checker knows
+// noDoubleDiphthongs turns things like maw-ey into ma-wey, so the checker knows
 // mawll is valid as ma-wll and not mistaken for maw-ll (invalid)
-func NoDoubleDiphthongs(syllableBreakdown string) string {
+func noDoubleDiphthongs(syllableBreakdown string) string {
 	syllableBreakdown = strings.ReplaceAll(syllableBreakdown, "2-0", "a-w0")
 	syllableBreakdown = strings.ReplaceAll(syllableBreakdown, "2-1", "a-w1")
 	syllableBreakdown = strings.ReplaceAll(syllableBreakdown, "3-0", "a-y0")
@@ -41,7 +41,7 @@ func NoDoubleDiphthongs(syllableBreakdown string) string {
 	return syllableBreakdown
 }
 
-func ResolveFakePsuedovowels(syllableBreakdown string) string {
+func resolveFakePsuedovowels(syllableBreakdown string) string {
 	vowels := []string{"a", "ä", "e", "i", "ì", "o", "u", "ù"}
 	replacement := map[string]string{"0": "r-r", "1": "l-l"}
 	for _, pseudovowel := range []string{"0", "1"} {
@@ -55,8 +55,8 @@ func ResolveFakePsuedovowels(syllableBreakdown string) string {
 	return syllableBreakdown
 }
 
-// IsValidNaviHelper see if a word is phonotactically valid in Na'vi
-func IsValidNaviHelper(word string, lang string) string {
+// isValidNaviHelper see if a word is phonotactically valid in Na'vi
+func isValidNaviHelper(word string, lang string) string {
 	// Protect against odd language values
 	if _, ok := messageValid[lang]; !ok {
 		lang = "en" // default to English
@@ -231,8 +231,8 @@ func IsValidNaviHelper(word string, lang string) string {
 	// ERROR 4a: Incomplete syllables
 	if !contains[0] {
 		syllables[0] += "•"
-		syllableBreakdown2 := MakeSyllableBreakdown(syllables)
-		syllableBreakdown2 = NoDoubleDiphthongs(syllableBreakdown2)
+		syllableBreakdown2 := makeSyllableBreakdown(syllables)
+		syllableBreakdown2 = noDoubleDiphthongs(syllableBreakdown2)
 		message := strings.ReplaceAll(messageNeededVowel[lang], "{oldWord}", oldWord)
 		message = strings.ReplaceAll(message, "{breakdown}", strings.ToLower(decompress(syllableBreakdown2)))
 		return "❌ " + message
@@ -249,8 +249,8 @@ func IsValidNaviHelper(word string, lang string) string {
 
 		if !canEndAWord {
 			syllables[len(syllables)-1] += "•"
-			syllableBreakdown2 := MakeSyllableBreakdown(syllables)
-			syllableBreakdown2 = NoDoubleDiphthongs(syllableBreakdown2)
+			syllableBreakdown2 := makeSyllableBreakdown(syllables)
+			syllableBreakdown2 = noDoubleDiphthongs(syllableBreakdown2)
 			message := strings.ReplaceAll(messageNeededVowel[lang], "{oldWord}", oldWord)
 			message = strings.ReplaceAll(message, "{breakdown}", strings.ToLower(decompress(syllableBreakdown2)))
 			return "❌ " + message
@@ -267,20 +267,20 @@ func IsValidNaviHelper(word string, lang string) string {
 
 		if !canCoda {
 			syllables[len(syllables)-1] += "•"
-			syllableBreakdown2 := MakeSyllableBreakdown(syllables)
-			syllableBreakdown2 = NoDoubleDiphthongs(syllableBreakdown2)
+			syllableBreakdown2 := makeSyllableBreakdown(syllables)
+			syllableBreakdown2 = noDoubleDiphthongs(syllableBreakdown2)
 			message := strings.ReplaceAll(messageNeededVowel[lang], "{oldWord}", oldWord)
 			message = strings.ReplaceAll(message, "{breakdown}", strings.ToLower(decompress(syllableBreakdown2)))
 			return "❌ " + message
 		}
 
-		syllableBreakdown = MakeSyllableBreakdown(syllables)
+		syllableBreakdown = makeSyllableBreakdown(syllables)
 	}
 
 	// Ensure no diphthong confuses the checker (as in "ewll" becoming "ew-ll" and not "e-wll")
-	syllableBreakdown = NoDoubleDiphthongs(syllableBreakdown)
+	syllableBreakdown = noDoubleDiphthongs(syllableBreakdown)
 
-	syllableBreakdown = ResolveFakePsuedovowels(syllableBreakdown)
+	syllableBreakdown = resolveFakePsuedovowels(syllableBreakdown)
 
 	if strings.Contains(syllableBreakdown, "-0-") || strings.Contains(syllableBreakdown, "-1-") ||
 		strings.HasPrefix(syllableBreakdown, "0") || strings.HasPrefix(syllableBreakdown, "1") ||
@@ -427,7 +427,7 @@ func IsValidNavi(word string, lang string, twoThousandLimit bool) string {
 	}
 	results := ""
 	for i, a := range strings.Split(word, " ") {
-		newLine := IsValidNaviHelper(a, lang) + "\n"
+		newLine := isValidNaviHelper(a, lang) + "\n"
 		if twoThousandLimit && len([]rune(results))+len([]rune(newLine)) > 1914 {
 			// (stopped at {count}. 2000-Character limit)
 			results += strings.ReplaceAll(messageTooBig[lang], "{count}", strconv.Itoa(i+1))

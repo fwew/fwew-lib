@@ -155,13 +155,6 @@ func (w *Word) SyllableCount() int {
 	return numSyllables
 }
 
-const (
-	mdBold   = "**"
-	mdItalic = "*"
-	newline  = "\n"
-	valNull  = "NULL"
-)
-
 func (w *Word) ToOutputLine(
 	i string,
 	withMarkdown, showIPA, showInfixes, showDashed, showInfDots, showSource, reef bool,

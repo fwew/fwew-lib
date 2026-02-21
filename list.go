@@ -95,12 +95,12 @@ func filterPos(results []Word, word Word, args []string) []Word {
 		Text("c_ends"):       strings.HasSuffix(pos, spec),
 		Text("c_is"):         pos == spec,
 		Text("c_has"):        strings.Contains(pos, spec),
-		Text("c_like"):       Glob(spec, pos),
+		Text("c_like"):       glob(spec, pos),
 		Text("c_not-starts"): !strings.HasPrefix(pos, spec),
 		Text("c_not-ends"):   !strings.HasSuffix(pos, spec),
 		Text("c_not-is"):     pos != spec,
 		Text("c_not-has"):    !strings.Contains(pos, spec),
-		Text("c_not-like"):   !Glob(spec, pos),
+		Text("c_not-like"):   !glob(spec, pos),
 	}
 
 	if condMap[cond] {
@@ -144,14 +144,14 @@ func filterWord(results []Word, word Word, args []string, checkDigraphs uint8) [
 		Text("c_has-any"):     satisfiesAny(word, cond, spec),
 		Text("c_has-all"):     satisfiesAll(word, cond, spec),
 		Text("c_has-none"):    satisfiesNone(word, cond, spec),
-		Text("c_like"):        Glob(spec, syllables),
+		Text("c_like"):        glob(spec, syllables),
 		Text("c_like-any"):    satisfiesAny(word, cond, spec),
 		Text("c_like-all"):    satisfiesAll(word, cond, spec),
 		Text("c_like-none"):   satisfiesNone(word, cond, spec),
 		Text("c_not-starts"):  !strings.HasPrefix(syllables, spec),
 		Text("c_not-ends"):    !strings.HasSuffix(syllables, spec),
 		Text("c_not-has"):     plus && !strings.Contains(navi, spec) || !strings.Contains(syllables, spec),
-		Text("c_not-like"):    !Glob(spec, syllables),
+		Text("c_not-like"):    !glob(spec, syllables),
 		Text("c_matches"):     spec != "+" && regexp.MustCompile(spec).MatchString(navi),
 	}
 
@@ -280,7 +280,7 @@ func satisfiesAny(word Word, cond, spec string) bool {
 		}
 	case Text("c_like-any"):
 		for _, s := range specs {
-			if Glob(s, syllables) {
+			if glob(s, syllables) {
 				return true
 			}
 		}
@@ -318,7 +318,7 @@ func satisfiesAll(word Word, cond, spec string) bool {
 		}
 	case Text("c_like-all"):
 		for _, s := range specs {
-			if !Glob(s, syllables) {
+			if !glob(s, syllables) {
 				return false
 			}
 		}
@@ -356,7 +356,7 @@ func satisfiesNone(word Word, cond, spec string) bool {
 		}
 	case Text("c_like-none"):
 		for _, s := range specs {
-			if Glob(s, syllables) {
+			if glob(s, syllables) {
 				return false
 			}
 		}

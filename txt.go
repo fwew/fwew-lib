@@ -7,12 +7,20 @@ import (
 	"strings"
 )
 
-var usr, _ = user.Current()
 var texts = map[string]string{}
 
-const dictFileName = "dictionary-v2.txt"
+const (
+	dictFileName = "dictionary-v2.txt"
+	mdBold       = "**"
+	mdItalic     = "*"
+	newline      = "\n"
+	valNull      = "NULL"
+	space        = " "
+)
 
 func init() {
+	currentUser, _ := user.Current()
+
 	// main program strings
 	texts["name"] = "fwew"
 
@@ -121,7 +129,7 @@ want 5-letter words? note: "kx", "ng", etc. each count as 1 "Na'vi letter"
 	texts["c_matches"] = "matches"
 
 	// file strings
-	texts["homeDir"], _ = filepath.Abs(usr.HomeDir)
+	texts["homeDir"], _ = filepath.Abs(currentUser.HomeDir)
 	texts["dataDir"] = filepath.Join(texts["homeDir"], ".fwew")
 	texts["dictURL"] = "https://tirea.learnnavi.org/dictionarydata/" + dictFileName
 

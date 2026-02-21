@@ -9,11 +9,6 @@ import (
 	"time"
 )
 
-// Global
-const (
-	space string = " "
-)
-
 /* To help deduce phonemes */
 var romanization2 = map[string]string{
 	// Vowels
@@ -127,7 +122,7 @@ func TranslateFromNaviHash(searchNaviWords string, checkFixes bool, strict bool,
 			i++
 			continue
 		}
-		j, newWords, error2 := TranslateFromNaviHashHelper(dict, i, allWords, checkFixes, strict, allowReef)
+		j, newWords, error2 := translateFromNaviHashHelper(dict, i, allWords, checkFixes, strict, allowReef)
 		if error2 == nil {
 			for _, newWord := range newWords {
 				// Set up receptacle for words
@@ -163,8 +158,8 @@ func TranslateFromNaviHash(searchNaviWords string, checkFixes bool, strict bool,
 	return
 }
 
-// AppendToFront is a helper for TranslateFromNaviHashHelper
-func AppendToFront(words []Word, input Word) []Word {
+// appendToFront is a helper for translateFromNaviHashHelper
+func appendToFront(words []Word, input Word) []Word {
 	// Ensure it's not a duplicate
 	for i, a := range words {
 		if i != 0 && input.ID == a.ID {
@@ -187,11 +182,11 @@ func AppendToFront(words []Word, input Word) []Word {
 	return dummyWord
 }
 
-// IsVerb is a helper for TranslateFromNaviHashHelper
-func IsVerb(dict *map[string][]Word, input string, comparator string, strict bool, allowReef bool) (result bool, affixes Word) {
+// isVerb is a helper for translateFromNaviHashHelper
+func isVerb(dict *map[string][]Word, input string, comparator string, strict bool, allowReef bool) (result bool, affixes Word) {
 	affixes = simpleWord(input)
-	_, possibilities, err := TranslateFromNaviHashHelper(dict, 0, []string{input}, true, strict, allowReef)
-	_, possibilities2, err2 := TranslateFromNaviHashHelper(dict, 0, []string{comparator}, true, strict, allowReef)
+	_, possibilities, err := translateFromNaviHashHelper(dict, 0, []string{input}, true, strict, allowReef)
+	_, possibilities2, err2 := translateFromNaviHashHelper(dict, 0, []string{comparator}, true, strict, allowReef)
 	if err != nil || err2 != nil {
 		return false, affixes
 	}
@@ -261,7 +256,7 @@ func IsVerb(dict *map[string][]Word, input string, comparator string, strict boo
 	return isRealVerb && pairFound && !unknownInfix, affixes
 }
 
-func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []string, checkFixes bool, strict bool, allowReef bool) (steps int, results [][]Word, err error) {
+func translateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []string, checkFixes bool, strict bool, allowReef bool) (steps int, results [][]Word, err error) {
 	i := start
 
 	var containsUmlaut []bool
@@ -299,7 +294,7 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 		if _, ok := (*dict)[a]; ok {
 			//bareNaviWord = true
 			for _, b := range (*dict)[a] {
-				results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], b)
+				results[len(results)-1] = appendAndAlphabetize(results[len(results)-1], b)
 			}
 		}
 
@@ -334,7 +329,7 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 
 		if _, ok := (*dict)[a]; ok {
 			for _, b := range (*dict)[a] {
-				results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], b)
+				results[len(results)-1] = appendAndAlphabetize(results[len(results)-1], b)
 			}
 		}
 		//else if allowReef {
@@ -342,7 +337,7 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 		//	noUmlaut := strings.ReplaceAll(a, "ä", "e")
 		//	if _, ok := (*dict)[noUmlaut]; ok {
 		//		for _, b := range (*dict)[noUmlaut] {
-		//			results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], b)
+		//			results[len(results)-1] = appendAndAlphabetize(results[len(results)-1], b)
 		//		}
 		//	}
 		//}
@@ -385,13 +380,13 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 				} else {
 					// For "[word] ke si and [word] rä'ä si"
 					if i+j+2 < len(allWords) && (allWords[i+j+1] == "ke" || allWords[i+j+1] == "rä'ä") {
-						validVerb, itsAffixes := IsVerb(dict, allWords[i+j+2], pairWord, strict, allowReef)
+						validVerb, itsAffixes := isVerb(dict, allWords[i+j+2], pairWord, strict, allowReef)
 						if validVerb {
 							extraWord = 1
 							if len(results) == 1 {
 								results = append(results, []Word{simpleWord(allWords[i+j+1])})
 								for _, b := range (*dict)[allWords[i+j+1]] {
-									results[1] = AppendToFront(results[1], b)
+									results[1] = appendToFront(results[1], b)
 								}
 							}
 							found = true
@@ -404,7 +399,7 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 					}
 
 					// Verbs don't just come after ke or rä'ä
-					validVerb, itsAffixes := IsVerb(dict, allWords[i+j+1], pairWord, strict, allowReef)
+					validVerb, itsAffixes := isVerb(dict, allWords[i+j+1], pairWord, strict, allowReef)
 					if validVerb {
 						found = true
 						foundAlready = true
@@ -424,7 +419,7 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 					}
 
 					// And then by its possible conjugations
-					for _, b := range TestDeconjugations(dict, allWords[i+j+1], strict, allowReef, containsUmlaut[i]) {
+					for _, b := range testDeconjugations(dict, allWords[i+j+1], strict, allowReef, containsUmlaut[i]) {
 						breakAdding := false
 						for _, prefix := range verbPrefixes {
 							for _, ourPrefixes := range b.Affixes.Prefix {
@@ -454,7 +449,7 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 							continue
 						}
 
-						secondWords = AppendAndAlphabetize(secondWords, b)
+						secondWords = appendAndAlphabetize(secondWords, b)
 					}
 
 					// Do any of the conjugations work?
@@ -488,11 +483,11 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 					if len(results) > 0 && len(results[0]) > 1 && (results[0][1].Navi == "ke" || results[0][1].Navi == "rä'ä") {
 						// Get the query it's looking for
 						results[0][len(results[0])-1].Navi = results[0][1].Navi
-						results[1] = AppendToFront(results[1], definition)
+						results[1] = appendToFront(results[1], definition)
 						results[1][1].Affixes = keepAffixes
 					} else {
 						// Get the query it's looking for
-						results[0] = AppendToFront(results[0], definition)
+						results[0] = appendToFront(results[0], definition)
 						results[0][1].Affixes = keepAffixes
 					}
 				}
@@ -509,11 +504,11 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 			if len(results) > 0 && len(results[0]) > 0 {
 				if !(strings.ToLower(results[len(results)-1][0].Navi) != searchNaviWord && strings.HasPrefix(strings.ToLower(results[len(results)-1][0].Navi), searchNaviWord)) {
 					// Find all possible unconjugated versions of the word
-					newResults = TestDeconjugations(dict, searchNaviWord, strict, allowReef, containsUmlaut[i])
+					newResults = testDeconjugations(dict, searchNaviWord, strict, allowReef, containsUmlaut[i])
 				}
 			} else {
 				// Find all possible unconjugated versions of the word
-				newResults = TestDeconjugations(dict, searchNaviWord, strict, allowReef, containsUmlaut[i])
+				newResults = testDeconjugations(dict, searchNaviWord, strict, allowReef, containsUmlaut[i])
 			}
 		}
 
@@ -621,13 +616,13 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 							} else {
 								// For "[word] ke si and [word] rä'ä si"
 								if i+j+2 < len(allWords) && (allWords[i+j+1] == "ke" || allWords[i+j+1] == "ree") {
-									validVerb, itsAffixes := IsVerb(dict, allWords[i+j+2], pairWord, strict, allowReef)
+									validVerb, itsAffixes := isVerb(dict, allWords[i+j+2], pairWord, strict, allowReef)
 									if validVerb {
 										extraWord = 1
 										if len(results) == 1 {
 											results = append(results, []Word{simpleWord(allWords[i+j+1])})
 											for _, b := range (*dict)[allWords[i+j+1]] {
-												results[1] = AppendToFront(results[1], b)
+												results[1] = appendToFront(results[1], b)
 											}
 										}
 										found = true
@@ -658,7 +653,7 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 								}
 
 								// And then by its possible conjugations
-								for _, b := range TestDeconjugations(dict, allWords[i+j+1], strict, allowReef, containsUmlaut[i]) {
+								for _, b := range testDeconjugations(dict, allWords[i+j+1], strict, allowReef, containsUmlaut[i]) {
 									breakAdding := false
 									for _, prefix := range verbPrefixes {
 										for _, ourPrefixes := range b.Affixes.Prefix {
@@ -687,7 +682,7 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 									if breakAdding {
 										continue
 									}
-									secondWords = AppendAndAlphabetize(secondWords, b)
+									secondWords = appendAndAlphabetize(secondWords, b)
 								}
 
 								// Do any of the conjugations work?
@@ -723,11 +718,11 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 								if len(results) > 0 && len(results[0]) > 1 && (results[0][1].Navi == "ke" || results[0][1].Navi == "rä'ä") {
 									// Get the query it's looking for
 									results[0][len(results[0])-1].Navi = results[0][1].Navi
-									results[1] = AppendToFront(results[1], definition)
+									results[1] = appendToFront(results[1], definition)
 									results[1][1].Affixes = keepAffixes
 								} else {
 									// Get the query it's looking for
-									results[0] = AppendToFront(results[0], definition)
+									results[0] = appendToFront(results[0], definition)
 									results[0][1].Affixes = keepAffixes
 								}
 							}
@@ -753,7 +748,7 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 	return i - start, results, nil
 }
 
-func SearchNatlangWord(wordmap map[string][]string, searchWord string) (results []Word) {
+func searchNatlangWord(wordMap map[string][]string, searchWord string) (results []Word) {
 
 	// No Results if empty string after removing sketch chars
 	if len(searchWord) == 0 {
@@ -761,15 +756,15 @@ func SearchNatlangWord(wordmap map[string][]string, searchWord string) (results 
 	}
 
 	// Find the word
-	if _, ok := wordmap[searchWord]; !ok {
+	if _, ok := wordMap[searchWord]; !ok {
 		return results
 	}
 
-	firstResults := wordmap[searchWord]
+	firstResults := wordMap[searchWord]
 
 	for i := 0; i < len(firstResults); i++ {
 		for _, c := range dictHashStrict[firstResults[i]] {
-			results = AppendAndAlphabetize(results, c)
+			results = appendAndAlphabetize(results, c)
 		}
 	}
 
@@ -789,8 +784,8 @@ func TranslateToNaviHash(searchWord string, langCode string) (results [][]Word) 
 			continue
 		}
 		results = append(results, []Word{})
-		for _, a := range TranslateToNaviHashHelper(&dictHash2Parenthesis, word, langCode) {
-			results[len(results)-1] = AppendAndAlphabetize(results[len(results)-1], a)
+		for _, a := range translateToNaviHashHelper(&dictHash2Parenthesis, word, langCode) {
+			results[len(results)-1] = appendAndAlphabetize(results[len(results)-1], a)
 		}
 		// Append the query to the front of the list
 		tempResults := []Word{simpleWord(word)}
@@ -800,13 +795,13 @@ func TranslateToNaviHash(searchWord string, langCode string) (results [][]Word) 
 	return
 }
 
-func TranslateToNaviHashHelper(dictionary *MetaDict, searchWord string, langCode string) (results []Word) {
+func translateToNaviHashHelper(dictionary *metaDict, searchWord string, langCode string) (results []Word) {
 	results = []Word{}
 	switch langCode {
 	case "de": // German
-		for _, a := range SearchNatlangWord((*dictionary).DE, searchWord) {
+		for _, a := range searchNatlangWord((*dictionary).DE, searchWord) {
 			// Verify the search query is actually in the definition
-			searchWords := SearchTerms(a.DE, false)
+			searchWords := searchTerms(a.DE, false)
 			found := false
 			for _, d := range searchWords {
 				if d == searchWord {
@@ -815,13 +810,13 @@ func TranslateToNaviHashHelper(dictionary *MetaDict, searchWord string, langCode
 				}
 			}
 			if found {
-				results = AppendAndAlphabetize(results, a)
+				results = appendAndAlphabetize(results, a)
 			}
 		}
 	case "en": // English
-		for _, a := range SearchNatlangWord((*dictionary).EN, searchWord) {
+		for _, a := range searchNatlangWord((*dictionary).EN, searchWord) {
 			// Verify the search query is actually in the definition
-			searchWords := SearchTerms(a.EN, false)
+			searchWords := searchTerms(a.EN, false)
 			found := false
 			for _, d := range searchWords {
 				if d == searchWord {
@@ -830,13 +825,13 @@ func TranslateToNaviHashHelper(dictionary *MetaDict, searchWord string, langCode
 				}
 			}
 			if found {
-				results = AppendAndAlphabetize(results, a)
+				results = appendAndAlphabetize(results, a)
 			}
 		}
 	case "es": // Spanish
-		for _, a := range SearchNatlangWord((*dictionary).ES, searchWord) {
+		for _, a := range searchNatlangWord((*dictionary).ES, searchWord) {
 			// Verify the search query is actually in the definition
-			searchWords := SearchTerms(a.ES, false)
+			searchWords := searchTerms(a.ES, false)
 			found := false
 			for _, d := range searchWords {
 				if d == searchWord {
@@ -845,13 +840,13 @@ func TranslateToNaviHashHelper(dictionary *MetaDict, searchWord string, langCode
 				}
 			}
 			if found {
-				results = AppendAndAlphabetize(results, a)
+				results = appendAndAlphabetize(results, a)
 			}
 		}
 	case "et": // Estonian
-		for _, a := range SearchNatlangWord((*dictionary).ET, searchWord) {
+		for _, a := range searchNatlangWord((*dictionary).ET, searchWord) {
 			// Verify the search query is actually in the definition
-			searchWords := SearchTerms(a.ET, false)
+			searchWords := searchTerms(a.ET, false)
 			found := false
 			for _, d := range searchWords {
 				if d == searchWord {
@@ -860,13 +855,13 @@ func TranslateToNaviHashHelper(dictionary *MetaDict, searchWord string, langCode
 				}
 			}
 			if found {
-				results = AppendAndAlphabetize(results, a)
+				results = appendAndAlphabetize(results, a)
 			}
 		}
 	case "fr": // French
-		for _, a := range SearchNatlangWord((*dictionary).FR, searchWord) {
+		for _, a := range searchNatlangWord((*dictionary).FR, searchWord) {
 			// Verify the search query is actually in the definition
-			searchWords := SearchTerms(a.FR, false)
+			searchWords := searchTerms(a.FR, false)
 			found := false
 			for _, d := range searchWords {
 				if d == searchWord {
@@ -875,13 +870,13 @@ func TranslateToNaviHashHelper(dictionary *MetaDict, searchWord string, langCode
 				}
 			}
 			if found {
-				results = AppendAndAlphabetize(results, a)
+				results = appendAndAlphabetize(results, a)
 			}
 		}
 	case "hu": // Hungarian
-		for _, a := range SearchNatlangWord((*dictionary).HU, searchWord) {
+		for _, a := range searchNatlangWord((*dictionary).HU, searchWord) {
 			// Verify the search query is actually in the definition
-			searchWords := SearchTerms(a.HU, false)
+			searchWords := searchTerms(a.HU, false)
 			found := false
 			for _, d := range searchWords {
 				if d == searchWord {
@@ -890,13 +885,13 @@ func TranslateToNaviHashHelper(dictionary *MetaDict, searchWord string, langCode
 				}
 			}
 			if found {
-				results = AppendAndAlphabetize(results, a)
+				results = appendAndAlphabetize(results, a)
 			}
 		}
 	case "ko": // Korean
-		for _, a := range SearchNatlangWord((*dictionary).KO, searchWord) {
+		for _, a := range searchNatlangWord((*dictionary).KO, searchWord) {
 			// Verify the search query is actually in the definition
-			searchWords := SearchTerms(a.KO, false)
+			searchWords := searchTerms(a.KO, false)
 			found := false
 			for _, d := range searchWords {
 				if d == searchWord {
@@ -905,13 +900,13 @@ func TranslateToNaviHashHelper(dictionary *MetaDict, searchWord string, langCode
 				}
 			}
 			if found {
-				results = AppendAndAlphabetize(results, a)
+				results = appendAndAlphabetize(results, a)
 			}
 		}
 	case "nl": // Dutch
-		for _, a := range SearchNatlangWord((*dictionary).NL, searchWord) {
+		for _, a := range searchNatlangWord((*dictionary).NL, searchWord) {
 			// Verify the search query is actually in the definition
-			searchWords := SearchTerms(a.NL, false)
+			searchWords := searchTerms(a.NL, false)
 			found := false
 			for _, d := range searchWords {
 				if d == searchWord {
@@ -920,13 +915,13 @@ func TranslateToNaviHashHelper(dictionary *MetaDict, searchWord string, langCode
 				}
 			}
 			if found {
-				results = AppendAndAlphabetize(results, a)
+				results = appendAndAlphabetize(results, a)
 			}
 		}
 	case "pl": // Polish
-		for _, a := range SearchNatlangWord((*dictionary).PL, searchWord) {
+		for _, a := range searchNatlangWord((*dictionary).PL, searchWord) {
 			// Verify the search query is actually in the definition
-			searchWords := SearchTerms(a.PL, false)
+			searchWords := searchTerms(a.PL, false)
 			found := false
 			for _, d := range searchWords {
 				if d == searchWord {
@@ -935,13 +930,13 @@ func TranslateToNaviHashHelper(dictionary *MetaDict, searchWord string, langCode
 				}
 			}
 			if found {
-				results = AppendAndAlphabetize(results, a)
+				results = appendAndAlphabetize(results, a)
 			}
 		}
 	case "pt": // Portuguese
-		for _, a := range SearchNatlangWord((*dictionary).PT, searchWord) {
+		for _, a := range searchNatlangWord((*dictionary).PT, searchWord) {
 			// Verify the search query is actually in the definition
-			searchWords := SearchTerms(a.PT, false)
+			searchWords := searchTerms(a.PT, false)
 			found := false
 			for _, d := range searchWords {
 				if d == searchWord {
@@ -950,13 +945,13 @@ func TranslateToNaviHashHelper(dictionary *MetaDict, searchWord string, langCode
 				}
 			}
 			if found {
-				results = AppendAndAlphabetize(results, a)
+				results = appendAndAlphabetize(results, a)
 			}
 		}
 	case "ru": // Russian
-		for _, a := range SearchNatlangWord((*dictionary).RU, searchWord) {
+		for _, a := range searchNatlangWord((*dictionary).RU, searchWord) {
 			// Verify the search query is actually in the definition
-			searchWords := SearchTerms(a.RU, false)
+			searchWords := searchTerms(a.RU, false)
 			found := false
 			for _, d := range searchWords {
 				if d == searchWord {
@@ -965,13 +960,13 @@ func TranslateToNaviHashHelper(dictionary *MetaDict, searchWord string, langCode
 				}
 			}
 			if found {
-				results = AppendAndAlphabetize(results, a)
+				results = appendAndAlphabetize(results, a)
 			}
 		}
 	case "sv": // Swedish
-		for _, a := range SearchNatlangWord((*dictionary).SV, searchWord) {
+		for _, a := range searchNatlangWord((*dictionary).SV, searchWord) {
 			// Verify the search query is actually in the definition
-			searchWords := SearchTerms(a.SV, false)
+			searchWords := searchTerms(a.SV, false)
 			found := false
 			for _, d := range searchWords {
 				if d == searchWord {
@@ -980,13 +975,13 @@ func TranslateToNaviHashHelper(dictionary *MetaDict, searchWord string, langCode
 				}
 			}
 			if found {
-				results = AppendAndAlphabetize(results, a)
+				results = appendAndAlphabetize(results, a)
 			}
 		}
 	case "tr": // Turkish
-		for _, a := range SearchNatlangWord((*dictionary).TR, searchWord) {
+		for _, a := range searchNatlangWord((*dictionary).TR, searchWord) {
 			// Verify the search query is actually in the definition
-			searchWords := SearchTerms(a.TR, false)
+			searchWords := searchTerms(a.TR, false)
 			found := false
 			for _, d := range searchWords {
 				if d == searchWord {
@@ -995,13 +990,13 @@ func TranslateToNaviHashHelper(dictionary *MetaDict, searchWord string, langCode
 				}
 			}
 			if found {
-				results = AppendAndAlphabetize(results, a)
+				results = appendAndAlphabetize(results, a)
 			}
 		}
 	case "uk": // Ukrainian
-		for _, a := range SearchNatlangWord((*dictionary).UK, searchWord) {
+		for _, a := range searchNatlangWord((*dictionary).UK, searchWord) {
 			// Verify the search query is actually in the definition
-			searchWords := SearchTerms(a.UK, false)
+			searchWords := searchTerms(a.UK, false)
 			found := false
 			for _, d := range searchWords {
 				if d == searchWord {
@@ -1010,14 +1005,14 @@ func TranslateToNaviHashHelper(dictionary *MetaDict, searchWord string, langCode
 				}
 			}
 			if found {
-				results = AppendAndAlphabetize(results, a)
+				results = appendAndAlphabetize(results, a)
 			}
 		}
 	default:
 		// If we get an odd language code, return English
-		for _, a := range SearchNatlangWord((*dictionary).EN, searchWord) {
+		for _, a := range searchNatlangWord((*dictionary).EN, searchWord) {
 			// Verify the search query is actually in the definition
-			searchWords := SearchTerms(a.EN, false)
+			searchWords := searchTerms(a.EN, false)
 			found := false
 			for _, d := range searchWords {
 				if d == searchWord {
@@ -1026,7 +1021,7 @@ func TranslateToNaviHashHelper(dictionary *MetaDict, searchWord string, langCode
 				}
 			}
 			if found {
-				results = AppendAndAlphabetize(results, a)
+				results = appendAndAlphabetize(results, a)
 			}
 		}
 	}
@@ -1060,7 +1055,7 @@ func BidirectionalSearch(searchNaviWords string, checkFixes bool, langCode strin
 	results = [][]Word{}
 	for i < len(allWords) {
 		// Search for Na'vi words
-		j, newWords, error2 := TranslateFromNaviHashHelper(ourDict, i, allWords, checkFixes, false, allowReef)
+		j, newWords, error2 := translateFromNaviHashHelper(ourDict, i, allWords, checkFixes, false, allowReef)
 
 		var NaviIDs []string
 		if error2 == nil {
@@ -1076,13 +1071,13 @@ func BidirectionalSearch(searchNaviWords string, checkFixes bool, langCode strin
 
 		// Search for natural language words
 		var natlangWords []Word
-		for _, a := range TranslateToNaviHashHelper(&dictHash2, allWords[i], langCode) {
+		for _, a := range translateToNaviHashHelper(&dictHash2, allWords[i], langCode) {
 			// Do not duplicate if the Na'vi word is in the definition
-			if Contains(NaviIDs, []string{a.ID}) {
+			if contains(NaviIDs, []string{a.ID}) {
 				continue
 			}
 			// We want them alphabetized with their fellow natlang words...
-			natlangWords = AppendAndAlphabetize(natlangWords, a)
+			natlangWords = appendAndAlphabetize(natlangWords, a)
 		}
 
 		// ...but not with the Na'vi words
@@ -1509,9 +1504,9 @@ func StartEverything() string {
 	start := time.Now()
 	var errors = []error{
 		AssureDict(),
-		CacheDict(),
-		CacheDictHash(),
-		CacheDictHash2(),
+		cacheDict(),
+		cacheDictHash(),
+		cacheDictHash2(),
 	}
 	for _, err := range errors {
 		if err != nil {

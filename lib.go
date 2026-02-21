@@ -11,8 +11,8 @@ import (
 	"strings"
 )
 
-// Contains returns true if anything in q is also in s
-func Contains(s []string, q []string) bool {
+// contains returns true if anything in q is also in s
+func contains(s []string, q []string) bool {
 	if len(q) == 0 || len(s) == 0 {
 		return false
 	}
@@ -26,17 +26,17 @@ func Contains(s []string, q []string) bool {
 	return false
 }
 
-// DownloadDict downloads the latest released version of the dictionary file and saves it to the given filepath.
-// You can give an empty string as filepath param, to update the found dictionary file.
-func DownloadDict(filepath string) error {
+// downloadDict downloads the latest released version of the dictionary file and saves it to the given filepath.
+// You can give an empty string as a filepath param to update the found dictionary file.
+func downloadDict(filepath string) error {
 	var url = Text("dictURL")
 
-	// only try to find dictionary-file if no path is given
+	// only try to find the dictionary file if no path is given
 	if filepath == "" {
-		filepath = FindDictionaryFile()
+		filepath = findDictionaryFile()
 	}
 
-	// if still no filepath is given, error out
+	// if still no filepath is given, return error
 	if filepath == "" {
 		return NoDictionary
 	}
@@ -53,7 +53,7 @@ func DownloadDict(filepath string) error {
 		}
 	}(resp.Body)
 
-	// create new file, this will remove the old file, if it exists
+	// create a new file, this will remove the old file, if it exists
 	err = os.Mkdir(path.Dir(filepath), 0755)
 	out, err := os.Create(filepath)
 	if err != nil {
@@ -81,20 +81,20 @@ func DownloadDict(filepath string) error {
 	}
 
 	// Update the hash in the version
-	Version.DictBuild = SHA1Hash(filepath)
+	Version.DictBuild = sha1Hash(filepath)
 
 	return nil
 }
 
-// GLOB https://github.com/ryanuber/go-glob
-// The character which is treated like a glob
-const GLOB = "%"
+// The glob function will test a string pattern, potentially containing globs, against a
+// subject string. The result is a simple true/false, determining whether
+// the glob pattern matched the subject text.
+// https://github.com/ryanuber/go-glob
+func glob(pattern, subj string) bool {
+	// The character which is treated like a glob
+	const GLOB = "%"
 
-// Glob will test a string pattern, potentially containing globs, against a
-// subject string. The result is a simple true/false, determining whether or
-// not the glob pattern matched the subject text.
-func Glob(pattern, subj string) bool {
-	// Empty pattern can only match empty subject
+	// Empty pattern can only match an empty subject
 	if pattern == "" {
 		return subj == pattern
 	}
@@ -107,7 +107,7 @@ func Glob(pattern, subj string) bool {
 	parts := strings.Split(pattern, GLOB)
 
 	if len(parts) == 1 {
-		// No globs in pattern, so test for equality
+		// No globs in the pattern, so test for equality
 		return subj == pattern
 	}
 
@@ -140,8 +140,8 @@ func Glob(pattern, subj string) bool {
 	return trailingGlob || strings.HasSuffix(subj, parts[end])
 }
 
-// SHA1Hash gets hash of dictionary file
-func SHA1Hash(filename string) string {
+// sha1Hash gets hash of the dictionary file
+func sha1Hash(filename string) string {
 	f, err := os.Open(filename)
 	if err != nil {
 		log.Fatal(FailedToOpenDictFile.wrap(err))
