@@ -1,6 +1,8 @@
 package fwew_lib
 
 import (
+	"log"
+	"math/rand"
 	"regexp"
 	"strconv"
 	"strings"
@@ -8,8 +10,8 @@ import (
 )
 
 // List filters the dictionary based on the args.
-// args can be empty, if so, the whole Dict will be returned (This also happens if < 3 args are given)
-// It will try to always get 3 args and an `and` in between. If less than 3 exist, than it will wil return the previous
+// The `args` can be empty, if so, the whole Dict will be returned (This also happens if < 3 args are given)
+// It will try to always get 3 args and an `and` in between. If less than 3 exist, then it will return the previous
 // results.
 func List(args []string, checkDigraphs uint8) (results []Word, err error) {
 	universalLock.Lock()
@@ -65,6 +67,42 @@ func listWords(args []string, words []Word, checkDigraphs uint8) (results []Word
 		case Text("w_length"):
 			results, err = filterNumeric(results, word, args)
 		}
+	}
+
+	return
+}
+
+// Random returns random words from the dictionary.
+// If args are applied, the dict will be filtered for args before random words are chosen.
+// The `args` will be put into the `List()` algorithm.
+func Random(amount int, args []string, checkDigraphs uint8) (results []Word, err error) {
+	allWords, err := List(args, checkDigraphs)
+
+	if err != nil {
+		log.Printf("Error getting fullDing: %s", err)
+		return
+	}
+
+	dictLength := len(allWords)
+
+	if dictLength == 0 {
+		return nil, NoResults
+	}
+
+	// create a random number
+	if amount <= 0 {
+		amount = rand.Intn(dictLength) + 1
+	}
+
+	if amount > dictLength {
+		return allWords, nil
+	}
+
+	// get random numbers for allWords array
+	perm := rand.Perm(dictLength)
+
+	for _, i := range perm[:amount] {
+		results = append(results, allWords[i])
 	}
 
 	return

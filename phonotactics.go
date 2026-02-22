@@ -55,6 +55,17 @@ func resolveFakePsuedovowels(syllableBreakdown string) string {
 	return syllableBreakdown
 }
 
+func validMessage(syllableCount int, lang string) string {
+	if lang == "en" {
+		if syllableCount == 1 {
+			message := strings.ReplaceAll(messageValid[lang], "syllables", "syllable")
+			message = strings.ReplaceAll(message, "{syllable_count}", strconv.Itoa(syllableCount))
+			return message
+		}
+	}
+	return strings.ReplaceAll(messageValid[lang], "{syllable_count}", strconv.Itoa(syllableCount))
+}
+
 // isValidNaviHelper see if a word is phonotactically valid in Na'vi
 func isValidNaviHelper(word string, lang string) string {
 	// Protect against odd language values

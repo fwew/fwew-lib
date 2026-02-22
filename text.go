@@ -3,8 +3,6 @@ package fwew_lib
 import (
 	"os/user"
 	"path/filepath"
-	"strconv"
-	"strings"
 )
 
 var texts = map[string]string{}
@@ -143,52 +141,6 @@ func Text(s string) string {
 		return texts[s]
 	}
 	return TextNotFound.Error() + ": " + s
-}
-
-// table of all the possible lenitions
-var lenitionTable = [8][2]string{
-	{"kx", "k"},
-	{"px", "p"},
-	{"tx", "t"},
-	{"k", "h"},
-	{"p", "f"},
-	{"ts", "s"},
-	{"t", "s"},
-	{"'", ""},
-}
-
-// short table of all the possible lenitions
-var shortLenitionTable = [4][2]string{
-	{"kx, px, tx", "k, p, t"},
-	{"k, p, t", "h, f, s"},
-	{"ts", "s"},
-	{"'", ""},
-}
-
-// table of all the possible translations of "that"
-var thatTable = [9][5]string{
-	{"Case", "Noun", "   Clause Wrapper   ", "", ""},
-	{" ", " ", "Prox.", "Dist.", "Answer "},
-	{"====", "=====", "=====", "======", "========"},
-	{"Sub.", "tsaw", "fwa", "tsawa", "teynga  "},
-	{"Agt.", "tsal", "fula", "tsala", "teyngla "},
-	{"Pat.", "tsat", "futa", "tsata", "teyngta "},
-	{"Gen.", "tseyä", "N/A", "N/A", "teyngä  "},
-	{"Dat.", "tsar", "fura", "tsara", "teyngra "},
-	{"Top.", "tsari", "furia", "tsaria", "teyngria"},
-}
-
-// table of all the possible translations of "that"
-var otherThats = [9][3]string{
-	{"tsa-", "pre.", "that"},
-	{"tsa'u", "n.", "that (thing)"},
-	{"tsakem", "n.", "that (action)"},
-	{"fmawnta", "sbd.", "that news"},
-	{"fayluta", "sbd.", "these words"},
-	{"tsnì", "sbd.", "that (function word)"},
-	{"tsonta", "conj.", "to (with kxìm)"},
-	{"kuma/akum", "conj.", "that (as a result)"},
-	{"a", "part.", "clause level attributive marker"},
 }
 
 var messageNonNaviLetters = map[string]string{
@@ -489,17 +441,6 @@ var messagePsuedovowelAndConsonant = map[string]string{
 	"tr": " (Warning: a consonant like the previous psuedovowel is awkward)", // Turkish (Türkçe)
 	// TODO
 	"uk": " (Warning: a consonant like the previous psuedovowel is awkward)", // Ukrainian (Українська)
-}
-
-func validMessage(syllableCount int, lang string) string {
-	if lang == "en" {
-		if syllableCount == 1 {
-			message := strings.ReplaceAll(messageValid[lang], "syllables", "syllable")
-			message = strings.ReplaceAll(message, "{syllable_count}", strconv.Itoa(syllableCount))
-			return message
-		}
-	}
-	return strings.ReplaceAll(messageValid[lang], "{syllable_count}", strconv.Itoa(syllableCount))
 }
 
 var messageTooBig = map[string]string{

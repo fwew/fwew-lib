@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -56,6 +57,31 @@ var letterMap = map[rune]int{
 	'0': 24, 's': 25, 't': 26, 'c': 27,
 	'd': 28, 'u': 29, 'v': 30, 'w': 31,
 	'y': 32, 'z': 33, '-': 34,
+}
+
+var romanization2 = map[string]string{
+	// Vowels
+	"a": "a", "i": "i", "ɪ": "ì",
+	"o": "o", "ɛ": "e", "u": "u",
+	"æ": "ä", "õ": "õ", //võvä' only
+	// Diphthongs
+	"aw": "aw", "ɛj": "ey",
+	"aj": "ay", "ɛw": "ew",
+	// Psuedovowels
+	"ṛ": "rr", "ḷ": "ll",
+	// Consonants
+	"t": "t", "p": "p", "ʔ": "'",
+	"n": "n", "k": "k", "l": "l",
+	"s": "s", "ɾ": "r", "j": "y",
+	"t͡s": "ts", "t'": "tx", "m": "m",
+	"v": "v", "w": "w", "h": "h",
+	"ŋ": "ng", "z": "z", "k'": "kx",
+	"p'": "px", "f": "f", "r": "r",
+	// Reef dialect
+	"b": "b", "d": "d", "g": "g",
+	"ʃ": "sh", "tʃ": "ch", "ʊ": "ù",
+	// mistakes and rarities
+	"ʒ": "ch", "": "", " ": "",
 }
 
 var nkx []string
@@ -340,7 +366,7 @@ func romanizeSecondIPA(IPA string) string {
 						syllable = syllable[5:]
 					}
 				} else if hasAt("lɾmnŋwj", syllable, 3) {
-					// ts + other consonent
+					// ts + other consonant
 					breakdown += romanization2[nthRune(syllable, 3)]
 					syllable = syllable[4+len(nthRune(syllable, 3)):]
 				} else {
@@ -361,7 +387,7 @@ func romanizeSecondIPA(IPA string) string {
 						syllable = syllable[2:]
 					}
 				} else if hasAt("lɾmnŋwj", syllable, 1) {
-					// f/s + other consonent
+					// f/s + other consonant
 					breakdown += romanization2[nthRune(syllable, 1)]
 					syllable = syllable[1+len(nthRune(syllable, 1)):]
 				} else {
@@ -379,11 +405,11 @@ func romanizeSecondIPA(IPA string) string {
 					syllable = syllable[1:]
 				}
 			} else if hasAt("ʔlɾhmnŋvwjzbdg", syllable, 0) {
-				// other normal onset
+				// another normal onset
 				breakdown += romanization2[nthRune(syllable, 0)]
 				syllable = syllable[len(nthRune(syllable, 0)):]
 			} else if hasAt("ʃʒ", syllable, 0) {
-				// one sound representd as a cluster
+				// one sound represented as a cluster
 				if nthRune(syllable, 0) == "ʃ" {
 					breakdown += "sh"
 				}
@@ -483,7 +509,7 @@ func cacheDictHash() error {
 }
 
 // cacheDictHashOrig will cache the whole dictionary (Na'vi to natural language).
-// Please call this, if you want to translate multiple words or running infinitely (e.g. CLI-go-prompt, discord-bot)
+// Please call this if you want to translate multiple words or running infinitely (e.g., CLI-go-prompt, discord-bot)
 func cacheDictHashOrig(mysql bool) error {
 	// dont run if already is cached
 	if len(dictHashLoose) != 0 {
@@ -1017,7 +1043,7 @@ func runOnFile(f func(word Word) error) error {
 		// Split line at \t so we get all information
 		fields := strings.Split(line, "\t")
 
-		// When first then this is the header
+		// When first, then this is the header
 		if first {
 			pos = readDictPos(fields)
 			first = false
@@ -1155,8 +1181,8 @@ func UpdateDict() error {
 	return nil
 }
 
-// AssureDict will assure, that the dictionary exists.
-// If no dictionary is found, it will be downloaded next of the executable.
+// AssureDict will assure that the dictionary exists.
+// If no dictionary is found, it will be downloaded next to the executable.
 func AssureDict() error {
 	// check if dict already exists
 	file := findDictionaryFile()
@@ -1173,4 +1199,26 @@ func AssureDict() error {
 	}
 
 	return nil
+}
+
+// StartEverything connects to the dictionary, loads the cache maps, and generates phoneme statistics. Returns a status
+// including how long everything took.
+func StartEverything() string {
+	universalLock.Lock()
+	start := time.Now()
+	var errors = []error{
+		AssureDict(),
+		cacheDict(),
+		cacheDictHash(),
+		cacheDictHash2(),
+	}
+	for _, err := range errors {
+		if err != nil {
+			log.Println(err)
+		}
+	}
+	universalLock.Unlock()
+	PhonemeDistros()
+	elapsed := strconv.FormatFloat(time.Since(start).Seconds(), 'f', -1, 64)
+	return fmt.Sprintln("Everything is cached.  Took " + elapsed + " seconds")
 }

@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-// contains returns true if anything in q is also in s
+// contains returns true if anything in q is also in s.
 func contains(s []string, q []string) bool {
 	if len(q) == 0 || len(s) == 0 {
 		return false
@@ -24,6 +24,24 @@ func contains(s []string, q []string) bool {
 		}
 	}
 	return false
+}
+
+// identicalRunes returns true if the two strings have the same runes in the same order and false if they don't.
+func identicalRunes(first string, second string) bool {
+	a := []rune(first)
+	b := []rune(second)
+
+	if len(a) != len(b) {
+		return false
+	}
+
+	for i, c := range a {
+		if b[i] != c {
+			return false
+		}
+	}
+
+	return true
 }
 
 // downloadDict downloads the latest released version of the dictionary file and saves it to the given filepath.
@@ -203,4 +221,51 @@ func decompress(syllables string) string {
 	}
 
 	return syll
+}
+
+/* Is it a vowel? (for when the pseudovowel bool won't work) */
+func isVowelIpa(letter string) (found bool) {
+	// Also arranged from most to least common (not accounting for diphthongs)
+	vowels := []string{"a", "ɛ", "ɪ", "o", "u", "i", "æ", "ʊ"}
+	// Linear search
+	for _, a := range vowels {
+		if letter == a {
+			return true
+		}
+	}
+	return false
+}
+
+func clean(searchNaviWords string) (words string) {
+	badChars := `~@#$%^&*()[]{}<>_/.,;:!?|+\"„“”«»`
+
+	// remove all the sketchy chars from arguments
+	for _, c := range badChars {
+		searchNaviWords = strings.ReplaceAll(searchNaviWords, string(c), " ")
+	}
+
+	// Recognize line breaks and turn them into spaces
+	searchNaviWords = strings.ReplaceAll(searchNaviWords, "\n", " ")
+
+	// No leading or trailing spaces
+	searchNaviWords = strings.TrimSpace(searchNaviWords)
+
+	// normalize tìftang character
+	searchNaviWords = strings.ReplaceAll(searchNaviWords, "’", "'")
+	searchNaviWords = strings.ReplaceAll(searchNaviWords, "‘", "'")
+
+	// find everything lowercase
+	searchNaviWords = strings.ToLower(searchNaviWords)
+
+	// Get rid of all double spaces
+	for strings.Contains(searchNaviWords, "  ") {
+		searchNaviWords = strings.ReplaceAll(searchNaviWords, "  ", " ")
+	}
+
+	// No Results if empty string after removing sketch chars
+	if len(searchNaviWords) == 0 {
+		return
+	}
+
+	return searchNaviWords
 }
