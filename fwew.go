@@ -81,11 +81,8 @@ func TranslateFromNaviHash(searchNaviWords string, checkFixes bool, strict bool,
 func appendToFront(words []Word, input Word) []Word {
 	// Ensure it's not a duplicate
 	for i, a := range words {
-		if i != 0 && input.ID == a.ID {
-			if len(input.Affixes.Prefix) == len(a.Affixes.Prefix) && len(input.Affixes.Suffix) == len(a.Affixes.Suffix) &&
-				len(input.Affixes.Lenition) == len(a.Affixes.Lenition) && len(input.Affixes.Infix) == len(a.Affixes.Infix) {
-				return words
-			}
+		if i != 0 && equal(input, a) {
+			return words
 		}
 	}
 	// Get the query it's looking for
@@ -462,14 +459,9 @@ func translateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 		for _, a := range tempNewResults {
 			add := true
 			for _, b := range alreadyHere {
-				if b.ID == a.ID {
-					if len(b.Affixes.Prefix) == len(a.Affixes.Prefix) &&
-						len(b.Affixes.Suffix) == len(a.Affixes.Suffix) &&
-						len(b.Affixes.Lenition) == len(a.Affixes.Lenition) &&
-						len(b.Affixes.Infix) == len(a.Affixes.Infix) {
-						add = false
-						break
-					}
+				if equal(b, a) {
+					add = false
+					break
 				}
 			}
 			if add {

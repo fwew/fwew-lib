@@ -47,6 +47,17 @@ type metaDict struct {
 	UK map[string][]string
 }
 
+var dictHash2MapPtrs = []*map[string][]string{
+	&dictHash2.EN, &dictHash2.DE, &dictHash2.ES, &dictHash2.ET, &dictHash2.FR, &dictHash2.HU, &dictHash2.IT,
+	&dictHash2.KO, &dictHash2.NL, &dictHash2.PL, &dictHash2.PT, &dictHash2.RU, &dictHash2.SV, &dictHash2.TR,
+	&dictHash2.UK}
+
+var dictHash2ParenthesisMapPtrs = []*map[string][]string{
+	&dictHash2Parenthesis.EN, &dictHash2Parenthesis.DE, &dictHash2Parenthesis.ES, &dictHash2Parenthesis.ET,
+	&dictHash2Parenthesis.FR, &dictHash2Parenthesis.HU, &dictHash2Parenthesis.IT, &dictHash2Parenthesis.KO,
+	&dictHash2Parenthesis.NL, &dictHash2Parenthesis.PL, &dictHash2Parenthesis.PT, &dictHash2Parenthesis.RU,
+	&dictHash2Parenthesis.SV, &dictHash2Parenthesis.TR, &dictHash2Parenthesis.UK}
+
 var letterMap = map[rune]int{
 	' ': -1, '\'': 0, 'a': 1, '2': 2, '3': 3,
 	'ä': 4, 'e': 5, '4': 6, '5': 7,
@@ -58,17 +69,6 @@ var letterMap = map[rune]int{
 	'd': 28, 'u': 29, 'v': 30, 'w': 31,
 	'y': 32, 'z': 33, '-': 34,
 }
-
-var dictHash2MapPtrs = []*map[string][]string{
-	&dictHash2.EN, &dictHash2.DE, &dictHash2.ES, &dictHash2.ET, &dictHash2.FR, &dictHash2.HU, &dictHash2.IT,
-	&dictHash2.KO, &dictHash2.NL, &dictHash2.PL, &dictHash2.PT, &dictHash2.RU, &dictHash2.SV, &dictHash2.TR,
-	&dictHash2.UK}
-
-var dictHash2ParenthesisMapPtrs = []*map[string][]string{
-	&dictHash2Parenthesis.EN, &dictHash2Parenthesis.DE, &dictHash2Parenthesis.ES, &dictHash2Parenthesis.ET,
-	&dictHash2Parenthesis.FR, &dictHash2Parenthesis.HU, &dictHash2Parenthesis.IT, &dictHash2Parenthesis.KO,
-	&dictHash2Parenthesis.NL, &dictHash2Parenthesis.PL, &dictHash2Parenthesis.PT, &dictHash2Parenthesis.RU,
-	&dictHash2Parenthesis.SV, &dictHash2Parenthesis.TR, &dictHash2Parenthesis.UK}
 
 var nkx []string
 var nkxSub = map[string]string{}
@@ -159,13 +159,8 @@ func AlphabetizeHelper(a string, b string) bool {
 func appendAndAlphabetize(words []Word, word Word) []Word {
 	// Ensure it's not a duplicate
 	for _, a := range words {
-		if word.ID == a.ID {
-			if len(word.Affixes.Prefix) == len(a.Affixes.Prefix) &&
-				len(word.Affixes.Suffix) == len(a.Affixes.Suffix) &&
-				len(word.Affixes.Lenition) == len(a.Affixes.Lenition) &&
-				len(word.Affixes.Infix) == len(a.Affixes.Infix) {
-				return words
-			}
+		if equal(word, a) {
+			return words
 		}
 	}
 	// new array

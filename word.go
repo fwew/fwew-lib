@@ -61,6 +61,15 @@ func (w *Word) String() string {
 	return string(s)
 }
 
+// equal returns true if Word b is a duplicate of Word a
+func equal(a, b Word) bool {
+	return a.ID == b.ID &&
+		len(a.Affixes.Prefix) == len(b.Affixes.Prefix) &&
+		len(a.Affixes.Suffix) == len(b.Affixes.Suffix) &&
+		len(a.Affixes.Lenition) == len(b.Affixes.Lenition) &&
+		len(a.Affixes.Infix) == len(b.Affixes.Infix)
+}
+
 // Make a simple word to show what query led to this word
 func simpleWord(name string) Word {
 	var word Word
@@ -205,38 +214,14 @@ func (w *Word) ToOutputLine(
 
 	output += pos + space
 
-	switch langCode {
-	case "de":
-		output += w.DE
-	case "en":
-		output += w.EN
-	case "es":
-		output += w.ES
-	case "et":
-		output += w.ET
-	case "fr":
-		output += w.FR
-	case "hu":
-		output += w.HU
-	case "it":
-		output += w.IT
-	case "ko":
-		output += w.KO
-	case "nl":
-		output += w.NL
-	case "pl":
-		output += w.PL
-	case "pt":
-		output += w.PT
-	case "ru":
-		output += w.RU
-	case "sv":
-		output += w.SV
-	case "tr":
-		output += w.TR
-	case "uk":
-		output += w.UK
-	default:
+	var langDefMap = map[string]string{
+		"de": w.DE, "en": w.EN, "es": w.ES, "et": w.ET, "fr": w.FR, "hu": w.HU, "it": w.IT, "ko": w.KO,
+		"nl": w.NL, "pl": w.PL, "pt": w.PT, "ru": w.RU, "sv": w.SV, "tr": w.TR, "uk": w.UK,
+	}
+
+	if langDef, ok := langDefMap[langCode]; ok {
+		output += langDef
+	} else {
 		output += w.EN
 	}
 
