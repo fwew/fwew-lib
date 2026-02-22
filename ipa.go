@@ -4,6 +4,31 @@ import (
 	"strings"
 )
 
+/* To help deduce phonemes */
+var romanization = map[string]string{
+	// Vowels
+	"a": "a", "i": "i", "ɪ": "ì",
+	"o": "o", "ɛ": "e", "u": "u",
+	"æ": "ä",
+	// Diphthongs
+	"aw": "aw", "ɛj": "ey",
+	"aj": "ay", "ɛw": "ew",
+	// Psuedovowels
+	"ṛ": "rr", "ḷ": "ll",
+	// Consonants
+	"t": "t", "p": "p", "ʔ": "'",
+	"n": "n", "k": "k", "l": "l",
+	"s": "s", "ɾ": "r", "j": "y",
+	"t͡s": "ts", "t'": "tx", "m": "m",
+	"v": "v", "w": "w", "h": "h",
+	"ŋ": "ng", "z": "z", "k'": "kx",
+	"p'": "px", "f": "f", "r": "r",
+	// Reef dialect
+	"b": "px", "d": "tx", "g": "kx",
+	"ʃ": "sy", "tʃ": "tsy", "ʊ": "ù",
+	// mistakes and rarities
+	"ʒ": "tsy", "": "", " ": "",
+}
 var romanization2 = map[string]string{
 	// Vowels
 	"a": "a", "i": "i", "ɪ": "ì",

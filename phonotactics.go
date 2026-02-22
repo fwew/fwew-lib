@@ -343,7 +343,7 @@ func isValidNaviHelper(word string, lang string) string {
 		syllableBreakdown = strings.ReplaceAll(syllableBreakdown, "y-"+string(a), "-y"+string(a))
 	}
 
-	// If reef dialect is present, show what forest looks like
+	// If the reef dialect is present, show what the forest looks like
 	syllableForest := ""
 	if isReef {
 		syllableForest = strings.ReplaceAll(syllableBreakdown, "sh", "sy")

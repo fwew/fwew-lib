@@ -16,31 +16,6 @@ import (
 	"unicode/utf8"
 )
 
-/* To help deduce phonemes */
-var romanization = map[string]string{
-	// Vowels
-	"a": "a", "i": "i", "ɪ": "ì",
-	"o": "o", "ɛ": "e", "u": "u",
-	"æ": "ä",
-	// Diphthongs
-	"aw": "aw", "ɛj": "ey",
-	"aj": "ay", "ɛw": "ew",
-	// Psuedovowels
-	"ṛ": "rr", "ḷ": "ll",
-	// Consonants
-	"t": "t", "p": "p", "ʔ": "'",
-	"n": "n", "k": "k", "l": "l",
-	"s": "s", "ɾ": "r", "j": "y",
-	"t͡s": "ts", "t'": "tx", "m": "m",
-	"v": "v", "w": "w", "h": "h",
-	"ŋ": "ng", "z": "z", "k'": "kx",
-	"p'": "px", "f": "f", "r": "r",
-	// Reef dialect
-	"b": "px", "d": "tx", "g": "kx",
-	"ʃ": "sy", "tʃ": "tsy", "ʊ": "ù",
-	// mistakes and rarities
-	"ʒ": "tsy", "": "", " ": ""}
-
 /* The likelihood of each letter appearing in a specific part of a Na'vi syllable.
  * They're ordered most common first to save time in linear search (common case fast).
  * Someday they'll be calculated from dictionary-v3.txt upon startup. */
@@ -99,7 +74,7 @@ var multiwordWords = map[string][][]string{}
 var multiwordWordsLoose = map[string][][]string{}
 var multiwordWordsReef = map[string][][]string{}
 
-/* Calculated on startup to assist the random number generators and letter selector */
+/* Calculated on startup to help the random number generators and letter selector */
 var maxOnset = 0
 var maxNonCluster = 0
 var maxNucleus = 0
@@ -427,7 +402,7 @@ func singleNameGen(syllableCount int, dialect int) (name string) {
 				onset = "y"
 			}
 		} else if nucleusMap["ù"] == 0 { //no psuedovowel or forest dialect
-			// If only we didn't have to hardcode the likelihood of ù compared to u :ìì:
+			// If only we didn't have to hardcode the likelihood of ù compared to "u"
 			if nucleus == "u" && rand.Intn(5) == 0 { // As of September 2023, the ratio of u to ù
 				nucleus = "ù" // was almost exactly 4 to 1 (615 to 158)
 			}
@@ -531,7 +506,7 @@ func nthRune(word string, n int) string {
 	return ""
 }
 
-// Does ipa contain any character from word as its nth letter?
+// Does ipa contain any character from the word as its nth letter?
 func hasAt(word string, ipa string, n int) (output bool) {
 	// negative index
 	if n < 0 {
@@ -789,7 +764,7 @@ func PhonemeDistros() {
 						syllable = syllable[1:]
 					}
 				} else if hasAt("ʔlɾhmnŋvwjzbdg", syllable, 0) {
-					// other normal onset
+					// another normal onset
 					onsetMap[romanization[nthRune(syllable, 0)]] = onsetMap[romanization[nthRune(syllable, 0)]] + 1
 					//roman_syllable += romanization[nth_rune(syllable, 0)]
 					syllable = syllable[len(nthRune(syllable, 0)):]
@@ -882,8 +857,8 @@ func PhonemeDistros() {
 				}
 				/*roman_syllable += coda
 
-				// Finally see if there is a good syllable frequency here
-				if _, ok := syllable_map[roman_syllable]; !ok {
+				// Finally, see if there is a good syllable frequency here
+				if _, ok: = syllable_map[roman_syllable]; !ok {
 					syllable_map[roman_syllable] = 1
 				} else {
 					syllable_map[roman_syllable] = syllable_map[roman_syllable] + 1

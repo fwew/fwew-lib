@@ -14,7 +14,7 @@ var naviVocab = [][]string{
 	{"", "", "me", "pxe", "tsì", "mrr", "pu", "ki"},
 	// 0 1 2 3 4 powers of 8
 	{"", "vo", "za", "vozam", "zazam"},
-	// 0 1 2 3 4 powers of 8 last digit
+	// 0 1 2 3 4 powers of 8 (last digit)
 	{"", "l", "", "", ""},
 }
 
@@ -167,8 +167,9 @@ var numTableRegexp = [][]string{
 }
 
 // NaviToNumber translates a Na'vi number word to the actual integer.
-// Na'vi numbers are octal values, so the integer is defined as octal number, and can easily be displayed as decimal number.
-// If no translation is found, `NoTranslation` is returned as error!
+// Na'vi numbers are octal values, so the integer is defined as an octal number
+// and can easily be displayed as a decimal number.
+// If no translation is found, `NoTranslation` is returned as an error!
 func NaviToNumber(input string) (int, error) {
 	input = strings.ToLower(input)
 	input = strings.TrimPrefix(input, "a")
@@ -238,7 +239,7 @@ func NumberToNavi(input int) (string, error) {
 	// maximal 5 possible digits
 	for i := 0; i < 5; i++ {
 		if i == 0 {
-			// last digit is written differently
+			// the last digit is written differently
 			n := input % 0o10
 			output = naviVocab[1][n] + output
 			previousDigit = n
@@ -247,17 +248,17 @@ func NumberToNavi(input int) (string, error) {
 			input = input >> 3
 			n := input % 0o10
 
-			// only run, when not 0, 0 is just kept out
+			// only run when not 0, 0 is just kept out
 			if n != 0 {
 				future := naviVocab[2][n] + naviVocab[3][i]
 
-				// override to add `l` to vo, if at second digit and last digit is 0|1
+				// override to add `l` to vo if at the second digit and the last digit is 0|1
 				if i == 1 && (previousDigit == 0 || previousDigit == 1) {
 					future = future + "l"
 				}
 
 				// override to add `m` to za
-				// only run if at third digit and second digit is not 0|1, also run when digits are x00|x01
+				// only run if at the third digit and the second digit is not 0|1, also run when digits are x00|x01
 				if i == 2 && ((previousDigit != 0 && previousDigit != 1) || (previousDigit == 0 && (firstDigit == 0 || firstDigit == 1))) {
 					future = future + "m"
 				}
