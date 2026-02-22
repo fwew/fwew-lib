@@ -1,6 +1,7 @@
 package fwew_lib
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 )
@@ -34,7 +35,7 @@ type Word struct {
 	Affixes        affix
 }
 
-// affixes has its own type, so it is automatically copied :)
+// affixes struct has its own type, so it is automatically copied :)
 type affix struct {
 	Prefix   []string
 	Infix    []string
@@ -53,59 +54,11 @@ func addAffixes(a affix, z affix) (w affix) {
 }
 
 func (w *Word) String() string {
-	// this string only doesn't get translated or called from Text() because they're var names
-	return fmt.Sprintf(""+
-		"Id: %s\n"+
-		"Navi: %s\n"+
-		"IPA: %s\n"+
-		"InfixLocations: %s\n"+
-		"PartOfSpeech: %s\n"+
-		"Source: %s\n"+
-		"Stressed: %s\n"+
-		"Syllables: %s\n"+
-		"InfixDots: %s\n"+
-		"DE: %s\n"+
-		"EN: %s\n"+
-		"ES: %s\n"+
-		"ET: %s\n"+
-		"FR: %s\n"+
-		"HU: %s\n"+
-		"IT: %s\n"+
-		"KO: %s\n"+
-		"NL: %s\n"+
-		"PL: %s\n"+
-		"PT: %s\n"+
-		"RU: %s\n"+
-		"SV: %s\n"+
-		"TR: %s\n"+
-		"UK: %s\n"+
-		"Affixes: %v\n",
-		w.ID,
-		w.Navi,
-		w.IPA,
-		w.InfixLocations,
-		w.PartOfSpeech,
-		w.Source,
-		w.Stressed,
-		w.Syllables,
-		w.InfixDots,
-		w.DE,
-		w.EN,
-		w.ES,
-		w.ET,
-		w.FR,
-		w.HU,
-		w.IT,
-		w.KO,
-		w.NL,
-		w.PL,
-		w.PT,
-		w.RU,
-		w.SV,
-		w.TR,
-		w.UK,
-		w.Affixes,
-	)
+	s, err := json.MarshalIndent(w, "", "  ")
+	if err != nil {
+		panic(err)
+	}
+	return string(s)
 }
 
 // Make a simple word to show what query led to this word
@@ -117,32 +70,75 @@ func simpleWord(name string) Word {
 
 // Initialize Word with one row of the dictionary.
 func newWord(dataFields []string, order dictPos) Word {
-	var word Word
-	word.ID = dataFields[order.idField]
-	word.Navi = dataFields[order.navField]
-	word.IPA = dataFields[order.ipaField]
-	word.InfixLocations = dataFields[order.infField]
-	word.PartOfSpeech = dataFields[order.posField]
-	word.Source = dataFields[order.srcField]
-	word.Stressed = dataFields[order.stsField]
-	word.Syllables = dataFields[order.sylField]
-	word.InfixDots = dataFields[order.ifdField]
-	word.DE = dataFields[order.deField]
-	word.EN = dataFields[order.enField]
-	word.ES = dataFields[order.esField]
-	word.ET = dataFields[order.etField]
-	word.FR = dataFields[order.frField]
-	word.HU = dataFields[order.huField]
-	word.IT = dataFields[order.itField]
-	word.KO = dataFields[order.koField]
-	word.NL = dataFields[order.nlField]
-	word.PL = dataFields[order.plField]
-	word.PT = dataFields[order.ptField]
-	word.RU = dataFields[order.ruField]
-	word.SV = dataFields[order.svField]
-	word.TR = dataFields[order.trField]
-	word.UK = dataFields[order.ukField]
-	return word
+	var w Word
+
+	// Keep these two lists in the same order.
+	fields := []*string{
+		&w.ID,
+		&w.Navi,
+		&w.IPA,
+		&w.InfixLocations,
+		&w.PartOfSpeech,
+		&w.Source,
+		&w.Stressed,
+		&w.Syllables,
+		&w.InfixDots,
+		&w.DE,
+		&w.EN,
+		&w.ES,
+		&w.ET,
+		&w.FR,
+		&w.HU,
+		&w.IT,
+		&w.KO,
+		&w.NL,
+		&w.PL,
+		&w.PT,
+		&w.RU,
+		&w.SV,
+		&w.TR,
+		&w.UK,
+	}
+
+	indexes := []int{
+		order.idField,
+		order.navField,
+		order.ipaField,
+		order.infField,
+		order.posField,
+		order.srcField,
+		order.stsField,
+		order.sylField,
+		order.ifdField,
+		order.deField,
+		order.enField,
+		order.esField,
+		order.etField,
+		order.frField,
+		order.huField,
+		order.itField,
+		order.koField,
+		order.nlField,
+		order.plField,
+		order.ptField,
+		order.ruField,
+		order.svField,
+		order.trField,
+		order.ukField,
+	}
+
+	// Assign safely (in case an index is missing/out of range).
+	set := func(dst *string, idx int) {
+		if idx >= 0 && idx < len(dataFields) {
+			*dst = dataFields[idx]
+		}
+	}
+
+	for i := range fields {
+		set(fields[i], indexes[i])
+	}
+
+	return w
 }
 
 func (w *Word) SyllableCount() int {
@@ -168,29 +164,9 @@ func (w *Word) ToOutputLine(
 	src := fmt.Sprintf("%s: %s", Text("src"), w.Source)
 	ifd := "" + w.InfixDots
 
-	sylBuilder := ""
-	syl := ""
-	allSpaces := strings.Split(w.Syllables, " ")
-	for i, a := range allSpaces {
-		if a == "or" {
-			sylBuilder = strings.Trim(sylBuilder, " -")
-			input, err := w.doUnderline(sylBuilder, withMarkdown)
-			if err != nil {
-				return "", err
-			}
-			syl += input + " or "
-			sylBuilder = ""
-			continue
-		}
-		sylBuilder += a + " "
-		if i+1 == len(allSpaces) {
-			sylBuilder = strings.Trim(sylBuilder, " -")
-			input, err := w.doUnderline(sylBuilder, withMarkdown)
-			if err != nil {
-				return "", err
-			}
-			syl += input
-		}
+	syl, err := formatSyllables(w, w.Syllables, withMarkdown)
+	if err != nil {
+		return "", err
 	}
 
 	if withMarkdown {
@@ -267,29 +243,11 @@ func (w *Word) ToOutputLine(
 	if reef {
 		reefy := ReefMe(w.IPA, false)
 		output += "\n(Reef Na'vi: "
-		reefBreakdownInput := ""
-		allSpaces := strings.Split(reefy[0], " ")
-		for i, a := range allSpaces {
-			if a == "or" {
-				reefBreakdownInput = strings.Trim(reefBreakdownInput, " -")
-				input, err := w.doUnderline(reefBreakdownInput, withMarkdown)
-				if err != nil {
-					return "", err
-				}
-				output += input + " or "
-				reefBreakdownInput = ""
-				continue
-			}
-			reefBreakdownInput += a + " "
-			if i+1 == len(allSpaces) {
-				reefBreakdownInput = strings.Trim(reefBreakdownInput, " -")
-				input, err := w.doUnderline(reefBreakdownInput, withMarkdown)
-				if err != nil {
-					return "", err
-				}
-				output += input
-			}
+		formattedReef, err := formatSyllables(w, reefy[0], withMarkdown)
+		if err != nil {
+			return "", err
 		}
+		output += formattedReef
 		if showIPA {
 			output += " [" + reefy[1] + "]"
 		}
@@ -319,7 +277,39 @@ func (w *Word) ToOutputLine(
 	return
 }
 
-func (w *Word) doUnderline(input string, markdown bool) (string, error) {
+func formatSyllables(w *Word, syllables string, withMarkdown bool) (string, error) {
+	var formattedSyllables string
+	var currentSyllableSet string
+	allSpaces := strings.Split(syllables, " ")
+
+	for i, a := range allSpaces {
+		if a == "or" {
+			currentSyllableSet = strings.Trim(currentSyllableSet, " -")
+			input, err := doUnderline(w, currentSyllableSet, withMarkdown)
+			if err != nil {
+				return "", err
+			}
+			formattedSyllables += input + " or "
+			currentSyllableSet = ""
+			continue
+		}
+
+		currentSyllableSet += a + " "
+
+		if i+1 == len(allSpaces) {
+			currentSyllableSet = strings.Trim(currentSyllableSet, " -")
+			input, err := doUnderline(w, currentSyllableSet, withMarkdown)
+			if err != nil {
+				return "", err
+			}
+			formattedSyllables += input
+		}
+	}
+
+	return formattedSyllables, nil
+}
+
+func doUnderline(w *Word, input string, markdown bool) (string, error) {
 	syllables := w.Syllables
 	if len(input) > 0 {
 		syllables = input

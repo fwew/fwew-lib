@@ -1123,7 +1123,7 @@ func UpdateDict() error {
 
 	err = cacheDict()
 	if err != nil {
-		log.Printf(FailedToCache.wrap(err).Error())
+		log.Println(FailedToCache.wrap(err))
 		return FailedToCache.wrap(err)
 	}
 
@@ -1133,7 +1133,7 @@ func UpdateDict() error {
 
 	err = cacheDictHash()
 	if err != nil {
-		log.Printf(FailedToCache.wrap(err).Error())
+		log.Println(FailedToCache.wrap(err))
 		return FailedToCache.wrap(err)
 	}
 
@@ -1143,7 +1143,7 @@ func UpdateDict() error {
 
 	err = cacheDictHash2()
 	if err != nil {
-		log.Printf(FailedToCache.wrap(err).Error())
+		log.Println(FailedToCache.wrap(err))
 		return FailedToCache.wrap(err)
 	}
 
