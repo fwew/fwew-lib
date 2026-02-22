@@ -59,6 +59,17 @@ var letterMap = map[rune]int{
 	'y': 32, 'z': 33, '-': 34,
 }
 
+var dictHash2MapPtrs = []*map[string][]string{
+	&dictHash2.EN, &dictHash2.DE, &dictHash2.ES, &dictHash2.ET, &dictHash2.FR, &dictHash2.HU, &dictHash2.IT,
+	&dictHash2.KO, &dictHash2.NL, &dictHash2.PL, &dictHash2.PT, &dictHash2.RU, &dictHash2.SV, &dictHash2.TR,
+	&dictHash2.UK}
+
+var dictHash2ParenthesisMapPtrs = []*map[string][]string{
+	&dictHash2Parenthesis.EN, &dictHash2Parenthesis.DE, &dictHash2Parenthesis.ES, &dictHash2Parenthesis.ET,
+	&dictHash2Parenthesis.FR, &dictHash2Parenthesis.HU, &dictHash2Parenthesis.IT, &dictHash2Parenthesis.KO,
+	&dictHash2Parenthesis.NL, &dictHash2Parenthesis.PL, &dictHash2Parenthesis.PT, &dictHash2Parenthesis.RU,
+	&dictHash2Parenthesis.SV, &dictHash2Parenthesis.TR, &dictHash2Parenthesis.UK}
+
 var nkx []string
 var nkxSub = map[string]string{}
 
@@ -542,132 +553,26 @@ func cacheDictHash2Orig(mysql bool) error {
 		return nil
 	}
 
-	dictHash2.EN = make(map[string][]string)
-	dictHash2.DE = make(map[string][]string)
-	dictHash2.ES = make(map[string][]string)
-	dictHash2.ET = make(map[string][]string)
-	dictHash2.FR = make(map[string][]string)
-	dictHash2.HU = make(map[string][]string)
-	dictHash2.IT = make(map[string][]string)
-	dictHash2.KO = make(map[string][]string)
-	dictHash2.NL = make(map[string][]string)
-	dictHash2.PL = make(map[string][]string)
-	dictHash2.PT = make(map[string][]string)
-	dictHash2.RU = make(map[string][]string)
-	dictHash2.SV = make(map[string][]string)
-	dictHash2.TR = make(map[string][]string)
-	dictHash2.UK = make(map[string][]string)
+	for _, dictHash2Map := range dictHash2MapPtrs {
+		*dictHash2Map = make(map[string][]string)
+	}
 
-	dictHash2Parenthesis.EN = make(map[string][]string)
-	dictHash2Parenthesis.DE = make(map[string][]string)
-	dictHash2Parenthesis.ES = make(map[string][]string)
-	dictHash2Parenthesis.ET = make(map[string][]string)
-	dictHash2Parenthesis.FR = make(map[string][]string)
-	dictHash2Parenthesis.HU = make(map[string][]string)
-	dictHash2Parenthesis.IT = make(map[string][]string)
-	dictHash2Parenthesis.KO = make(map[string][]string)
-	dictHash2Parenthesis.NL = make(map[string][]string)
-	dictHash2Parenthesis.PL = make(map[string][]string)
-	dictHash2Parenthesis.PT = make(map[string][]string)
-	dictHash2Parenthesis.RU = make(map[string][]string)
-	dictHash2Parenthesis.SV = make(map[string][]string)
-	dictHash2Parenthesis.TR = make(map[string][]string)
-	dictHash2Parenthesis.UK = make(map[string][]string)
+	for _, dictHash2ParenthesisMap := range dictHash2ParenthesisMapPtrs {
+		*dictHash2ParenthesisMap = make(map[string][]string)
+	}
 
 	// Set up the whole thing
 
 	var setUpTheWholeThing = func(word Word) error {
 		standardizedWord := strings.ToLower(word.Navi)
 		standardizedWord = strings.ReplaceAll(standardizedWord, "+", "")
-
-		// English
-		if !hasNullDef(word.EN) {
-			dictHash2.EN = assignWord(dictHash2.EN, word.EN, standardizedWord, true)
-			dictHash2Parenthesis.EN = assignWord(dictHash2Parenthesis.EN, word.EN, standardizedWord, false)
-		}
-
-		// German (Deutsch)
-		if !hasNullDef(word.DE) {
-			dictHash2.DE = assignWord(dictHash2.DE, word.DE, standardizedWord, true)
-			dictHash2Parenthesis.DE = assignWord(dictHash2Parenthesis.DE, word.DE, standardizedWord, false)
-		}
-
-		// Spanish (Español)
-		if !hasNullDef(word.ES) {
-			dictHash2.ES = assignWord(dictHash2.ES, word.ES, standardizedWord, true)
-			dictHash2Parenthesis.ES = assignWord(dictHash2Parenthesis.ES, word.ES, standardizedWord, false)
-		}
-
-		// Estonian (Eesti)
-		if !hasNullDef(word.ET) {
-			dictHash2.ET = assignWord(dictHash2.ET, word.ET, standardizedWord, true)
-			dictHash2Parenthesis.ET = assignWord(dictHash2Parenthesis.ET, word.ET, standardizedWord, false)
-		}
-
-		// French (Français)
-		if !hasNullDef(word.FR) {
-			dictHash2.FR = assignWord(dictHash2.FR, word.FR, standardizedWord, true)
-			dictHash2Parenthesis.FR = assignWord(dictHash2Parenthesis.FR, word.FR, standardizedWord, false)
-		}
-
-		// Hungarian (Magyar)
-		if !hasNullDef(word.HU) {
-			dictHash2.HU = assignWord(dictHash2.HU, word.HU, standardizedWord, true)
-			dictHash2Parenthesis.HU = assignWord(dictHash2Parenthesis.HU, word.HU, standardizedWord, false)
-		}
-
-		// Italian (Italiano)
-		if !hasNullDef(word.IT) {
-			dictHash2.IT = assignWord(dictHash2.IT, word.IT, standardizedWord, true)
-			dictHash2Parenthesis.IT = assignWord(dictHash2Parenthesis.IT, word.IT, standardizedWord, false)
-		}
-
-		// Korean (한국어)
-		if !hasNullDef(word.KO) {
-			dictHash2.KO = assignWord(dictHash2.KO, word.KO, standardizedWord, true)
-			dictHash2Parenthesis.KO = assignWord(dictHash2Parenthesis.KO, word.KO, standardizedWord, false)
-		}
-
-		// Dutch (Nederlands)
-		if !hasNullDef(word.NL) {
-			dictHash2.NL = assignWord(dictHash2.NL, word.NL, standardizedWord, true)
-			dictHash2Parenthesis.NL = assignWord(dictHash2Parenthesis.NL, word.NL, standardizedWord, false)
-		}
-
-		// Polish (Polski)
-		if !hasNullDef(word.PL) {
-			dictHash2.PL = assignWord(dictHash2.PL, word.PL, standardizedWord, true)
-			dictHash2Parenthesis.PL = assignWord(dictHash2Parenthesis.PL, word.PL, standardizedWord, false)
-		}
-
-		// Portuguese (Português)
-		if !hasNullDef(word.PT) {
-			dictHash2.PT = assignWord(dictHash2.PT, word.PT, standardizedWord, true)
-			dictHash2Parenthesis.PT = assignWord(dictHash2Parenthesis.PT, word.PT, standardizedWord, false)
-		}
-
-		// Russian (Русский)
-		if !hasNullDef(word.RU) {
-			dictHash2.RU = assignWord(dictHash2.RU, word.RU, standardizedWord, true)
-			dictHash2Parenthesis.RU = assignWord(dictHash2Parenthesis.RU, word.RU, standardizedWord, false)
-		}
-
-		// Swedish (Svenska)
-		if !hasNullDef(word.SV) {
-			dictHash2.SV = assignWord(dictHash2.SV, word.SV, standardizedWord, true)
-			dictHash2Parenthesis.SV = assignWord(dictHash2Parenthesis.SV, word.SV, standardizedWord, false)
-		}
-
-		// Turkish (Türkçe)
-		if !hasNullDef(word.TR) {
-			dictHash2.TR = assignWord(dictHash2.TR, word.TR, standardizedWord, true)
-			dictHash2Parenthesis.TR = assignWord(dictHash2Parenthesis.TR, word.TR, standardizedWord, false)
-		}
-
-		// Ukrainian (Українська)
-		if !hasNullDef(word.UK) {
-			dictHash2.UK = assignWord(dictHash2.UK, word.UK, standardizedWord, true)
-			dictHash2Parenthesis.UK = assignWord(dictHash2Parenthesis.UK, word.UK, standardizedWord, false)
+		var definitions = []string{word.EN, word.DE, word.ES, word.ET, word.FR, word.HU, word.IT, word.KO, word.NL,
+			word.PL, word.PT, word.RU, word.SV, word.TR, word.UK}
+		for i, definition := range definitions {
+			if !hasNullDef(definition) {
+				*dictHash2MapPtrs[i] = assignWord(*dictHash2MapPtrs[i], definition, standardizedWord, true)
+				*dictHash2ParenthesisMapPtrs[i] = assignWord(*dictHash2ParenthesisMapPtrs[i], definition, standardizedWord, false)
+			}
 		}
 		return nil
 	}
@@ -702,38 +607,13 @@ func uncacheHashDict() {
 }
 
 func uncacheHashDict2() {
+	for _, dictHash2Map := range dictHash2MapPtrs {
+		*dictHash2Map = nil
+	}
+	for _, dictHash2ParenthesisMap := range dictHash2ParenthesisMapPtrs {
+		*dictHash2ParenthesisMap = nil
+	}
 	dictHash2Cached = false
-	dictHash2.EN = nil
-	dictHash2.DE = nil
-	dictHash2.ES = nil
-	dictHash2.ET = nil
-	dictHash2.FR = nil
-	dictHash2.HU = nil
-	dictHash2.IT = nil
-	dictHash2.KO = nil
-	dictHash2.NL = nil
-	dictHash2.PL = nil
-	dictHash2.PT = nil
-	dictHash2.RU = nil
-	dictHash2.SV = nil
-	dictHash2.TR = nil
-	dictHash2.UK = nil
-
-	dictHash2Parenthesis.EN = nil
-	dictHash2Parenthesis.DE = nil
-	dictHash2Parenthesis.ES = nil
-	dictHash2Parenthesis.ET = nil
-	dictHash2Parenthesis.FR = nil
-	dictHash2Parenthesis.HU = nil
-	dictHash2Parenthesis.IT = nil
-	dictHash2Parenthesis.KO = nil
-	dictHash2Parenthesis.NL = nil
-	dictHash2Parenthesis.PL = nil
-	dictHash2Parenthesis.PT = nil
-	dictHash2Parenthesis.RU = nil
-	dictHash2Parenthesis.SV = nil
-	dictHash2Parenthesis.TR = nil
-	dictHash2Parenthesis.UK = nil
 }
 
 func runOnDB(f func(word Word) error) error {
