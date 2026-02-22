@@ -7,6 +7,7 @@ import (
 
 // Errors raised by package fwew_lib
 const (
+	FailedToCache         = constError("Error caching dict after updating ... Cache disabled")
 	FailedToCloseDatabase = constError("failed to close database connection")
 	FailedToCloseDictFile = constError("failed to close dictionary file")
 	FailedToDownload      = constError("failed to download dictionary update")

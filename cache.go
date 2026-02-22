@@ -1105,38 +1105,7 @@ func GetDictSize(lang string) (count string, err error) {
 
 	// Put the word count into a complete sentence
 	count = strconv.Itoa(amount)
-
-	if lang == "en" { // English
-		count = "There are " + count + " entries in the dictionary."
-	} else if lang == "de" { // German (Deutsch)
-		count = "Es sind " + count + " Einträge im Wörterbuch."
-	} else if lang == "es" { // Spanish (Español)
-		count = "There are " + count + " entries in the dictionary." // TODO
-	} else if lang == "et" { // Estonian (Eesti)
-		count = "There are " + count + " entries in the dictionary." // TODO
-	} else if lang == "fr" { // French (Français)
-		count = "Il y a " + count + " définitions dans le dictionnaire."
-	} else if lang == "hu" { // Hungarian (Magyar)
-		count = "There are " + count + " entries in the dictionary." // TODO
-	} else if lang == "it" {
-		count = "Ci sono " + count + " voci nel dizionario."
-	} else if lang == "ko" { // Korean (한국어)
-		count = "Fwew에는 " + count + "개의 단어가 등록되어 있습니다."
-	} else if lang == "nl" { // Dutch (Nederlands)
-		count = "There are " + count + " entries in the dictionary." // TODO
-	} else if lang == "pl" { // Polish (Polski)
-		count = "There are " + count + " entries in the dictionary." // TODO
-	} else if lang == "pt" { // Portuguese (Português)
-		count = "There are " + count + " entries in the dictionary." // TODO
-	} else if lang == "ru" { // Russian (Русский)
-		count = "There are " + count + " entries in the dictionary." // TODO
-	} else if lang == "sv" { // Swedish (Svenska)
-		count = "There are " + count + " entries in the dictionary." // TODO
-	} else if lang == "tr" { // Turkish (Türkçe)
-		count = "There are " + count + " entries in the dictionary." // TODO
-	} else if lang == "uk" { // Ukrainian (Українська)
-		count = "There are " + count + " entries in the dictionary." // TODO
-	}
+	count = getDictSizeMessage(lang, count)
 
 	return
 }
@@ -1154,8 +1123,8 @@ func UpdateDict() error {
 
 	err = cacheDict()
 	if err != nil {
-		log.Printf("Error caching dict after updating ... Cache disabled")
-		return err
+		log.Printf(FailedToCache.wrap(err).Error())
+		return FailedToCache.wrap(err)
 	}
 
 	if dictHashCached {
@@ -1164,8 +1133,8 @@ func UpdateDict() error {
 
 	err = cacheDictHash()
 	if err != nil {
-		log.Printf("Error caching dict after updating ... Cache disabled")
-		return err
+		log.Printf(FailedToCache.wrap(err).Error())
+		return FailedToCache.wrap(err)
 	}
 
 	if dictHash2Cached {
@@ -1174,8 +1143,8 @@ func UpdateDict() error {
 
 	err = cacheDictHash2()
 	if err != nil {
-		log.Printf("Error caching dict after updating ... Cache disabled")
-		return err
+		log.Printf(FailedToCache.wrap(err).Error())
+		return FailedToCache.wrap(err)
 	}
 
 	return nil

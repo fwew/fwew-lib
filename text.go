@@ -3,6 +3,7 @@ package fwew_lib
 import (
 	"os/user"
 	"path/filepath"
+	"strings"
 )
 
 var texts = map[string]string{}
@@ -472,4 +473,27 @@ var messageTooBig = map[string]string{
 	"tr": "⛔ (stopped at {count}. 2000 Character limit)", // Turkish (Türkçe)
 	// TODO
 	"uk": "⛔ (stopped at {count}. 2000 Character limit)", // Ukrainian (Українська)
+}
+
+func getDictSizeMessage(lang string, count string) (countMessage string) {
+	var countMessages = map[string]string{
+		"en": "There are {count} entries in the dictionary.",
+		"de": "Es sind {count} Einträge im Wörterbuch.",
+		"es": "There are {count} entries in the dictionary.", // TODO
+		"et": "There are {count} entries in the dictionary.", // TODO
+		"fr": "Il y a {count} définitions dans le dictionnaire.",
+		"hu": "There are {count} entries in the dictionary.", // TODO
+		"it": "Ci sono {count} voci nel dizionario.",
+		"ko": "Fwew에는 {count}개의 단어가 등록되어 있습니다.",
+		"nl": "There are {count} entries in the dictionary.", // TODO
+		"pl": "There are {count} entries in the dictionary.", // TODO
+		"pt": "There are {count} entries in the dictionary.", // TODO
+		"ru": "There are {count} entries in the dictionary.", // TODO
+		"sv": "There are {count} entries in the dictionary.", // TODO
+		"tr": "There are {count} entries in the dictionary.", // TODO
+		"uk": "There are {count} entries in the dictionary.", // TODO
+	}
+	countMessage = countMessages[lang]
+	countMessage = strings.ReplaceAll(countMessage, "{count}", count)
+	return
 }
