@@ -2,9 +2,8 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"math"
-	"math/rand"
+	"os"
 	"regexp"
 	"sort"
 	"strconv"
@@ -14,25 +13,6 @@ import (
 	"gonum.org/v1/plot/plotutil"
 	"gonum.org/v1/plot/vg"
 )
-
-var langs = []string{
-	"en",
-	"de",
-	"et",
-	"fr",
-	"hu",
-	"nl",
-	"pl",
-	"ru",
-	"sv",
-	"tr",
-	"uk",
-}
-
-func randomLangCode() string {
-	num := rand.Intn(len(langs))
-	return langs[num]
-}
 
 type dataStruct struct {
 	name     string
@@ -45,7 +25,7 @@ func main() {
 
 	dataArray := readBenchResultFiles("misc/BigBenchmarkCached.txt", "misc/BigBenchmark.txt")
 
-	// Sort by highest difference
+	// Sort by the highest difference
 	sort.Slice(dataArray, func(i, j int) bool {
 		return math.Abs(dataArray[i].uncached-dataArray[i].cached) > math.Abs(dataArray[j].uncached-dataArray[j].cached)
 	})
@@ -67,7 +47,7 @@ func main() {
 
 	printBar(groupCached, groupUncached, xNames, "misc/Duration_Cached_Uncached.png")
 
-	// Second plot as histogram to show overall difference
+	// The second plot as a histogram to show overall difference
 	var differenceData plotter.Values
 
 	for _, d := range dataArray {
@@ -86,12 +66,12 @@ func main() {
 		return dataArray[i].cached < dataArray[j].cached
 	})
 
-	// save dataArray to file, so we have a sorted table, that can be put into e.g. excel
+	// save dataArray to file, so we have a sorted table that can be put into e.g., Excel
 	var excelOutput string
 	for _, d := range dataArray {
 		excelOutput += fmt.Sprintf("%s\t%f\t%f\n", d.name, d.cached, d.uncached)
 	}
-	err := ioutil.WriteFile("misc/SortedDataArrayExcel.txt", []byte(excelOutput), 0664)
+	err := os.WriteFile("misc/SortedDataArrayExcel.txt", []byte(excelOutput), 0664)
 	if err != nil {
 		panic(err)
 	}
@@ -119,7 +99,7 @@ func main() {
 
 	printBar(groupCachedEnglish, groupUncachedEnglish, xNamesEnglish, "misc/Duration_Cached_Uncached_English.png")
 
-	// Second plot as histogram to show overall difference
+	// The second plot as a histogram to show overall difference
 	var differenceDataEnglish plotter.Values
 
 	for _, d := range dataArrayEnglish {
@@ -137,53 +117,22 @@ func main() {
 func readBenchResultFiles(cachedFile, uncachedFile string) []*dataStruct {
 	var data = map[string]*dataStruct{}
 
-	bigBenchmark, err := ioutil.ReadFile(cachedFile)
+	bigBenchmark, err := os.ReadFile(cachedFile)
 	if err != nil {
 		panic(err)
 	}
 
-	UNcachedResult := string(bigBenchmark)
+	UncachedResult := string(bigBenchmark)
 
-	bigBenchmarkCached, err := ioutil.ReadFile(uncachedFile)
+	bigBenchmarkCached, err := os.ReadFile(uncachedFile)
 	if err != nil {
 		panic(err)
 	}
 
 	cachedResult := string(bigBenchmarkCached)
 
-	var validID = regexp.MustCompile(`.+?/(.+?)-\d *\t *(\d+)\t *(\d+) ns/op`)
-
-	cachedData := validID.FindAllStringSubmatch(cachedResult, -1)
-
-	for _, cachedDatum := range cachedData {
-		float, err := strconv.ParseFloat(cachedDatum[3], 64)
-		if err != nil {
-			panic(err)
-		}
-		dataField := data[cachedDatum[1]]
-		if dataField == nil {
-			dataField = &dataStruct{}
-		}
-		dataField.cached = float / 1000 / 1000
-		dataField.name = cachedDatum[1]
-		data[cachedDatum[1]] = dataField
-	}
-
-	uncachedData := validID.FindAllStringSubmatch(UNcachedResult, -1)
-
-	for _, uncachedDatum := range uncachedData {
-		float, err := strconv.ParseFloat(uncachedDatum[3], 64)
-		if err != nil {
-			panic(err)
-		}
-		dataField := data[uncachedDatum[1]]
-		if dataField == nil {
-			dataField = &dataStruct{}
-		}
-		dataField.uncached = float / 1000 / 1000
-		dataField.name = uncachedDatum[1]
-		data[uncachedDatum[1]] = dataField
-	}
+	parseBenchResult(cachedResult, data, true)
+	parseBenchResult(UncachedResult, data, false)
 
 	// move data to array instead of struct (arrays can be sorted, maps not)
 	var dataArray []*dataStruct
@@ -193,8 +142,31 @@ func readBenchResultFiles(cachedFile, uncachedFile string) []*dataStruct {
 	return dataArray
 }
 
+func parseBenchResult(result string, data map[string]*dataStruct, cached bool) {
+	var validID = regexp.MustCompile(`.+?/(.+?)-\d *\t *(\d+)\t *(\d+) ns/op`)
+	benchData := validID.FindAllStringSubmatch(result, -1)
+
+	for _, datum := range benchData {
+		float, err := strconv.ParseFloat(datum[3], 64)
+		if err != nil {
+			panic(err)
+		}
+		dataField := data[datum[1]]
+		if dataField == nil {
+			dataField = &dataStruct{}
+		}
+		if cached {
+			dataField.cached = float / 1000 / 1000
+		} else {
+			dataField.uncached = float / 1000 / 1000
+		}
+		dataField.name = datum[1]
+		data[datum[1]] = dataField
+	}
+}
+
 func printHistogram(values plotter.Values, filename string) {
-	// create third plot
+	// create the third plot
 	p3 := plot.New()
 	p3.Title.Text = "Overall Performance (Cached)"
 	p3.X.Label.Text = "ms"

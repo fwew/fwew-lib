@@ -150,7 +150,7 @@ var unreefFixes = map[string]string{
 }
 
 var unstrictFixes = map[string]string{
-	// Below this are for diacritic independence of i and ì
+	// Below this is for diacritic independence of i and ì
 	"fi":    "fì",
 	"ilä":   "ìlä",
 	"mi":    "mì",
