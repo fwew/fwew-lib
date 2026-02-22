@@ -80,30 +80,6 @@ var maxNonCluster = 0
 var maxNucleus = 0
 var maxCoda = 0
 
-/* Helper function to find the start of a string */
-func firstRune(word string) (letter rune) {
-	r := []rune(word)
-	return r[0]
-}
-
-/* Get the nth to last letter of a string */
-func getLastRune(word string, n int) (letter rune) {
-	r := []rune(word)
-	if n > len(r) {
-		n = len(r)
-	}
-	return r[len(r)-n]
-}
-
-/* Take n letters off the end of a string */
-func shaveRune(word string, n int) (letter string) {
-	r := []rune(word)
-	if n > len(r) {
-		n = len(r) + 1
-	}
-	return string(r[:len(r)-n])
-}
-
 // helper for insert-infix
 func quickReef(input string) string {
 	output := strings.ReplaceAll(input, "tsy", "ch")
@@ -491,42 +467,6 @@ func fastRandom(wordList []Word) (results Word) {
 	dictLength := len(wordList)
 
 	return wordList[rand.Intn(dictLength)]
-}
-
-// What is the nth rune of word?
-func nthRune(word string, n int) string {
-	i := 0
-	for _, r := range word {
-		if i == n {
-			return string(r)
-		}
-		i += 1
-	}
-
-	return ""
-}
-
-// Does ipa contain any character from the word as its nth letter?
-func hasAt(word string, ipa string, n int) (output bool) {
-	// negative index
-	if n < 0 {
-		n = len([]rune(ipa)) + n
-	}
-
-	i := 0
-	for _, s := range ipa {
-		if i == n {
-			for _, r := range word {
-				if r == s {
-					return true
-				}
-			}
-			break // save a few compute cycles
-		}
-		i += 1
-	}
-
-	return false
 }
 
 // sortedWords is a helper function for name-alu
