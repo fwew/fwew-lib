@@ -12,6 +12,8 @@ func setupTest() func(t *testing.T) {
 
 	// Return a function to tear down the test
 	return func(t *testing.T) {
+		universalLock.Lock()
+		defer universalLock.Unlock()
 		log.Println("teardown test")
 		uncacheDict()
 		uncacheHashDict()

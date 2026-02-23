@@ -70,9 +70,9 @@ func Test_UpdateDict(t *testing.T) {
 func Test_StartEverything(t *testing.T) {
 	status := StartEverything()
 	if !strings.HasPrefix(status, "Everything is cached.") {
-		t.Fatal(FailedToCache)
+		t.Errorf("[%s]", status)
 	}
 	if !strings.HasSuffix(status, "seconds") {
-		t.Fatal(FailedToCache)
+		t.Errorf("[%s]", status)
 	}
 }
