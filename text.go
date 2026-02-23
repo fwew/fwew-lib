@@ -13,8 +13,9 @@ const (
 	mdBold       = "**"
 	mdItalic     = "*"
 	newline      = "\n"
-	valNull      = "NULL"
 	space        = " "
+	indent       = "    "
+	valNull      = "NULL"
 )
 
 func init() {
@@ -133,6 +134,11 @@ want 5-letter words? note: "kx", "ng", etc. each count as 1 "Na'vi letter"
 	texts["dictURL"] = "https://tirea.learnnavi.org/dictionarydata/" + dictFileName
 
 	// general message strings
+	texts["prefixes"] = "prefixes"
+	texts["infixes"] = "infixes"
+	texts["suffixes"] = "suffixes"
+	texts["lenition"] = "lenition"
+	texts["comment"] = "comment"
 	texts["src"] = "source"
 }
 

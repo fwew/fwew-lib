@@ -26,6 +26,16 @@ func contains(s []string, q []string) bool {
 	return false
 }
 
+// Map is a generic map function for iterables.
+// It returns the result of calling fn(t) on each t in slice `ts`
+func Map[T, V any](ts []T, fn func(T) V) []V {
+	result := make([]V, len(ts))
+	for i, t := range ts {
+		result[i] = fn(t)
+	}
+	return result
+}
+
 // identicalRunes returns true if the two strings have the same runes in the same order and false if they don't.
 func identicalRunes(first string, second string) bool {
 	a := []rune(first)
@@ -102,6 +112,31 @@ func hasAt(word string, ipa string, n int) (output bool) {
 	}
 
 	return false
+}
+
+func applyPrefixNotation(prefix string) string {
+	var prefixMap = map[string]string{
+		"me":   "me+",
+		"pxe":  "pxe+",
+		"ay":   "ay+",
+		"fay":  "fay+",
+		"tsay": "tsay+",
+		"fray": "fray+",
+		"pe":   "pe+",
+		"pay":  "pay+",
+	}
+	if v, ok := prefixMap[prefix]; ok {
+		return v
+	}
+	return prefix + "-"
+}
+
+func applyInfixNotation(infix string) string {
+	return "<" + infix + ">"
+}
+
+func applySuffixNotation(suffix string) string {
+	return "-" + suffix
 }
 
 // downloadDict downloads the latest released version of the dictionary file and saves it to the given filepath.

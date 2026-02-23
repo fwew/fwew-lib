@@ -83,56 +83,15 @@ func newWord(dataFields []string, order dictPos) Word {
 
 	// Keep these two lists in the same order.
 	fields := []*string{
-		&w.ID,
-		&w.Navi,
-		&w.IPA,
-		&w.InfixLocations,
-		&w.PartOfSpeech,
-		&w.Source,
-		&w.Stressed,
-		&w.Syllables,
-		&w.InfixDots,
-		&w.DE,
-		&w.EN,
-		&w.ES,
-		&w.ET,
-		&w.FR,
-		&w.HU,
-		&w.IT,
-		&w.KO,
-		&w.NL,
-		&w.PL,
-		&w.PT,
-		&w.RU,
-		&w.SV,
-		&w.TR,
-		&w.UK,
+		&w.ID, &w.Navi, &w.IPA, &w.InfixLocations, &w.PartOfSpeech, &w.Source, &w.Stressed, &w.Syllables, &w.InfixDots,
+		&w.DE, &w.EN, &w.ES, &w.ET, &w.FR, &w.HU, &w.IT, &w.KO, &w.NL, &w.PL, &w.PT, &w.RU, &w.SV, &w.TR, &w.UK,
 	}
 
 	indexes := []int{
-		order.idField,
-		order.navField,
-		order.ipaField,
-		order.infField,
-		order.posField,
-		order.srcField,
-		order.stsField,
-		order.sylField,
-		order.ifdField,
-		order.deField,
-		order.enField,
-		order.esField,
-		order.etField,
-		order.frField,
-		order.huField,
-		order.itField,
-		order.koField,
-		order.nlField,
-		order.plField,
-		order.ptField,
-		order.ruField,
-		order.svField,
-		order.trField,
+		order.idField, order.navField, order.ipaField, order.infField, order.posField, order.srcField, order.stsField,
+		order.sylField, order.ifdField,
+		order.deField, order.enField, order.esField, order.etField, order.frField, order.huField, order.itField,
+		order.koField, order.nlField, order.plField, order.ptField, order.ruField, order.svField, order.trField,
 		order.ukField,
 	}
 
@@ -239,21 +198,20 @@ func (w *Word) ToOutputLine(
 		output += ")"
 	}
 
-	if len(w.Affixes.Prefix) > 0 {
-		output += newline + fmt.Sprintf("Prefixes: %s", w.Affixes.Prefix)
+	var affixMap = map[string]string{
+		Text("prefixes"): strings.Join(Map(w.Affixes.Prefix, applyPrefixNotation), ", "),
+		Text("infixes"):  strings.Join(Map(w.Affixes.Infix, applyInfixNotation), ", "),
+		Text("suffixes"): strings.Join(Map(w.Affixes.Suffix, applySuffixNotation), ", "),
+		Text("lenition"): strings.Join(w.Affixes.Lenition, ", "),
+		Text("comment"):  strings.Join(w.Affixes.Comment, ", "),
 	}
-	if len(w.Affixes.Infix) > 0 {
-		output += newline + fmt.Sprintf("Infixes: %s", w.Affixes.Infix)
+
+	for k, v := range affixMap {
+		if len(v) > 0 {
+			output += fmt.Sprintf("%s%s- %s: %v", newline, indent, k, v)
+		}
 	}
-	if len(w.Affixes.Suffix) > 0 {
-		output += newline + fmt.Sprintf("Suffixes: %s", w.Affixes.Suffix)
-	}
-	if len(w.Affixes.Lenition) > 0 {
-		output += newline + fmt.Sprintf("Lenition: %s", w.Affixes.Lenition)
-	}
-	if len(w.Affixes.Comment) > 0 {
-		output += newline + fmt.Sprintf("Comment: %s", w.Affixes.Comment)
-	}
+
 	if showSource && w.Source != "" {
 		output += newline + src
 	}
