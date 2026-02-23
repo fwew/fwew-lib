@@ -1799,7 +1799,7 @@ func testDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 									results = appendAndAlphabetize(results, infixError(searchNaviWord, rebuiltVerbForest, c.IPA))
 								}
 							}
-							// TODO: This code is unreachable because it is deep nested after 'else if gerund else if...'
+							// TODO: This code is unreachable because it is deeply nested after: 'else if gerund else if...'
 							//} else if gerund { // ti is needed to weed out non-productive tì-verbs
 							//	if len(results) == 0 {
 							//		results = appendAndAlphabetize(results, infixError(searchNaviWord, rebuiltVerbForest, c.IPA))
