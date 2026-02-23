@@ -215,7 +215,7 @@ func NameAlu(nameCount int, dialect int, syllableCount int, nounMode int, adjMod
 				adj = convertDialect(adjWord, dialect)
 				adj = strings.ReplaceAll(adj, "-", "")
 
-				// If the adj starts with a in forest, we don't need another a
+				// If the adj starts with "a" in forest, we don't need another a
 				if !twoWordNoun && (strings.ToLower(string(adj[0])) != "a" || dialect != 1) {
 					if (adj[:2] == "le" && adj != "ler" && adj != "leyr" && adj != "lewnga'") || adj == "lafyon" {
 						adj = glottalCaps(adj) // le-adjectives
@@ -297,7 +297,7 @@ func NameAlu(nameCount int, dialect int, syllableCount int, nounMode int, adjMod
 				}
 
 				adj = insertInfix(strings.Split(adj, " "), infix)
-				// If the adj starts with a in forest, we don't need another a
+				// If the adj starts with "a" in forest, we don't need another a
 				if !twoWordNoun && (adj[0] != 'a' || dialect != 1) {
 					adj = "a" + glottalCaps(adj)
 				} else if twoWordNoun && (adj[len(adj)-1] != 'a' || dialect != 1) {
@@ -318,7 +318,7 @@ func NameAlu(nameCount int, dialect int, syllableCount int, nounMode int, adjMod
 
 				adj = insertInfix(strings.Split(adj, " "), "us")
 
-				// If the adj starts with a in forest, we don't need another a
+				// If the adj starts with "a" in forest, we don't need another a
 				if !twoWordNoun && (adj[0] != 'a' || dialect != 1) {
 					adj = "a" + glottalCaps(adj)
 				} else if twoWordNoun && (adj[len(adj)-1] != 'a' || dialect != 1) {
@@ -338,7 +338,7 @@ func NameAlu(nameCount int, dialect int, syllableCount int, nounMode int, adjMod
 				}
 
 				adj = insertInfix(strings.Split(adj, " "), "awn")
-				// If the adj starts with a in forest, we don't need another a
+				// If the adj starts with "a" in forest, we don't need another a
 				if !twoWordNoun && (adj[0] != 'a' || dialect != 1) {
 					adj = "a" + glottalCaps(adj)
 				} else if twoWordNoun && (adj[len(adj)-1] != 'a' || dialect != 1) {

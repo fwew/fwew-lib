@@ -29,7 +29,7 @@ func List(args []string, checkDigraphs uint8) (results []Word, err error) {
 	}
 
 	for len(args) >= 3 {
-		// get 3 args and remove 4th
+		// get 3 args and remove the 4th
 		simpleArgs := args[0:3]
 
 		results, err = listWords(simpleArgs, results, checkDigraphs)
@@ -108,10 +108,11 @@ func Random(amount int, args []string, checkDigraphs uint8) (results []Word, err
 	return
 }
 
+// ListHelp returns a string documenting the usage of the list command
 func ListHelp(lang string) (helpText string) {
 	lang = strings.ToUpper(lang)
 
-	// TODO remove this after other languages are translated
+	// TODO remove this conditional reassignment after other languages are translated
 	if lang != "EN" {
 		lang = "EN"
 	}
@@ -161,7 +162,7 @@ func filterWord(results []Word, word Word, args []string, checkDigraphs uint8) [
 	case 1: // 1: compress spec and syllables (consider all digraphs)
 		spec = compress(strings.ToLower(spec))
 		fallthrough
-	case 2: // 2: compress syllables, but not spec (find fake digraphs)
+	case 2: // 2: compress the syllables but not spec (find fake digraphs)
 		syllables = compress(strings.ToLower(syllables))
 		navi = compress(strings.ToLower(navi))
 	}
