@@ -5,7 +5,7 @@ import (
 )
 
 /* To help deduce phonemes */
-var romanization = map[string]string{
+var romanizationCommon = map[string]string{
 	// Vowels
 	"a": "a", "i": "i", "ɪ": "ì",
 	"o": "o", "ɛ": "e", "u": "u",
@@ -24,34 +24,31 @@ var romanization = map[string]string{
 	"ŋ": "ng", "z": "z", "k'": "kx",
 	"p'": "px", "f": "f", "r": "r",
 	// Reef dialect
-	"b": "px", "d": "tx", "g": "kx",
-	"ʃ": "sy", "tʃ": "tsy", "ʊ": "ù",
+	"ʊ": "ù",
 	// mistakes and rarities
-	"ʒ": "tsy", "": "", " ": "",
+	"": "", " ": "",
+}
+var romanization = map[string]string{
+	// Reef dialect
+	"b": "px", "d": "tx", "g": "kx",
+	"ʃ": "sy", "tʃ": "tsy",
+	// mistakes and rarities
+	"ʒ": "tsy",
 }
 var romanization2 = map[string]string{
-	// Vowels
-	"a": "a", "i": "i", "ɪ": "ì",
-	"o": "o", "ɛ": "e", "u": "u",
-	"æ": "ä", "õ": "õ", //võvä' only
-	// Diphthongs
-	"aw": "aw", "ɛj": "ey",
-	"aj": "ay", "ɛw": "ew",
-	// Psuedovowels
-	"ṛ": "rr", "ḷ": "ll",
-	// Consonants
-	"t": "t", "p": "p", "ʔ": "'",
-	"n": "n", "k": "k", "l": "l",
-	"s": "s", "ɾ": "r", "j": "y",
-	"t͡s": "ts", "t'": "tx", "m": "m",
-	"v": "v", "w": "w", "h": "h",
-	"ŋ": "ng", "z": "z", "k'": "kx",
-	"p'": "px", "f": "f", "r": "r",
+	"õ": "õ", //võvä' only
 	// Reef dialect
 	"b": "b", "d": "d", "g": "g",
-	"ʃ": "sh", "tʃ": "ch", "ʊ": "ù",
+	"ʃ": "sh", "tʃ": "ch",
 	// mistakes and rarities
-	"ʒ": "ch", "": "", " ": "",
+	"ʒ": "ch",
+}
+
+func init() {
+	for k, v := range romanizationCommon {
+		romanization[k] = v
+		romanization2[k] = v
+	}
 }
 
 // syllableToRoman converts a single IPA syllable to its Na'vi romanization.
