@@ -30,6 +30,15 @@ func (t tuples) Less(i, j int) bool {
 	return t[i].value > t[j].value
 }
 
+func formatAdj(adj string, twoWordNoun bool, dialect int) string {
+	if !twoWordNoun && (adj[0] != 'a' || dialect != 1) {
+		return "a" + glottalCaps(adj)
+	} else if twoWordNoun && (adj[len(adj)-1] != 'a' || dialect != 1) {
+		return glottalCaps(adj) + "a"
+	}
+	return glottalCaps(adj)
+}
+
 // SingleNames generates single given names
 func SingleNames(nameCount int, dialect int, syllableCount int) (output string) {
 	universalLock.Lock()
@@ -298,13 +307,7 @@ func NameAlu(nameCount int, dialect int, syllableCount int, nounMode int, adjMod
 
 				adj = insertInfix(strings.Split(adj, " "), infix)
 				// If the adj starts with "a" in forest, we don't need another a
-				if !twoWordNoun && (adj[0] != 'a' || dialect != 1) {
-					adj = "a" + glottalCaps(adj)
-				} else if twoWordNoun && (adj[len(adj)-1] != 'a' || dialect != 1) {
-					adj = glottalCaps(adj) + "a"
-				} else {
-					adj = glottalCaps(adj)
-				}
+				adj = formatAdj(adj, twoWordNoun, dialect)
 			case 6: //active participle verb
 				findVerb := oneWordVerb(allVerbs)
 				adj = findVerb.InfixDots
@@ -319,13 +322,7 @@ func NameAlu(nameCount int, dialect int, syllableCount int, nounMode int, adjMod
 				adj = insertInfix(strings.Split(adj, " "), "us")
 
 				// If the adj starts with "a" in forest, we don't need another a
-				if !twoWordNoun && (adj[0] != 'a' || dialect != 1) {
-					adj = "a" + glottalCaps(adj)
-				} else if twoWordNoun && (adj[len(adj)-1] != 'a' || dialect != 1) {
-					adj = glottalCaps(adj) + "a"
-				} else {
-					adj = glottalCaps(adj)
-				}
+				adj = formatAdj(adj, twoWordNoun, dialect)
 			case 7: //passive participle verb
 				findVerb := oneWordVerb(allTransitiveVerbs)
 				adj = findVerb.InfixDots
@@ -339,13 +336,7 @@ func NameAlu(nameCount int, dialect int, syllableCount int, nounMode int, adjMod
 
 				adj = insertInfix(strings.Split(adj, " "), "awn")
 				// If the adj starts with "a" in forest, we don't need another a
-				if !twoWordNoun && (adj[0] != 'a' || dialect != 1) {
-					adj = "a" + glottalCaps(adj)
-				} else if twoWordNoun && (adj[len(adj)-1] != 'a' || dialect != 1) {
-					adj = glottalCaps(adj) + "a"
-				} else {
-					adj = glottalCaps(adj)
-				}
+				adj = formatAdj(adj, twoWordNoun, dialect)
 			}
 
 			if len(adj) > 1 {

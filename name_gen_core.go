@@ -531,8 +531,6 @@ func PhonemeDistros() {
 		codaMap[codaLetters[i]] = 0
 	}
 
-	//syllable_map := map[string]int{}
-
 	// Look through all the words
 	for i := 0; i < len(words); i++ {
 		word := strings.Split(words[i].IPA, " ")
@@ -542,71 +540,9 @@ func PhonemeDistros() {
 		if len(allWords) > 1 {
 			newWords := dialectCrunch(allWords, true, false)
 			newWordsReef := dialectCrunch(allWords, true, true)
-			if _, ok := multiwordWordsLoose[newWords[0]]; ok {
-				// Ensure no duplicates
-				appended := false
-
-				// Append in a way that makes the longer words first
-				var temp [][]string
-				for _, j := range multiwordWordsLoose[newWords[0]] {
-					if !appended && len([]rune(newWords[1])) > len([]rune(j[0])) {
-						temp = append(temp, newWords[1:])
-						appended = true
-					}
-					temp = append(temp, j)
-				}
-				if len(temp) <= len(multiwordWordsLoose[newWords[0]]) {
-					temp = append(temp, newWords[1:])
-				}
-
-				multiwordWordsLoose[newWords[0]] = temp
-			} else {
-				multiwordWordsLoose[newWords[0]] = [][]string{newWords[1:]}
-			}
-
-			if _, ok := multiwordWordsReef[newWordsReef[0]]; ok {
-				// Ensure no duplicates
-				appended := false
-
-				// Append in a way that makes the longer words first
-				var temp [][]string
-				for _, j := range multiwordWordsReef[newWordsReef[0]] {
-					if !appended && len([]rune(newWordsReef[1])) > len([]rune(j[0])) {
-						temp = append(temp, newWordsReef[1:])
-						appended = true
-					}
-					temp = append(temp, j)
-				}
-				if len(temp) <= len(multiwordWordsReef[newWordsReef[0]]) {
-					temp = append(temp, newWordsReef[1:])
-				}
-
-				multiwordWordsReef[newWordsReef[0]] = temp
-			} else {
-				multiwordWordsReef[newWordsReef[0]] = [][]string{newWordsReef[1:]}
-			}
-
-			if _, ok := multiwordWords[allWords[0]]; ok {
-				// Ensure no duplicates
-				appended := false
-
-				// Append in a way that makes the longer words first
-				var temp [][]string
-				for _, j := range multiwordWords[allWords[0]] {
-					if !appended && len([]rune(allWords[1])) > len([]rune(j[0])) {
-						temp = append(temp, allWords[1:])
-						appended = true
-					}
-					temp = append(temp, j)
-				}
-				if len(temp) <= len(multiwordWords[allWords[0]]) {
-					temp = append(temp, allWords[1:])
-				}
-
-				multiwordWords[allWords[0]] = temp
-			} else {
-				multiwordWords[allWords[0]] = [][]string{allWords[1:]}
-			}
+			fillMultiwordMap(multiwordWordsLoose, newWords)
+			fillMultiwordMap(multiwordWordsReef, newWordsReef)
+			fillMultiwordMap(multiwordWords, allWords)
 		}
 
 		for j := 0; j < len(word); j++ {
@@ -851,5 +787,29 @@ func PhonemeDistros() {
 	for i := 0; i < len(codaLikelihood); i++ {
 		codaLikelihood[i] = codaMap[codaLetters[i]]
 		maxCoda += codaMap[codaLetters[i]]
+	}
+}
+
+func fillMultiwordMap(m map[string][][]string, words []string) {
+	if _, ok := m[words[0]]; ok {
+		// Ensure no duplicates
+		appended := false
+
+		// Append in a way that makes the longer words first
+		var temp [][]string
+		for _, j := range m[words[0]] {
+			if !appended && len([]rune(words[1])) > len([]rune(j[0])) {
+				temp = append(temp, words[1:])
+				appended = true
+			}
+			temp = append(temp, j)
+		}
+		if len(temp) <= len(m[words[0]]) {
+			temp = append(temp, words[1:])
+		}
+
+		m[words[0]] = temp
+	} else {
+		m[words[0]] = [][]string{words[1:]}
 	}
 }
