@@ -503,3 +503,26 @@ func getDictSizeMessage(lang string, count string) (countMessage string) {
 	countMessage = strings.ReplaceAll(countMessage, "{count}", count)
 	return
 }
+
+func infixError(query string, didYouMean string, ipa string) Word {
+	d := Word{}
+	d.Navi = query
+	d.EN = "Did you mean **" + didYouMean + "**?" // English
+	// TODO: Translations
+	d.DE = d.EN // German (Deutsch)
+	d.ES = d.EN // Spanish (Español)
+	d.ET = d.EN // Estonian (Eesti)
+	d.FR = d.EN // French (Français)
+	d.HU = d.EN // Hungarian (Magyar)
+	d.KO = d.EN // Korean (한국어)
+	d.NL = d.EN // Dutch (Nederlands)
+	d.PL = d.EN // Polish (Polski)
+	d.PT = d.EN // Portuguese (Português)
+	d.RU = d.EN // Russian (Русский)
+	d.SV = d.EN // Swedish (Svenska)
+	d.TR = d.EN // Turkish (Türkçe)
+	d.UK = d.EN // Ukrainian (Українська)
+	d.IPA = ipa
+	d.PartOfSpeech = "err."
+	return d
+}

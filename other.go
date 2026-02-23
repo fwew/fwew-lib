@@ -5,18 +5,22 @@ import (
 	"strconv"
 )
 
+// GetLenitionTable returns the lenition table
 func GetLenitionTable() [][2]string {
 	return lenitionTable[:]
 }
 
+// GetShortLenitionTable returns the shortened lenition table
 func GetShortLenitionTable() [][2]string {
 	return shortLenitionTable[:]
 }
 
+// GetThatTable returns the "that" table
 func GetThatTable() [][5]string {
 	return thatTable[:]
 }
 
+// GetOtherThats returns the "other 'that's" table
 func GetOtherThats() [][3]string {
 	return otherThats[:]
 }
