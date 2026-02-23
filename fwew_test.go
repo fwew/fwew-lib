@@ -9,9 +9,16 @@ import (
 
 func TestMain(m *testing.M) {
 	// assure dict, so tests wont fail
+	_ = StartEverything()
 	_ = AssureDict()
 
-	os.Exit(m.Run())
+	code := m.Run()
+
+	uncacheDict()
+	uncacheHashDict()
+	uncacheHashDict2()
+
+	os.Exit(code)
 }
 
 func wordSimpleEqual(w1a, w2a []Word) bool {

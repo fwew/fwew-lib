@@ -3,9 +3,6 @@ package fwew_lib
 import "testing"
 
 func TestGetLenitionTable(t *testing.T) {
-	teardownTest := setupTest()
-	defer teardownTest(t)
-
 	var lt = GetLenitionTable()
 	if lt != lenitionTable {
 		t.Errorf("Lenition table not loaded or doesn't match itself")
@@ -13,9 +10,6 @@ func TestGetLenitionTable(t *testing.T) {
 }
 
 func TestGetShortLenitionTable(t *testing.T) {
-	teardownTest := setupTest()
-	defer teardownTest(t)
-
 	var st = GetShortLenitionTable()
 	if st != shortLenitionTable {
 		t.Errorf("Short lenition table not loaded or doesn't match itself")
@@ -23,9 +17,6 @@ func TestGetShortLenitionTable(t *testing.T) {
 }
 
 func TestGetThatTable(t *testing.T) {
-	teardownTest := setupTest()
-	defer teardownTest(t)
-
 	var tt = GetThatTable()
 	if tt != thatTable {
 		t.Errorf("That table not loaded or doesn't match itself")
@@ -33,9 +24,6 @@ func TestGetThatTable(t *testing.T) {
 }
 
 func TestGetOtherThats(t *testing.T) {
-	teardownTest := setupTest()
-	defer teardownTest(t)
-
 	var ott = GetOtherThats()
 	if ott != otherThats {
 		t.Errorf("Other thats table not loaded or doesn't match itself")
@@ -43,9 +31,6 @@ func TestGetOtherThats(t *testing.T) {
 }
 
 func TestGetMultiwordWords(t *testing.T) {
-	teardownTest := setupTest()
-	defer teardownTest(t)
-
 	var mw = GetMultiwordWords()
 	if mw == nil {
 		t.Errorf("Multiword words not loaded")
@@ -56,9 +41,6 @@ func TestGetMultiwordWords(t *testing.T) {
 }
 
 func TestGetHomonyms(t *testing.T) {
-	teardownTest := setupTest()
-	defer teardownTest(t)
-
 	var homs = GetHomonyms()
 	if homs == nil {
 		t.Errorf("Homonyms not loaded")
@@ -69,9 +51,6 @@ func TestGetHomonyms(t *testing.T) {
 }
 
 func TestGetOddballs(t *testing.T) {
-	teardownTest := setupTest()
-	defer teardownTest(t)
-
 	var o = GetOddballs()
 	if o == nil {
 		t.Errorf("Oddballs not loaded")
@@ -82,9 +61,6 @@ func TestGetOddballs(t *testing.T) {
 }
 
 func TestGetMultiIPA(t *testing.T) {
-	teardownTest := setupTest()
-	defer teardownTest(t)
-
 	var m = GetMultiIPA()
 	if m == nil {
 		t.Errorf("MultiIPA not loaded")
@@ -95,9 +71,6 @@ func TestGetMultiIPA(t *testing.T) {
 }
 
 func TestGetPhonemeDistrosMap(t *testing.T) {
-	teardownTest := setupTest()
-	defer teardownTest(t)
-
 	var lang = "en"
 	var p = GetPhonemeDistrosMap(lang)
 	if p == nil {

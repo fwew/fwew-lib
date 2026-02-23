@@ -1,30 +1,11 @@
 package fwew_lib
 
 import (
-	"log"
 	"strings"
 	"testing"
 )
 
-func setupTest() func(t *testing.T) {
-	log.Println("setup test")
-	_ = StartEverything()
-
-	// Return a function to tear down the test
-	return func(t *testing.T) {
-		universalLock.Lock()
-		defer universalLock.Unlock()
-		log.Println("teardown test")
-		uncacheDict()
-		uncacheHashDict()
-		uncacheHashDict2()
-	}
-}
-
 func Test_SingleNames(t *testing.T) {
-	teardownTest := setupTest()
-	defer teardownTest(t)
-
 	var (
 		nameCount     = 3
 		dialect       = 0
@@ -39,9 +20,6 @@ func Test_SingleNames(t *testing.T) {
 }
 
 func Test_FullNames(t *testing.T) {
-	teardownTest := setupTest()
-	defer teardownTest(t)
-
 	var (
 		ending        = "'ite"
 		nameCount     = 8
@@ -57,9 +35,6 @@ func Test_FullNames(t *testing.T) {
 }
 
 func Test_NameAlu(t *testing.T) {
-	teardownTest := setupTest()
-	defer teardownTest(t)
-
 	var (
 		nameCount     = 2
 		dialect       = 1
