@@ -33,17 +33,17 @@ func GetMultiwordWords() map[string][][]string {
 }
 
 // GetHomonyms returns all words with multiple definitions
-func GetHomonyms() (results [][]Word, err error) {
+func GetHomonyms() (results [][]Word) {
 	return TranslateFromNaviHash(homonyms, false, false, false)
 }
 
 // GetOddballs returns all words with non-standard phonotactics
-func GetOddballs() (results [][]Word, err error) {
+func GetOddballs() (results [][]Word) {
 	return TranslateFromNaviHash(oddballs, true, false, false)
 }
 
 // GetMultiIPA returns all words with multiple definitions
-func GetMultiIPA() (results [][]Word, err error) {
+func GetMultiIPA() (results [][]Word) {
 	return TranslateFromNaviHash(multiIPA, false, false, false)
 }
 

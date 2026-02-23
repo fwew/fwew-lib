@@ -69,6 +69,7 @@ func Test_UpdateDict(t *testing.T) {
 
 func Test_StartEverything(t *testing.T) {
 	status := StartEverything()
+	status = strings.TrimSpace(status)
 	if !strings.HasPrefix(status, "Everything is cached.") {
 		t.Errorf("[%s]", status)
 	}

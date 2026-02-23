@@ -9,7 +9,7 @@ import (
 // This will return a 2D array of Words that fit the input text
 // The first word will only contain the query put into the "translate" command
 // One Navi-Word can have multiple meanings and words (e.g., synonyms)
-func TranslateFromNaviHash(searchNaviWords string, checkFixes bool, strict bool, allowReef bool) (results [][]Word, err error) {
+func TranslateFromNaviHash(searchNaviWords string, checkFixes bool, strict bool, allowReef bool) (results [][]Word) {
 	universalLock.Lock()
 	defer universalLock.Unlock()
 	searchNaviWords = clean(searchNaviWords)
@@ -41,13 +41,12 @@ func TranslateFromNaviHash(searchNaviWords string, checkFixes bool, strict bool,
 			i++
 			continue
 		}
-		j, newWords, error2 := translateFromNaviHashHelper(dict, i, allWords, checkFixes, strict, allowReef)
-		if error2 == nil {
-			for _, newWord := range newWords {
-				// Set up a receptacle for words
-				results = append(results, []Word{})
-				results[len(results)-1] = append(results[len(results)-1], newWord...)
-			}
+		j, newWords := translateFromNaviHashHelper(dict, i, allWords, checkFixes, strict, allowReef)
+
+		for _, newWord := range newWords {
+			// Set up a receptacle for words
+			results = append(results, []Word{})
+			results[len(results)-1] = append(results[len(results)-1], newWord...)
 		}
 
 		if len(results[len(results)-1]) > 1 && len(strings.Split(results[len(results)-1][1].Navi, " ")) > 1 {
@@ -101,14 +100,12 @@ func appendToFront(words []Word, input Word) []Word {
 // isVerb is a helper for translateFromNaviHashHelper
 func isVerb(dict *map[string][]Word, input string, comparator string, strict bool, allowReef bool) (result bool, affixes Word) {
 	affixes = simpleWord(input)
-	_, possibilities, err := translateFromNaviHashHelper(dict, 0, []string{input}, true, strict, allowReef)
-	_, possibilities2, err2 := translateFromNaviHashHelper(dict, 0, []string{comparator}, true, strict, allowReef)
-	if err != nil || err2 != nil {
-		return false, affixes
-	}
+	_, possibilities := translateFromNaviHashHelper(dict, 0, []string{input}, true, strict, allowReef)
+	_, possibilities2 := translateFromNaviHashHelper(dict, 0, []string{comparator}, true, strict, allowReef)
 	isRealVerb := false
 	pairFound := false
 	unknownInfix := false
+
 	for _, a := range possibilities {
 		for i, b := range a {
 			// Don't check the empty first row
@@ -255,7 +252,7 @@ func populateMultiwordResults(dict *map[string][]Word, a string, results *[][]Wo
 	}
 }
 
-func translateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []string, checkFixes bool, strict bool, allowReef bool) (steps int, results [][]Word, err error) {
+func translateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []string, checkFixes bool, strict bool, allowReef bool) (steps int, results [][]Word) {
 	i := start
 
 	var containsUmlaut []bool
@@ -617,7 +614,7 @@ func translateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 
 	// If we found nothing, at least return the query
 	if len(results[0]) == 0 {
-		return i - start, [][]Word{{simpleWord(searchNaviWord)}}, nil
+		return i - start, [][]Word{{simpleWord(searchNaviWord)}}
 	}
 
 	if len(results) == 2 {
@@ -626,7 +623,7 @@ func translateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 		results[1] = temp
 	}
 
-	return i - start, results, nil
+	return i - start, results
 }
 
 func searchNatlangWord(wordMap map[string][]string, searchWord string) (results []Word) {
@@ -936,17 +933,16 @@ func BidirectionalSearch(searchNaviWords string, checkFixes bool, langCode strin
 	results = [][]Word{}
 	for i < len(allWords) {
 		// Search for Na'vi words
-		j, newWords, error2 := translateFromNaviHashHelper(ourDict, i, allWords, checkFixes, false, allowReef)
+		j, newWords := translateFromNaviHashHelper(ourDict, i, allWords, checkFixes, false, allowReef)
 
 		var NaviIDs []string
-		if error2 == nil {
-			for _, newWord := range newWords {
-				// Set up a receptacle for words
-				results = append(results, []Word{})
-				results[len(results)-1] = append(results[len(results)-1], newWord...)
-				if len(newWord) > 1 {
-					NaviIDs = append(NaviIDs, newWord[1].ID)
-				}
+
+		for _, newWord := range newWords {
+			// Set up a receptacle for words
+			results = append(results, []Word{})
+			results[len(results)-1] = append(results[len(results)-1], newWord...)
+			if len(newWord) > 1 {
+				NaviIDs = append(NaviIDs, newWord[1].ID)
 			}
 		}
 

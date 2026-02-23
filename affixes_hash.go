@@ -127,9 +127,6 @@ var infixes = map[rune][]string{
 	'u': {"us", "uy"},
 }
 
-var first = []string{"ay", "asy", "aly", "ary", "ìy", "iy", "ìsy", "ìly", "ìry", "ol", "er", "ìm", "im",
-	"ìlm", "ìrm", "am", "alm", "arm", "ìyev", "iyev", "iv", "ilv", "irv", "imv", "us", "awn", "isy", "ily", "iry", "ilm", "irm"}
-
 var prefirstMap = map[string]bool{"äp": true, "äpeyk": true, "eyk": true, "ep": true, "epeyk": true}
 var firstMap = map[string]bool{"ay": true, "asy": true, "aly": true, "ary": true, "ìy": true, "iy": true, "ìsy": true,
 	"ìly": true, "ìry": true, "ol": true, "er": true, "ìm": true, "im": true, "ìlm": true,
@@ -1117,13 +1114,14 @@ func deconjugateHelper(input conjugationCandidate, prefixCheck int, suffixCheck 
 							newCandidate.InsistPOS = "v."
 							deconjugateHelper(newCandidate, newPrefixCheck, suffixCheck, unlenite, newInfixes, "", "", strict, allowReef)
 
-							if newInfix == "ol" {
+							switch newInfix {
+							case "ol":
 								newCandidate := candidateDupe(input)
 								newCandidate.Word = string(runes[:i]) + "ll" + strings.TrimPrefix(shortString, newInfix)
 								newCandidate.Infixes, _ = isDuplicateFix(newCandidate.Infixes, newInfix, strict, allowReef)
 								newCandidate.InsistPOS = "v."
 								deconjugateHelper(newCandidate, newPrefixCheck, suffixCheck, unlenite, newInfixes, "", "", strict, allowReef)
-							} else if newInfix == "er" {
+							case "er":
 								newCandidate := candidateDupe(input)
 								newCandidate.Word = string(runes[:i]) + "rr" + strings.TrimPrefix(shortString, newInfix)
 								newCandidate.Infixes, _ = isDuplicateFix(newCandidate.Infixes, newInfix, strict, allowReef)
@@ -1590,9 +1588,10 @@ func testDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 							if _, ok := firstMap[newInfix]; ok {
 								rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<1>", newInfix)
 								firstInfixes = newInfix
-								if newInfix == "ol" {
+								switch newInfix {
+								case "ol":
 									ol = true
-								} else if newInfix == "er" {
+								case "er":
 									er = true
 								}
 								break

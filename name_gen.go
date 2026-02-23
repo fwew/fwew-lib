@@ -199,7 +199,8 @@ func NameAlu(nameCount int, dialect int, syllableCount int, nounMode int, adjMod
 		if adjMode != 1 {
 			// Adjective
 			amode := 0
-			if adjMode == 0 {
+			switch adjMode {
+			case 0:
 				// "something" mode
 				amode = rand.Intn(8) - 1
 				if amode <= 2 {
@@ -209,10 +210,10 @@ func NameAlu(nameCount int, dialect int, syllableCount int, nounMode int, adjMod
 					// Verb participles get two sides of the die
 					amode = 5
 				}
-			} else if adjMode == -1 {
+			case -1:
 				// "any" mode
 				amode = rand.Intn(5) + 1
-			} else {
+			default:
 				amode = adjMode
 			}
 
@@ -240,17 +241,18 @@ func NameAlu(nameCount int, dialect int, syllableCount int, nounMode int, adjMod
 				adjWord := fastRandom(allNouns)
 
 				adj = strings.ToLower(adjWord.Navi)
-				if adj == "tsko swizaw" {
+				switch adj {
+				case "tsko swizaw":
 					adj = "Tsko Swizawyä"
-				} else if adj == "toruk makto" || adj == "torùk makto" {
+				case "toruk makto", "torùk makto":
 					if dialect == 0 || dialect == 2 {
 						adj = "Torùkä Maktoyuä"
 					} else {
 						adj = "Torukä Maktoyuä"
 					}
-				} else if adj == "mo a fngä'" {
+				case "mo a fngä'":
 					adj = "Moä a Fgnä'"
-				} else {
+				default:
 					adj = convertDialect(adjWord, dialect)
 					adjSplit := strings.Split(adj, " ")
 					if hasAt("aeìiä", adjSplit[0], -1) {
@@ -269,17 +271,18 @@ func NameAlu(nameCount int, dialect int, syllableCount int, nounMode int, adjMod
 			case 4: //origin noun
 				adjWord := fastRandom(allNouns)
 				adj = strings.ToLower(adjWord.Navi)
-				if adj == "tsko swizaw" {
+				switch adj {
+				case "tsko swizaw":
 					adj = "ta Tsko Swizaw"
-				} else if adj == "toruk makto" || adj == "torùk makto" {
+				case "toruk makto", "torùk makto":
 					if dialect == 0 || dialect == 2 {
 						adj = "ta Torùkä Maktoyu"
 					} else {
 						adj = "ta Torukä Maktoyu"
 					}
-				} else if adj == "mo a fngä'" {
+				case "mo a fngä'":
 					adj = "ta Mo a Fgnä'"
-				} else {
+				default:
 					adj = convertDialect(adjWord, dialect)
 					if twoWordNoun {
 						adj = glottalCaps(adj) + "ta"

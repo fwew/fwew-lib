@@ -59,10 +59,7 @@ func TestGetHomonyms(t *testing.T) {
 	teardownTest := setupTest()
 	defer teardownTest(t)
 
-	var homs, err = GetHomonyms()
-	if err != nil {
-		t.Error(err)
-	}
+	var homs = GetHomonyms()
 	if homs == nil {
 		t.Errorf("Homonyms not loaded")
 	}
@@ -75,10 +72,7 @@ func TestGetOddballs(t *testing.T) {
 	teardownTest := setupTest()
 	defer teardownTest(t)
 
-	var o, err = GetOddballs()
-	if err != nil {
-		t.Error(err)
-	}
+	var o = GetOddballs()
 	if o == nil {
 		t.Errorf("Oddballs not loaded")
 	}
@@ -91,10 +85,7 @@ func TestGetMultiIPA(t *testing.T) {
 	teardownTest := setupTest()
 	defer teardownTest(t)
 
-	var m, err = GetMultiIPA()
-	if err != nil {
-		t.Error(err)
-	}
+	var m = GetMultiIPA()
 	if m == nil {
 		t.Errorf("MultiIPA not loaded")
 	}

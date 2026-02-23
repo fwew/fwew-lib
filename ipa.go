@@ -147,15 +147,16 @@ func syllableToRoman(syllable string) string {
 		if nthRune(syllable, 0) == "s" {
 			breakdown += "sss" // oìsss only
 		} else {
-			if syllable == "k̚" {
+			switch syllable {
+			case "k̚":
 				breakdown += "k"
-			} else if syllable == "p̚" {
+			case "p̚":
 				breakdown += "p"
-			} else if syllable == "t̚" {
+			case "t̚":
 				breakdown += "t"
-			} else if syllable == "ʔ̚" {
+			case "ʔ̚":
 				breakdown += "'"
-			} else {
+			default:
 				if syllable[0] == 'k' && len(syllable) > 1 {
 					breakdown += "kx"
 				} else {
