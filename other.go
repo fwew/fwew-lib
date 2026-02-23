@@ -6,23 +6,23 @@ import (
 )
 
 // GetLenitionTable returns the lenition table
-func GetLenitionTable() [][2]string {
-	return lenitionTable[:]
+func GetLenitionTable() [8][2]string {
+	return lenitionTable
 }
 
 // GetShortLenitionTable returns the shortened lenition table
-func GetShortLenitionTable() [][2]string {
-	return shortLenitionTable[:]
+func GetShortLenitionTable() [4][2]string {
+	return shortLenitionTable
 }
 
 // GetThatTable returns the "that" table
-func GetThatTable() [][5]string {
-	return thatTable[:]
+func GetThatTable() [9][5]string {
+	return thatTable
 }
 
 // GetOtherThats returns the "other 'that's" table
-func GetOtherThats() [][3]string {
-	return otherThats[:]
+func GetOtherThats() [9][3]string {
+	return otherThats
 }
 
 // GetMultiwordWords returns all words with spaces
