@@ -26,9 +26,9 @@ func contains(s []string, q []string) bool {
 	return false
 }
 
-// Map is a generic map function for iterables.
+// runOn is a generic map function for iterables.
 // It returns the result of calling fn(t) on each t in slice `ts`
-func Map[T, V any](ts []T, fn func(T) V) []V {
+func runOn[T, V any](ts []T, fn func(T) V) []V {
 	result := make([]V, len(ts))
 	for i, t := range ts {
 		result[i] = fn(t)

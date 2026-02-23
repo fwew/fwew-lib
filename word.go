@@ -199,9 +199,9 @@ func (w *Word) ToOutputLine(
 	}
 
 	var affixMap = map[string]string{
-		Text("prefixes"): strings.Join(Map(w.Affixes.Prefix, applyPrefixNotation), ", "),
-		Text("infixes"):  strings.Join(Map(w.Affixes.Infix, applyInfixNotation), ", "),
-		Text("suffixes"): strings.Join(Map(w.Affixes.Suffix, applySuffixNotation), ", "),
+		Text("prefixes"): strings.Join(runOn(w.Affixes.Prefix, applyPrefixNotation), ", "),
+		Text("infixes"):  strings.Join(runOn(w.Affixes.Infix, applyInfixNotation), ", "),
+		Text("suffixes"): strings.Join(runOn(w.Affixes.Suffix, applySuffixNotation), ", "),
 		Text("lenition"): strings.Join(w.Affixes.Lenition, ", "),
 		Text("comment"):  strings.Join(w.Affixes.Comment, ", "),
 	}
@@ -280,7 +280,7 @@ func doUnderline(w *Word, input string, markdown bool) (string, error) {
 		}
 	}
 
-	// apply it from the IPA
+	// runOn it from the IPA
 	i := 0
 	underlined := ""
 	for _, a := range strings.Split(syllables, " ") {
