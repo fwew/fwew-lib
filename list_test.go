@@ -550,3 +550,10 @@ func TestList(t *testing.T) {
 		})
 	}
 }
+
+func Test_ListHelp(t *testing.T) {
+	helpText := ListHelp("en")
+	if len(helpText) == 0 {
+		t.Errorf("ListHelp() returned empty string")
+	}
+}
