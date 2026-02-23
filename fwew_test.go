@@ -1281,6 +1281,17 @@ var englishParen = []struct {
 	},
 }
 
+func checkTranslateFromNaviResult(t *testing.T, got [][]Word, want []Word, searchNaviText string) {
+	t.Helper()
+	if searchNaviText == "" && got != nil {
+		t.Errorf("TranslateFromNaviCached() got = %v, want %v", got, want)
+	} else if len(want) == 0 && len(got) > 0 {
+		t.Errorf("TranslateFromNaviCached() got = %v, want %v", got, want)
+	} else if len(want) > 0 && len(got) > 0 && !wordSimpleEqual(got[0][1:], want) {
+		t.Errorf("TranslateFromNaviCached() = %v, want %v", got[0][1:], want)
+	}
+}
+
 func TestTranslateFromNaviCached(t *testing.T) {
 	var (
 		err1 error
@@ -1317,48 +1328,24 @@ func TestTranslateFromNaviCached(t *testing.T) {
 		want := []Word{wordWord}
 		t.Run(word, func(t *testing.T) {
 			got := TranslateFromNaviHash(word, true, false, true)
-			if word == "" && got != nil {
-				t.Errorf("TranslateFromNaviCached() got = %v, want %v", got, want)
-			} else if len(want) == 0 && len(got) > 0 {
-				t.Errorf("TranslateFromNaviCached() got = %v, want %v", got, want)
-			} else if len(want) > 0 && len(got) > 0 && !wordSimpleEqual(got[0][1:], want) {
-				t.Errorf("TranslateFromNaviCached() = %v, want %v", got[0][1:], want)
-			}
+			checkTranslateFromNaviResult(t, got, want, word)
 		})
 	}
 
 	for _, tt := range naviWords {
 		t.Run(tt.name, func(t *testing.T) {
 			got := TranslateFromNaviHash(tt.args.searchNaviText, true, false, false)
-			if tt.args.searchNaviText == "" && got != nil {
-				t.Errorf("TranslateFromNaviCached() got = %v, want %v", got, tt.want)
-			} else if len(tt.want) == 0 && len(got) > 0 {
-				t.Errorf("TranslateFromNaviCached() got = %v, want %v", got, tt.want)
-			} else if len(tt.want) > 0 && len(got) > 0 && !wordSimpleEqual(got[0][1:], tt.want) {
-				t.Errorf("TranslateFromNaviCached() = %v, want %v", got[0][1:], tt.want)
-			}
+			checkTranslateFromNaviResult(t, got, tt.want, tt.args.searchNaviText)
 
 			got = TranslateFromNaviHash(tt.args.searchNaviText, true, true, true)
-			if tt.args.searchNaviText == "" && got != nil {
-				t.Errorf("TranslateFromNaviCached() got = %v, want %v", got, tt.want)
-			} else if len(tt.want) == 0 && len(got) > 0 {
-				t.Errorf("TranslateFromNaviCached() got = %v, want %v", got, tt.want)
-			} else if len(tt.want) > 0 && len(got) > 0 && !wordSimpleEqual(got[0][1:], tt.want) {
-				t.Errorf("TranslateFromNaviCached() = %v, want %v", got[0][1:], tt.want)
-			}
+			checkTranslateFromNaviResult(t, got, tt.want, tt.args.searchNaviText)
 		})
 	}
 
 	for _, tt := range unstrictNaviWords {
 		t.Run(tt.name, func(t *testing.T) {
 			got := TranslateFromNaviHash(tt.args.searchNaviText, true, false, false)
-			if tt.args.searchNaviText == "" && got != nil {
-				t.Errorf("TranslateFromNaviCached() got = %v, want %v", got, tt.want)
-			} else if len(tt.want) == 0 && len(got) > 0 {
-				t.Errorf("TranslateFromNaviCached() got = %v, want %v", got, tt.want)
-			} else if len(tt.want) > 0 && len(got) > 0 && !wordSimpleEqual(got[0][1:], tt.want) {
-				t.Errorf("TranslateFromNaviCached() = %v, want %v", got[0][1:], tt.want)
-			}
+			checkTranslateFromNaviResult(t, got, tt.want, tt.args.searchNaviText)
 		})
 	}
 
