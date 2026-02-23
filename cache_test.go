@@ -1,6 +1,8 @@
 package fwew_lib
 
 import (
+	"strconv"
+	"strings"
 	"testing"
 )
 
@@ -25,5 +27,52 @@ func Test_cacheDict(t *testing.T) {
 			"Navi: \"%s\" == \"%s\"\n",
 			word.ID, entry[0].ID,
 			word.Navi, entry[0].Navi)
+	}
+}
+
+func TestGetDictSizeSimple(t *testing.T) {
+	err := cacheDict()
+	if err != nil {
+		t.Fatal(FailedToCache)
+	}
+	size := GetDictSizeSimple()
+	expected := len(dictionary)
+	uncacheDict()
+	if size != expected {
+		t.Errorf("Dictionary size mismatch: %d != %d", size, expected)
+	}
+}
+
+func TestGetDictSize(t *testing.T) {
+	err := cacheDict()
+	if err != nil {
+		t.Fatal(FailedToCache)
+	}
+	size, err := GetDictSize("en")
+	expected := len(dictionary)
+	uncacheDict()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !strings.Contains(size, strconv.Itoa(expected)) {
+		t.Errorf("Dictionary size mismatch: %s != %d", size, expected)
+	}
+}
+
+func Test_UpdateDict(t *testing.T) {
+	err := UpdateDict()
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func Test_StartEverything(t *testing.T) {
+	status := StartEverything()
+	if !strings.HasPrefix(status, "Everything is cached.") {
+		t.Fatal(FailedToCache)
+	}
+	if !strings.HasSuffix(status, "seconds") {
+		t.Fatal(FailedToCache)
 	}
 }
