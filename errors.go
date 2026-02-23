@@ -40,7 +40,7 @@ func (err constError) Is(target error) bool {
 	return targetError == errorString || strings.HasPrefix(targetError, errorString+": ")
 }
 
-// wrap suberror with this error. `Is` can be checked if wrapped errors is of type
+// wrap suberror with this error. `Is` can be checked if wrapped errors are of a specific type
 func (err constError) wrap(inner error) error {
 	return wrapError{msg: string(err), err: inner}
 }
@@ -64,7 +64,7 @@ func (err wrapError) Unwrap() error {
 	return err.err
 }
 
-// Is method to check unwrapped error
+// The Is method to check unwrapped error
 func (err wrapError) Is(target error) bool {
 	return constError(err.msg).Is(target)
 }

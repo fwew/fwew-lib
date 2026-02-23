@@ -515,9 +515,6 @@ func PhonemeDistros() {
 	}
 
 	//Clusters
-	cluster1Full := []string{"f", "s", "ts"}
-	cluster2Full := []string{"k", "kx", "l", "m", "n", "ng", "p",
-		"px", "t", "tx", "r", "w", "y"}
 	for i := 0; i < len(cluster1Full); i++ {
 		for j := 0; j < len(cluster2Full); j++ {
 			clusterMap[cluster1Full[i]][cluster2Full[j]] = 0

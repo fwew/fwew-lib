@@ -1,5 +1,8 @@
 package fwew_lib
 
+var cluster1Full = []string{"f", "s", "ts"}
+var cluster2Full = []string{"k", "kx", "l", "m", "n", "ng", "p", "px", "t", "tx", "r", "w", "y"}
+
 // table of all the possible lenitions
 var lenitionTable = [8][2]string{
 	{"kx", "k"},
