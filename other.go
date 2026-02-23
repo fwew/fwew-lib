@@ -43,6 +43,7 @@ func GetMultiIPA() (results [][]Word, err error) {
 	return TranslateFromNaviHash(multiIPA, false, false, false)
 }
 
+// GetPhonemeDistrosMap returns phoneme distribution data for a Na'vi language
 func GetPhonemeDistrosMap(lang string) (allDistros [][][]string) {
 	phonoLock.Lock()
 	defer phonoLock.Unlock()
@@ -139,23 +140,10 @@ func GetPhonemeDistrosMap(lang string) (allDistros [][][]string) {
 		allDistros[0] = append(allDistros[0], []string{})
 		c := len(allDistros[0]) - 1
 
-		if i < len(onsetTuples) {
-			allDistros[0][c] = append(allDistros[0][c], onsetTuples[i].letter+" "+strconv.Itoa(onsetTuples[i].value))
-		} else {
-			allDistros[0][c] = append(allDistros[0][c], "")
-		}
+		allDistros[0][c] = appendPhoneme(allDistros[0][c], onsetTuples, i)
+		allDistros[0][c] = appendPhoneme(allDistros[0][c], nucleusTuples, i)
+		allDistros[0][c] = appendPhoneme(allDistros[0][c], codaTuples, i)
 
-		if i < len(nucleusTuples) {
-			allDistros[0][c] = append(allDistros[0][c], nucleusTuples[i].letter+" "+strconv.Itoa(nucleusTuples[i].value))
-		} else {
-			allDistros[0][c] = append(allDistros[0][c], "")
-		}
-
-		if i < len(codaTuples) {
-			allDistros[0][c] = append(allDistros[0][c], codaTuples[i].letter+" "+strconv.Itoa(codaTuples[i].value))
-		} else {
-			allDistros[0][c] = append(allDistros[0][c], "")
-		}
 		i += 1
 	}
 
@@ -169,4 +157,11 @@ func GetPhonemeDistrosMap(lang string) (allDistros [][][]string) {
 	}
 
 	return
+}
+
+func appendPhoneme(row []string, tuples []phonemeTuple, i int) []string {
+	if i < len(tuples) {
+		return append(row, tuples[i].letter+" "+strconv.Itoa(tuples[i].value))
+	}
+	return append(row, "")
 }

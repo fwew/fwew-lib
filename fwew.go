@@ -248,8 +248,8 @@ func translateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 				results[len(results)-1] = appendAndAlphabetize(results[len(results)-1], b)
 			}
 		}
+		// TODO: this is unreachable code because allowReef will always be false by this point.
 		//else if allowReef {
-		//	// TODO: this is unreachable code because allowReef will always be false by this point.
 		//	noUmlaut := strings.ReplaceAll(a, "ä", "e")
 		//	if _, ok := (*dict)[noUmlaut]; ok {
 		//		for _, b := range (*dict)[noUmlaut] {
