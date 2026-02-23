@@ -308,17 +308,17 @@ func isDuplicate(input conjugationCandidate) bool {
 }
 
 func isDuplicateFix(fixes []string, fix string, strict bool, allowReef bool) (newFixes []string, added bool) {
-	if newfix, ok := unreefFixes[fix]; ok {
+	if newFix, ok := unreefFixes[fix]; ok {
 		if !allowReef {
 			return fixes, false
 		}
-		fix = newfix
+		fix = newFix
 	}
-	if newfix, ok := unstrictFixes[fix]; ok {
+	if newFix, ok := unstrictFixes[fix]; ok {
 		if strict {
 			return fixes, false
 		}
-		fix = newfix
+		fix = newFix
 	}
 	if fix == "ile" {
 		if !strict && allowReef {
@@ -493,6 +493,72 @@ func verifyCaseEnding(noun string, ending string) bool {
 		}
 	}
 	return false
+}
+
+func handleLenitionPrefix(input conjugationCandidate, element string, prefixCheck int, suffixCheck int, strict bool, allowReef bool) {
+	// If it has a lenition-causing prefix
+	if strings.HasPrefix(input.Word, element) {
+		newString := strings.TrimPrefix(input.Word, element)
+
+		newCandidate := candidateDupe(input)
+		newCandidate.Word = newString
+		var added bool
+		newCandidate.Prefixes, added = isDuplicateFix(newCandidate.Prefixes, element, strict, allowReef)
+		if !added {
+			return
+		}
+		newCandidate.InsistPOS = "n."
+
+		vowels := "aäeiìouù"
+
+		// Could it be pekoyu (pe + 'ekoyu, not pe + kxoyu)
+		if hasAt(vowels, element, -1) {
+			// check "pxeyktan", "yktan" and "eyktan"
+			newCandidate.Word = string(getLastRune(element, 1)) + newString
+			deconjugateHelper(newCandidate, prefixCheck, suffixCheck, -1, []string{}, element, "", strict, allowReef)
+
+			// check "pxeylan", "ylan" and "'eylan"
+			newCandidate.Word = "'" + newCandidate.Word
+			deconjugateHelper(newCandidate, prefixCheck, suffixCheck, -1, []string{}, element, "", strict, allowReef)
+		}
+
+		// find out the possible unlenited forms
+		lenited := false
+		for _, oldPrefix := range unlenitionLetters {
+			// If it has a letter that could have changed for lenition,
+			if strings.HasPrefix(newString, oldPrefix) {
+				// put all possibilities in the candidates
+				lenited = true
+
+				for _, newPrefix := range unlenition[oldPrefix] {
+					newCandidate.Word = newPrefix + strings.TrimPrefix(newString, oldPrefix)
+					if oldPrefix != newPrefix {
+						newCandidate.Lenition = []string{newPrefix + "→" + oldPrefix}
+					}
+					deconjugateHelper(newCandidate, prefixCheck, suffixCheck, -1, []string{}, oldPrefix, "", strict, allowReef)
+				}
+				break // We don't want the "ts" to become "txs"
+			}
+		}
+		if !lenited {
+			newCandidate.Word = newString
+			deconjugateHelper(newCandidate, prefixCheck, suffixCheck, -1, []string{}, element, "", strict, allowReef)
+		}
+	}
+}
+
+func handleTiPrefix(input conjugationCandidate, strict bool, allowReef bool) {
+	if input.InsistPOS == "any" || input.InsistPOS == "n." {
+		// remove it
+		newCandidate := candidateDupe(input)
+		newCandidate.Word = strings.TrimPrefix(input.Word, "tì")
+		newCandidate.InsistPOS = "v."
+		newCandidate.Prefixes, _ = isDuplicateFix(newCandidate.Prefixes, "tì", strict, allowReef)
+		deconjugateHelper(newCandidate, 10, 10, -1, []string{"", "", ""}, "tì", "", strict, allowReef) // No other prefixes allowed
+
+		newCandidate.Word = "ì" + newCandidate.Word
+		deconjugateHelper(newCandidate, 10, 10, -1, []string{"", "", ""}, "tì", "", strict, allowReef) // Or any additional suffixes
+	}
 }
 
 func deconjugateHelper(input conjugationCandidate, prefixCheck int, suffixCheck int, unlenite int8,
@@ -757,100 +823,11 @@ func deconjugateHelper(input conjugationCandidate, prefixCheck int, suffixCheck 
 
 		// This one will demand this makes it use lenition
 		for _, element := range prefixes1NounsLenition {
-			// If it has a lenition-causing prefix
-			if strings.HasPrefix(input.Word, element) {
-				lenited := false
-				newString = strings.TrimPrefix(input.Word, element)
-
-				newCandidate := candidateDupe(input)
-				newCandidate.Word = newString
-				newCandidate.Prefixes, added = isDuplicateFix(newCandidate.Prefixes, element, strict, allowReef)
-				if !added {
-					continue
-				}
-				newCandidate.InsistPOS = "n."
-
-				// Could it be pekoyu (pe + 'ekoyu, not pe + kxoyu)
-				if hasAt(vowels, element, -1) {
-					// check "pxeyktan", "yktan" and "eyktan"
-					newCandidate.Word = string(getLastRune(element, 1)) + newString
-					deconjugateHelper(newCandidate, 5, suffixCheck, -1, []string{}, element, "", strict, allowReef)
-
-					// check "pxeylan", "ylan" and "'eylan"
-					newCandidate.Word = "'" + newCandidate.Word
-					deconjugateHelper(newCandidate, 5, suffixCheck, -1, []string{}, element, "", strict, allowReef)
-				}
-
-				// find out the possible unlenited forms
-				for _, oldPrefix := range unlenitionLetters {
-					// If it has a letter that could have changed for lenition,
-					if strings.HasPrefix(newString, oldPrefix) {
-						// put all possibilities in the candidates
-						lenited = true
-
-						for _, newPrefix := range unlenition[oldPrefix] {
-							newCandidate.Word = newPrefix + strings.TrimPrefix(newString, oldPrefix)
-							if oldPrefix != newPrefix {
-								newCandidate.Lenition = []string{newPrefix + "→" + oldPrefix}
-							}
-							deconjugateHelper(newCandidate, 5, suffixCheck, -1, []string{}, oldPrefix, "", strict, allowReef)
-						}
-						break // We don't want the "ts" to become "txs"
-					}
-				}
-				if !lenited {
-					newCandidate.Word = newString
-					deconjugateHelper(newCandidate, 5, suffixCheck, -1, []string{}, element, "", strict, allowReef)
-				}
-			}
+			handleLenitionPrefix(input, element, 5, suffixCheck, strict, allowReef)
 		}
 
 		if input.InsistPOS == "any" || input.InsistPOS == "n." {
-			// This one will demand this makes it use lenition
-			if strings.HasPrefix(input.Word, "pe") {
-				lenited := false
-				newString = strings.TrimPrefix(input.Word, "pe")
-
-				newCandidate := candidateDupe(input)
-				newCandidate.Word = newString
-				newCandidate.Prefixes, added = isDuplicateFix(newCandidate.Prefixes, "pe", strict, allowReef)
-				if added {
-					newCandidate.InsistPOS = "n."
-
-					// Could it be pekoyu (pe + 'ekoyu, not pe + kxoyu)
-					if hasAt(vowels, "pe", -1) {
-						// check "pxeyktan", "yktan" and "eyktan"
-						newCandidate.Word = string(getLastRune("pe", 1)) + newString
-						deconjugateHelper(newCandidate, 3, suffixCheck, -1, []string{}, "pe", "", strict, allowReef)
-
-						// check "pxeylan", "ylan" and "'eylan"
-						newCandidate.Word = "'" + newCandidate.Word
-						deconjugateHelper(newCandidate, 3, suffixCheck, -1, []string{}, "pe", "", strict, allowReef)
-					}
-
-					// find out the possible unlenited forms
-					for _, oldPrefix := range unlenitionLetters {
-						// If it has a letter that could have changed for lenition,
-						if strings.HasPrefix(newString, oldPrefix) {
-							// put all possibilities in the candidates
-							lenited = true
-
-							for _, newPrefix := range unlenition[oldPrefix] {
-								newCandidate.Word = newPrefix + strings.TrimPrefix(newString, oldPrefix)
-								if oldPrefix != newPrefix {
-									newCandidate.Lenition = []string{newPrefix + "→" + oldPrefix}
-								}
-								deconjugateHelper(newCandidate, 3, suffixCheck, -1, []string{}, oldPrefix, "", strict, allowReef)
-							}
-							break // We don't want the "ts" to become "txs"
-						}
-					}
-					if !lenited {
-						newCandidate.Word = newString
-						deconjugateHelper(newCandidate, 3, suffixCheck, -1, []string{}, "pe", "", strict, allowReef)
-					}
-				}
-			}
+			handleLenitionPrefix(input, "pe", 3, suffixCheck, strict, allowReef)
 		}
 
 		fallthrough
@@ -879,52 +856,7 @@ func deconjugateHelper(input conjugationCandidate, prefixCheck int, suffixCheck 
 		if input.InsistPOS == "any" || input.InsistPOS == "n." {
 			// This one will demand this makes it use lenition
 			for _, element := range prefixes1lenition {
-				// If it has a lenition-causing prefix
-				if strings.HasPrefix(input.Word, element) {
-					lenited := false
-					newString = strings.TrimPrefix(input.Word, element)
-
-					newCandidate := candidateDupe(input)
-					newCandidate.Word = newString
-					newCandidate.Prefixes, added = isDuplicateFix(newCandidate.Prefixes, element, strict, allowReef)
-					if !added {
-						continue
-					}
-					newCandidate.InsistPOS = "n."
-
-					// Could it be pekoyu (pe + 'ekoyu, not pe + kxoyu)
-					if hasAt(vowels, element, -1) {
-						// check "pxeyktan", "yktan" and "eyktan"
-						newCandidate.Word = string(getLastRune(element, 1)) + newString
-						deconjugateHelper(newCandidate, 5, suffixCheck, -1, []string{}, element, "", strict, allowReef)
-
-						// check "pxeylan", "ylan" and "'eylan"
-						newCandidate.Word = "'" + newCandidate.Word
-						deconjugateHelper(newCandidate, 5, suffixCheck, -1, []string{}, element, "", strict, allowReef)
-					}
-
-					// find out the possible unlenited forms
-					for _, oldPrefix := range unlenitionLetters {
-						// If it has a letter that could have changed for lenition,
-						if strings.HasPrefix(newString, oldPrefix) {
-							// put all possibilities in the candidates
-							lenited = true
-
-							for _, newPrefix := range unlenition[oldPrefix] {
-								newCandidate.Word = newPrefix + strings.TrimPrefix(newString, oldPrefix)
-								if oldPrefix != newPrefix {
-									newCandidate.Lenition = []string{newPrefix + "→" + oldPrefix}
-								}
-								deconjugateHelper(newCandidate, 5, suffixCheck, -1, []string{}, oldPrefix, "", strict, allowReef)
-							}
-							break // We don't want the "ts" to become "txs"
-						}
-					}
-					if !lenited {
-						newCandidate.Word = newString
-						deconjugateHelper(newCandidate, 5, suffixCheck, -1, []string{}, element, "", strict, allowReef)
-					}
-				}
+				handleLenitionPrefix(input, element, 5, suffixCheck, strict, allowReef)
 			}
 		}
 		fallthrough
@@ -952,33 +884,7 @@ func deconjugateHelper(input conjugationCandidate, prefixCheck int, suffixCheck 
 		fallthrough
 	case 6:
 		if strings.HasPrefix(input.Word, "tì") {
-			if input.InsistPOS == "any" || input.InsistPOS == "n." {
-				// remove it
-				newCandidate := candidateDupe(input)
-				newCandidate.Word = strings.TrimPrefix(input.Word, "tì")
-				newCandidate.InsistPOS = "v."
-				newCandidate.Prefixes, added = isDuplicateFix(newCandidate.Prefixes, "tì", strict, allowReef)
-				if added {
-					deconjugateHelper(newCandidate, 10, 10, -1, []string{"", "", ""}, "tì", "", strict, allowReef) // No other prefixes allowed
-
-					newCandidate.Word = "ì" + newCandidate.Word
-					deconjugateHelper(newCandidate, 10, 10, -1, []string{"", "", ""}, "tì", "", strict, allowReef) // Or any additional suffixes
-				}
-			}
-		} else if !strict && strings.HasPrefix(input.Word, "ti") {
-			if input.InsistPOS == "any" || input.InsistPOS == "n." {
-				// remove it
-				newCandidate := candidateDupe(input)
-				newCandidate.Word = strings.TrimPrefix(input.Word, "ti")
-				newCandidate.InsistPOS = "v."
-				newCandidate.Prefixes, added = isDuplicateFix(newCandidate.Prefixes, "tì", strict, allowReef)
-				if added {
-					deconjugateHelper(newCandidate, 10, 10, -1, []string{"", "", ""}, "tì", "", strict, allowReef) // No other prefixes allowed
-
-					newCandidate.Word = "ì" + newCandidate.Word
-					deconjugateHelper(newCandidate, 10, 10, -1, []string{"", "", ""}, "tì", "", strict, allowReef) // Or any additional suffixes
-				}
-			}
+			handleTiPrefix(input, strict, allowReef)
 		}
 	}
 
@@ -1345,6 +1251,17 @@ func deconjugate(input string, strict bool, allowReef bool) []conjugationCandida
 	return candidates
 }
 
+func isSiVerb(word string, multiwordMap map[string][][]string) bool {
+	if _, ok := multiwordMap[word]; ok {
+		for _, b := range multiwordMap[word] {
+			if b[0] == "si" {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 func testDeconjugations(dict *map[string][]Word, searchNaviWord string, strict bool, allowReef bool, umlaut bool) (results []Word) {
 	conjugations := deconjugate(searchNaviWord, strict, allowReef)
 
@@ -1510,56 +1427,20 @@ func testDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 				// If the InsistPOS and found word agree, they are nouns
 				if len(candidate.Suffixes) < 3 && len(candidate.Suffixes) > 0 && candidate.Suffixes[0] == "tswo" {
 					if pos[0] == 'v' {
-						siVerb := false
 						if len(candidate.Infixes) == 0 {
 							if strict {
-								if _, ok := multiwordWords[candidate.Word]; ok {
-									for _, b := range multiwordWords[candidate.Word] {
-										if b[0] == "si" {
-											siVerb = true
-											a := c
-											a.Affixes.Lenition = candidate.Lenition
-											a.Affixes.Prefix = candidate.Prefixes
-											a.Affixes.Infix = candidate.Infixes
-											a.Affixes.Suffix = candidate.Suffixes
-											results = appendAndAlphabetize(results, a)
-											break
-										}
-									}
-								}
-								if !siVerb {
-									a := c
-									a.Affixes.Lenition = candidate.Lenition
-									a.Affixes.Prefix = candidate.Prefixes
-									a.Affixes.Infix = candidate.Infixes
-									a.Affixes.Suffix = candidate.Suffixes
-									results = appendAndAlphabetize(results, a)
-								}
+								isSiVerb(candidate.Word, multiwordWords)
 							} else {
-								if _, ok := multiwordWordsLoose[candidate.Word]; ok {
-									for _, b := range multiwordWordsLoose[candidate.Word] {
-										if b[0] == "si" {
-											siVerb = true
-											a := c
-											a.Affixes.Lenition = candidate.Lenition
-											a.Affixes.Prefix = candidate.Prefixes
-											a.Affixes.Infix = candidate.Infixes
-											a.Affixes.Suffix = candidate.Suffixes
-											results = appendAndAlphabetize(results, a)
-											break
-										}
-									}
-								}
-								if !siVerb {
-									a := c
-									a.Affixes.Lenition = candidate.Lenition
-									a.Affixes.Prefix = candidate.Prefixes
-									a.Affixes.Infix = candidate.Infixes
-									a.Affixes.Suffix = candidate.Suffixes
-									results = appendAndAlphabetize(results, a)
-								}
+								isSiVerb(candidate.Word, multiwordWordsLoose)
 							}
 
+							// if it is a siVerb, it must have no infixes, and it's already verified
+							a := c
+							a.Affixes.Lenition = candidate.Lenition
+							a.Affixes.Prefix = candidate.Prefixes
+							a.Affixes.Infix = candidate.Infixes
+							a.Affixes.Suffix = candidate.Suffixes
+							results = appendAndAlphabetize(results, a)
 						}
 					}
 				} else if gerund {
