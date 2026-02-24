@@ -874,3 +874,13 @@ func StartEverything() string {
 	elapsed := strconv.FormatFloat(time.Since(start).Seconds(), 'f', -1, 64)
 	return fmt.Sprintln("Everything is cached.  Took " + elapsed + " seconds")
 }
+
+// StopEverything clears the caches and returns a status string.
+func StopEverything() string {
+	universalLock.Lock()
+	uncacheDict()
+	uncacheHashDict()
+	uncacheHashDict2()
+	universalLock.Unlock()
+	return fmt.Sprintln("Caches cleared.")
+}

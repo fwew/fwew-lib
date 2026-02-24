@@ -77,3 +77,11 @@ func Test_StartEverything(t *testing.T) {
 		t.Errorf("[%s]", status)
 	}
 }
+
+func Test_StopEverything(t *testing.T) {
+	status := StopEverything()
+	status = strings.TrimSpace(status)
+	if status != "Caches cleared." {
+		t.Errorf("[%s]", status)
+	}
+}

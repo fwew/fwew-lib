@@ -8,15 +8,12 @@ import (
 )
 
 func TestMain(m *testing.M) {
-	// assure dict, so tests wont fail
+	// assure dict and load caches, so tests won't fail
 	_ = StartEverything()
-	_ = AssureDict()
 
 	code := m.Run()
 
-	uncacheDict()
-	uncacheHashDict()
-	uncacheHashDict2()
+	StopEverything()
 
 	os.Exit(code)
 }
