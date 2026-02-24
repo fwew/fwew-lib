@@ -280,7 +280,7 @@ func doUnderline(w *Word, input string, markdown bool) (string, error) {
 		}
 	}
 
-	// runOn it from the IPA
+	// Map it from the IPA
 	i := 0
 	underlined := ""
 	for a := range strings.SplitSeq(syllables, " ") {
