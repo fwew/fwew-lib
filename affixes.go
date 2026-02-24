@@ -631,9 +631,6 @@ func deconjugateHelper(input conjugationCandidate, prefixCheck int, suffixCheck 
 						found = true
 						break
 					}
-					if found {
-						break
-					}
 				}
 			} else {
 				for _, pairWordSet := range multiwordWordsLoose[trimmedWord] {
