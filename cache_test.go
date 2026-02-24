@@ -1,6 +1,10 @@
 package fwew_lib
 
 import (
+	"net/http"
+	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"testing"
@@ -61,9 +65,34 @@ func TestGetDictSize(t *testing.T) {
 }
 
 func Test_UpdateDict(t *testing.T) {
+	// Create a mock server
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		content, err := os.ReadFile(filepath.Join(Text("dataDir"), dictFileName))
+		if err != nil {
+			t.Fatalf("failed to read downloaded file: %v", err)
+		}
+		w.Write([]byte(content))
+	}))
+	defer server.Close()
+
+	// Test your function with the mock server URL
+	prevURL := Text("dictURL")
+	texts["dictURL"] = server.URL
 	err := UpdateDict()
 	if err != nil {
-		t.Fatal(err)
+		t.Fatalf("downloadFile failed: %v", err)
+	}
+	texts["dictURL"] = prevURL
+
+	// Verify the file was created with correct content
+	content, err := os.ReadFile(filepath.Join(Text("dataDir"), dictFileName))
+	if err != nil {
+		t.Fatalf("failed to read downloaded file: %v", err)
+	}
+
+	if len(content) < 100_000 {
+		t.Fatalf("dictionary file smaller than expected")
 	}
 }
 

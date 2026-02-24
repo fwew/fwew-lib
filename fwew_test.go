@@ -26,7 +26,7 @@ func wordSimpleEqual(w1a, w2a []Word) bool {
 		return false
 	}
 
-	for j := 0; j < w1l; j++ {
+	for j := range w1l {
 		w1 := w1a[j]
 		w2 := w2a[j]
 

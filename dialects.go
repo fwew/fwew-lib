@@ -78,17 +78,17 @@ func ReefMe(ipa string, inter bool) []string {
 	// Unstressed "ä" becomes "e"
 	ipaSyllables := strings.Split(ipa, ".")
 	if len(ipaSyllables) > 1 {
-		newIpa := ""
+		var newIpa strings.Builder
 		for _, a := range ipaSyllables {
-			newIpa += "."
+			newIpa.WriteString(".")
 			if !strings.Contains(a, "ˈ") {
-				newIpa += strings.ReplaceAll(a, "æ", "ɛ")
+				newIpa.WriteString(strings.ReplaceAll(a, "æ", "ɛ"))
 			} else {
-				newIpa += a
+				newIpa.WriteString(a)
 			}
 		}
 
-		ipa = newIpa
+		ipa = newIpa.String()
 	}
 
 	breakdown := ""
@@ -112,8 +112,8 @@ func ReefMe(ipa string, inter bool) []string {
 
 		// Ejectives before vowels and diphthongs become voiced plosives regardless of syllable boundaries
 		for _, a := range ejectives {
-			if strings.HasPrefix(ipaReef, a) {
-				ipaReef = soften[a] + strings.TrimPrefix(ipaReef, a)
+			if after, ok := strings.CutPrefix(ipaReef, a); ok {
+				ipaReef = soften[a] + after
 			}
 			ipaReef = strings.ReplaceAll(ipaReef, ".ˈ"+a, ".ˈ"+soften[a])
 			ipaReef = strings.ReplaceAll(ipaReef, "."+a, "."+soften[a])
@@ -127,7 +127,7 @@ func ReefMe(ipa string, inter bool) []string {
 		ipaReef = strings.ReplaceAll(ipaReef, "t͡sj", "tʃ")
 		ipaReef = strings.ReplaceAll(ipaReef, "sj", "ʃ")
 
-		temp := ""
+		var temp strings.Builder
 		runes := []rune(ipaReef)
 
 		// Glottal stops between two vowels are removed
@@ -153,10 +153,10 @@ func ReefMe(ipa string, inter bool) []string {
 					}
 				}
 			}
-			temp += string(a)
+			temp.WriteString(string(a))
 		}
 
-		ipaReef = temp
+		ipaReef = temp.String()
 	}
 
 	ipaReef = strings.TrimPrefix(ipaReef, ".")
@@ -168,7 +168,7 @@ func ReefMe(ipa string, inter bool) []string {
 
 	breakdown = ""
 
-	for j := 0; j < len(word); j++ {
+	for j := range word {
 		word[j] = strings.ReplaceAll(word[j], "]", "")
 		word[j] = strings.ReplaceAll(word[j], "[", "")
 		// "or" means there's more than one IPA in this word, and we only want one
@@ -180,7 +180,7 @@ func ReefMe(ipa string, inter bool) []string {
 		syllables := strings.Split(word[j], ".")
 
 		/* Onset */
-		for k := 0; k < len(syllables); k++ {
+		for k := range syllables {
 			breakdown += "-"
 
 			syllable := strings.ReplaceAll(syllables[k], "·", "")

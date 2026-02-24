@@ -1,6 +1,7 @@
 package fwew_lib
 
 import (
+	"slices"
 	"strings"
 )
 
@@ -50,7 +51,7 @@ func TranslateFromNaviHash(searchNaviWords string, checkFixes bool, strict bool,
 		}
 
 		if len(results[len(results)-1]) > 1 && len(strings.Split(results[len(results)-1][1].Navi, " ")) > 1 {
-			newQuery := ""
+			var newQuery strings.Builder
 			kOffset := 0
 			for k := range strings.Split(results[len(results)-1][1].Navi, " ") {
 				if i+k+kOffset >= len(allWords) {
@@ -60,14 +61,14 @@ func TranslateFromNaviHash(searchNaviWords string, checkFixes bool, strict bool,
 					kOffset += 1
 				}
 				if k != 0 {
-					newQuery += " "
+					newQuery.WriteString(" ")
 				}
-				newQuery += allWords[i+k+kOffset]
+				newQuery.WriteString(allWords[i+k+kOffset])
 				if strings.HasSuffix(allWords[i+k+kOffset], "-susi") {
 					break
 				}
 			}
-			results[len(results)-1][0].Navi = newQuery
+			results[len(results)-1][0].Navi = newQuery.String()
 		}
 		i += j
 		i++
@@ -114,18 +115,14 @@ func isVerb(dict *map[string][]Word, input string, comparator string, strict boo
 			}
 
 			for _, prefix := range verbPrefixes {
-				for _, ourPrefixes := range b.Affixes.Prefix {
-					if prefix == ourPrefixes {
-						return false, affixes
-					}
+				if slices.Contains(b.Affixes.Prefix, prefix) {
+					return false, affixes
 				}
 			}
 
 			for _, suffix := range verbSuffixes {
-				for _, ourSuffixes := range b.Affixes.Suffix {
-					if suffix == ourSuffixes {
-						return false, affixes
-					}
+				if slices.Contains(b.Affixes.Suffix, suffix) {
+					return false, affixes
 				}
 			}
 
@@ -360,7 +357,8 @@ func translateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 
 			extraWord := 0
 
-			revert := results[0][0].Navi
+			var revert strings.Builder
+			revert.WriteString(results[0][0].Navi)
 			// There could be more than one pair (win säpi and win si, for example)
 			for j, pairWord := range pairWordSet {
 				found = false
@@ -374,7 +372,7 @@ func translateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 						extraWord = negativeExtraWord
 						found = true
 						foundAlready = true
-						revert += " " + allWords[i+j+1+extraWord]
+						revert.WriteString(" " + allWords[i+j+1+extraWord])
 						keepAffixes = negativeAffixes
 						j += 1
 						continue
@@ -385,7 +383,7 @@ func translateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 					if validVerb {
 						found = true
 						foundAlready = true
-						revert += " " + allWords[i+j+1]
+						revert.WriteString(" " + allWords[i+j+1])
 						keepAffixes = itsAffixes.Affixes
 						continue
 					}
@@ -396,7 +394,7 @@ func translateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 					// First by itself
 					if pairWord == allWords[i+j+1] {
 						found = true
-						revert += " " + allWords[i+j+1]
+						revert.WriteString(" " + allWords[i+j+1])
 						continue
 					}
 
@@ -407,7 +405,7 @@ func translateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 					for _, b := range secondWords {
 
 						if b.Navi == pairWord {
-							revert += " " + b.Navi
+							revert.WriteString(" " + b.Navi)
 							found = true
 							keepAffixes = addAffixes(keepAffixes, b.Affixes)
 						}
@@ -420,14 +418,15 @@ func translateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 				}
 			}
 			if found {
-				results[0][0].Navi = revert
-				fullWord := searchNaviWord
+				results[0][0].Navi = revert.String()
+				var fullWord strings.Builder
+				fullWord.WriteString(searchNaviWord)
 				for _, pairWord := range pairWordSet {
-					fullWord += " " + pairWord
+					fullWord.WriteString(" " + pairWord)
 				}
 
 				results[0] = []Word{results[0][0]}
-				a := strings.ReplaceAll(fullWord, "ù", "u")
+				a := strings.ReplaceAll(fullWord.String(), "ù", "u")
 
 				populateMultiwordResults(dict, a, &results, keepAffixes)
 				i += len(pairWordSet) + extraWord
@@ -490,7 +489,8 @@ func translateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 		found := false
 		// Find the results words
 
-		revert := results[0][0].Navi
+		var revert strings.Builder
+		revert.WriteString(results[0][0].Navi)
 
 		for _, a := range results[len(results)-1] {
 			breakAdding2 := false
@@ -548,7 +548,7 @@ func translateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 									extraWord = negativeExtraWord
 									found = true
 									foundAlready = true
-									revert += " " + allWords[i+j+1+extraWord]
+									revert.WriteString(" " + allWords[i+j+1+extraWord])
 									keepAffixes = negativeAffixes
 									j += 1
 
@@ -568,7 +568,7 @@ func translateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 								// First by itself
 								if pairWord == allWord {
 									found = true
-									revert += " " + allWords[i+j+1]
+									revert.WriteString(" " + allWords[i+j+1])
 									continue
 								}
 
@@ -578,7 +578,7 @@ func translateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 								// Do any of the conjugations work?
 								for _, b := range secondWords {
 									if b.Navi == pairWord {
-										revert += " " + b.Navi
+										revert.WriteString(" " + b.Navi)
 										found = true
 										keepAffixes = addAffixes(keepAffixes, b.Affixes)
 									}
@@ -591,14 +591,15 @@ func translateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 							}
 						}
 						if found {
-							results[0][0].Navi = revert
-							fullWord := newSearch
+							results[0][0].Navi = revert.String()
+							var fullWord strings.Builder
+							fullWord.WriteString(newSearch)
 							for _, pairWord := range pairWordSet {
-								fullWord += " " + pairWord
+								fullWord.WriteString(" " + pairWord)
 							}
 
 							results[0] = []Word{results[0][0]}
-							a := strings.ReplaceAll(fullWord, "ù", "u")
+							a := strings.ReplaceAll(fullWord.String(), "ù", "u")
 							if !strict {
 								a = dialectCrunch([]string{a}, false, allowReef)[0]
 							}
@@ -640,7 +641,7 @@ func searchNatlangWord(wordMap map[string][]string, searchWord string) (results 
 
 	firstResults := wordMap[searchWord]
 
-	for i := 0; i < len(firstResults); i++ {
+	for i := range firstResults {
 		for _, c := range dictHashStrict[firstResults[i]] {
 			results = appendAndAlphabetize(results, c)
 		}
@@ -656,7 +657,7 @@ func TranslateToNaviHash(searchWord string, langCode string) (results [][]Word) 
 
 	results = [][]Word{}
 
-	for _, word := range strings.Split(searchWord, " ") {
+	for word := range strings.SplitSeq(searchWord, " ") {
 		// Skip empty words
 		if len(word) == 0 {
 			continue
@@ -680,13 +681,7 @@ func translateToNaviHashHelper(dictionary *metaDict, searchWord string, langCode
 		for _, a := range searchNatlangWord((*dictionary).DE, searchWord) {
 			// Verify the search query is actually in the definition
 			searchWords := searchTerms(a.DE, false)
-			found := false
-			for _, d := range searchWords {
-				if d == searchWord {
-					found = true
-					break
-				}
-			}
+			found := slices.Contains(searchWords, searchWord)
 			if found {
 				results = appendAndAlphabetize(results, a)
 			}
@@ -695,13 +690,7 @@ func translateToNaviHashHelper(dictionary *metaDict, searchWord string, langCode
 		for _, a := range searchNatlangWord((*dictionary).EN, searchWord) {
 			// Verify the search query is actually in the definition
 			searchWords := searchTerms(a.EN, false)
-			found := false
-			for _, d := range searchWords {
-				if d == searchWord {
-					found = true
-					break
-				}
-			}
+			found := slices.Contains(searchWords, searchWord)
 			if found {
 				results = appendAndAlphabetize(results, a)
 			}
@@ -710,13 +699,7 @@ func translateToNaviHashHelper(dictionary *metaDict, searchWord string, langCode
 		for _, a := range searchNatlangWord((*dictionary).ES, searchWord) {
 			// Verify the search query is actually in the definition
 			searchWords := searchTerms(a.ES, false)
-			found := false
-			for _, d := range searchWords {
-				if d == searchWord {
-					found = true
-					break
-				}
-			}
+			found := slices.Contains(searchWords, searchWord)
 			if found {
 				results = appendAndAlphabetize(results, a)
 			}
@@ -725,13 +708,7 @@ func translateToNaviHashHelper(dictionary *metaDict, searchWord string, langCode
 		for _, a := range searchNatlangWord((*dictionary).ET, searchWord) {
 			// Verify the search query is actually in the definition
 			searchWords := searchTerms(a.ET, false)
-			found := false
-			for _, d := range searchWords {
-				if d == searchWord {
-					found = true
-					break
-				}
-			}
+			found := slices.Contains(searchWords, searchWord)
 			if found {
 				results = appendAndAlphabetize(results, a)
 			}
@@ -740,13 +717,7 @@ func translateToNaviHashHelper(dictionary *metaDict, searchWord string, langCode
 		for _, a := range searchNatlangWord((*dictionary).FR, searchWord) {
 			// Verify the search query is actually in the definition
 			searchWords := searchTerms(a.FR, false)
-			found := false
-			for _, d := range searchWords {
-				if d == searchWord {
-					found = true
-					break
-				}
-			}
+			found := slices.Contains(searchWords, searchWord)
 			if found {
 				results = appendAndAlphabetize(results, a)
 			}
@@ -755,13 +726,7 @@ func translateToNaviHashHelper(dictionary *metaDict, searchWord string, langCode
 		for _, a := range searchNatlangWord((*dictionary).HU, searchWord) {
 			// Verify the search query is actually in the definition
 			searchWords := searchTerms(a.HU, false)
-			found := false
-			for _, d := range searchWords {
-				if d == searchWord {
-					found = true
-					break
-				}
-			}
+			found := slices.Contains(searchWords, searchWord)
 			if found {
 				results = appendAndAlphabetize(results, a)
 			}
@@ -770,13 +735,7 @@ func translateToNaviHashHelper(dictionary *metaDict, searchWord string, langCode
 		for _, a := range searchNatlangWord((*dictionary).KO, searchWord) {
 			// Verify the search query is actually in the definition
 			searchWords := searchTerms(a.KO, false)
-			found := false
-			for _, d := range searchWords {
-				if d == searchWord {
-					found = true
-					break
-				}
-			}
+			found := slices.Contains(searchWords, searchWord)
 			if found {
 				results = appendAndAlphabetize(results, a)
 			}
@@ -785,13 +744,7 @@ func translateToNaviHashHelper(dictionary *metaDict, searchWord string, langCode
 		for _, a := range searchNatlangWord((*dictionary).NL, searchWord) {
 			// Verify the search query is actually in the definition
 			searchWords := searchTerms(a.NL, false)
-			found := false
-			for _, d := range searchWords {
-				if d == searchWord {
-					found = true
-					break
-				}
-			}
+			found := slices.Contains(searchWords, searchWord)
 			if found {
 				results = appendAndAlphabetize(results, a)
 			}
@@ -800,13 +753,7 @@ func translateToNaviHashHelper(dictionary *metaDict, searchWord string, langCode
 		for _, a := range searchNatlangWord((*dictionary).PL, searchWord) {
 			// Verify the search query is actually in the definition
 			searchWords := searchTerms(a.PL, false)
-			found := false
-			for _, d := range searchWords {
-				if d == searchWord {
-					found = true
-					break
-				}
-			}
+			found := slices.Contains(searchWords, searchWord)
 			if found {
 				results = appendAndAlphabetize(results, a)
 			}
@@ -815,13 +762,7 @@ func translateToNaviHashHelper(dictionary *metaDict, searchWord string, langCode
 		for _, a := range searchNatlangWord((*dictionary).PT, searchWord) {
 			// Verify the search query is actually in the definition
 			searchWords := searchTerms(a.PT, false)
-			found := false
-			for _, d := range searchWords {
-				if d == searchWord {
-					found = true
-					break
-				}
-			}
+			found := slices.Contains(searchWords, searchWord)
 			if found {
 				results = appendAndAlphabetize(results, a)
 			}
@@ -830,13 +771,7 @@ func translateToNaviHashHelper(dictionary *metaDict, searchWord string, langCode
 		for _, a := range searchNatlangWord((*dictionary).RU, searchWord) {
 			// Verify the search query is actually in the definition
 			searchWords := searchTerms(a.RU, false)
-			found := false
-			for _, d := range searchWords {
-				if d == searchWord {
-					found = true
-					break
-				}
-			}
+			found := slices.Contains(searchWords, searchWord)
 			if found {
 				results = appendAndAlphabetize(results, a)
 			}
@@ -845,13 +780,7 @@ func translateToNaviHashHelper(dictionary *metaDict, searchWord string, langCode
 		for _, a := range searchNatlangWord((*dictionary).SV, searchWord) {
 			// Verify the search query is actually in the definition
 			searchWords := searchTerms(a.SV, false)
-			found := false
-			for _, d := range searchWords {
-				if d == searchWord {
-					found = true
-					break
-				}
-			}
+			found := slices.Contains(searchWords, searchWord)
 			if found {
 				results = appendAndAlphabetize(results, a)
 			}
@@ -860,13 +789,7 @@ func translateToNaviHashHelper(dictionary *metaDict, searchWord string, langCode
 		for _, a := range searchNatlangWord((*dictionary).TR, searchWord) {
 			// Verify the search query is actually in the definition
 			searchWords := searchTerms(a.TR, false)
-			found := false
-			for _, d := range searchWords {
-				if d == searchWord {
-					found = true
-					break
-				}
-			}
+			found := slices.Contains(searchWords, searchWord)
 			if found {
 				results = appendAndAlphabetize(results, a)
 			}
@@ -875,13 +798,7 @@ func translateToNaviHashHelper(dictionary *metaDict, searchWord string, langCode
 		for _, a := range searchNatlangWord((*dictionary).UK, searchWord) {
 			// Verify the search query is actually in the definition
 			searchWords := searchTerms(a.UK, false)
-			found := false
-			for _, d := range searchWords {
-				if d == searchWord {
-					found = true
-					break
-				}
-			}
+			found := slices.Contains(searchWords, searchWord)
 			if found {
 				results = appendAndAlphabetize(results, a)
 			}
@@ -891,13 +808,7 @@ func translateToNaviHashHelper(dictionary *metaDict, searchWord string, langCode
 		for _, a := range searchNatlangWord((*dictionary).EN, searchWord) {
 			// Verify the search query is actually in the definition
 			searchWords := searchTerms(a.EN, false)
-			found := false
-			for _, d := range searchWords {
-				if d == searchWord {
-					found = true
-					break
-				}
-			}
+			found := slices.Contains(searchWords, searchWord)
 			if found {
 				results = appendAndAlphabetize(results, a)
 			}

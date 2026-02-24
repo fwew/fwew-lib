@@ -137,10 +137,7 @@ func AlphabetizeHelper(a string, b string) bool {
 
 	// Start in the middle
 	bCompacted := []rune(strings.ReplaceAll(compress(strings.ToLower(b)), "-", ""))
-	lowestLen := len(aCompacted)
-	if lowestLen > len(bCompacted) {
-		lowestLen = len(bCompacted)
-	}
+	lowestLen := min(len(aCompacted), len(bCompacted))
 	// compare an individual word
 	for j := 0; j < lowestLen; j++ {
 		// If the new letter is bigger, wait until it gets
@@ -264,7 +261,7 @@ func romanizeSecondIPA(IPA string) string {
 		syllables := strings.Split(word[j], ".")
 
 		/* Onset */
-		for k := 0; k < len(syllables); k++ {
+		for k := range syllables {
 			syllable := strings.ReplaceAll(syllables[k], "·", "")
 			syllable = strings.ReplaceAll(syllable, "ˈ", "")
 			syllable = strings.ReplaceAll(syllable, "ˌ", "")
@@ -381,13 +378,7 @@ func cacheDictHashOrig(mysql bool) error {
 
 		// If the word appears more than once, record it
 		if _, ok := dictHashStrict[standardizedWord]; ok {
-			found := false
-			for _, a := range tempHoms {
-				if a == standardizedWord {
-					found = true
-					break
-				}
-			}
+			found := slices.Contains(tempHoms, standardizedWord)
 			if !found {
 				tempHoms = append(tempHoms, standardizedWord)
 			}
@@ -395,13 +386,7 @@ func cacheDictHashOrig(mysql bool) error {
 
 		if strings.Contains(standardizedWord, "é") {
 			noAcute := strings.ReplaceAll(standardizedWord, "é", "e")
-			found := false
-			for _, a := range tempHoms {
-				if a == noAcute {
-					found = true
-					break
-				}
-			}
+			found := slices.Contains(tempHoms, noAcute)
 			if !found {
 				tempHoms = append(tempHoms, noAcute)
 				tempHoms = append(tempHoms, standardizedWord)
@@ -426,7 +411,7 @@ func cacheDictHashOrig(mysql bool) error {
 
 		// See whether or not it violates normal phonotactic rules like Jakesully or Oìsss
 		valid := true
-		for _, a := range strings.Split(IsValidNavi(word.Navi, "en", false), "\n") {
+		for a := range strings.SplitSeq(IsValidNavi(word.Navi, "en", false), "\n") {
 			// Check every word.  If one of them isn't good, write down the word
 			if len(a) > 0 && (!strings.Contains(a, "Valid:") || strings.Contains(a, "reef")) {
 				valid = false
@@ -444,13 +429,14 @@ func cacheDictHashOrig(mysql bool) error {
 	if mysql {
 		err = runOnDB(f)
 		if err != nil {
+			log.Println(FailedToCache.Error())
 			uncacheHashDict()
 			return err
 		}
 	} else {
 		err = runOnFile(f)
 		if err != nil {
-			log.Printf("Error caching dictionary: %s", err)
+			log.Println(FailedToCache.Error())
 			uncacheHashDict()
 			return err
 		}
@@ -478,7 +464,7 @@ func searchTerms(input string, excludeParen bool) []string {
 	input = strings.ReplaceAll(input, "(", " (")
 
 	// remove anything in parentheses to avoid clogging search results
-	tempString := ""
+	var tempString strings.Builder
 	parenthesis := false
 	for _, c := range input {
 		if excludeParen {
@@ -491,10 +477,10 @@ func searchTerms(input string, excludeParen bool) []string {
 		}
 
 		if !parenthesis {
-			tempString += string(c)
+			tempString.WriteString(string(c))
 		}
 	}
-	input = tempString
+	input = tempString.String()
 
 	// remove all the sketchy chars from arguments
 	for _, c := range badChars {
@@ -515,7 +501,7 @@ func searchTerms(input string, excludeParen bool) []string {
 func assignWord(wordMap map[string][]string, natlangWords string, naviWord string, excludeParen bool) (result map[string][]string) {
 	newWords := searchTerms(natlangWords, excludeParen)
 
-	for i := 0; i < len(newWords); i++ {
+	for i := range newWords {
 		duplicate := false
 		for j := 0; j < len(wordMap[newWords[i]]); j++ {
 			if wordMap[newWords[i]][j] == naviWord {

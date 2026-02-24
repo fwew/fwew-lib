@@ -130,10 +130,7 @@ func GetPhonemeDistrosMap(lang string) (allDistros [][][]string) {
 	})
 
 	// Probably not needed but just in case any other number exceeds it
-	maxLen := len(onsetTuples)
-	if len(nucleusTuples) > maxLen {
-		maxLen = len(nucleusTuples)
-	}
+	maxLen := max(len(nucleusTuples), len(onsetTuples))
 	if len(codaTuples) > maxLen {
 		maxLen = len(codaTuples)
 	}

@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"slices"
 	"strings"
 )
 
@@ -17,10 +18,8 @@ func contains(s []string, q []string) bool {
 		return false
 	}
 	for _, x := range q {
-		for _, y := range s {
-			if y == x {
-				return true
-			}
+		if slices.Contains(s, x) {
+			return true
 		}
 	}
 	return false
@@ -229,7 +228,7 @@ func glob(pattern, subj string) bool {
 	end := len(parts) - 1
 
 	// Go over the leading parts and ensure they match.
-	for i := 0; i < end; i++ {
+	for i := range end {
 		idx := strings.Index(subj, parts[i])
 
 		switch i {
@@ -323,12 +322,7 @@ func isVowelIpa(letter string) (found bool) {
 	// Also arranged from most to least common (not accounting for diphthongs)
 	vowels := []string{"a", "ɛ", "ɪ", "o", "u", "i", "æ", "ʊ"}
 	// Linear search
-	for _, a := range vowels {
-		if letter == a {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(vowels, letter)
 }
 
 func clean(searchNaviWords string) (words string) {

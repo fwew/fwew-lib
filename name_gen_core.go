@@ -11,6 +11,7 @@ package fwew_lib
 import (
 	"fmt"
 	"math/rand"
+	"slices"
 	"strings"
 	"unicode"
 	"unicode/utf8"
@@ -100,7 +101,7 @@ func quickReef(input string) string {
 		output = strings.ReplaceAll(output, "2", "s"+e)
 	}
 
-	temp := ""
+	var temp strings.Builder
 	runes := []rune(output)
 
 	vowels := "aäeiìouù"
@@ -113,10 +114,10 @@ func quickReef(input string) string {
 				}
 			}
 		}
-		temp += string(a)
+		temp.WriteString(string(a))
 	}
 
-	output = temp
+	output = temp.String()
 
 	return output
 }
@@ -126,31 +127,31 @@ func specialU(input string, ipa string) string {
 	split := strings.Split(input, "u")
 
 	runes := []rune(ipa)
-	output := ""
+	var output strings.Builder
 
 	i := 0
 	for _, a := range runes {
 		switch a {
 		case 'u':
-			output += split[i] + "u"
+			output.WriteString(split[i] + "u")
 			i++
 		case 'ʊ':
-			output += split[i] + "ù"
+			output.WriteString(split[i] + "ù")
 			i++
 		}
 	}
-	output += split[i]
+	output.WriteString(split[i])
 
-	return output
+	return output.String()
 }
 
 /* Helper function for name-alu */
 func insertInfix(verb []string, infix string) (output string) {
 	output = ""
 	foundInfix := false
-	for j := 0; j < len(verb); j++ {
+	for j := range verb {
 		someVerb := []rune(verb[j])
-		for k := 0; k < len(someVerb); k++ {
+		for k := range someVerb {
 			if someVerb[k] == '.' {
 				if !foundInfix {
 					output += infix
@@ -180,12 +181,7 @@ func isVowel(letter rune) (found bool) {
 	// Also arranged from most to least common (not accounting for diphthongs)
 	vowels := []rune{'a', 'e', 'u', 'ì', 'o', 'i', 'ä', 'ù'}
 	// Linear search
-	for _, a := range vowels {
-		if letter == a {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(vowels, letter)
 }
 
 /* Randomly select an onset for a Na'vi syllable */
@@ -195,7 +191,7 @@ func getOnset() (onset string, cluster bool) {
 	if selector > maxNonCluster { // If the number is too high for the non-cluster onsets,
 		selector -= maxNonCluster // you get to skip all of them.  It saves time.
 		// Linear search
-		for i := 0; i < len(clusterLikelihood); i++ {
+		for i := range len(clusterLikelihood) {
 			if selector < clusterLikelihood[i] {
 				return clusterLetters[i], true
 			}
@@ -205,7 +201,7 @@ func getOnset() (onset string, cluster bool) {
 	}
 	// Non-clusters (single consonants)
 	// Linear search
-	for i := 0; i < len(onsetLikelihood); i++ {
+	for i := range len(onsetLikelihood) {
 		if selector < onsetLikelihood[i] {
 			return onsetLetters[i], false
 		}
@@ -219,7 +215,7 @@ func getOnset() (onset string, cluster bool) {
 func getNucleus() (onset string) {
 	selector := rand.Intn(maxNucleus)
 	// Linear search
-	for i := 0; i < len(nucleusLikelihood); i++ {
+	for i := range len(nucleusLikelihood) {
 		if selector < nucleusLikelihood[i] {
 			return nucleusLetters[i]
 		}
@@ -232,7 +228,7 @@ func getNucleus() (onset string) {
 func getCoda() (onset string) {
 	selector := rand.Intn(maxCoda)
 	// Linear search
-	for i := 0; i < len(codaLikelihood); i++ {
+	for i := range len(codaLikelihood) {
 		if selector < codaLikelihood[i] {
 			return codaLetters[i]
 		}
@@ -326,7 +322,7 @@ func singleNameGen(syllableCount int, dialect int) (name string) {
 	cluster := false
 
 	// Make a name with len syllables
-	for i := 0; i < syllableCount; i++ {
+	for range syllableCount {
 		onset, cluster = getOnset()
 
 		// Triple consonants are whitelisted
@@ -480,7 +476,7 @@ func sortedWords() (nouns []Word, adjectives []Word, verbs []Word, transitiveVer
 		return
 	}
 
-	for i := 0; i < len(words); i++ {
+	for i := range words {
 		if words[i].PartOfSpeech == "n." {
 			nouns = append(nouns, words[i])
 		} else if words[i].PartOfSpeech == "adj." {
@@ -513,29 +509,29 @@ func PhonemeDistros() {
 	//set the maps to zero
 
 	//Onsets
-	for i := 0; i < len(onsetLetters); i++ {
+	for i := range len(onsetLetters) {
 		onsetMap[onsetLetters[i]] = 0
 	}
 
 	//Clusters
-	for i := 0; i < len(cluster1Full); i++ {
-		for j := 0; j < len(cluster2Full); j++ {
+	for i := range cluster1Full {
+		for j := range cluster2Full {
 			clusterMap[cluster1Full[i]][cluster2Full[j]] = 0
 		}
 	}
 
 	//Nuclei
-	for i := 0; i < len(nucleusLikelihood); i++ {
+	for i := range len(nucleusLikelihood) {
 		nucleusMap[nucleusLetters[i]] = 0
 	}
 
 	//Codas
-	for i := 0; i < len(codaLikelihood); i++ {
+	for i := range len(codaLikelihood) {
 		codaMap[codaLetters[i]] = 0
 	}
 
 	// Look through all the words
-	for i := 0; i < len(words); i++ {
+	for i := range words {
 		word := strings.Split(words[i].IPA, " ")
 
 		// Piggybacking off of the frequency script to get all words with spaces
@@ -548,7 +544,7 @@ func PhonemeDistros() {
 			fillMultiwordMap(multiwordWords, allWords)
 		}
 
-		for j := 0; j < len(word); j++ {
+		for j := range word {
 			word[j] = strings.Replace(word[j], "]", "", 1500)
 			// "or" means there's more than one IPA in this word, and we only want one
 			if word[j] == "or" {
@@ -559,7 +555,7 @@ func PhonemeDistros() {
 			coda := ""
 
 			/* Onset */
-			for k := 0; k < len(syllables); k++ {
+			for k := range syllables {
 				syllable := strings.Replace(syllables[k], "·", "", 1500)
 				syllable = strings.Replace(syllable, "ˈ", "", 1500)
 				syllable = strings.Replace(syllable, "ˌ", "", 1500)
@@ -763,7 +759,7 @@ func PhonemeDistros() {
 	// Copy everything from the maps to the arrays
 
 	//Onsets
-	for i := 0; i < len(onsetLikelihood); i++ {
+	for i := range len(onsetLikelihood) {
 		onsetLikelihood[i] = onsetMap[onsetLetters[i]]
 		maxOnset += onsetMap[onsetLetters[i]]
 	}
@@ -772,8 +768,8 @@ func PhonemeDistros() {
 	maxNonCluster = maxOnset
 
 	superI := 0
-	for i := 0; i < len(cluster1Full); i++ {
-		for j := 0; j < len(cluster2Full); j++ {
+	for i := range cluster1Full {
+		for j := range cluster2Full {
 			clusterLetters[superI] = cluster1Full[i] + cluster2Full[j]
 			clusterLikelihood[superI] = clusterMap[cluster1Full[i]][cluster2Full[j]]
 			maxOnset += clusterMap[cluster1Full[i]][cluster2Full[j]]
@@ -782,13 +778,13 @@ func PhonemeDistros() {
 	}
 
 	//Nuclei
-	for i := 0; i < len(nucleusLikelihood); i++ {
+	for i := range len(nucleusLikelihood) {
 		nucleusLikelihood[i] = nucleusMap[nucleusLetters[i]]
 		maxNucleus += nucleusMap[nucleusLetters[i]]
 	}
 
 	//Codas
-	for i := 0; i < len(codaLikelihood); i++ {
+	for i := range len(codaLikelihood) {
 		codaLikelihood[i] = codaMap[codaLetters[i]]
 		maxCoda += codaMap[codaLetters[i]]
 	}

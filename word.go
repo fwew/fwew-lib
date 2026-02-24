@@ -221,7 +221,7 @@ func (w *Word) ToOutputLine(
 }
 
 func formatSyllables(w *Word, syllables string, withMarkdown bool) (string, error) {
-	var formattedSyllables string
+	var formattedSyllables strings.Builder
 	var currentSyllableSet string
 	allSpaces := strings.Split(syllables, " ")
 
@@ -232,7 +232,7 @@ func formatSyllables(w *Word, syllables string, withMarkdown bool) (string, erro
 			if err != nil {
 				return "", err
 			}
-			formattedSyllables += input + " or "
+			formattedSyllables.WriteString(input + " or ")
 			currentSyllableSet = ""
 			continue
 		}
@@ -245,11 +245,11 @@ func formatSyllables(w *Word, syllables string, withMarkdown bool) (string, erro
 			if err != nil {
 				return "", err
 			}
-			formattedSyllables += input
+			formattedSyllables.WriteString(input)
 		}
 	}
 
-	return formattedSyllables, nil
+	return formattedSyllables.String(), nil
 }
 
 func doUnderline(w *Word, input string, markdown bool) (string, error) {
@@ -267,11 +267,11 @@ func doUnderline(w *Word, input string, markdown bool) (string, error) {
 
 	// get it from the IPA
 	var stressed []bool
-	for _, a := range strings.Split(w.IPA, " ") {
+	for a := range strings.SplitSeq(w.IPA, " ") {
 		if a == "or" {
 			break
 		}
-		for _, b := range strings.Split(a, ".") {
+		for b := range strings.SplitSeq(a, ".") {
 			if strings.Contains(b, "ˈ") {
 				stressed = append(stressed, true)
 			} else {
@@ -283,8 +283,8 @@ func doUnderline(w *Word, input string, markdown bool) (string, error) {
 	// runOn it from the IPA
 	i := 0
 	underlined := ""
-	for _, a := range strings.Split(syllables, " ") {
-		for _, b := range strings.Split(a, "-") {
+	for a := range strings.SplitSeq(syllables, " ") {
+		for b := range strings.SplitSeq(a, "-") {
 			if i >= len(stressed) {
 				break
 			}

@@ -190,22 +190,22 @@ func NaviToNumber(input string) (int, error) {
 
 	// build regexp for all other numbers
 	// regexp for big values
-	var regexpString string
+	var regexpString strings.Builder
 	for _, digit := range numTableRegexp {
-		regexpString += "("
+		regexpString.WriteString("(")
 		first := true
 
 		for _, number := range digit {
 			if !first {
-				regexpString += "|"
+				regexpString.WriteString("|")
 			}
-			regexpString += number
+			regexpString.WriteString(number)
 			first = false
 		}
-		regexpString += ")?"
+		regexpString.WriteString(")?")
 	}
 
-	re := regexp.MustCompile(regexpString)
+	re := regexp.MustCompile(regexpString.String())
 	tmp := re.FindStringSubmatch(input)
 	var n int
 	if len(tmp) > 0 && len(tmp[0]) > 0 {
@@ -237,7 +237,7 @@ func NumberToNavi(input int) (string, error) {
 	var previousDigit int
 	var firstDigit int
 	// maximal 5 possible digits
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		if i == 0 {
 			// the last digit is written differently
 			n := input % 0o10

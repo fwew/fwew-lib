@@ -1,6 +1,7 @@
 package fwew_lib
 
 import (
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -17,14 +18,14 @@ var lettersEnd = []string{"", "p", "t", "k", "b", "d", "q", "'",
 var lettersMap = map[string]string{}
 
 func makeSyllableBreakdown(syllables []string) string {
-	syllableBreakdownTemp := ""
+	var syllableBreakdownTemp strings.Builder
 	for i, a := range syllables {
 		if i != len(syllables)-1 && i != 0 {
-			syllableBreakdownTemp += "-"
+			syllableBreakdownTemp.WriteString("-")
 		}
-		syllableBreakdownTemp += a
+		syllableBreakdownTemp.WriteString(a)
 	}
-	return syllableBreakdownTemp
+	return syllableBreakdownTemp.String()
 }
 
 // noDoubleDiphthongs turns things like maw-ey into ma-wey, so the checker knows
@@ -186,12 +187,9 @@ func isValidNaviHelper(word string, lang string) string {
 	var wordNuclei []rune
 	for _, a := range []rune(compressed) {
 		found := false
-		for _, b := range nuclei {
-			if a == b {
-				found = true
-				wordNuclei = append(wordNuclei, a)
-				break
-			}
+		if slices.Contains(nuclei, a) {
+			found = true
+			wordNuclei = append(wordNuclei, a)
 		}
 		if !found {
 			syllableBoundaries = syllableBoundaries + string(a)
@@ -250,13 +248,7 @@ func isValidNaviHelper(word string, lang string) string {
 	}
 
 	if !contains[1] {
-		canEndAWord := false
-		for _, a := range lettersEnd {
-			if syllables[len(syllables)-1] == a {
-				canEndAWord = true
-				break
-			}
-		}
+		canEndAWord := slices.Contains(lettersEnd, syllables[len(syllables)-1])
 
 		if !canEndAWord {
 			syllables[len(syllables)-1] += "•"

@@ -52,7 +52,7 @@ func SingleNames(nameCount int, dialect int, syllableCount int) (output string) 
 	output = ""
 
 	// Fill the chart with names
-	for i := 0; i < nameCount; i++ {
+	for range nameCount {
 		output += glottalCaps(singleNameGen(randIfZero(syllableCount), dialect)) + "\n"
 	}
 
@@ -68,7 +68,7 @@ func FullNames(ending string, nameCount int, dialect int, syllableCount [3]int, 
 		return "Max name count is 50, max syllable count is 4"
 	}
 
-	for i := 0; i < 3; i++ {
+	for i := range 3 {
 		if syllableCount[i] > 4 || syllableCount[i] < 0 {
 			return "Max name count is 50, max syllable count is 4"
 		}
@@ -90,7 +90,7 @@ func FullNames(ending string, nameCount int, dialect int, syllableCount [3]int, 
 	}
 
 	// Fill the chart with names
-	for i := 0; i < nameCount; i++ {
+	for i := range nameCount {
 		// Fill it with three names
 		output += glottalCaps(singleNameGen(randIfZero(syllableCount[0]), dialect))
 		output += " te "
@@ -155,7 +155,7 @@ func NameAlu(nameCount int, dialect int, syllableCount int, nounMode int, adjMod
 	universalLock.Lock()
 	defer universalLock.Unlock()
 
-	for i := 0; i < nameCount; i++ {
+	for range nameCount {
 		output += glottalCaps(singleNameGen(randIfZero(syllableCount), dialect))
 
 		/* Noun */
@@ -181,7 +181,7 @@ func NameAlu(nameCount int, dialect int, syllableCount int, nounMode int, adjMod
 		default: // case 2:
 			verb := fastRandom(allVerbs)
 			a := strings.Split(convertDialect(verb, dialect), " ")
-			for k := 0; k < len(a); k++ {
+			for k := range a {
 				noun += a[k]
 			}
 			noun = strings.ReplaceAll(noun, "-", "")
@@ -349,8 +349,8 @@ func NameAlu(nameCount int, dialect int, syllableCount int, nounMode int, adjMod
 
 		if twoWordNoun {
 			output += " "
-			nounWords := strings.Split(noun, " ")
-			for _, a := range nounWords {
+			nounWords := strings.SplitSeq(noun, " ")
+			for a := range nounWords {
 				output += glottalCaps(a) + " "
 			}
 			output = output[:len(output)-1]
