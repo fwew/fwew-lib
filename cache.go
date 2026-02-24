@@ -288,7 +288,7 @@ func cacheDict() error {
 	})
 
 	if err == nil {
-		fmt.Println("cache 0 loaded (SQL)")
+		fmt.Println("cache 0 loaded")
 	} else {
 		uncacheDict()
 		err = runOnFile(func(word Word) error {
@@ -311,11 +311,11 @@ func cacheDict() error {
 func cacheDictHash() error {
 	err := cacheDictHashOrig(true)
 	if err == nil {
-		fmt.Println("cache 1 loaded (SQL)")
-	} else {
-		err = cacheDictHashOrig(false)
-		//fmt.Println("cache 1 loaded (File)")
+		fmt.Println("cache 1 loaded")
+		return nil
 	}
+	err = cacheDictHashOrig(false)
+	//fmt.Println("cache 1 loaded (File)")
 	return err
 }
 
@@ -426,20 +426,17 @@ func cacheDictHashOrig(mysql bool) error {
 	}
 
 	var err error
+
 	if mysql {
-		err = runOnDB(f)
-		if err != nil {
-			log.Println(FailedToCache.Error())
+		if err = runOnDB(f); err != nil {
 			uncacheHashDict()
 			return err
 		}
-	} else {
-		err = runOnFile(f)
-		if err != nil {
-			log.Println(FailedToCache.Error())
-			uncacheHashDict()
-			return err
-		}
+	}
+
+	if err = runOnFile(f); err != nil {
+		uncacheHashDict()
+		return err
 	}
 
 	// Reverse the order to make accidental and new homonyms easier to see
@@ -520,7 +517,7 @@ func assignWord(wordMap map[string][]string, natlangWords string, naviWord strin
 func cacheDictHash2() error {
 	err := cacheDictHash2Orig(true)
 	if err == nil {
-		fmt.Println("cache 2 loaded (SQL)")
+		fmt.Println("cache 2 loaded")
 	} else {
 		err = cacheDictHash2Orig(false)
 		//fmt.Println("cache 2 loaded (File)")
@@ -858,7 +855,7 @@ func StartEverything() string {
 	universalLock.Unlock()
 	PhonemeDistros()
 	elapsed := strconv.FormatFloat(time.Since(start).Seconds(), 'f', -1, 64)
-	return fmt.Sprintln("Everything is cached.  Took " + elapsed + " seconds")
+	return fmt.Sprintln("Caches loaded,  took " + elapsed + " seconds")
 }
 
 // StopEverything clears the caches and returns a status string.
@@ -868,5 +865,5 @@ func StopEverything() string {
 	uncacheHashDict()
 	uncacheHashDict2()
 	universalLock.Unlock()
-	return fmt.Sprintln("Caches cleared.")
+	return fmt.Sprintln("Caches cleared")
 }

@@ -51,46 +51,10 @@ func GetMultiIPA() (results [][]Word) {
 func GetPhonemeDistrosMap(lang string) (allDistros [][][]string) {
 	phonoLock.Lock()
 	defer phonoLock.Unlock()
-	// Non-English ones were pulled out of Google Translate unless it says VERIFIED
-	headerRow := map[string][]string{
-		"en": {"Onset", "Nucleus", "Coda"},          // English
-		"de": {"Beginn", "Kern", "Coda"},            // German (Deutsch)
-		"es": {"Inicio", "Núcleo", "Coda"},          // Spanish (Español)
-		"et": {"Algus", "tuum", "Coda"},             // Estonian (Eesti)
-		"fr": {"Début", "Noyau", "Coda"},            // French (Français)
-		"hu": {"Szótagkezdet", "Szótagmag", "Coda"}, // Hungarian (Magyar)
-		"it": {"Inizio", "Nucleo", "Coda"},          // Italian (Italiano)
-		"ko": {"초성(두음)", "중성(음절핵)", "종성(말음)"},       // Korean (한국어)
-		"nl": {"Begin", "Kern", "Coda"},             // Dutch (Nederlands)
-		"pl": {"Początek", "Jądro", "Kod"},          // Polish (Polski)
-		"pt": {"Início", "Núcleo", "Coda"},          // Portuguese (Português)
-		"ru": {"Инициаль", "Ядро", "Финаль"},        // VERIFIED: Russian (Русский)
-		"sv": {"Debut", "Nucleus", "Coda"},          // Swedish (Svenska)
-		"tr": {"Başlangıç", "çekirdek", "Kodası"},   // Turkish (Türkçe)
-		"uk": {"Початок", "Ядро", "Кода"},           // Ukrainian (Українська)
-	}
-
-	clusterName := map[string]string{
-		"en": "Consonant Clusters",        // English
-		"de": "Konsonantengruppen",        // German (Deutsch)
-		"es": "Grupos de consonantes",     // Spanish (Español)
-		"et": "Konsonantide klastrid",     // Estonian (Eesti)
-		"fr": "Groupes de consonnes",      // French (Français)
-		"hu": "Mássalhangzócsoportok",     // Hungarian (Magyar)
-		"it": "Gruppi Consonantici",       // Italian (Italiano)
-		"ko": "자음군",                       // Korean (한국어)
-		"nl": "Medeklinkerclusters",       // Dutch (Nederlands)
-		"pl": "Zbiory spółgłosek",         // Polish (Polski)
-		"pt": "Aglomerados de consoantes", // Portuguese (Português)
-		"ru": "Кластеры согласных",        // VERIFIED: Russian (Русский)
-		"sv": "Konsonantkluster",          // Swedish (Svenska)
-		"tr": "Ünsüz harfler",             // Turkish (Türkçe)
-		"uk": "Збори приголосних",         // Ukrainian (Українська)
-	}
 
 	// Default to English
-	headerLang := []string{"Onset", "Nucleus", "Coda"}
-	clusterLang := "Consonant Clusters"
+	headerLang := defaultHeaderLang
+	clusterLang := defaultClusterLang
 
 	if a, ok := headerRow[lang]; ok {
 		headerLang = a

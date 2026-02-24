@@ -11,8 +11,6 @@ import (
 )
 
 func Test_cacheDict(t *testing.T) {
-	// cache dict and test only one entry
-
 	word := Word{
 		ID:   "4",
 		Navi: "'ampi",
@@ -35,26 +33,16 @@ func Test_cacheDict(t *testing.T) {
 }
 
 func TestGetDictSizeSimple(t *testing.T) {
-	err := cacheDict()
-	if err != nil {
-		t.Fatal(FailedToCache)
-	}
 	size := GetDictSizeSimple()
 	expected := len(dictionary)
-	uncacheDict()
 	if size != expected {
 		t.Errorf("Dictionary size mismatch: %d != %d", size, expected)
 	}
 }
 
 func TestGetDictSize(t *testing.T) {
-	err := cacheDict()
-	if err != nil {
-		t.Fatal(FailedToCache)
-	}
 	size, err := GetDictSize("en")
 	expected := len(dictionary)
-	uncacheDict()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -72,7 +60,10 @@ func Test_UpdateDict(t *testing.T) {
 		if err != nil {
 			t.Fatalf("failed to read downloaded file: %v", err)
 		}
-		w.Write([]byte(content))
+		_, err2 := w.Write(content)
+		if err2 != nil {
+			t.Fatalf("failed to write downloaded file: %v", err2)
+		}
 	}))
 	defer server.Close()
 
@@ -85,7 +76,7 @@ func Test_UpdateDict(t *testing.T) {
 	}
 	texts["dictURL"] = prevURL
 
-	// Verify the file was created with correct content
+	// Verify the file was created with the correct content
 	content, err := os.ReadFile(filepath.Join(Text("dataDir"), dictFileName))
 	if err != nil {
 		t.Fatalf("failed to read downloaded file: %v", err)
@@ -99,7 +90,7 @@ func Test_UpdateDict(t *testing.T) {
 func Test_StartEverything(t *testing.T) {
 	status := StartEverything()
 	status = strings.TrimSpace(status)
-	if !strings.HasPrefix(status, "Everything is cached.") {
+	if !strings.HasPrefix(status, "Caches loaded") {
 		t.Errorf("[%s]", status)
 	}
 	if !strings.HasSuffix(status, "seconds") {
@@ -110,7 +101,7 @@ func Test_StartEverything(t *testing.T) {
 func Test_StopEverything(t *testing.T) {
 	status := StopEverything()
 	status = strings.TrimSpace(status)
-	if status != "Caches cleared." {
+	if status != "Caches cleared" {
 		t.Errorf("[%s]", status)
 	}
 }

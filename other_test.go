@@ -41,6 +41,9 @@ func TestGetMultiwordWords(t *testing.T) {
 }
 
 func TestGetHomonyms(t *testing.T) {
+	if err := cacheDictHash(); err != nil {
+		t.Errorf("%s", FailedToCache.wrap(err))
+	}
 	var homs = GetHomonyms()
 	if homs == nil {
 		t.Errorf("Homonyms not loaded")
@@ -51,6 +54,9 @@ func TestGetHomonyms(t *testing.T) {
 }
 
 func TestGetOddballs(t *testing.T) {
+	if err := cacheDictHash(); err != nil {
+		t.Errorf("%s", FailedToCache.wrap(err))
+	}
 	var o = GetOddballs()
 	if o == nil {
 		t.Errorf("Oddballs not loaded")
