@@ -298,23 +298,24 @@ func cacheDict() error {
 
 	if err == nil {
 		fmt.Println("cache 0 loaded")
-	} else {
-		uncacheDict()
-		err = runOnFile(func(word Word) error {
-			dictionary = append(dictionary, word)
-			return nil
-		})
-		//fmt.Println("cache 0 loaded (File)")
+		dictionaryCached = true
+		return nil
 	}
 
-	if err != nil {
-		uncacheDict()
-		return err
+	uncacheDict()
+	err = runOnFile(func(word Word) error {
+		dictionary = append(dictionary, word)
+		return nil
+	})
+
+	if err == nil {
+		fmt.Println("cache 0 loaded")
+		dictionaryCached = true
+		return nil
 	}
 
-	dictionaryCached = true
-
-	return nil
+	uncacheDict()
+	return err
 }
 
 func cacheDictHash() error {
