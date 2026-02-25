@@ -14,9 +14,10 @@ const (
 	FailedToOpenDatabase  = constError("failed to open database connection")
 	FailedToOpenDictFile  = constError("failed to open dictionary file")
 
-	InvalidNumber  = constError("invalid numeric digits")
-	NegativeNumber = constError("negative numbers not allowed")
-	NumberTooBig   = constError("number too big")
+	InvalidNameCount = constError("Max name count is 50, max syllable count is 4")
+	InvalidNumber    = constError("invalid numeric digits")
+	NegativeNumber   = constError("negative numbers not allowed")
+	NumberTooBig     = constError("number too big")
 
 	NoDictionary  = constError("no dictionary found")
 	NoResults     = constError("no results\n")

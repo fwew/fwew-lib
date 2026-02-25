@@ -13,7 +13,7 @@ func SingleNames(nameCount int, dialect int, syllableCount int) (output string) 
 	defer universalLock.Unlock()
 	// Make sure the numbers are good
 	if nameCount > 50 || nameCount <= 0 || syllableCount > 4 || syllableCount < 0 {
-		return "Max name count is 50, max syllable count is 4"
+		return InvalidNameCount.Error()
 	}
 
 	// Charts and variables used for formatting
@@ -33,12 +33,12 @@ func FullNames(ending string, nameCount int, dialect int, syllableCount [3]int, 
 	defer universalLock.Unlock()
 	// Make sure the numbers are good
 	if nameCount > 50 || nameCount <= 0 {
-		return "Max name count is 50, max syllable count is 4"
+		return InvalidNameCount.Error()
 	}
 
 	for i := range 3 {
 		if syllableCount[i] > 4 || syllableCount[i] < 0 {
-			return "Max name count is 50, max syllable count is 4"
+			return InvalidNameCount.Error()
 		}
 	}
 
@@ -111,7 +111,7 @@ func FullNames(ending string, nameCount int, dialect int, syllableCount [3]int, 
 func NameAlu(nameCount int, dialect int, syllableCount int, nounMode int, adjMode int) (output string) {
 	// Make sure the numbers are good
 	if nameCount > 50 || nameCount <= 0 || syllableCount > 4 || syllableCount < 0 {
-		return "Max name count is 50, max syllable count is 4"
+		return InvalidNameCount.Error()
 	}
 
 	// A single function that allows all these to be acquired with only one dictionary search
