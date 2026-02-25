@@ -676,19 +676,11 @@ func TranslateToNaviHash(searchWord string, langCode string) (results [][]Word) 
 
 func translateToNaviHashHelper(dictionary *metaDict, searchWord string, langCode string) (results []Word) {
 	results = []Word{}
-	var langMap = map[string]map[string][]string{
-		"de": (*dictionary).DE, "en": (*dictionary).EN, "es": (*dictionary).ES, "et": (*dictionary).ET,
-		"fr": (*dictionary).FR, "hu": (*dictionary).HU, "it": (*dictionary).IT, "ko": (*dictionary).KO,
-		"nl": (*dictionary).NL, "pl": (*dictionary).PL, "pt": (*dictionary).PT, "ru": (*dictionary).RU,
-		"sv": (*dictionary).SV, "tr": (*dictionary).TR, "uk": (*dictionary).UK,
-	}
+	var langMetaMap = getLangMetaDictMap(dictionary)
 
 	// Verify the search query is actually in the definition
-	for _, a := range searchNatlangWord(langMap[langCode], searchWord) {
-		var langMap2 = map[string]string{
-			"de": a.DE, "en": a.EN, "es": a.ES, "et": a.ET, "fr": a.FR, "hu": a.HU, "it": a.IT, "ko": a.KO,
-			"nl": a.NL, "pl": a.PL, "pt": a.PT, "ru": a.RU, "sv": a.SV, "tr": a.TR, "uk": a.UK,
-		}
+	for _, a := range searchNatlangWord(langMetaMap[langCode], searchWord) {
+		var langMap2 = getLangDefMap(&a)
 		searchWords := searchTerms(langMap2[langCode], false)
 		found := slices.Contains(searchWords, searchWord)
 		if found {

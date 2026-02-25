@@ -47,6 +47,15 @@ type metaDict struct {
 	UK map[string][]string
 }
 
+func getLangMetaDictMap(dictionary *metaDict) map[string]map[string][]string {
+	return map[string]map[string][]string{
+		"de": (*dictionary).DE, "en": (*dictionary).EN, "es": (*dictionary).ES, "et": (*dictionary).ET,
+		"fr": (*dictionary).FR, "hu": (*dictionary).HU, "it": (*dictionary).IT, "ko": (*dictionary).KO,
+		"nl": (*dictionary).NL, "pl": (*dictionary).PL, "pt": (*dictionary).PT, "ru": (*dictionary).RU,
+		"sv": (*dictionary).SV, "tr": (*dictionary).TR, "uk": (*dictionary).UK,
+	}
+}
+
 var dictHash2MapPtrs = []*map[string][]string{
 	&dictHash2.EN, &dictHash2.DE, &dictHash2.ES, &dictHash2.ET, &dictHash2.FR, &dictHash2.HU, &dictHash2.IT,
 	&dictHash2.KO, &dictHash2.NL, &dictHash2.PL, &dictHash2.PT, &dictHash2.RU, &dictHash2.SV, &dictHash2.TR,

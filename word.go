@@ -173,10 +173,7 @@ func (w *Word) ToOutputLine(
 
 	output += pos + space
 
-	var langDefMap = map[string]string{
-		"de": w.DE, "en": w.EN, "es": w.ES, "et": w.ET, "fr": w.FR, "hu": w.HU, "it": w.IT, "ko": w.KO,
-		"nl": w.NL, "pl": w.PL, "pt": w.PT, "ru": w.RU, "sv": w.SV, "tr": w.TR, "uk": w.UK,
-	}
+	var langDefMap = getLangDefMap(w)
 
 	if langDef, ok := langDefMap[langCode]; ok {
 		output += langDef
@@ -218,6 +215,13 @@ func (w *Word) ToOutputLine(
 
 	output += newline
 	return
+}
+
+func getLangDefMap(w *Word) map[string]string {
+	return map[string]string{
+		"de": w.DE, "en": w.EN, "es": w.ES, "et": w.ET, "fr": w.FR, "hu": w.HU, "it": w.IT, "ko": w.KO,
+		"nl": w.NL, "pl": w.PL, "pt": w.PT, "ru": w.RU, "sv": w.SV, "tr": w.TR, "uk": w.UK,
+	}
 }
 
 func formatSyllables(w *Word, syllables string, withMarkdown bool) (string, error) {
