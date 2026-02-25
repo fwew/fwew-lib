@@ -676,142 +676,23 @@ func TranslateToNaviHash(searchWord string, langCode string) (results [][]Word) 
 
 func translateToNaviHashHelper(dictionary *metaDict, searchWord string, langCode string) (results []Word) {
 	results = []Word{}
-	switch langCode {
-	case "de": // German
-		for _, a := range searchNatlangWord((*dictionary).DE, searchWord) {
-			// Verify the search query is actually in the definition
-			searchWords := searchTerms(a.DE, false)
-			found := slices.Contains(searchWords, searchWord)
-			if found {
-				results = appendAndAlphabetize(results, a)
-			}
+	var langMap = map[string]map[string][]string{
+		"de": (*dictionary).DE, "en": (*dictionary).EN, "es": (*dictionary).ES, "et": (*dictionary).ET,
+		"fr": (*dictionary).FR, "hu": (*dictionary).HU, "it": (*dictionary).IT, "ko": (*dictionary).KO,
+		"nl": (*dictionary).NL, "pl": (*dictionary).PL, "pt": (*dictionary).PT, "ru": (*dictionary).RU,
+		"sv": (*dictionary).SV, "tr": (*dictionary).TR, "uk": (*dictionary).UK,
+	}
+
+	// Verify the search query is actually in the definition
+	for _, a := range searchNatlangWord(langMap[langCode], searchWord) {
+		var langMap2 = map[string]string{
+			"de": a.DE, "en": a.EN, "es": a.ES, "et": a.ET, "fr": a.FR, "hu": a.HU, "it": a.IT, "ko": a.KO,
+			"nl": a.NL, "pl": a.PL, "pt": a.PT, "ru": a.RU, "sv": a.SV, "tr": a.TR, "uk": a.UK,
 		}
-	case "en": // English
-		for _, a := range searchNatlangWord((*dictionary).EN, searchWord) {
-			// Verify the search query is actually in the definition
-			searchWords := searchTerms(a.EN, false)
-			found := slices.Contains(searchWords, searchWord)
-			if found {
-				results = appendAndAlphabetize(results, a)
-			}
-		}
-	case "es": // Spanish
-		for _, a := range searchNatlangWord((*dictionary).ES, searchWord) {
-			// Verify the search query is actually in the definition
-			searchWords := searchTerms(a.ES, false)
-			found := slices.Contains(searchWords, searchWord)
-			if found {
-				results = appendAndAlphabetize(results, a)
-			}
-		}
-	case "et": // Estonian
-		for _, a := range searchNatlangWord((*dictionary).ET, searchWord) {
-			// Verify the search query is actually in the definition
-			searchWords := searchTerms(a.ET, false)
-			found := slices.Contains(searchWords, searchWord)
-			if found {
-				results = appendAndAlphabetize(results, a)
-			}
-		}
-	case "fr": // French
-		for _, a := range searchNatlangWord((*dictionary).FR, searchWord) {
-			// Verify the search query is actually in the definition
-			searchWords := searchTerms(a.FR, false)
-			found := slices.Contains(searchWords, searchWord)
-			if found {
-				results = appendAndAlphabetize(results, a)
-			}
-		}
-	case "hu": // Hungarian
-		for _, a := range searchNatlangWord((*dictionary).HU, searchWord) {
-			// Verify the search query is actually in the definition
-			searchWords := searchTerms(a.HU, false)
-			found := slices.Contains(searchWords, searchWord)
-			if found {
-				results = appendAndAlphabetize(results, a)
-			}
-		}
-	case "ko": // Korean
-		for _, a := range searchNatlangWord((*dictionary).KO, searchWord) {
-			// Verify the search query is actually in the definition
-			searchWords := searchTerms(a.KO, false)
-			found := slices.Contains(searchWords, searchWord)
-			if found {
-				results = appendAndAlphabetize(results, a)
-			}
-		}
-	case "nl": // Dutch
-		for _, a := range searchNatlangWord((*dictionary).NL, searchWord) {
-			// Verify the search query is actually in the definition
-			searchWords := searchTerms(a.NL, false)
-			found := slices.Contains(searchWords, searchWord)
-			if found {
-				results = appendAndAlphabetize(results, a)
-			}
-		}
-	case "pl": // Polish
-		for _, a := range searchNatlangWord((*dictionary).PL, searchWord) {
-			// Verify the search query is actually in the definition
-			searchWords := searchTerms(a.PL, false)
-			found := slices.Contains(searchWords, searchWord)
-			if found {
-				results = appendAndAlphabetize(results, a)
-			}
-		}
-	case "pt": // Portuguese
-		for _, a := range searchNatlangWord((*dictionary).PT, searchWord) {
-			// Verify the search query is actually in the definition
-			searchWords := searchTerms(a.PT, false)
-			found := slices.Contains(searchWords, searchWord)
-			if found {
-				results = appendAndAlphabetize(results, a)
-			}
-		}
-	case "ru": // Russian
-		for _, a := range searchNatlangWord((*dictionary).RU, searchWord) {
-			// Verify the search query is actually in the definition
-			searchWords := searchTerms(a.RU, false)
-			found := slices.Contains(searchWords, searchWord)
-			if found {
-				results = appendAndAlphabetize(results, a)
-			}
-		}
-	case "sv": // Swedish
-		for _, a := range searchNatlangWord((*dictionary).SV, searchWord) {
-			// Verify the search query is actually in the definition
-			searchWords := searchTerms(a.SV, false)
-			found := slices.Contains(searchWords, searchWord)
-			if found {
-				results = appendAndAlphabetize(results, a)
-			}
-		}
-	case "tr": // Turkish
-		for _, a := range searchNatlangWord((*dictionary).TR, searchWord) {
-			// Verify the search query is actually in the definition
-			searchWords := searchTerms(a.TR, false)
-			found := slices.Contains(searchWords, searchWord)
-			if found {
-				results = appendAndAlphabetize(results, a)
-			}
-		}
-	case "uk": // Ukrainian
-		for _, a := range searchNatlangWord((*dictionary).UK, searchWord) {
-			// Verify the search query is actually in the definition
-			searchWords := searchTerms(a.UK, false)
-			found := slices.Contains(searchWords, searchWord)
-			if found {
-				results = appendAndAlphabetize(results, a)
-			}
-		}
-	default:
-		// If we get an odd language code, return English
-		for _, a := range searchNatlangWord((*dictionary).EN, searchWord) {
-			// Verify the search query is actually in the definition
-			searchWords := searchTerms(a.EN, false)
-			found := slices.Contains(searchWords, searchWord)
-			if found {
-				results = appendAndAlphabetize(results, a)
-			}
+		searchWords := searchTerms(langMap2[langCode], false)
+		found := slices.Contains(searchWords, searchWord)
+		if found {
+			results = appendAndAlphabetize(results, a)
 		}
 	}
 
