@@ -13,6 +13,9 @@ var letters_start = []string{"", "p", "t", "k", "b", "d", "q", "'",
 	"f", "v", "s", "z", "c", "h", "B", "D", "G"}
 var letters_end = []string{"", "p", "t", "k", "b", "d", "q", "'",
 	"m", "n", "l", "r", "g"}
+var to_umlaut_a = []string{"à", "á", "â", "å", "æ", "ã", "ā", "ă"}
+var to_lax_i = []string{"í", "î", "ï", "į", "ī", "ị", "ı"}
+var to_reef_lax_u = []string{"ú", "û", "ü", "ů", "ū"}
 
 var letters_map = map[string]string{}
 
@@ -86,6 +89,29 @@ func IsValidNaviHelper(word string, lang string) string {
 	word = strings.ReplaceAll(word, "•", "")
 	word = strings.ReplaceAll(word, "·", "")
 	word = strings.TrimSuffix(word, "+")
+
+	// Normalize diacritics
+	for _, a := range to_umlaut_a {
+		if strings.Contains(word, a) {
+			message := strings.ReplaceAll(message_non_navi_letters[lang], "{oldWord}", oldWord)
+			message = strings.ReplaceAll(message, "{nonNaviLetters}", a)
+			return "❌ " + message + " " + strings.ReplaceAll(use_this_diacritic[lang], "{letter}", "ä")
+		}
+	}
+	for _, i := range to_lax_i {
+		if strings.Contains(word, i) {
+			message := strings.ReplaceAll(message_non_navi_letters[lang], "{oldWord}", oldWord)
+			message = strings.ReplaceAll(message, "{nonNaviLetters}", i)
+			return "❌ " + message + " " + strings.ReplaceAll(use_this_diacritic[lang], "{letter}", "ì")
+		}
+	}
+	for _, u := range to_reef_lax_u {
+		if strings.Contains(word, u) {
+			message := strings.ReplaceAll(message_non_navi_letters[lang], "{oldWord}", oldWord)
+			message = strings.ReplaceAll(message, "{nonNaviLetters}", u)
+			return "❌ " + message + " " + strings.ReplaceAll(use_this_diacritic[lang], "{letter}", "ù")
+		}
+	}
 
 	// Make sure it doesn't have any invalid letters
 	// It used unicode values to ensure it has nothing invalid
@@ -357,6 +383,26 @@ func IsValidNaviHelper(word string, lang string) string {
 	letterCheck := syllable_breakdown
 	if isReef {
 		letterCheck = syllable_forest
+	}
+
+	// Check for things like 'e-wll-lok or ngrr-ro or tì-kan-nuä
+	for _, consonant := range []string{"k", "kx", "l", "m", "n", "ng", "p", "px", "r", "t", "tx", "w", "y"} {
+		boundary := consonant + "-" + consonant
+		if strings.Contains(syllable_breakdown, boundary) {
+			message := strings.ReplaceAll(message_warning[lang], "{oldWord}", oldWord)
+			message = strings.ReplaceAll(message, "{boundary}", boundary)
+			message = strings.ReplaceAll(message, "{breakdown}", syllable_breakdown)
+			return "⚠️ " + message
+		}
+
+		if len([]rune(consonant)) > 1 {
+			if strings.Contains(syllable_breakdown, boundary[:len([]rune(boundary))-1]) {
+				message := strings.ReplaceAll(message_warning[lang], "{oldWord}", oldWord)
+				message = strings.ReplaceAll(message, "{boundary}", boundary[:len(boundary)-1])
+				message = strings.ReplaceAll(message, "{breakdown}", syllable_breakdown)
+				return "⚠️ " + message
+			}
+		}
 	}
 
 	// Identical adjacent vowels mean reef Na'vi

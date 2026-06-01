@@ -35,6 +35,36 @@ var message_non_navi_letters = map[string]string{
 	"uk": "**{oldWord}** Has letters not in Na'vi: `{nonNaviLetters}`", // Ukrainian (Українська)
 }
 
+var use_this_diacritic = map[string]string{
+	"en": "(But `{letter}` is in Na'vi)", // English
+	// TODO
+	"de": "(But `{letter}` is in Na'vi)", // German (Deutsch)
+	// TODO
+	"es": "(But `{letter}` is in Na'vi)", // Spanish (Español)
+	// TODO
+	"et": "(But `{letter}` is in Na'vi)", // Estonian (Eesti)
+	// TODO
+	"fr": "(But `{letter}` is in Na'vi)", // French (Français)
+	// TODO
+	"hu": "(But `{letter}` is in Na'vi)", // Hungarian (Magyar)
+	"it": "(But `{letter}` is in Na'vi)", // Italian (Italiano)
+	"ko": "(But `{letter}` is in Na'vi)", // Korean (한국어)
+	// TODO
+	"nl": "(But `{letter}` is in Na'vi)", // Dutch (Nederlands)
+	// TODO
+	"pl": "(But `{letter}` is in Na'vi)", // Polish (Polski)
+	// TODO
+	"pt": "(But `{letter}` is in Na'vi)", // Portuguese (Português)
+	// TODO
+	"ru": "(But `{letter}` is in Na'vi)", // Russian (Русский)
+	// TODO
+	"sv": "(But `{letter}` is in Na'vi)", // Swedish (Svenska)
+	// TODO
+	"tr": "(But `{letter}` is in Na'vi)", // Turkish (Türkçe)
+	// TODO
+	"uk": "(But `{letter}` is in Na'vi)", // Ukrainian (Українська)
+}
+
 var message_no_nuclei = map[string]string{
 	"en": "**{oldWord}** Error: could not find any syllable nuclei", // English
 	// TODO
@@ -243,6 +273,23 @@ var message_reef_dialect = map[string]string{
 	"tr": " (In reef dialect.  Forest dialect {breakdown})", // Turkish (Türkçe)
 	// TODO
 	"uk": " (In reef dialect.  Forest dialect {breakdown})", // Ukrainian (Українська)
+}
+
+var message_warning = map[string]string{
+	"en": "**{oldWord}** Warning: `{breakdown}` `{boundary}` works in a productive compound, but not in a name or root word",    // English
+	"de": "**{oldWord}** 🇩🇪 Warning: `{breakdown}` `{boundary}` works in a productive compound, but not in a name or root word", // German (Deutsch)
+	"es": "**{oldWord}** 🇪🇦 Warning: `{breakdown}` `{boundary}` works in a productive compound, but not in a name or root word", // Spanish (Español)
+	"et": "**{oldWord}** 🇪🇪 Warning: `{breakdown}` `{boundary}` works in a productive compound, but not in a name or root word", // Estonian (Eesti)
+	"fr": "**{oldWord}** 🇫🇷 Warning: `{breakdown}` `{boundary}` works in a productive compound, but not in a name or root word", // French (Français)
+	"hu": "**{oldWord}** 🇭🇺 Warning: `{breakdown}` `{boundary}` works in a productive compound, but not in a name or root word", // Hungarian (Magyar)
+	"ko": "**{oldWord}** 🇰🇷 Warning: `{breakdown}` `{boundary}` works in a productive compound, but not in a name or root word", // Korean (한국어)
+	"nl": "**{oldWord}** 🇳🇱 Warning: `{breakdown}` `{boundary}` works in a productive compound, but not in a name or root word", // Dutch (Nederlands)
+	"pl": "**{oldWord}** 🇵🇱 Warning: `{breakdown}` `{boundary}` works in a productive compound, but not in a name or root word", // Polish (Polski)
+	"pt": "**{oldWord}** 🇵🇹 Warning: `{breakdown}` `{boundary}` works in a productive compound, but not in a name or root word", // Portuguese (Português)
+	"ru": "**{oldWord}** 🇷🇺 Warning: `{breakdown}` `{boundary}` works in a productive compound, but not in a name or root word", // Russian (Русский)
+	"sv": "**{oldWord}** 🇸🇪 Warning: `{breakdown}` `{boundary}` works in a productive compound, but not in a name or root word", // Swedish (Svenska)
+	"tr": "**{oldWord}** 🇹🇷 Warning: `{breakdown}` `{boundary}` works in a productive compound, but not in a name or root word", // Turkish (Türkçe)
+	"uk": "**{oldWord}** 🇺🇦 Warning: `{breakdown}` `{boundary}` works in a productive compound, but not in a name or root word", // Ukrainian (Українська)
 }
 
 var message_valid = map[string]string{
