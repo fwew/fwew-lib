@@ -602,6 +602,8 @@ func filterWord(results []Word, word Word, args []string, checkDigraphs uint8) [
 	case 2: // 2: compress syllables, but not spec (find fake digraphs)
 		syllables = compress(strings.ToLower(syllables))
 		navi = compress(strings.ToLower(navi))
+	default:
+		syllables = strings.ToLower(syllables)
 	}
 
 	syllables = strings.ReplaceAll(syllables, "-", "")
