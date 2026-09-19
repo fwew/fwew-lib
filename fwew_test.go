@@ -1415,6 +1415,11 @@ func BenchmarkTranslateFromNaviBig(b *testing.B) {
 	}(open)
 
 	scanner := bufio.NewScanner(open)
+
+	if scanner.Err() != nil {
+		return
+	}
+
 	for scanner.Scan() {
 		line := scanner.Text()
 
@@ -1535,6 +1540,11 @@ func BenchmarkTranslateToNaviBig(b *testing.B) {
 	}(open)
 
 	scanner := bufio.NewScanner(open)
+
+	if scanner.Err() != nil {
+		return
+	}
+
 	for scanner.Scan() {
 		line := scanner.Text()
 

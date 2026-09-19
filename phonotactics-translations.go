@@ -215,36 +215,6 @@ var message_psuedovowels_must_onset = map[string]string{
 	"uk": "**{oldWord}** Psuedovowels must have onsets: `{breakdown}`", // Ukrainian (Українська)
 }
 
-var message_triple_liquid = map[string]string{
-	"en": "**{oldWord}** Triple Rs or Ls aren't allowed: `{breakdown}`", // English
-	// TODO
-	"de": "**{oldWord}** Triple Rs or Ls aren't allowed: `{breakdown}`", // German (Deutsch)
-	// TODO
-	"es": "**{oldWord}** Triple Rs or Ls aren't allowed: `{breakdown}`", // Spanish (Español)
-	// TODO
-	"et": "**{oldWord}** Triple Rs or Ls aren't allowed: `{breakdown}`", // Estonian (Eesti)
-	// TODO
-	"fr": "**{oldWord}** Triple Rs or Ls aren't allowed: `{breakdown}`", // French (Français)
-	// TODO
-	"hu": "**{oldWord}** Triple Rs or Ls aren't allowed: `{breakdown}`", // Hungarian (Magyar)
-	"it": "**{oldWord}** triple R o L non sono ammesse: `{breakdown}`",  // Italian (Italiano)
-	"ko": "**{oldWord}** 연속되는 세개의 R 또는 L은 사용 불가능합니다. - `{breakdown}`",   // Korean (한국어)
-	// TODO
-	"nl": "**{oldWord}** Triple Rs or Ls aren't allowed: `{breakdown}`", // Dutch (Nederlands)
-	// TODO
-	"pl": "**{oldWord}** Triple Rs or Ls aren't allowed: `{breakdown}`", // Polish (Polski)
-	// TODO
-	"pt": "**{oldWord}** Triple Rs or Ls aren't allowed: `{breakdown}`", // Portuguese (Português)
-	// TODO
-	"ru": "**{oldWord}** Triple Rs or Ls aren't allowed: `{breakdown}`", // Russian (Русский)
-	// TODO
-	"sv": "**{oldWord}** Triple Rs or Ls aren't allowed: `{breakdown}`", // Swedish (Svenska)
-	// TODO
-	"tr": "**{oldWord}** Triple Rs or Ls aren't allowed: `{breakdown}`", // Turkish (Türkçe)
-	// TODO
-	"uk": "**{oldWord}** Triple Rs or Ls aren't allowed: `{breakdown}`", // Ukrainian (Українська)
-}
-
 var message_reef_dialect = map[string]string{
 	"en": " (In reef dialect.  Forest dialect {breakdown})", // English
 	// TODO

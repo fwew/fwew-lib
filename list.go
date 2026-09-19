@@ -89,7 +89,8 @@ func ListHelp(lang string) (count string, err error) {
 	// Put the word count into a complete sentence
 	count = strconv.Itoa(amount)
 
-	if lang == "en" { // English
+	switch lang {
+	case "en": // English
 		count = fmt.Sprintln("Commands formats for /list:\n",
 			"pos <string command 1> yourstring\n",
 			"word <string command 1 or 2> yourstring\n",
@@ -120,7 +121,7 @@ func ListHelp(lang string) (count string, err error) {
 			"```",
 			"Number commands:\n",
 			"<, <=, =, >=, >, !=")
-	} else if lang == "de" { // German (Deutsch)
+	case "de": // German (Deutsch)
 		count = fmt.Sprintln("Commands formats for /list:\n",
 			"pos <string command 1> yourstring\n",
 			"word <string command 1 or 2> yourstring\n",
@@ -151,7 +152,7 @@ func ListHelp(lang string) (count string, err error) {
 			"```",
 			"Number commands:\n",
 			"<, <=, =, >=, >, !=") //TODO
-	} else if lang == "es" { // Spanish (Español)
+	case "es": // Spanish (Español)
 		count = fmt.Sprintln("Commands formats for /list:\n",
 			"pos <string command 1> yourstring\n",
 			"word <string command 1 or 2> yourstring\n",
@@ -182,7 +183,7 @@ func ListHelp(lang string) (count string, err error) {
 			"```",
 			"Number commands:\n",
 			"<, <=, =, >=, >, !=") //TODO
-	} else if lang == "et" { // Estonian (Eesti)
+	case "et": // Estonian (Eesti)
 		count = fmt.Sprintln("Commands formats for /list:\n",
 			"pos <string command 1> yourstring\n",
 			"word <string command 1 or 2> yourstring\n",
@@ -213,7 +214,7 @@ func ListHelp(lang string) (count string, err error) {
 			"```",
 			"Number commands:\n",
 			"<, <=, =, >=, >, !=") //TODO
-	} else if lang == "fr" { // French (Français)
+	case "fr": // French (Français)
 		count = fmt.Sprintln("Commands formats for /list:\n",
 			"pos <string command 1> yourstring\n",
 			"word <string command 1 or 2> yourstring\n",
@@ -244,7 +245,7 @@ func ListHelp(lang string) (count string, err error) {
 			"```",
 			"Number commands:\n",
 			"<, <=, =, >=, >, !=") //TODO
-	} else if lang == "hu" { // Hungarian (Magyar)
+	case "hu": // Hungarian (Magyar)
 		count = fmt.Sprintln("Commands formats for /list:\n",
 			"pos <string command 1> yourstring\n",
 			"word <string command 1 or 2> yourstring\n",
@@ -275,7 +276,7 @@ func ListHelp(lang string) (count string, err error) {
 			"```",
 			"Number commands:\n",
 			"<, <=, =, >=, >, !=") //TODO
-	} else if lang == "it" {
+	case "it":
 		count = fmt.Sprintln("Commands formats for /list:\n",
 			"pos <string command 1> yourstring\n",
 			"word <string command 1 or 2> yourstring\n",
@@ -306,7 +307,7 @@ func ListHelp(lang string) (count string, err error) {
 			"```",
 			"Number commands:\n",
 			"<, <=, =, >=, >, !=") //TODO
-	} else if lang == "ko" { // Korean (한국어)
+	case "ko": // Korean (한국어)
 		count = fmt.Sprintln("Commands formats for /list:\n",
 			"pos <string command 1> yourstring\n",
 			"word <string command 1 or 2> yourstring\n",
@@ -337,7 +338,7 @@ func ListHelp(lang string) (count string, err error) {
 			"```",
 			"Number commands:\n",
 			"<, <=, =, >=, >, !=") //TODO
-	} else if lang == "nl" { // Dutch (Nederlands)
+	case "nl": // Dutch (Nederlands)
 		count = fmt.Sprintln("Commands formats for /list:\n",
 			"pos <string command 1> yourstring\n",
 			"word <string command 1 or 2> yourstring\n",
@@ -368,7 +369,7 @@ func ListHelp(lang string) (count string, err error) {
 			"```",
 			"Number commands:\n",
 			"<, <=, =, >=, >, !=") //TODO
-	} else if lang == "pl" { // Polish (Polski)
+	case "pl": // Polish (Polski)
 		count = fmt.Sprintln("Commands formats for /list:\n",
 			"pos <string command 1> yourstring\n",
 			"word <string command 1 or 2> yourstring\n",
@@ -399,7 +400,7 @@ func ListHelp(lang string) (count string, err error) {
 			"```",
 			"Number commands:\n",
 			"<, <=, =, >=, >, !=") //TODO
-	} else if lang == "pt" { // Portuguese (Português)
+	case "pt": // Portuguese (Português)
 		count = fmt.Sprintln("Commands formats for /list:\n",
 			"pos <string command 1> yourstring\n",
 			"word <string command 1 or 2> yourstring\n",
@@ -430,7 +431,7 @@ func ListHelp(lang string) (count string, err error) {
 			"```",
 			"Number commands:\n",
 			"<, <=, =, >=, >, !=") //TODO
-	} else if lang == "ru" { // Russian (Русский)
+	case "ru": // Russian (Русский)
 		count = fmt.Sprintln("Commands formats for /list:\n",
 			"pos <string command 1> yourstring\n",
 			"word <string command 1 or 2> yourstring\n",
@@ -461,7 +462,7 @@ func ListHelp(lang string) (count string, err error) {
 			"```",
 			"Number commands:\n",
 			"<, <=, =, >=, >, !=") //TODO
-	} else if lang == "sv" { // Swedish (Svenska)
+	case "sv": // Swedish (Svenska)
 		count = fmt.Sprintln("Commands formats for /list:\n",
 			"pos <string command 1> yourstring\n",
 			"word <string command 1 or 2> yourstring\n",
@@ -492,7 +493,7 @@ func ListHelp(lang string) (count string, err error) {
 			"```",
 			"Number commands:\n",
 			"<, <=, =, >=, >, !=") //TODO
-	} else if lang == "tr" { // Turkish (Türkçe)
+	case "tr": // Turkish (Türkçe)
 		count = fmt.Sprintln("Commands formats for /list:\n",
 			"pos <string command 1> yourstring\n",
 			"word <string command 1 or 2> yourstring\n",
@@ -523,7 +524,7 @@ func ListHelp(lang string) (count string, err error) {
 			"```",
 			"Number commands:\n",
 			"<, <=, =, >=, >, !=") //TODO
-	} else if lang == "uk" { // Ukrainian (Українська)
+	case "uk": // Ukrainian (Українська)
 		count = fmt.Sprintln("Commands formats for /list:\n",
 			"pos <string command 1> yourstring\n",
 			"word <string command 1 or 2> yourstring\n",
