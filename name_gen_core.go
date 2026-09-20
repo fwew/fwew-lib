@@ -179,10 +179,11 @@ func specialU(input string, ipa string) string {
 
 	i := 0
 	for _, a := range runes {
-		if a == 'u' {
+		switch a {
+		case 'u':
 			output += split[i] + "u"
 			i++
-		} else if a == 'ʊ' {
+		case 'ʊ':
 			output += split[i] + "ù"
 			i++
 		}
@@ -193,7 +194,7 @@ func specialU(input string, ipa string) string {
 }
 
 /* Helper function for name-alu */
-func insert_infix(verb []string, infix string, dialect int) (output string) {
+func insert_infix(verb []string, infix string) (output string) {
 	output = ""
 	found_infix := false
 	for j := 0; j < len(verb); j++ {
@@ -311,11 +312,12 @@ func one_word_verb(verbList []Word) (words Word) {
 
 /* Helper function: turn ejectives into voiced plosives for reef */
 func reef_plosives(letter rune) (voiced rune) {
-	if letter == 'p' {
+	switch letter {
+	case 'p':
 		return 'b'
-	} else if letter == 't' {
+	case 't':
 		return 'd'
-	} else if letter == 'k' {
+	case 'k':
 		return 'g'
 	}
 	return '' // How we know if it's an error
@@ -447,9 +449,10 @@ func single_name_gen(syllable_count int, dialect int) (name string) {
 
 		// You shawm futa sy and tsy become sh and ch XD
 		if dialect == 2 {
-			if onset == "sy" {
+			switch onset {
+			case "sy":
 				onset = "sh"
-			} else if onset == "tsy" {
+			case "tsy":
 				onset = "ch"
 			}
 		}
@@ -529,17 +532,6 @@ func nth_rune(word string, n int) string {
 	}
 
 	return ""
-}
-
-func has(word string, character rune) (output bool) {
-	r := []rune(word)
-
-	for i := 0; i < len(r); i++ {
-		if character == r[i] {
-			return true
-		}
-	}
-	return false
 }
 
 // Does ipa contain any character from word as its nth letter?
@@ -639,8 +631,8 @@ func PhonemeDistros() {
 		// Piggybacking off of the frequency script to get all words with spaces
 		all_words := strings.Split(strings.ToLower(words[i].Navi), " ")
 		if len(all_words) > 1 {
-			new_words := dialectCrunch(all_words, true, true, false)
-			new_words_reef := dialectCrunch(all_words, true, true, true)
+			new_words := dialectCrunch(all_words, true, false)
+			new_words_reef := dialectCrunch(all_words, true, true)
 			if _, ok := multiword_words_loose[new_words[0]]; ok {
 				// Ensure no duplicates
 				appended := false
@@ -869,19 +861,20 @@ func PhonemeDistros() {
 					coda_map[""] = coda_map[""] + 1 //oìsss only
 					coda = ""
 				} else {
-					if syllable == "k̚" {
+					switch syllable {
+					case "k̚":
 						coda_map["k"] = coda_map["k"] + 1
 						coda = "k"
-					} else if syllable == "p̚" {
+					case "p̚":
 						coda_map["p"] = coda_map["p"] + 1
 						coda = "p"
-					} else if syllable == "t̚" {
+					case "t̚":
 						coda_map["t"] = coda_map["t"] + 1
 						coda = "t"
-					} else if syllable == "ʔ̚" {
+					case "ʔ̚":
 						coda_map["'"] = coda_map["'"] + 1
 						coda = "'"
-					} else {
+					default:
 						if syllable[0] == 'k' && len(syllable) > 1 {
 							coda_map["kx"] = coda_map["kx"] + 1
 							coda = "kx"

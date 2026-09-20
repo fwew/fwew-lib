@@ -68,6 +68,7 @@ func intersection(a, b string) (c string) {
 	return
 }
 
+// Currently unused
 func (w *Word) similarity(other string) float64 {
 	if w.Navi == other {
 		return 1.0
@@ -348,7 +349,7 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 
 		results = [][]Word{{simpleWord(allWords[i])}}
 
-		allWords = dialectCrunch(allWords, false, strict, allowReef)
+		allWords = dialectCrunch(allWords, false, allowReef)
 
 		searchNaviWord = allWords[i]
 
@@ -703,8 +704,8 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 								allWord := allWords[i+j+1]
 
 								if !strict || allowReef {
-									pairWord = dialectCrunch([]string{pairWord}, false, strict, allowReef)[0]
-									allWord = dialectCrunch([]string{allWord}, false, strict, allowReef)[0]
+									pairWord = dialectCrunch([]string{pairWord}, false, allowReef)[0]
+									allWord = dialectCrunch([]string{allWord}, false, allowReef)[0]
 								}
 
 								// First by itself
@@ -772,7 +773,7 @@ func TranslateFromNaviHashHelper(dict *map[string][]Word, start int, allWords []
 							results[0] = []Word{results[0][0]}
 							a := strings.ReplaceAll(fullWord, "ù", "u")
 							if !strict {
-								a = dialectCrunch([]string{a}, false, strict, allowReef)[0]
+								a = dialectCrunch([]string{a}, false, allowReef)[0]
 							}
 
 							for _, definition := range (*dict)[a] {
@@ -1223,36 +1224,36 @@ func is_vowel_ipa(letter string) (found bool) {
 	return false
 }
 
-func dialectCrunch(query []string, guaranteedForest bool, strict bool, allowReef bool) []string {
+func dialectCrunch(query []string, guaranteedForest bool, allowReef bool) []string {
 	newQuery := []string{}
 	for _, a := range query {
 		oldQuery := a
 
-		// When caching, we are guaranteed forest words and don't need anything in this block
-		if !guaranteedForest && allowReef {
-			for i, b := range nkx {
-				// make sure words like tìkankxan show up
-				a = strings.ReplaceAll(a, strconv.Itoa(i), "")
-				a = strings.ReplaceAll(a, b, strconv.Itoa(i))
-			}
-			// don't accidentally make every ng into nkx
-			a = strings.ReplaceAll(a, "?", "")
-			a = strings.ReplaceAll(a, "ng", "?")
-			// unsoften ejectives
-			a = strings.ReplaceAll(a, "b", "px")
-			a = strings.ReplaceAll(a, "d", "tx")
-			a = strings.ReplaceAll(a, "g", "kx")
-			// these too
-			a = strings.ReplaceAll(a, "ch", "tsy")
-			a = strings.ReplaceAll(a, "sh", "sy")
-			a = strings.ReplaceAll(a, "?", "ng")
-			for i, b := range nkx {
-				// make sure words like tìkankxan show up
-				a = strings.ReplaceAll(a, strconv.Itoa(i), nkxSub[b])
-			}
-		}
-
 		if allowReef {
+			// When caching, we are guaranteed forest words and don't need anything in this block
+			if !guaranteedForest {
+				for i, b := range nkx {
+					// make sure words like tìkankxan show up
+					a = strings.ReplaceAll(a, strconv.Itoa(i), "")
+					a = strings.ReplaceAll(a, b, strconv.Itoa(i))
+				}
+				// don't accidentally make every ng into nkx
+				a = strings.ReplaceAll(a, "?", "")
+				a = strings.ReplaceAll(a, "ng", "?")
+				// unsoften ejectives
+				a = strings.ReplaceAll(a, "b", "px")
+				a = strings.ReplaceAll(a, "d", "tx")
+				a = strings.ReplaceAll(a, "g", "kx")
+				// these too
+				a = strings.ReplaceAll(a, "ch", "tsy")
+				a = strings.ReplaceAll(a, "sh", "sy")
+				a = strings.ReplaceAll(a, "?", "ng")
+				for i, b := range nkx {
+					// make sure words like tìkankxan show up
+					a = strings.ReplaceAll(a, strconv.Itoa(i), nkxSub[b])
+				}
+			}
+
 			nucleusCount := 0
 			// remove reef tìftangs
 			for i, b := range []string{"a", "ä", "e", "i", "ì", "o", "u", "ù", "ll", "rr"} {
@@ -1503,15 +1504,16 @@ func ReefMe(ipa string, inter bool) []string {
 				if nth_rune(syllable, 0) == "s" {
 					breakdown += "sss" //oìsss only
 				} else {
-					if syllable == "k̚" {
+					switch syllable {
+					case "k̚":
 						breakdown += "k"
-					} else if syllable == "p̚" {
+					case "p̚":
 						breakdown += "p"
-					} else if syllable == "t̚" {
+					case "t̚":
 						breakdown += "t"
-					} else if syllable == "ʔ̚" {
+					case "ʔ̚":
 						breakdown += "'"
-					} else {
+					default:
 						if syllable[0] == 'k' && len(syllable) > 1 {
 							breakdown += "kx"
 						} else {

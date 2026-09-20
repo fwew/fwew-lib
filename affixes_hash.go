@@ -59,24 +59,6 @@ var unlenition = map[string][]string{
 	"ù":  {"ù", "'ù"},
 }
 
-var lenitionable = []string{
-	"ts",
-	"px", "tx", "kx",
-	"p", "t", "k",
-	"f", "s", "h",
-	"'",
-}
-var lenition = map[string]string{
-	"px": "p",
-	"tx": "t",
-	"kx": "k",
-	"p":  "f",
-	"t":  "s",
-	"k":  "h",
-	"ts": "s",
-	"'":  "",
-}
-
 var prefixes1Nouns = []string{"fì", "tsa", "fi"}
 var prefixes1NounsLenition = []string{"pay", "fay"}
 var prefixes1lenition = []string{"pxe", "ay", "me"}
@@ -126,12 +108,12 @@ var adposuffixes = []string{
 }
 
 var vowelSuffixes = map[string][]string{
-	"äo":  []string{"ä", "e"},
-	"eo":  []string{"e"},
-	"io":  []string{"i"},
-	"uo":  []string{"u"},
-	"ìlä": []string{"ì"},
-	"o":   []string{"o"},
+	"äo":  {"ä", "e"},
+	"eo":  {"e"},
+	"io":  {"i"},
+	"uo":  {"u"},
+	"ìlä": {"ì"},
+	"o":   {"o"},
 }
 var stemSuffixes = []string{"tsyìp", "tsyip", "fkeyk"}
 var verbSuffixes = []string{"tswo", "yu", "tseng"}
@@ -145,11 +127,6 @@ var infixes = map[rune][]string{
 	rune('o'): {"ol"},
 	rune('u'): {"us", "uy"},
 }
-
-var prefirst = []string{"äp", "äpeyk", "eyk", "epeyk", "ep"}
-var first = []string{"ay", "asy", "aly", "ary", "ìy", "iy", "ìsy", "ìly", "ìry", "ol", "er", "ìm", "im",
-	"ìlm", "ìrm", "am", "alm", "arm", "ìyev", "iyev", "iv", "ilv", "irv", "imv", "us", "awn", "isy", "ily", "iry", "ilm", "irm"}
-var second = []string{"ei", "eiy", "äng", "eng", "ang", "uy", "ats"}
 
 var prefirstMap = map[string]bool{"äp": true, "äpeyk": true, "eyk": true, "ep": true, "epeyk": true}
 var firstMap = map[string]bool{"ay": true, "asy": true, "aly": true, "ary": true, "ìy": true, "iy": true, "ìsy": true,
@@ -1270,13 +1247,14 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 							newCandidate.InsistPOS = "v."
 							deconjugateHelper(newCandidate, newPrefixCheck, suffixCheck, unlenite, newInfixes, "", "", strict, allowReef)
 
-							if newInfix == "ol" {
+							switch newInfix {
+							case "ol":
 								newCandidate := candidateDupe(input)
 								newCandidate.Word = string(runes[:i]) + "ll" + strings.TrimPrefix(shortString, newInfix)
 								newCandidate.Infixes, _ = isDuplicateFix(newCandidate.Infixes, newInfix, strict, allowReef)
 								newCandidate.InsistPOS = "v."
 								deconjugateHelper(newCandidate, newPrefixCheck, suffixCheck, unlenite, newInfixes, "", "", strict, allowReef)
-							} else if newInfix == "er" {
+							case "er":
 								newCandidate := candidateDupe(input)
 								newCandidate.Word = string(runes[:i]) + "rr" + strings.TrimPrefix(shortString, newInfix)
 								newCandidate.Infixes, _ = isDuplicateFix(newCandidate.Infixes, newInfix, strict, allowReef)
@@ -1314,7 +1292,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 }
 
 // Helper for TestDeconjugations
-func allIConfigs(input string, discrimRune rune, replaceRune rune, strict bool, allowReef bool) []string {
+func allIConfigs(input string, discrimRune rune, replaceRune rune, allowReef bool) []string {
 	discrim := string(discrimRune)
 	replace := string(replaceRune)
 	cCount := strings.Count(input, discrim)
@@ -1355,7 +1333,7 @@ func allIConfigs(input string, discrimRune rune, replaceRune rune, strict bool, 
 			buffer.WriteString(splitString[i+1])
 		}
 
-		newAConfig := dialectCrunch([]string{buffer.String()}, false, strict, allowReef)[0]
+		newAConfig := dialectCrunch([]string{buffer.String()}, false, allowReef)[0]
 
 		buffer.Reset()
 
@@ -1391,11 +1369,11 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 
 	//For using a to search ä
 	if !strict {
-		allAConfigs = append(allAConfigs, allIConfigs(searchNaviWord, 'a', 'ä', strict, allowReef)...)
+		allAConfigs = append(allAConfigs, allIConfigs(searchNaviWord, 'a', 'ä', allowReef)...)
 
 		for _, config := range allAConfigs {
 			allIAConfigs = append(allIAConfigs, config)
-			allIAConfigs = append(allIAConfigs, allIConfigs(config, 'i', 'ì', strict, allowReef)...)
+			allIAConfigs = append(allIAConfigs, allIConfigs(config, 'i', 'ì', allowReef)...)
 		}
 
 		for _, a := range allIAConfigs {
@@ -1475,7 +1453,7 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 
 		standardizedWordArray := strings.Split(a, " ")
 		if !strict {
-			standardizedWordArray = dialectCrunch(standardizedWordArray, false, strict, allowReef)
+			standardizedWordArray = dialectCrunch(standardizedWordArray, false, allowReef)
 		}
 
 		a = ""
@@ -1487,7 +1465,7 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 		}
 
 		if allowReef {
-			a = dialectCrunch([]string{a}, false, true, true)[0]
+			a = dialectCrunch([]string{a}, false, true)[0]
 		}
 
 		for _, c := range (*dict)[a] {
@@ -1607,7 +1585,7 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 
 						// Does the noun actually contain the verb?
 						noTìftang := strings.TrimPrefix(rebuiltVerb, "'")
-						if strings.Contains(searchNaviWord, noTìftang) || strings.Contains(searchNaviWord, dialectCrunch([]string{rebuiltVerb}, false, strict, allowReef)[0]) {
+						if strings.Contains(searchNaviWord, noTìftang) || strings.Contains(searchNaviWord, dialectCrunch([]string{rebuiltVerb}, false, allowReef)[0]) {
 							a := c
 							a.Affixes.Lenition = candidate.Lenition
 							a.Affixes.Prefix = candidate.Prefixes
@@ -1768,9 +1746,10 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 							if _, ok := firstMap[newInfix]; ok {
 								rebuiltVerb = strings.ReplaceAll(rebuiltVerb, "<1>", newInfix)
 								firstInfixes = newInfix
-								if newInfix == "ol" {
+								switch newInfix {
+								case "ol":
 									ol = true
-								} else if newInfix == "er" {
+								case "er":
 									er = true
 								}
 								break
@@ -1802,7 +1781,7 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 						rebuiltVerbForest := rebuiltVerb
 						rebuiltVerbArray := strings.Split(rebuiltVerb, " ")
 						if !strict || allowReef {
-							rebuiltVerbArray = dialectCrunch(rebuiltVerbArray, false, strict, allowReef)
+							rebuiltVerbArray = dialectCrunch(rebuiltVerbArray, false, allowReef)
 						}
 
 						rebuiltVerb = ""

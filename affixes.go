@@ -872,6 +872,7 @@ func remove(s []string, r string) []string {
 // Reconstruct is the main function of affixes.go, responsible for the affixing algorithm
 // This will try to reconstruct a Word, so it matches with the target.
 // Returns true if word got reconstructed into target!
+// Currently unused
 func (w *Word) reconstruct(target string) bool {
 	attempt := w.Navi
 

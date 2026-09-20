@@ -415,15 +415,16 @@ func RomanizeSecondIPA(IPA string) string {
 				if nth_rune(syllable, 0) == "s" {
 					breakdown += "sss" //oìsss only
 				} else {
-					if syllable == "k̚" {
+					switch syllable {
+					case "k̚":
 						breakdown += "k"
-					} else if syllable == "p̚" {
+					case "p̚":
 						breakdown += "p"
-					} else if syllable == "t̚" {
+					case "t̚":
 						breakdown += "t"
-					} else if syllable == "ʔ̚" {
+					case "ʔ̚":
 						breakdown += "'"
-					} else {
+					default:
 						if syllable[0] == 'k' && len(syllable) > 1 {
 							breakdown += "kx"
 						} else {
@@ -524,7 +525,7 @@ func CacheDictHashOrig(mysql bool) error {
 			nkxSub[fakeNG] = standardizedWord
 		}
 
-		standardizedWordArray := dialectCrunch(strings.Split(standardizedWord, " "), true, false, true)
+		standardizedWordArray := dialectCrunch(strings.Split(standardizedWord, " "), true, true)
 		standardizedWordLoose := ""
 		for i, a := range standardizedWordArray {
 			if i != 0 {
@@ -533,7 +534,7 @@ func CacheDictHashOrig(mysql bool) error {
 			standardizedWordLoose += a
 		}
 
-		strictReefArray := dialectCrunch(strings.Split(standardizedWord, " "), true, true, true)
+		strictReefArray := dialectCrunch(strings.Split(standardizedWord, " "), true, true)
 		strictReef := ""
 		for i, a := range strictReefArray {
 			if i != 0 {
@@ -581,8 +582,8 @@ func CacheDictHashOrig(mysql bool) error {
 			multiIPA += word.Navi + " "
 			secondTerm := RomanizeSecondIPA(word.IPA)
 			if secondTerm != standardizedWord {
-				dictHashLoose[dialectCrunch([]string{secondTerm}, true, false, true)[0]] = append(dictHashLoose[dialectCrunch([]string{secondTerm}, true, false, true)[0]], word)
-				dictHashStrictReef[dialectCrunch([]string{secondTerm}, true, true, true)[0]] = append(dictHashStrictReef[dialectCrunch([]string{secondTerm}, true, true, true)[0]], word)
+				dictHashLoose[dialectCrunch([]string{secondTerm}, true, true)[0]] = append(dictHashLoose[dialectCrunch([]string{secondTerm}, true, true)[0]], word)
+				dictHashStrictReef[dialectCrunch([]string{secondTerm}, true, true)[0]] = append(dictHashStrictReef[dialectCrunch([]string{secondTerm}, true, true)[0]], word)
 				dictHashStrict[secondTerm] = append(dictHashStrict[secondTerm], word)
 			}
 		}
@@ -966,6 +967,10 @@ func runOnDB(f func(word Word) error) error {
 		return err1
 	}
 
+	if rows.Err() != nil {
+		return rows.Err()
+	}
+
 	var w Word
 	var de, en, es, et, fr, hu, it, ko, nl, pl, pt, ru, sv, tr, uk []byte
 
@@ -1017,6 +1022,10 @@ func runOnFile(f func(word Word) error) error {
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
+
+	if scanner.Err() != nil {
+		return scanner.Err()
+	}
 
 	var first = true
 	var pos dictPos
@@ -1090,35 +1099,36 @@ func GetDictSize(lang string) (count string, err error) {
 	// Put the word count into a complete sentence
 	count = strconv.Itoa(amount)
 
-	if lang == "en" { // English
+	switch lang {
+	case "en": // English
 		count = "There are " + count + " entries in the dictionary."
-	} else if lang == "de" { // German (Deutsch)
+	case "de": // German (Deutsch)
 		count = "Es sind " + count + " Einträge im Wörterbuch."
-	} else if lang == "es" { // Spanish (Español)
+	case "es": // Spanish (Español)
 		count = "There are " + count + " entries in the dictionary." // TODO
-	} else if lang == "et" { // Estonian (Eesti)
+	case "et": // Estonian (Eesti)
 		count = "There are " + count + " entries in the dictionary." // TODO
-	} else if lang == "fr" { // French (Français)
+	case "fr": // French (Français)
 		count = "Il y a " + count + " définitions dans le dictionnaire."
-	} else if lang == "hu" { // Hungarian (Magyar)
+	case "hu": // Hungarian (Magyar)
 		count = "There are " + count + " entries in the dictionary." // TODO
-	} else if lang == "it" {
+	case "it":
 		count = "Ci sono " + count + " voci nel dizionario."
-	} else if lang == "ko" { // Korean (한국어)
+	case "ko": // Korean (한국어)
 		count = "Fwew에는 " + count + "개의 단어가 등록되어 있습니다."
-	} else if lang == "nl" { // Dutch (Nederlands)
+	case "nl": // Dutch (Nederlands)
 		count = "There are " + count + " entries in the dictionary." // TODO
-	} else if lang == "pl" { // Polish (Polski)
+	case "pl": // Polish (Polski)
 		count = "There are " + count + " entries in the dictionary." // TODO
-	} else if lang == "pt" { // Portuguese (Português)
+	case "pt": // Portuguese (Português)
 		count = "There are " + count + " entries in the dictionary." // TODO
-	} else if lang == "ru" { // Russian (Русский)
+	case "ru": // Russian (Русский)
 		count = "There are " + count + " entries in the dictionary." // TODO
-	} else if lang == "sv" { // Swedish (Svenska)
+	case "sv": // Swedish (Svenska)
 		count = "There are " + count + " entries in the dictionary." // TODO
-	} else if lang == "tr" { // Turkish (Türkçe)
+	case "tr": // Turkish (Türkçe)
 		count = "There are " + count + " entries in the dictionary." // TODO
-	} else if lang == "uk" { // Ukrainian (Українська)
+	case "uk": // Ukrainian (Українська)
 		count = "There are " + count + " entries in the dictionary." // TODO
 	}
 
