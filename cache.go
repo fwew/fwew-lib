@@ -127,10 +127,7 @@ func AlphabetizeHelper(a string, b string) bool {
 
 	// Start in the middle
 	bCompacted := []rune(strings.ReplaceAll(compress(strings.ToLower(b)), "-", ""))
-	lowestLen := len(aCompacted)
-	if lowestLen > len(bCompacted) {
-		lowestLen = len(bCompacted)
-	}
+	lowestLen := min(len(aCompacted), len(bCompacted))
 	// compare an individual word
 	for j := 0; j < lowestLen; j++ {
 		// If the new letter is bigger, wait until it gets
@@ -315,11 +312,11 @@ func RomanizeSecondIPA(IPA string) string {
 			continue
 		}
 
-		syllables := strings.Split(word[j], ".")
+		syllables := strings.SplitSeq(word[j], ".")
 
 		/* Onset */
-		for k := 0; k < len(syllables); k++ {
-			syllable := strings.ReplaceAll(syllables[k], "·", "")
+		for rawSyllable := range syllables {
+			syllable := strings.ReplaceAll(rawSyllable, "·", "")
 			syllable = strings.ReplaceAll(syllable, "ˈ", "")
 			syllable = strings.ReplaceAll(syllable, "ˌ", "")
 
@@ -526,32 +523,26 @@ func CacheDictHashOrig(mysql bool) error {
 		}
 
 		standardizedWordArray := dialectCrunch(strings.Split(standardizedWord, " "), true, true)
-		standardizedWordLoose := ""
+		var standardizedWordLoose strings.Builder
 		for i, a := range standardizedWordArray {
 			if i != 0 {
-				standardizedWordLoose += " "
+				standardizedWordLoose.WriteString(" ")
 			}
-			standardizedWordLoose += a
+			standardizedWordLoose.WriteString(a)
 		}
 
 		strictReefArray := dialectCrunch(strings.Split(standardizedWord, " "), true, true)
-		strictReef := ""
+		var strictReef strings.Builder
 		for i, a := range strictReefArray {
 			if i != 0 {
-				strictReef += " "
+				strictReef.WriteString(" ")
 			}
-			strictReef += a
+			strictReef.WriteString(a)
 		}
 
 		// If the word appears more than once, record it
 		if _, ok := dictHashStrict[standardizedWord]; ok {
-			found := false
-			for _, a := range tempHoms {
-				if a == standardizedWord {
-					found = true
-					break
-				}
-			}
+			found := slices.Contains(tempHoms, standardizedWord)
 			if !found {
 				tempHoms = append(tempHoms, standardizedWord)
 			}
@@ -559,13 +550,7 @@ func CacheDictHashOrig(mysql bool) error {
 
 		if strings.Contains(standardizedWord, "é") {
 			noAcute := strings.ReplaceAll(standardizedWord, "é", "e")
-			found := false
-			for _, a := range tempHoms {
-				if a == noAcute {
-					found = true
-					break
-				}
-			}
+			found := slices.Contains(tempHoms, noAcute)
 			if !found {
 				tempHoms = append(tempHoms, noAcute)
 				tempHoms = append(tempHoms, standardizedWord)
@@ -573,8 +558,8 @@ func CacheDictHashOrig(mysql bool) error {
 		}
 
 		word = EnglishIfNull(word)
-		dictHashLoose[standardizedWordLoose] = append(dictHashLoose[standardizedWordLoose], word)
-		dictHashStrictReef[strictReef] = append(dictHashStrictReef[strictReef], word)
+		dictHashLoose[standardizedWordLoose.String()] = append(dictHashLoose[standardizedWordLoose.String()], word)
+		dictHashStrictReef[strictReef.String()] = append(dictHashStrictReef[strictReef.String()], word)
 		dictHashStrict[standardizedWord] = append(dictHashStrict[standardizedWord], word)
 
 		//find words with multiple IPAs
@@ -590,7 +575,7 @@ func CacheDictHashOrig(mysql bool) error {
 
 		// See whether or not it violates normal phonotactic rules like Jakesully or Oìsss
 		valid := true
-		for _, a := range strings.Split(IsValidNavi(word.Navi, "en", false), "\n") {
+		for a := range strings.SplitSeq(IsValidNavi(word.Navi, "en", false), "\n") {
 			// Check every word.  If one of them isn't good, write down the word
 			if len(a) > 0 && (!strings.Contains(a, "Valid:") || strings.Contains(a, "reef")) {
 				valid = false
@@ -679,16 +664,16 @@ func SearchTerms(input string, excludeParen bool) []string {
 func AssignWord(wordmap map[string][]string, natlangWords string, naviWord string, excludeParen bool) (result map[string][]string) {
 	newWords := SearchTerms(natlangWords, excludeParen)
 
-	for i := 0; i < len(newWords); i++ {
+	for _, newWord := range newWords {
 		duplicate := false
-		for j := 0; j < len(wordmap[newWords[i]]); j++ {
-			if wordmap[newWords[i]][j] == naviWord {
+		for j := 0; j < len(wordmap[newWord]); j++ {
+			if wordmap[newWord][j] == naviWord {
 				duplicate = true
 				break
 			}
 		}
 		if !duplicate {
-			wordmap[newWords[i]] = append(wordmap[newWords[i]], naviWord)
+			wordmap[newWord] = append(wordmap[newWord], naviWord)
 		}
 	}
 	return wordmap

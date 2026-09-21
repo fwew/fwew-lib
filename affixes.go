@@ -505,30 +505,30 @@ func (w *Word) suffix(target string, previousAttempt string) string {
 
 	// soaiä support
 	if w.Navi == "soaia" && strings.HasSuffix(target, "soaiä") {
-		previousAttempt = strings.Replace(previousAttempt, "soaia", "soai", -1)
+		previousAttempt = strings.ReplaceAll(previousAttempt, "soaia", "soai")
 		reString = previousAttempt + reString
 		// meuiä support
 	} else if w.Navi == "meuia" && strings.HasSuffix(target, "meuiä") {
-		previousAttempt = strings.Replace(previousAttempt, "meuia", "meui", -1)
+		previousAttempt = strings.ReplaceAll(previousAttempt, "meuia", "meui")
 		reString = previousAttempt + reString
 		// kemuiä support
 	} else if w.Navi == "kemuia" && (strings.HasSuffix(target, "kemuiä") || strings.HasSuffix(target, "hemuiä")) {
-		previousAttempt = strings.Replace(previousAttempt, "emuia", "emui", -1)
+		previousAttempt = strings.ReplaceAll(previousAttempt, "emuia", "emui")
 		reString = previousAttempt + reString
 		// aungiä support
 	} else if w.Navi == "aungia" && strings.HasSuffix(target, "ungiä") {
-		previousAttempt = strings.Replace(previousAttempt, "ungia", "ungi", -1)
+		previousAttempt = strings.ReplaceAll(previousAttempt, "ungia", "ungi")
 		reString = previousAttempt + reString
 		// tìftiä support
 	} else if w.Navi == "tìftia" && (strings.HasSuffix(target, "tìftiä") || strings.HasSuffix(target, "sìftiä")) {
-		previousAttempt = strings.Replace(previousAttempt, "ìftia", "ìfti", -1)
+		previousAttempt = strings.ReplaceAll(previousAttempt, "ìftia", "ìfti")
 		reString = previousAttempt + reString
 		// o -> e vowel shift support
 	} else if strings.HasSuffix(previousAttempt, "o") {
-		reString = strings.Replace(previousAttempt, "o", "[oe]", -1) + reString
+		reString = strings.ReplaceAll(previousAttempt, "o", "[oe]") + reString
 		// a -> e vowel shift support
 	} else if strings.HasSuffix(previousAttempt, "a") {
-		reString = strings.Replace(previousAttempt, "a", "[ae]", -1) + reString
+		reString = strings.ReplaceAll(previousAttempt, "a", "[ae]") + reString
 	} else if w.Navi == "tsaw" {
 		tsaSuf := []string{
 			"mungwrr", "kxamlä", "tafkip", "pxisre", "pximaw", "ftumfa", "mìkam", "nemfa", "takip", "lisre", "talun", "ftuopa",
@@ -551,7 +551,7 @@ func (w *Word) suffix(target string, previousAttempt string) string {
 
 	re = regexp.MustCompile(reString)
 	if strings.HasSuffix(target, "siyu") {
-		tmp = re.FindAllStringSubmatch(strings.Replace(target, "siyu", " siyu", -1), -1)
+		tmp = re.FindAllStringSubmatch(strings.ReplaceAll(target, "siyu", " siyu"), -1)
 	} else {
 		tmp = re.FindAllStringSubmatch(target, -1)
 	}
@@ -576,16 +576,16 @@ func (w *Word) suffix(target string, previousAttempt string) string {
 
 	// o -> e vowel shift support for pronouns with -yä
 	if w.PartOfSpeech == pn && ContainsStr(matchSuffixes, "yä") {
-		if strings.HasSuffix(previousAttempt, "o") {
-			previousAttempt = strings.TrimSuffix(previousAttempt, "o") + "e"
+		if before, ok := strings.CutSuffix(previousAttempt, "o"); ok {
+			previousAttempt = before + "e"
 			// a -> e vowel shift support
-		} else if strings.HasSuffix(previousAttempt, "a") {
-			previousAttempt = strings.TrimSuffix(previousAttempt, "a") + "e"
+		} else if before0, ok0 := strings.CutSuffix(previousAttempt, "a"); ok0 {
+			previousAttempt = before0 + "e"
 		}
 	}
 	previousAttempt = previousAttempt + attempt
 	if strings.Contains(previousAttempt, " ") && strings.HasSuffix(previousAttempt, "siyu") {
-		previousAttempt = strings.Replace(previousAttempt, " siyu", "siyu", -1)
+		previousAttempt = strings.ReplaceAll(previousAttempt, " siyu", "siyu")
 	}
 
 	w.Affixes.Suffix = append(w.Affixes.Suffix, matchSuffixes...)
@@ -960,10 +960,10 @@ func (w *Word) reconstruct(target string) bool {
 	checkWord = []string{w.Navi}
 	if (Contains(checkWord, iaWords) && strings.HasSuffix(target, "iayä")) && (!strings.HasSuffix(target, "usiayä")) {
 		oldTarget = target
-		target = strings.Replace(target, "iayä", "iä", -1)
+		target = strings.ReplaceAll(target, "iayä", "iä")
 	} else if (Contains(checkWord, iaWords) && strings.HasSuffix(target, "iaä")) && (!strings.HasSuffix(target, "usiaä")) {
 		oldTarget = target
-		target = strings.Replace(target, "iaä", "iä", -1)
+		target = strings.ReplaceAll(target, "iaä", "iä")
 	}
 
 	attempt = w.prefix(target, attempt)

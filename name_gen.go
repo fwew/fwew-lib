@@ -46,7 +46,7 @@ func SingleNames(name_count int, dialect int, syllable_count int) (output string
 	output = ""
 
 	// Fill the chart with names
-	for i := 0; i < name_count; i++ {
+	for range name_count {
 		output += glottal_caps(string(single_name_gen(rand_if_zero(syllable_count), dialect))) + "\n"
 	}
 
@@ -61,7 +61,7 @@ func FullNames(ending string, name_count int, dialect int, syllable_count [3]int
 		return "Max name count is 50, max syllable count is 4"
 	}
 
-	for i := 0; i < 3; i++ {
+	for i := range 3 {
 		if syllable_count[i] > 4 || syllable_count[i] < 0 {
 			return "Max name count is 50, max syllable count is 4"
 		}
@@ -83,7 +83,7 @@ func FullNames(ending string, name_count int, dialect int, syllable_count [3]int
 	}
 
 	// Fill the chart with names
-	for i := 0; i < name_count; i++ {
+	for i := range name_count {
 		// Fill it with three names
 		output += glottal_caps(string(single_name_gen(rand_if_zero(syllable_count[0]), dialect)))
 		output += " te "
@@ -132,7 +132,7 @@ func FullNames(ending string, name_count int, dialect int, syllable_count [3]int
 	return output
 }
 
-func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj_mode int) (output string) {
+func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj_mode int) string {
 	// Make sure the numbers are good
 	if name_count > 50 || name_count <= 0 || syllable_count > 4 || syllable_count < 0 {
 		return "Max name count is 50, max syllable count is 4"
@@ -141,14 +141,14 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 	// A single function that allows all these to be acquired with only one dictionary search
 	allNouns, allAdjectives, allVerbs, allTransitiveVerbs := SortedWords()
 
-	output = ""
+	var output strings.Builder
 
 	// This isn't at the top because SortedWords calls List, which uses the same lock
 	universalLock.Lock()
 	defer universalLock.Unlock()
 
-	for i := 0; i < name_count; i++ {
-		output += glottal_caps(string(single_name_gen(rand_if_zero(syllable_count), dialect)))
+	for range name_count {
+		output.WriteString(glottal_caps(string(single_name_gen(rand_if_zero(syllable_count), dialect))))
 
 		/* Noun */
 		nmode := 0
@@ -182,12 +182,13 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 			return "Error: unknown noun type"
 		}
 
-		output += " alu"
+		output.WriteString(" alu")
 
 		if len(strings.Split(noun, " ")) > 1 {
 			two_word_noun = true
 		} else {
-			output += " " + glottal_caps(noun)
+			output.WriteString(" ")
+			output.WriteString(glottal_caps(noun))
 		}
 
 		if adj_mode != 1 {
@@ -355,23 +356,27 @@ func NameAlu(name_count int, dialect int, syllable_count int, noun_mode int, adj
 			}
 
 			if len(adj) > 1 {
-				output += " " + adj
+				output.WriteString(" ")
+				output.WriteString(adj)
 			}
 		}
 
 		if two_word_noun {
-			output += " "
+			output.WriteString(" ")
 			noun_words := strings.Split(noun, " ")
-			for _, a := range noun_words {
-				output += glottal_caps(a) + " "
+			final := len(noun_words) - 1
+			for i, a := range noun_words {
+				output.WriteString(glottal_caps(a))
+				if i < final {
+					output.WriteString(" ")
+				}
 			}
-			output = output[:len(output)-1]
 		}
 
-		output += "\n"
+		output.WriteString("\n")
 	}
 
-	return output
+	return output.String()
 }
 
 func GetPhonemeDistrosMap(lang string) (allDistros [][][]string) {
@@ -456,13 +461,7 @@ func GetPhonemeDistrosMap(lang string) (allDistros [][][]string) {
 	})
 
 	// Probably not needed but just in case any other number exceeds it
-	max_len := len(onset_tuples)
-	if len(nucleus_tuples) > max_len {
-		max_len = len(nucleus_tuples)
-	}
-	if len(coda_tuples) > max_len {
-		max_len = len(coda_tuples)
-	}
+	max_len := max(len(coda_tuples), max(len(nucleus_tuples), len(onset_tuples)))
 
 	// Put them into a 2d string array
 	i := 0

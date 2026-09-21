@@ -325,10 +325,8 @@ func isDuplicateFix(fixes []string, fix string, strict bool, allowReef bool) (ne
 			return fixes, false
 		}
 	}
-	for _, a := range fixes {
-		if fix == a {
-			return fixes, false
-		}
+	if slices.Contains(fixes, fix) {
+		return fixes, false
 	}
 	fixes = append(fixes, fix)
 	return fixes, true
@@ -362,10 +360,8 @@ func infixError(query string, didYouMean string, ipa string) Word {
 func implContainsAny(sl []string, names []string) bool {
 	// iterate over the array and compare given string to each element
 	for _, value := range sl {
-		for _, name := range names {
-			if value == name {
-				return true
-			}
+		if slices.Contains(names, value) {
+			return true
 		}
 	}
 	return false
@@ -595,18 +591,15 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 			found := false
 			trimmedWord := strings.TrimSuffix(input.Word, "-susi")
 			aPosition := 0
-			if strings.HasSuffix(input.Word, "-susia") {
-				trimmedWord = strings.TrimSuffix(input.Word, "-susia")
+			if before, ok := strings.CutSuffix(input.Word, "-susia"); ok {
+				trimmedWord = before
 				aPosition = 1
 			}
 
 			if strict {
 				for _, pairWordSet := range multiword_words[trimmedWord] {
-					for _, pairWord := range pairWordSet {
-						if pairWord == "si" {
-							found = true
-							break
-						}
+					if slices.Contains(pairWordSet, "si") {
+						found = true
 					}
 					if found {
 						break
@@ -614,11 +607,8 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 				}
 			} else {
 				for _, pairWordSet := range multiword_words_loose[trimmedWord] {
-					for _, pairWord := range pairWordSet {
-						if pairWord == "si" {
-							found = true
-							break
-						}
+					if slices.Contains(pairWordSet, "si") {
+						found = true
 					}
 					if found {
 						break
@@ -631,11 +621,8 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 
 				if strict {
 					for _, pairWordSet := range multiword_words[noA] {
-						for _, pairWord := range pairWordSet {
-							if pairWord == "si" {
-								found = true
-								break
-							}
+						if slices.Contains(pairWordSet, "si") {
+							found = true
 						}
 						if found {
 							aPosition = -1
@@ -644,11 +631,8 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 					}
 				} else {
 					for _, pairWordSet := range multiword_words_loose[noA] {
-						for _, pairWord := range pairWordSet {
-							if pairWord == "si" {
-								found = true
-								break
-							}
+						if slices.Contains(pairWordSet, "si") {
+							found = true
 						}
 						if found {
 							aPosition = -1
@@ -748,10 +732,8 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 		if input.InsistPOS == "any" || input.InsistPOS == "n." {
 			for _, element := range prefixes1Nouns {
 				// If it has a prefix
-				if strings.HasPrefix(input.Word, element) {
+				if newString, ok := strings.CutPrefix(input.Word, element); ok {
 					// remove it
-					newString = strings.TrimPrefix(input.Word, element)
-
 					newCandidate := candidateDupe(input)
 					newCandidate.Word = newString
 					newCandidate.InsistPOS = "n."
@@ -870,10 +852,8 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 	case 3:
 		if input.InsistPOS == "any" || input.InsistPOS == "n." {
 			// If it has a prefix
-			if strings.HasPrefix(input.Word, "fra") {
+			if newString, ok := strings.CutPrefix(input.Word, "fra"); ok {
 				// remove it
-				newString = strings.TrimPrefix(input.Word, "fra")
-
 				newCandidate := candidateDupe(input)
 				newCandidate.Word = newString
 				newCandidate.InsistPOS = "n."
@@ -964,11 +944,11 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 		}
 		fallthrough
 	case 6:
-		if strings.HasPrefix(input.Word, "tì") {
+		if after, ok := strings.CutPrefix(input.Word, "tì"); ok {
 			if input.InsistPOS == "any" || input.InsistPOS == "n." {
 				// remove it
 				newCandidate := candidateDupe(input)
-				newCandidate.Word = strings.TrimPrefix(input.Word, "tì")
+				newCandidate.Word = after
 				newCandidate.InsistPOS = "v."
 				newCandidate.Prefixes, added = isDuplicateFix(newCandidate.Prefixes, "tì", strict, allowReef)
 				if added {
@@ -1021,8 +1001,8 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 					deconjugateHelper(newCandidate, newPrefixCheck, 10, unlenite, []string{}, "", "y", strict, allowReef)
 
 					// ngey to nga
-					if strings.HasSuffix(newCandidate.Word, "e") {
-						newCandidate.Word = strings.TrimSuffix(newCandidate.Word, "e") + "a"
+					if before, ok := strings.CutSuffix(newCandidate.Word, "e"); ok {
+						newCandidate.Word = before + "a"
 						newCandidate.InsistPOS = "pn."
 						deconjugateHelper(newCandidate, newPrefixCheck, 10, unlenite, []string{}, "", "y", strict, allowReef)
 					}
@@ -1034,8 +1014,8 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 		if input.InsistPOS == "any" || input.InsistPOS == "n." {
 			for _, oldSuffix := range adposuffixes {
 				// If it has one of them,
-				if strings.HasSuffix(input.Word, oldSuffix) {
-					newString = strings.TrimSuffix(input.Word, oldSuffix)
+				if before, ok := strings.CutSuffix(input.Word, oldSuffix); ok {
+					newString = before
 
 					// Make sure you're using a valid case ending
 					if !verifyCaseEnding(newString, oldSuffix) {
@@ -1112,8 +1092,8 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 		fallthrough
 	case 2:
 		if input.InsistPOS == "any" || input.InsistPOS == "n." {
-			if strings.HasSuffix(input.Word, "pe") {
-				newString = strings.TrimSuffix(input.Word, "pe")
+			if before, ok := strings.CutSuffix(input.Word, "pe"); ok {
+				newString = before
 
 				newCandidate := candidateDupe(input)
 				newCandidate.Word = newString
@@ -1145,8 +1125,8 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 		fallthrough
 	case 4: // -o suffix "some"
 		if input.InsistPOS == "any" || input.InsistPOS == "n." {
-			if strings.HasSuffix(input.Word, "o") {
-				newString = strings.TrimSuffix(input.Word, "o")
+			if before, ok := strings.CutSuffix(input.Word, "o"); ok {
+				newString = before
 
 				newCandidate := candidateDupe(input)
 				newCandidate.Word = newString
@@ -1174,8 +1154,8 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 		if input.InsistPOS == "any" || input.InsistPOS == "n." {
 			for _, oldSuffix := range stemSuffixes {
 				// If it has one of them,
-				if strings.HasSuffix(input.Word, oldSuffix) {
-					newString = strings.TrimSuffix(input.Word, oldSuffix)
+				if before, ok := strings.CutSuffix(input.Word, oldSuffix); ok {
+					newString = before
 
 					//candidates = append(candidates, newString)
 					newCandidate := candidateDupe(input)
@@ -1196,8 +1176,8 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 			// verb suffixes change things from verbs to nouns, that's why we check for noun status
 			for _, oldSuffix := range verbSuffixes {
 				// If it has one of them,
-				if strings.HasSuffix(input.Word, oldSuffix) {
-					newString = strings.TrimSuffix(input.Word, oldSuffix)
+				if before, ok := strings.CutSuffix(input.Word, oldSuffix); ok {
+					newString = before
 					newCandidate := candidateDupe(input)
 					newCandidate.Word = newString
 					newCandidate.InsistPOS = "v."
@@ -1272,11 +1252,11 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 	if unlenite != -1 {
 		for _, oldPrefix := range unlenitionLetters {
 			// If it has a letter that could have changed for lenition,
-			if strings.HasPrefix(input.Word, oldPrefix) {
+			if after, ok := strings.CutPrefix(input.Word, oldPrefix); ok {
 				// put all possibilities in the candidates
 				for _, newPrefix := range unlenition[oldPrefix] {
 					newCandidate := candidateDupe(input)
-					newString = newPrefix + strings.TrimPrefix(input.Word, oldPrefix)
+					newString = newPrefix + after
 					newCandidate.Word = newString
 					if oldPrefix != newPrefix {
 						newCandidate.Lenition = []string{newPrefix + "→" + oldPrefix}
@@ -1418,11 +1398,8 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 			}
 			if !skip {
 				for _, a := range candidate.Infixes {
-					for _, b := range affixes[1] {
-						if a == b {
-							skip = true
-							break
-						}
+					if slices.Contains(affixes[1], a) {
+						skip = true
 					}
 					if skip {
 						break
@@ -1431,11 +1408,8 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 			}
 			if !skip {
 				for _, a := range candidate.Suffixes {
-					for _, b := range affixes[2] {
-						if a == b {
-							skip = true
-							break
-						}
+					if slices.Contains(affixes[2], a) {
+						skip = true
 					}
 					if skip {
 						break
@@ -1469,7 +1443,7 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 		}
 
 		for _, c := range (*dict)[a] {
-			for _, pos := range strings.Split(c.PartOfSpeech, ",") {
+			for pos := range strings.SplitSeq(c.PartOfSpeech, ",") {
 				pos = strings.ReplaceAll(pos, " ", "")
 
 				// An inter. can act like a noun or an adjective, so it gets special treatment
@@ -1502,8 +1476,8 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 				// Find gerunds (tì-v<us>erb, the act of [verb]ing)
 				if len(candidate.Infixes) == 1 && candidate.Infixes[0] == "us" {
 					// Reverse search is more likely to find it immediately
-					for i := len(candidate.Prefixes) - 1; i >= 0; i-- {
-						if candidate.Prefixes[i] == "tì" {
+					for _, v := range slices.Backward(candidate.Prefixes) {
+						if v == "tì" {
 							gerund = true
 							break
 						}
@@ -1513,8 +1487,8 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 					}
 				} else if len(candidate.Infixes) > 0 {
 					// Now reverse search is just gratuitous
-					for i := len(candidate.Infixes) - 1; i >= 0; i-- {
-						if candidate.Infixes[i] == "us" || candidate.Infixes[i] == "awn" {
+					for _, v := range slices.Backward(candidate.Infixes) {
+						if v == "us" || v == "awn" {
 							participle = true
 							break
 						}
@@ -1630,19 +1604,16 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 					if strings.HasPrefix(posNoun, "v") {
 						// Verbs with -tswo or -yu cannot have infixes
 						if len(candidate.Suffixes) > 0 {
-							for i := len(candidate.Suffixes) - 1; i >= 0; i-- {
-								if candidate.Suffixes[i] == "a" {
+							for _, v := range slices.Backward(candidate.Suffixes) {
+								if v == "a" {
 									attributed = true
 									break
 								}
 							}
-							// Forward search fixs the "a" before "yu" and "tswo"
-							for i := len(candidate.Suffixes) - 1; i >= 0; i-- {
-								for _, j := range verbSuffixes {
-									if candidate.Suffixes[i] == j {
-										infixBan = true
-										break
-									}
+							// Forward search fixes the "a" before "yu" and "tswo"
+							for _, v := range slices.Backward(candidate.Suffixes) {
+								if slices.Contains(verbSuffixes, v) {
+									infixBan = true
 								}
 
 								if infixBan {
@@ -1656,16 +1627,16 @@ func TestDeconjugations(dict *map[string][]Word, searchNaviWord string, strict b
 
 						if len(candidate.Prefixes) > 0 {
 							// Reverse search is more likely to find it immediately
-							for i := len(candidate.Prefixes) - 1; i >= 0; i-- {
-								if candidate.Prefixes[i] == "a" {
+							for _, v := range slices.Backward(candidate.Prefixes) {
+								if v == "a" {
 									attributed = true
-								} else if candidate.Prefixes[i] == "tì" {
+								} else if v == "tì" {
 									// we found gerunds up top, so this isn't needed
 									looseTì = true
 									break
 								} else {
 									for _, j := range verbPrefixes {
-										if candidate.Prefixes[i] == j {
+										if v == j {
 											if infixBan {
 												doubleBan = true
 												break
