@@ -407,11 +407,11 @@ func (w *Word) doUnderline(input string, markdown bool) (string, error) {
 
 	// get it from the IPA
 	stressed := []bool{}
-	for _, a := range strings.Split(w.IPA, " ") {
+	for a := range strings.SplitSeq(w.IPA, " ") {
 		if a == "or" {
 			break
 		}
-		for _, b := range strings.Split(a, ".") {
+		for b := range strings.SplitSeq(a, ".") {
 			if strings.Contains(b, "ˈ") {
 				stressed = append(stressed, true)
 			} else {
@@ -423,8 +423,8 @@ func (w *Word) doUnderline(input string, markdown bool) (string, error) {
 	// apply it from the IPA
 	i := 0
 	underlined := ""
-	for _, a := range strings.Split(syllables, " ") {
-		for _, b := range strings.Split(a, "-") {
+	for a := range strings.SplitSeq(syllables, " ") {
+		for b := range strings.SplitSeq(a, "-") {
 			if i >= len(stressed) {
 				break
 			}
