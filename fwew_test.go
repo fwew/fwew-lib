@@ -1123,6 +1123,51 @@ var unstrictNaviWords = []struct {
 			},
 		},
 	}, // See if it can search words without diacritics
+	{
+		name: "pey",
+		args: args{
+			searchNaviText: "pey",
+		},
+		want: []Word{
+			{
+				ID:   "1548",
+				Navi: "po",
+				Affixes: affix{
+					Suffix: []string{"y"},
+				},
+			},
+		},
+	}, // Pronouns with -o to -ey
+	{
+		name: "sney",
+		args: args{
+			searchNaviText: "sney",
+		},
+		want: []Word{
+			{
+				ID:   "6968",
+				Navi: "sno",
+				Affixes: affix{
+					Suffix: []string{"y"},
+				},
+			},
+		},
+	}, // Pronouns with -o to -ey
+	{
+		name: "fkey",
+		args: args{
+			searchNaviText: "fkey",
+		},
+		want: []Word{
+			{
+				ID:   "380",
+				Navi: "fko",
+				Affixes: affix{
+					Suffix: []string{"y"},
+				},
+			},
+		},
+	}, // Pronouns with -o to -ey
 }
 var englishWords = []struct {
 	name string
