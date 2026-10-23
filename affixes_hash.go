@@ -1005,9 +1005,7 @@ func deconjugateHelper(input ConjugationCandidate, prefixCheck int, suffixCheck 
 						newCandidate.Word = before + "a"
 						newCandidate.InsistPOS = "pn."
 						deconjugateHelper(newCandidate, newPrefixCheck, 10, unlenite, []string{}, "", "y", strict, allowReef)
-					}
-					// pey to po
-					if before, ok := strings.CutSuffix(newCandidate.Word, "e"); ok {
+
 						newCandidate.Word = before + "o"
 						newCandidate.InsistPOS = "pn."
 						deconjugateHelper(newCandidate, newPrefixCheck, 10, unlenite, []string{}, "", "y", strict, allowReef)

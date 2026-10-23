@@ -1130,10 +1130,21 @@ var unstrictNaviWords = []struct {
 		},
 		want: []Word{
 			{
+				ID:   "1532",
+				Navi: "pey",
+			},
+			{
 				ID:   "1548",
 				Navi: "po",
 				Affixes: affix{
 					Suffix: []string{"y"},
+				},
+			},
+			{
+				ID:   "1604",
+				Navi: "pxey",
+				Affixes: affix{
+					Lenition: []string{"px→p"},
 				},
 			},
 		},
