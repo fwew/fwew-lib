@@ -42,7 +42,7 @@ func wordSimpleEqual(w1a, w2a []Word) bool {
 		return false
 	}
 
-	for j := 0; j < w1l; j++ {
+	for j := range w1l {
 		w1 := w1a[j]
 		w2 := w2a[j]
 
@@ -1123,6 +1123,62 @@ var unstrictNaviWords = []struct {
 			},
 		},
 	}, // See if it can search words without diacritics
+	{
+		name: "pey",
+		args: args{
+			searchNaviText: "pey",
+		},
+		want: []Word{
+			{
+				ID:   "1532",
+				Navi: "pey",
+			},
+			{
+				ID:   "1548",
+				Navi: "po",
+				Affixes: affix{
+					Suffix: []string{"y"},
+				},
+			},
+			{
+				ID:   "1604",
+				Navi: "pxey",
+				Affixes: affix{
+					Lenition: []string{"px→p"},
+				},
+			},
+		},
+	}, // Pronouns with -o to -ey
+	{
+		name: "sney",
+		args: args{
+			searchNaviText: "sney",
+		},
+		want: []Word{
+			{
+				ID:   "6968",
+				Navi: "sno",
+				Affixes: affix{
+					Suffix: []string{"y"},
+				},
+			},
+		},
+	}, // Pronouns with -o to -ey
+	{
+		name: "fkey",
+		args: args{
+			searchNaviText: "fkey",
+		},
+		want: []Word{
+			{
+				ID:   "380",
+				Navi: "fko",
+				Affixes: affix{
+					Suffix: []string{"y"},
+				},
+			},
+		},
+	}, // Pronouns with -o to -ey
 }
 var englishWords = []struct {
 	name string

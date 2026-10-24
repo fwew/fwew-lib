@@ -23,6 +23,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"slices"
 	"strings"
 	"unicode"
 )
@@ -33,10 +34,8 @@ func Contains(s []string, q []string) bool {
 		return false
 	}
 	for _, x := range q {
-		for _, y := range s {
-			if y == x {
-				return true
-			}
+		if slices.Contains(s, x) {
+			return true
 		}
 	}
 	return false
@@ -47,12 +46,7 @@ func ContainsStr(s []string, q string) bool {
 	if len(q) == 0 || len(s) == 0 {
 		return false
 	}
-	for _, x := range s {
-		if q == x {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(s, q)
 }
 
 // ContainsStrArr returns true if anything in q is in s
@@ -227,8 +221,11 @@ func Glob(pattern, subj string) bool {
 	end := len(parts) - 1
 
 	// Go over the leading parts and ensure they match.
-	for i := 0; i < end; i++ {
-		idx := strings.Index(subj, parts[i])
+	for i, part := range parts {
+		if i == end {
+			break
+		}
+		idx := strings.Index(subj, part)
 
 		switch i {
 		case 0:
@@ -244,7 +241,7 @@ func Glob(pattern, subj string) bool {
 		}
 
 		// Trim evaluated text from subj as we loop over the pattern.
-		subj = subj[idx+len(parts[i]):]
+		subj = subj[idx+len(part):]
 	}
 
 	// Reached the last section. Requires special handling.
@@ -283,10 +280,10 @@ func compress(syllables string) string {
 	ct["ew"] = "4"
 	ct["ey"] = "5"
 	for key := range ct {
-		syll = strings.Replace(syll, key, ct[key], -1)
+		syll = strings.ReplaceAll(syll, key, ct[key])
 	}
 
-	return strings.Replace(syll, "-", "", -1)
+	return strings.ReplaceAll(syll, "-", "")
 }
 
 func decompress(syllables string) string {
@@ -305,7 +302,7 @@ func decompress(syllables string) string {
 	ct["4"] = "ew"
 	ct["5"] = "ey"
 	for key := range ct {
-		syll = strings.Replace(syll, key, ct[key], -1)
+		syll = strings.ReplaceAll(syll, key, ct[key])
 	}
 
 	return syll

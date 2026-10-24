@@ -1,6 +1,7 @@
 package fwew_lib
 
 import (
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -201,12 +202,9 @@ func IsValidNaviHelper(word string, lang string) string {
 	word_nuclei := []rune{}
 	for _, a := range []rune(compressed) {
 		found := false
-		for _, b := range nuclei {
-			if a == b {
-				found = true
-				word_nuclei = append(word_nuclei, a)
-				break
-			}
+		if slices.Contains(nuclei, a) {
+			found = true
+			word_nuclei = append(word_nuclei, a)
 		}
 		if !found {
 			syllable_boundaries = syllable_boundaries + string(a)
